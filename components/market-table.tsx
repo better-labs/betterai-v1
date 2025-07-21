@@ -251,6 +251,7 @@ export function MarketTable() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handlePredict(market)}
                       className="text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white"
                     >
                       Free
@@ -322,6 +323,7 @@ export function MarketTable() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handlePredict(market)}
                       className="flex-1 text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white"
                     >
                       Free
