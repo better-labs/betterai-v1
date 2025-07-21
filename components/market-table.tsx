@@ -1,15 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ChevronDown, ChevronRight, Brain, Zap, Database, TrendingUp, DollarSign, Users } from "lucide-react"
+import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users } from "lucide-react"
 import { PredictionModal } from "@/components/prediction-modal"
+import { AdvancedPredictionPanel } from "@/components/advanced-prediction-panel"
 
 interface Market {
   id: string
@@ -23,6 +19,7 @@ interface Market {
   }>
   endDate: string
   category: string
+  marketURL: string
 }
 
 interface PredictionResult {
@@ -35,7 +32,7 @@ interface PredictionResult {
 
 export function MarketTable() {
   const [markets, setMarkets] = useState<Market[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loadingMarketData, setLoadingMarketData] = useState(true)
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [predictions, setPredictions] = useState<Record<string, PredictionResult>>({})
   const [loadingPredictions, setLoadingPredictions] = useState<Set<string>>(new Set())
@@ -55,7 +52,10 @@ export function MarketTable() {
     try {
       const response = await fetch("/api/markets/trending")
       const data = await response.json()
-      const marketData = data.markets || mockMarkets
+      if (!data.markets || data.markets.length === 0) {
+        throw new Error("data markets payload empty")
+      }
+      const marketData = data.markets
       setMarkets(marketData)
 
       // Initialize default selections for each market
@@ -73,7 +73,7 @@ export function MarketTable() {
       console.error("Failed to fetch markets:", error)
       setMarkets(mockMarkets)
     } finally {
-      setLoading(false)
+      setLoadingMarketData(false)
     }
   }
 
@@ -87,18 +87,7 @@ export function MarketTable() {
     setExpandedRows(newExpanded)
   }
 
-  const aiModels = [
-    { id: "gpt-4o", name: "GPT-4o", cost: 5, quality: "Premium", description: "Latest OpenAI model" },
-    { id: "claude-3", name: "Claude 3", cost: 4, quality: "Premium", description: "Anthropic's advanced model" },
-    { id: "gpt-3.5", name: "GPT-3.5", cost: 0, quality: "Free", description: "Free tier model" },
-  ]
 
-  const dataSources = [
-    { id: "news", name: "News Articles", description: "Latest financial and crypto news" },
-    { id: "twitter", name: "Twitter/X", description: "Social sentiment analysis" },
-    { id: "onchain", name: "On-chain Data", description: "Blockchain metrics and analytics" },
-    { id: "technical", name: "Technical Analysis", description: "Price charts and indicators" },
-  ]
 
   const handleDataSourceChange = (marketId: string, sourceId: string, checked: boolean) => {
     const currentSources = selectedDataSources[marketId] || []
@@ -117,12 +106,7 @@ export function MarketTable() {
 
   const handlePredict = async (market: Market) => {
     const selectedModel = selectedModels[market.id]
-    const selectedModelData = aiModels.find((m) => m.id === selectedModel)
-
-    if (selectedModelData && selectedModelData.cost > credits) {
-      alert("Insufficient credits. Please top up your account.")
-      return
-    }
+    // Note: Credit validation is now handled in the AdvancedPredictionPanel component
 
     // Open modal and start thinking state
     setModalOpen({ ...modalOpen, [market.id]: true })
@@ -178,11 +162,6 @@ export function MarketTable() {
                   ...prev,
                   [market.id]: data.prediction,
                 }))
-
-                // Deduct credits
-                if (selectedModelData && selectedModelData.cost > 0) {
-                  setCredits((prev) => prev - selectedModelData.cost)
-                }
               }
             } catch (e) {
               console.error("Error parsing SSE data:", e)
@@ -204,7 +183,7 @@ export function MarketTable() {
     setThinkingStates({ ...thinkingStates, [marketId]: { isThinking: false, message: "", progress: 0 } })
   }
 
-  if (loading) {
+  if (loadingMarketData) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-6">
@@ -246,9 +225,9 @@ export function MarketTable() {
         <div className="hidden md:grid md:grid-cols-12 gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-700">
           <div className="col-span-5">Market</div>
           <div className="col-span-1">Category</div>
-          <div className="col-span-2">Volume/Liquidity</div>
-          <div className="col-span-3">Current Odds</div>
-          <div className="col-span-1">Action</div>
+          <div className="col-span-2">Volume</div>
+          <div className="col-span-2">Current Odds</div>
+          <div className="col-span-2 font-bold">Predict</div>
         </div>
 
         {/* Table Rows */}
@@ -265,22 +244,31 @@ export function MarketTable() {
                       <Badge variant="outline" className="text-xs">
                         {market.category}
                       </Badge>
-                      <span>${(market.volume / 1000).toFixed(0)}K vol</span>
+                      <span>${(market.volume / 1000).toFixed(0)}K</span>
                     </div>
                   </div>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => toggleRow(market.id)}
-                    className="ml-2 bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
-                  >
-                    <span className="mr-1">Predict</span>
-                    {expandedRows.has(market.id) ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
+                  <div className="flex flex-col space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white"
+                    >
+                      Free
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => toggleRow(market.id)}
+                      className="bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
+                    >
+                      <span className="mr-1">Advanced</span>
+                      {expandedRows.has(market.id) ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-4 text-sm">
@@ -310,17 +298,13 @@ export function MarketTable() {
                 </div>
 
                 <div className="col-span-2 text-sm">
-                  <div className="flex items-center space-x-1 mb-1">
-                    <DollarSign className="h-3 w-3 text-gray-400" />
-                    <span>${(market.volume / 1000).toFixed(0)}K vol</span>
-                  </div>
                   <div className="flex items-center space-x-1">
-                    <Users className="h-3 w-3 text-gray-400" />
-                    <span className="text-gray-600">${(market.liquidity / 1000).toFixed(0)}K liq</span>
+                    <DollarSign className="h-3 w-3 text-gray-400" />
+                    <span>${(market.volume / 1000).toFixed(0)}K</span>
                   </div>
                 </div>
 
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <div className="flex space-x-2">
                     {market.outcomes.slice(0, 2).map((outcome, idx) => (
                       <div key={idx} className="flex items-center space-x-1">
@@ -333,170 +317,45 @@ export function MarketTable() {
                   </div>
                 </div>
 
-                <div className="col-span-1">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => toggleRow(market.id)}
-                    className="w-full bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
-                  >
-                    <span className="mr-1">Predict</span>
-                    {expandedRows.has(market.id) ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
+                <div className="col-span-2">
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white"
+                    >
+                      Free
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => toggleRow(market.id)}
+                      className="flex-1 bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
+                    >
+                      <span className="mr-1">Advanced</span>
+                      {expandedRows.has(market.id) ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Expanded Panel */}
             {expandedRows.has(market.id) && (
-              <div className="border-t bg-gray-50/50 p-6">
-                <div className="max-w-4xl">
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-black mb-2">Market Description</h4>
-                    <p className="text-gray-700 text-sm leading-relaxed">{market.description}</p>
-                  </div>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <Brain className="h-5 w-5 text-[#4B9CD3]" />
-                        <span>BetterAI Prediction Coach</span>
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="space-y-6">
-                      <div>
-                        <h3 className="font-semibold mb-3 text-black">Choose AI Model</h3>
-                        <RadioGroup
-                          value={selectedModels[market.id]}
-                          onValueChange={(value) => setSelectedModels({ ...selectedModels, [market.id]: value })}
-                        >
-                          {aiModels.map((model) => (
-                            <div key={model.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                              <RadioGroupItem value={model.id} id={`${market.id}-${model.id}`} />
-                              <Label htmlFor={`${market.id}-${model.id}`} className="flex-1 cursor-pointer">
-                                <div className="flex justify-between items-center">
-                                  <div>
-                                    <div className="font-medium">{model.name}</div>
-                                    <div className="text-sm text-gray-500">{model.description}</div>
-                                  </div>
-                                  <div className="text-right">
-                                    <Badge variant={model.cost === 0 ? "secondary" : "default"}>
-                                      {model.cost === 0 ? "Free" : `${model.cost} credits`}
-                                    </Badge>
-                                    <div className="text-xs text-gray-500 mt-1">{model.quality}</div>
-                                  </div>
-                                </div>
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </div>
-
-                      <Separator />
-
-                      <div>
-                        <h3 className="font-semibold mb-3 text-black">Enrich with Data Sources</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {dataSources.map((source) => (
-                            <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                              <Checkbox
-                                id={`${market.id}-${source.id}`}
-                                checked={(selectedDataSources[market.id] || []).includes(source.id)}
-                                onCheckedChange={(checked) =>
-                                  handleDataSourceChange(market.id, source.id, checked as boolean)
-                                }
-                              />
-                              <Label htmlFor={`${market.id}-${source.id}`} className="flex-1 cursor-pointer">
-                                <div className="font-medium">{source.name}</div>
-                                <div className="text-sm text-gray-500">{source.description}</div>
-                              </Label>
-                              <Database className="h-4 w-4 text-[#4B9CD3]" />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={() => handlePredict(market)}
-                        disabled={loadingPredictions.has(market.id)}
-                        className="w-full bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
-                      >
-                        {loadingPredictions.has(market.id) ? (
-                          <>
-                            <Zap className="h-4 w-4 mr-2 animate-spin" />
-                            Generating Prediction...
-                          </>
-                        ) : (
-                          <>
-                            <Brain className="h-4 w-4 mr-2" />
-                            Get AI Prediction
-                          </>
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Prediction Results */}
-                  {predictions[market.id] && (
-                    <Card className="border-[#4B9CD3] mt-6">
-                      <CardHeader>
-                        <CardTitle className="flex items-center space-x-2 text-[#4B9CD3]">
-                          <Brain className="h-5 w-5" />
-                          <span>AI Prediction Result</span>
-                        </CardTitle>
-                      </CardHeader>
-
-                      <CardContent className="space-y-4">
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-[#4B9CD3]">
-                              {predictions[market.id].confidence}%
-                            </div>
-                            <div className="text-sm text-gray-500">Confidence</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-semibold text-black">
-                              {predictions[market.id].recommendedOutcome}
-                            </div>
-                            <div className="text-sm text-gray-500">Recommended</div>
-                          </div>
-                          <div className="text-center">
-                            <Badge
-                              variant={
-                                predictions[market.id].riskLevel === "Low"
-                                  ? "secondary"
-                                  : predictions[market.id].riskLevel === "Medium"
-                                    ? "default"
-                                    : "destructive"
-                              }
-                            >
-                              {predictions[market.id].riskLevel} Risk
-                            </Badge>
-                            <div className="text-sm text-gray-500 mt-1">Risk Level</div>
-                          </div>
-                        </div>
-
-                        <Separator />
-
-                        <div>
-                          <h4 className="font-semibold mb-2 text-black">Analysis</h4>
-                          <p className="text-gray-700 leading-relaxed">{predictions[market.id].prediction}</p>
-                        </div>
-
-                        <div>
-                          <h4 className="font-semibold mb-2 text-black">Reasoning</h4>
-                          <p className="text-gray-700 leading-relaxed">{predictions[market.id].reasoning}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </div>
+              <AdvancedPredictionPanel
+                market={market}
+                selectedModel={selectedModels[market.id]}
+                onModelChange={(modelId) => setSelectedModels({ ...selectedModels, [market.id]: modelId })}
+                selectedDataSources={selectedDataSources[market.id] || []}
+                onDataSourceChange={(sourceId, checked) => handleDataSourceChange(market.id, sourceId, checked)}
+                onPredict={() => handlePredict(market)}
+                isLoading={loadingPredictions.has(market.id)}
+                prediction={predictions[market.id] || null}
+              />
             )}
           </div>
         ))}
@@ -522,7 +381,7 @@ export function MarketTable() {
 const mockMarkets: Market[] = [
   {
     id: "1",
-    question: "Will Bitcoin reach $100,000 by end of 2024?",
+    question: "(Mock Data) Will Bitcoin reach $100,000 by end of 2024?",
     description:
       'This market resolves to "Yes" if Bitcoin (BTC) reaches or exceeds $100,000 USD at any point before January 1, 2025, 00:00 UTC.',
     volume: 125000,
@@ -533,10 +392,11 @@ const mockMarkets: Market[] = [
     ],
     endDate: "2024-12-31",
     category: "Crypto",
+    marketURL: "www.somemarket.com/1234",
   },
   {
     id: "2",
-    question: "Will the Lakers make the NBA playoffs?",
+    question: "(Mock Data) Will the Lakers make the NBA playoffs?",
     description: "This market resolves based on whether the Los Angeles Lakers qualify for the 2024 NBA playoffs.",
     volume: 89000,
     liquidity: 32000,
@@ -546,10 +406,11 @@ const mockMarkets: Market[] = [
     ],
     endDate: "2024-04-15",
     category: "Sports",
+    marketURL: "www.somemarket.com/1234",
   },
   {
     id: "3",
-    question: "Will AI achieve AGI by 2025?",
+    question: "(Mock Data) Will AI achieve AGI by 2025?",
     description:
       "This market resolves to 'Yes' if a consensus of AI researchers agrees that Artificial General Intelligence has been achieved by December 31, 2025.",
     volume: 156000,
@@ -560,10 +421,11 @@ const mockMarkets: Market[] = [
     ],
     endDate: "2025-12-31",
     category: "Technology",
+    marketURL: "www.somemarket.com/1234",
   },
   {
     id: "4",
-    question: "Will Tesla stock hit $300 this year?",
+    question: "(Mock Data) Will Tesla stock hit $300 this year?",
     description:
       "This market resolves to 'Yes' if Tesla (TSLA) stock price reaches or exceeds $300 per share at any point during 2024.",
     volume: 98000,
@@ -574,10 +436,11 @@ const mockMarkets: Market[] = [
     ],
     endDate: "2024-12-31",
     category: "Stocks",
+    marketURL: "www.somemarket.com/1234",
   },
   {
     id: "5",
-    question: "Will there be a recession in 2024?",
+    question: "(Mock Data) Will there be a recession in 2024?",
     description:
       "This market resolves to 'Yes' if the US economy enters a recession (defined as two consecutive quarters of negative GDP growth) during 2024.",
     volume: 234000,
@@ -588,10 +451,11 @@ const mockMarkets: Market[] = [
     ],
     endDate: "2024-12-31",
     category: "Economics",
+    marketURL: "www.somemarket.com/1234",
   },
   {
     id: "6",
-    question: "Will SpaceX land on Mars by 2026?",
+    question: "(Mock Data) Will SpaceX land on Mars by 2026?",
     description:
       "This market resolves to 'Yes' if SpaceX successfully lands a spacecraft on Mars by December 31, 2026.",
     volume: 167000,
@@ -602,5 +466,6 @@ const mockMarkets: Market[] = [
     ],
     endDate: "2026-12-31",
     category: "Space",
+    marketURL: "www.somemarket.com/1234",
   },
 ]

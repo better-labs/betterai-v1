@@ -1,28 +1,22 @@
 # Market prediction app
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
-
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/wes-floyds-projects/v0-better-ai)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/loL3MMncDpB)
-
 ## Overview
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+Purpose: enable the user to invoke multiple LLMs with enriched datasets to predict the outcome of a given market (like Polymarket or Kalshi). The AI is a “coach” for the user betting on each outcome.
 
-## Deployment
+Thesis: everyone, regardless of their technical skill, should be able to invoke the world’s best super intelligences, enriched from the best data (context), from a single mouse click, to enhance a given bet.
+
+## Vercel Deployment
 
 Your project is live at:
 
 **[https://vercel.com/wes-floyds-projects/v0-better-ai](https://vercel.com/wes-floyds-projects/v0-better-ai)**
 
-## Build your app
-
-Continue building your app on:
+Build your app: Continue building your app on:
 
 **[https://v0.dev/chat/projects/loL3MMncDpB](https://v0.dev/chat/projects/loL3MMncDpB)**
 
-## How It Works
+How It Works
 
 1. Create and modify your project using [v0.dev](https://v0.dev)
 2. Deploy your chats from the v0 interface

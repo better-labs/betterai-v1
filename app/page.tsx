@@ -1,5 +1,6 @@
 import { MarketTable } from "@/components/market-table"
 import { Header } from "@/components/header"
+import { TrendingUp, Menu } from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -7,8 +8,11 @@ export default function HomePage() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-black mb-4">BetterAI</h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <h1 className="text-4xl font-bold text-black mb-4 flex items-center justify-center gap-2">
+              <TrendingUp className="text-[#4B9CD3]" />
+              BetterAI
+            </h1>
+          <p className="text-gray-600 text-lg  mx-auto">
             Leverage world-class AI models with enriched data to make smarter predictions on trending markets
           </p>
         </div>
