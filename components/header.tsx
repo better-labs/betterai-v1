@@ -20,10 +20,10 @@ export function Header() {
           </Link>
 
           <div className="flex items-center space-x-4">
-            {isLoggedIn ? (
+            
               <>
-                <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-gray-600">Remaining balance: $0.00</span>
+                <div className="flex items-center space-x-2 text-md">
+                  <span className="text-gray-600 font-bold">Remaining balance:</span> <span className="text-gray-600">$0.00</span>
                 </div>
                 <Button
                   variant="outline"
@@ -44,9 +44,6 @@ export function Header() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem>
-                      <span>Legal</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
                       <span>Activity</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
@@ -55,17 +52,13 @@ export function Header() {
                     <DropdownMenuItem>
                       <span>Contact Us</span>
                     </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/tos" className="text-gray-600">Terms of Service</Link>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
-            ) : (
-              <>
-                <span className="text-sm text-gray-600">Remaining balance: $0.00</span>
-                <Button variant="ghost" size="sm" onClick={() => setIsLoggedIn(true)}>
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </>
-            )}
+            
           </div>
         </div>
       </div>
