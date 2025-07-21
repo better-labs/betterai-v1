@@ -20,6 +20,7 @@ export async function GET() {
         ],
         endDate: "2024-12-31",
         category: "Crypto",
+        marketURL: "www.somemarket.com/1234",
       },
       {
         id: "2",
@@ -33,6 +34,7 @@ export async function GET() {
         ],
         endDate: "2024-04-15",
         category: "Sports",
+        marketURL: "www.somemarket.com/1234",
       },
       // ... more markets
     ]
