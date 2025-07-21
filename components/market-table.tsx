@@ -256,10 +256,10 @@ export function MarketTable() {
                       Free
                     </Button>
                     <Button
-                      variant="default"
+                      variant="outline"
                       size="sm"
                       onClick={() => toggleRow(market.id)}
-                      className="bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
+                      className="text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white relative overflow-hidden before:absolute before:inset-0 before:rounded-md before:bg-gradient-to-r before:from-red-500 before:via-yellow-500 before:via-green-500 before:via-blue-500 before:via-indigo-500 before:to-purple-500 before:p-[2px] before:-z-10 after:absolute after:inset-[2px] after:rounded-[calc(0.375rem-2px)] after:bg-white after:-z-10"
                     >
                       <span className="mr-1">Advanced</span>
                       {expandedRows.has(market.id) ? (
@@ -327,10 +327,10 @@ export function MarketTable() {
                       Free
                     </Button>
                     <Button
-                      variant="default"
+                      variant="outline"
                       size="sm"
                       onClick={() => toggleRow(market.id)}
-                      className="flex-1 bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
+                      className="flex-1 text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white relative overflow-hidden before:absolute before:inset-0 before:rounded-md before:bg-gradient-to-r before:from-red-500 before:via-yellow-500 before:via-green-500 before:via-blue-500 before:via-indigo-500 before:to-purple-500 before:p-[2px] before:-z-10 after:absolute after:inset-[2px] after:rounded-[calc(0.375rem-2px)] after:bg-white after:-z-10"
                     >
                       <span className="mr-1">Advanced</span>
                       {expandedRows.has(market.id) ? (
