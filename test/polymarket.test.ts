@@ -1,4 +1,4 @@
-import { getTopPolyMarkets } from '../lib/polymarket';
+import { getTopPolyMarkets, cacheUtils } from '../lib/polymarket';
 import { Market } from '../lib/types';
 
 // Mock the actual API structure we discovered
@@ -43,6 +43,8 @@ global.fetch = jest.fn();
 describe('Polymarket Data Processing', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Clear cache before each test
+    cacheUtils.clearCache();
   });
 
   test('should transform API response correctly', async () => {
@@ -53,7 +55,7 @@ describe('Polymarket Data Processing', () => {
       json: async () => mockRawApiResponse,
     } as any);
 
-    const markets = await getTopPolyMarkets();
+    const markets = await getTopPolyMarkets(7, false); // Disable cache for predictable testing
     
     expect(Array.isArray(markets)).toBe(true);
     expect(markets).toHaveLength(2);
@@ -116,7 +118,7 @@ describe('Polymarket Data Processing', () => {
       json: async () => malformedData,
     } as any);
 
-    const markets = await getTopPolyMarkets();
+    const markets = await getTopPolyMarkets(7, false); // Disable cache for predictable testing
     
     // Should only return the valid market
     expect(markets).toHaveLength(1);
@@ -130,12 +132,101 @@ describe('Polymarket Data Processing', () => {
       status: 500,
     } as any);
 
-    await expect(getTopPolyMarkets()).rejects.toThrow('HTTP error! status: 500');
+    await expect(getTopPolyMarkets(7, false)).rejects.toThrow('HTTP error! status: 500');
   });
 
   test('should handle network errors', async () => {
     (fetch as jest.MockedFunction<typeof fetch>).mockRejectedValue(new Error('Network error'));
 
-    await expect(getTopPolyMarkets()).rejects.toThrow('Network error');
+    await expect(getTopPolyMarkets(7, false)).rejects.toThrow('Network error');
+  });
+
+  // Caching tests
+  describe('Caching functionality', () => {
+    test('should cache API responses', async () => {
+      // Mock successful API response
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => mockRawApiResponse,
+      } as any);
+
+      // First call should hit API
+      const markets1 = await getTopPolyMarkets(7, true);
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(markets1).toHaveLength(2);
+
+      // Second call should use cache
+      const markets2 = await getTopPolyMarkets(7, true);
+      expect(fetch).toHaveBeenCalledTimes(1); // Should still be 1
+      expect(markets2).toHaveLength(2);
+      expect(markets2).toEqual(markets1);
+    });
+
+    test('should handle different cache keys for different limits', async () => {
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => mockRawApiResponse,
+      } as any);
+
+      // Different limits should create different cache entries
+      await getTopPolyMarkets(5, true);
+      await getTopPolyMarkets(10, true);
+      
+      expect(fetch).toHaveBeenCalledTimes(2);
+      
+      const stats = cacheUtils.getCacheStats();
+      expect(stats.size).toBe(2);
+      expect(stats.keys).toContain('polymarket_markets_5');
+      expect(stats.keys).toContain('polymarket_markets_10');
+    });
+
+    test('should allow cache bypass', async () => {
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => mockRawApiResponse,
+      } as any);
+
+      // First call with cache enabled
+      await getTopPolyMarkets(7, true);
+      expect(fetch).toHaveBeenCalledTimes(1);
+
+      // Second call with cache disabled should hit API again
+      await getTopPolyMarkets(7, false);
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    test('should provide cache utility functions', () => {
+      // Test cache stats for empty cache
+      let stats = cacheUtils.getCacheStats();
+      expect(stats.size).toBe(0);
+      expect(stats.keys).toEqual([]);
+
+      // Check if data is cached (should be false)
+      expect(cacheUtils.isCached(7)).toBe(false);
+
+      // Check expiry time (should be null)
+      expect(cacheUtils.getTimeUntilExpiry(7)).toBe(null);
+    });
+
+    test('should clear cache correctly', async () => {
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => mockRawApiResponse,
+      } as any);
+
+      // Add data to cache
+      await getTopPolyMarkets(7, true);
+      expect(cacheUtils.getCacheStats().size).toBe(1);
+      expect(cacheUtils.isCached(7)).toBe(true);
+
+      // Clear cache
+      cacheUtils.clearCache();
+      expect(cacheUtils.getCacheStats().size).toBe(0);
+      expect(cacheUtils.isCached(7)).toBe(false);
+    });
   });
 }); 
