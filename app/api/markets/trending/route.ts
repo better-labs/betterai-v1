@@ -13,7 +13,7 @@ export async function GET() {
         question: "Will Bitcoin reach $100,000 by end of 2024?",
         description: "Bitcoin price prediction market",
         volume: 125000,
-        liquidity: 45000,
+        
         outcomes: [
           { name: "Yes", price: 0.65 },
           { name: "No", price: 0.35 },
@@ -27,7 +27,7 @@ export async function GET() {
         question: "Will the Lakers make the NBA playoffs?",
         description: "NBA playoffs prediction",
         volume: 89000,
-        liquidity: 32000,
+        
         outcomes: [
           { name: "Yes", price: 0.72 },
           { name: "No", price: 0.28 },
@@ -38,6 +38,9 @@ export async function GET() {
       },
       // ... more markets
     ]
+
+
+
 
     return NextResponse.json({ markets: mockMarkets })
   } catch (error) {
