@@ -66,24 +66,24 @@ export function AdvancedPredictionPanel({
   prediction,
 }: AdvancedPredictionPanelProps) {
   return (
-    <div className="border-t bg-gray-50/50 p-6">
+    <div className="border-t bg-muted/50 p-6">
       <div className="max-w-4xl">
         <div className="mb-6">
-          <h4 className="font-semibold text-black mb-2">Market Description</h4>
-          <p className="text-gray-700 text-sm leading-relaxed">{market.description}</p>
+          <h4 className="font-semibold text-foreground mb-2">Market Description</h4>
+          <p className="text-foreground text-sm leading-relaxed">{market.description}</p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Brain className="h-5 w-5 text-[#4B9CD3]" />
+              <Brain className="h-5 w-5 text-primary" />
               <span>BetterAI Prediction Engine</span>
             </CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-6">
             <div>
-              <h3 className="font-semibold mb-3 text-black">Choose AI Model</h3>
+              <h3 className="font-semibold mb-3 text-foreground">Choose AI Model</h3>
               <RadioGroup value={selectedModel} onValueChange={onModelChange}>
                 {aiModels.map((model) => (
                   <div key={model.id} className="flex items-center space-x-3 p-3 border rounded-lg">
@@ -92,13 +92,13 @@ export function AdvancedPredictionPanel({
                       <div className="flex justify-between items-center">
                         <div>
                           <div className="font-medium">{model.name}</div>
-                          <div className="text-sm text-gray-500">{model.description}</div>
+                          <div className="text-sm text-muted-foreground">{model.description}</div>
                         </div>
                         <div className="text-right">
                           <Badge variant={model.cost === 0 ? "secondary" : "default"}>
                             {model.cost === 0 ? "Free" : `${model.cost} credits`}
                           </Badge>
-                          <div className="text-xs text-gray-500 mt-1">{model.quality}</div>
+                          <div className="text-xs text-muted-foreground mt-1">{model.quality}</div>
                         </div>
                       </div>
                     </Label>
@@ -110,7 +110,7 @@ export function AdvancedPredictionPanel({
             <Separator />
 
             <div>
-              <h3 className="font-semibold mb-3 text-black">Enrich with Data Sources</h3>
+              <h3 className="font-semibold mb-3 text-foreground">Enrich with Data Sources</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {dataSources.map((source) => (
                   <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg">
@@ -121,9 +121,9 @@ export function AdvancedPredictionPanel({
                     />
                     <Label htmlFor={`${market.id}-${source.id}`} className="flex-1 cursor-pointer">
                       <div className="font-medium">{source.name}</div>
-                      <div className="text-sm text-gray-500">{source.description}</div>
+                      <div className="text-sm text-muted-foreground">{source.description}</div>
                     </Label>
-                    <Database className="h-4 w-4 text-[#4B9CD3]" />
+                    <Database className="h-4 w-4 text-primary" />
                   </div>
                 ))}
               </div>
@@ -132,7 +132,7 @@ export function AdvancedPredictionPanel({
             <Button
               onClick={onPredict}
               disabled={isLoading}
-              className="w-full bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
+              className="w-full"
             >
               {isLoading ? (
                 <>
@@ -151,9 +151,9 @@ export function AdvancedPredictionPanel({
 
         {/* Prediction Results */}
         {prediction && (
-          <Card className="border-[#4B9CD3] mt-6">
+          <Card className="border-primary mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4B9CD3]">
+              <CardTitle className="flex items-center space-x-2 text-primary">
                 <Brain className="h-5 w-5" />
                 <span>AI Prediction Result</span>
               </CardTitle>
@@ -162,16 +162,16 @@ export function AdvancedPredictionPanel({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#4B9CD3]">
+                  <div className="text-2xl font-bold text-primary">
                     {prediction.confidence}%
                   </div>
-                  <div className="text-sm text-gray-500">Confidence</div>
+                  <div className="text-sm text-muted-foreground">Confidence</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-semibold text-black">
+                  <div className="text-lg font-semibold text-foreground">
                     {prediction.recommendedOutcome}
                   </div>
-                  <div className="text-sm text-gray-500">Recommended</div>
+                  <div className="text-sm text-muted-foreground">Recommended</div>
                 </div>
                 <div className="text-center">
                   <Badge
@@ -185,20 +185,20 @@ export function AdvancedPredictionPanel({
                   >
                     {prediction.riskLevel} Risk
                   </Badge>
-                  <div className="text-sm text-gray-500 mt-1">Risk Level</div>
+                  <div className="text-sm text-muted-foreground mt-1">Risk Level</div>
                 </div>
               </div>
 
               <Separator />
 
               <div>
-                <h4 className="font-semibold mb-2 text-black">Analysis</h4>
-                <p className="text-gray-700 leading-relaxed">{prediction.prediction}</p>
+                <h4 className="font-semibold mb-2 text-foreground">Analysis</h4>
+                <p className="text-foreground leading-relaxed">{prediction.prediction}</p>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2 text-black">Reasoning</h4>
-                <p className="text-gray-700 leading-relaxed">{prediction.reasoning}</p>
+                <h4 className="font-semibold mb-2 text-foreground">Reasoning</h4>
+                <p className="text-foreground leading-relaxed">{prediction.reasoning}</p>
               </div>
             </CardContent>
           </Card>

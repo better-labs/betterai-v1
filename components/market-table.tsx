@@ -213,8 +213,8 @@ export function MarketTable() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-black">Trending Markets</h2>
-        <Badge variant="secondary" className="bg-[#4B9CD3]/10 text-[#4B9CD3]">
+        <h2 className="text-2xl font-semibold text-foreground">Trending Markets</h2>
+        <Badge variant="secondary" className="bg-primary/10 text-primary">
           <TrendingUp className="h-3 w-3 mr-1" />
           Top 10
         </Badge>
@@ -222,7 +222,7 @@ export function MarketTable() {
 
       <div className="border rounded-lg overflow-hidden">
         {/* Table Header - Hidden on mobile */}
-        <div className="hidden md:grid md:grid-cols-12 gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-700">
+        <div className="hidden md:grid md:grid-cols-12 gap-4 p-4 bg-muted border-b font-medium text-sm text-muted-foreground">
           <div className="col-span-5">Market</div>
           <div className="col-span-1">Category</div>
           <div className="col-span-2">Volume</div>
@@ -234,13 +234,13 @@ export function MarketTable() {
         {markets.map((market, index) => (
           <div key={market.id} className="border-b last:border-b-0">
             {/* Main Row */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 hover:bg-gray-50 transition-colors">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 hover:bg-muted/50 transition-colors">
               {/* Mobile Layout */}
               <div className="md:hidden space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="font-medium text-black leading-tight">{market.question}</h3>
-                    <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                    <h3 className="font-medium text-foreground leading-tight">{market.question}</h3>
+                    <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                       <Badge variant="outline" className="text-xs">
                         {market.category}
                       </Badge>
@@ -252,7 +252,7 @@ export function MarketTable() {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePredict(market)}
-                      className="text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white"
+                      className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                     >
                       Free
                     </Button>
@@ -260,7 +260,6 @@ export function MarketTable() {
                       variant="default"
                       size="sm"
                       onClick={() => toggleRow(market.id)}
-                      className="bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
                     >
                       <span className="mr-1">Advanced</span>
                       {expandedRows.has(market.id) ? (
@@ -275,7 +274,7 @@ export function MarketTable() {
                   <div className="flex space-x-4 text-sm">
                     {market.outcomes.slice(0, 2).map((outcome, idx) => (
                       <div key={idx} className="flex items-center space-x-1">
-                        <span className="text-gray-600">{outcome.name}</span>
+                        <span className="text-muted-foreground">{outcome.name}</span>
                         <Badge variant="secondary" className="text-xs">
                           {(outcome.price * 100).toFixed(0)}¢
                         </Badge>
@@ -288,8 +287,8 @@ export function MarketTable() {
               {/* Desktop Layout */}
               <div className="hidden md:contents">
                 <div className="col-span-5">
-                  <h3 className="font-medium text-black leading-tight mb-1">{market.question}</h3>
-                  <div className="text-xs text-gray-500">{new Date(market.endDate).toLocaleDateString()}</div>
+                  <h3 className="font-medium text-foreground leading-tight mb-1">{market.question}</h3>
+                  <div className="text-xs text-muted-foreground">{new Date(market.endDate).toLocaleDateString()}</div>
                 </div>
 
                 <div className="col-span-1">
@@ -300,7 +299,7 @@ export function MarketTable() {
 
                 <div className="col-span-2 text-sm">
                   <div className="flex items-center space-x-1">
-                    <DollarSign className="h-3 w-3 text-gray-400" />
+                    <DollarSign className="h-3 w-3 text-muted-foreground" />
                     <span>${(market.volume / 1000).toFixed(0)}K</span>
                   </div>
                 </div>
@@ -309,7 +308,7 @@ export function MarketTable() {
                   <div className="flex space-x-2">
                     {market.outcomes.slice(0, 2).map((outcome, idx) => (
                       <div key={idx} className="flex items-center space-x-1">
-                        <span className="text-sm text-gray-700">{outcome.name}</span>
+                        <span className="text-sm text-foreground">{outcome.name}</span>
                         <Badge variant="secondary" className="text-xs">
                           {(outcome.price * 100).toFixed(0)}¢
                         </Badge>
@@ -324,7 +323,7 @@ export function MarketTable() {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePredict(market)}
-                      className="flex-1 text-[#4B9CD3] border-[#4B9CD3] hover:bg-[#4B9CD3] hover:text-white"
+                      className="flex-1 text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                     >
                       Free
                     </Button>
@@ -332,7 +331,7 @@ export function MarketTable() {
                       variant="default"
                       size="sm"
                       onClick={() => toggleRow(market.id)}
-                      className="flex-1 bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
+                      className="flex-1"
                     >
                       <span className="mr-1">Advanced</span>
                       {expandedRows.has(market.id) ? (

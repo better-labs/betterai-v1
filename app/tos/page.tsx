@@ -2,10 +2,10 @@ import React from "react";
 
 export default function TermsOfServicePage() {
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center py-12 px-4">
       <div className="max-w-2xl w-full">
-        <h1 className="text-3xl font-bold mb-6 text-center">Terms of Service (Draft)</h1>
-        <div className="prose prose-lg mx-auto text-gray-700">
+        <h1 className="text-3xl font-bold mb-6 text-center text-foreground">Terms of Service (Draft)</h1>
+        <div className="prose prose-lg mx-auto text-foreground dark:prose-invert">
           <p><strong>Last updated:</strong> [Date]</p>
           <p>
             Welcome to BetterAI! This is a draft of our Terms of Service. By using our website, you agree to the following terms. Please review them carefully.
