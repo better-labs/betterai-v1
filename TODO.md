@@ -1,7 +1,7 @@
 # TODO
 
 ## Data Sources
-- [ ] Add market data pull from Polymarket
+- [ ] Add market data pull from Polymarket , populate-polymarket-data
 - [ ] Add market data pull from Kalshi
 
 ## Authentication & Rate Limiting
@@ -16,7 +16,7 @@
 - [ ] Enable caching for free prediction
 
 ## Completed
-<!-- Move completed items here -->
+- [x] Add Dark mode
 
 ---
 

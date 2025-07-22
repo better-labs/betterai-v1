@@ -45,7 +45,7 @@ export function PredictionModal({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center space-x-2">
-              <Brain className="h-5 w-5 text-[#4B9CD3]" />
+              <Brain className="h-5 w-5 text-primary" />
               <span>BetterAI Prediction</span>
             </DialogTitle>
             <Button variant="ghost" size="sm" onClick={onClose}>
@@ -56,26 +56,26 @@ export function PredictionModal({
 
         <div className="space-y-4">
           {/* Market Info */}
-          <div className="p-4 bg-gray-50 rounded-lg">
+          <div className="p-4 bg-muted rounded-lg">
             <div className="flex items-center space-x-2 mb-2">
               <Badge variant="outline" className="text-xs">
                 {market.category}
               </Badge>
             </div>
-            <h3 className="font-medium text-black">{market.question}</h3>
+            <h3 className="font-medium text-foreground">{market.question}</h3>
           </div>
 
           {/* Thinking State */}
           {isThinking && (
             <div className="space-y-4 p-6 text-center">
               <div className="flex justify-center">
-                <Zap className="h-8 w-8 text-[#4B9CD3] animate-pulse" />
+                <Zap className="h-8 w-8 text-primary animate-pulse" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-black mb-2">AI is thinking...</h3>
-                <p className="text-gray-600 mb-4">{thinkingMessage}</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">AI is thinking...</h3>
+                <p className="text-muted-foreground mb-4">{thinkingMessage}</p>
                 <Progress value={progress} className="w-full" />
-                <p className="text-sm text-gray-500 mt-2">{Math.round(progress)}% complete</p>
+                <p className="text-sm text-muted-foreground mt-2">{Math.round(progress)}% complete</p>
               </div>
             </div>
           )}
@@ -85,15 +85,15 @@ export function PredictionModal({
             <div className="space-y-6">
               {/* Key Metrics */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-[#4B9CD3]/5 rounded-lg">
-                  <div className="text-2xl font-bold text-[#4B9CD3]">{prediction.confidence}%</div>
-                  <div className="text-sm text-gray-500">Confidence</div>
+                <div className="text-center p-4 bg-primary/5 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">{prediction.confidence}%</div>
+                  <div className="text-sm text-muted-foreground">Confidence</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-semibold text-black">{prediction.recommendedOutcome}</div>
-                  <div className="text-sm text-gray-500">Recommended</div>
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <div className="text-lg font-semibold text-foreground">{prediction.recommendedOutcome}</div>
+                  <div className="text-sm text-muted-foreground">Recommended</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <div className="text-center p-4 bg-muted rounded-lg">
                   <Badge
                     variant={
                       prediction.riskLevel === "Low"
@@ -106,7 +106,7 @@ export function PredictionModal({
                   >
                     {prediction.riskLevel} Risk
                   </Badge>
-                  <div className="text-sm text-gray-500">Risk Level</div>
+                  <div className="text-sm text-muted-foreground">Risk Level</div>
                 </div>
               </div>
 
@@ -114,23 +114,23 @@ export function PredictionModal({
 
               {/* Analysis */}
               <div>
-                <h4 className="font-semibold mb-3 text-black flex items-center">
-                  <TrendingUp className="h-4 w-4 mr-2 text-[#4B9CD3]" />
+                <h4 className="font-semibold mb-3 text-foreground flex items-center">
+                  <TrendingUp className="h-4 w-4 mr-2 text-primary" />
                   AI Analysis
                 </h4>
-                <p className="text-gray-700 leading-relaxed">{prediction.prediction}</p>
+                <p className="text-foreground leading-relaxed">{prediction.prediction}</p>
               </div>
 
               {/* Reasoning */}
               <div>
-                <h4 className="font-semibold mb-3 text-black">Reasoning</h4>
-                <p className="text-gray-700 leading-relaxed">{prediction.reasoning}</p>
+                <h4 className="font-semibold mb-3 text-foreground">Reasoning</h4>
+                <p className="text-foreground leading-relaxed">{prediction.reasoning}</p>
               </div>
 
               {/* Key Factors */}
               {prediction.keyFactors && (
                 <div>
-                  <h4 className="font-semibold mb-3 text-black flex items-center">
+                  <h4 className="font-semibold mb-3 text-foreground flex items-center">
                     <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
                     Supporting Factors
                   </h4>
@@ -138,7 +138,7 @@ export function PredictionModal({
                     {prediction.keyFactors.map((factor, index) => (
                       <li key={index} className="flex items-start space-x-2">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{factor}</span>
+                        <span className="text-foreground">{factor}</span>
                       </li>
                     ))}
                   </ul>
@@ -148,7 +148,7 @@ export function PredictionModal({
               {/* Risk Factors */}
               {prediction.riskFactors && (
                 <div>
-                  <h4 className="font-semibold mb-3 text-black flex items-center">
+                  <h4 className="font-semibold mb-3 text-foreground flex items-center">
                     <AlertTriangle className="h-4 w-4 mr-2 text-orange-600" />
                     Risk Factors
                   </h4>
@@ -156,7 +156,7 @@ export function PredictionModal({
                     {prediction.riskFactors.map((factor, index) => (
                       <li key={index} className="flex items-start space-x-2">
                         <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{factor}</span>
+                        <span className="text-foreground">{factor}</span>
                       </li>
                     ))}
                   </ul>
@@ -166,7 +166,7 @@ export function PredictionModal({
               {/* Action Buttons */}
               <div className="flex space-x-3 pt-4">
                 <Button
-                  className="flex-1 bg-[#4B9CD3] hover:bg-[#4B9CD3]/90 text-white"
+                  className="flex-1"
                   onClick={() => {
                     // TODO: Implement save prediction
                     console.log("Save prediction")
@@ -174,7 +174,7 @@ export function PredictionModal({
                 >
                   Save Prediction
                 </Button>
-                <Button variant="outline" className="flex-1 bg-transparent" onClick={onClose}>
+                <Button variant="outline" className="flex-1" onClick={onClose}>
                   Close
                 </Button>
               </div>
