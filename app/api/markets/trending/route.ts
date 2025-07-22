@@ -1,19 +1,21 @@
+import { getTopPolyMarkets } from "@/lib/polymarket";
 import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    // In production, this would call the actual Polymarket API
-    // const response = await fetch('https://gamma-api.polymarket.com/markets?limit=10&order=volume24hr')
-    // const data = await response.json()
+    // Get real Polymarket data
+    const realtimeMarkets = await getTopPolyMarkets();
+    return NextResponse.json({ markets: realtimeMarkets })
 
-    // Mock response for demo
+    // Keep mock data as fallback comment for development
+    /* 
     const mockMarkets = [
       {
         id: "1",
         question: "Will Bitcoin reach $100,000 by end of 2024?",
         description: "Bitcoin price prediction market",
         volume: 125000,
-        liquidity: 45000,
+        
         outcomes: [
           { name: "Yes", price: 0.65 },
           { name: "No", price: 0.35 },
@@ -27,7 +29,7 @@ export async function GET() {
         question: "Will the Lakers make the NBA playoffs?",
         description: "NBA playoffs prediction",
         volume: 89000,
-        liquidity: 32000,
+        
         outcomes: [
           { name: "Yes", price: 0.72 },
           { name: "No", price: 0.28 },
@@ -36,10 +38,10 @@ export async function GET() {
         category: "Sports",
         marketURL: "www.somemarket.com/1234",
       },
-      // ... more markets
     ]
-
     return NextResponse.json({ markets: mockMarkets })
+    */
+
   } catch (error) {
     console.error("Error fetching markets:", error)
     return NextResponse.json({ error: "Failed to fetch markets" }, { status: 500 })
