@@ -1,1 +1,3 @@
-require('@testing-library/jest-dom'); 
+require('whatwg-fetch')
+
+// Add any other Jest setup here 

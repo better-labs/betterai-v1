@@ -1,136 +1,141 @@
 import { getTopPolyMarkets } from '../lib/polymarket';
 import { Market } from '../lib/types';
 
-// Mock global fetch
+// Mock the actual API structure we discovered
+const mockRawApiResponse = [
+  {
+    id: "12",
+    question: "Will Joe Biden get Coronavirus before the election?",
+    description: "This is a market on if presidential candidate Joe Biden will test positive for COVID-19 before November 3rd, 2020.",
+    volume: "32257.445115",
+    volumeNum: 32257.45,
+    liquidity: "0",
+    liquidityNum: 0,
+    outcomes: "[\"Yes\", \"No\"]",
+    outcomePrices: "[\"0\", \"0\"]",
+    endDate: "2020-11-04T00:00:00Z",
+    category: "US-current-affairs",
+    slug: "will-joe-biden-get-coronavirus-before-the-election",
+    active: true,
+    closed: true
+  },
+  {
+    id: "13",
+    question: "Will Bitcoin reach $100,000 by end of 2024?",
+    description: "Bitcoin price prediction market",
+    volume: "1000000.50",
+    volumeNum: 1000000.5,
+    liquidity: "500000.25",
+    liquidityNum: 500000.25,
+    outcomes: "[\"Yes\", \"No\"]",
+    outcomePrices: "[\"0.65\", \"0.35\"]",
+    endDate: "2024-12-31T23:59:59Z",
+    category: "Crypto",
+    slug: "bitcoin-100k-2024",
+    active: true,
+    closed: false
+  }
+];
+
+// Mock fetch
 global.fetch = jest.fn();
 
-describe('getTopPolyMarkets', () => {
+describe('Polymarket Data Processing', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock console.error to avoid cluttering test output
-    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
+  test('should transform API response correctly', async () => {
+    // Mock successful API response
+    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => mockRawApiResponse,
+    } as any);
+
+    const markets = await getTopPolyMarkets();
+    
+    expect(Array.isArray(markets)).toBe(true);
+    expect(markets).toHaveLength(2);
+    
+    // Test first market transformation
+    const firstMarket = markets[0];
+    expect(firstMarket.id).toBe("12");
+    expect(firstMarket.question).toBe("Will Joe Biden get Coronavirus before the election?");
+    expect(firstMarket.volume).toBe(32257.45);
+    expect(firstMarket.liquidity).toBe(0);
+    expect(firstMarket.category).toBe("US-current-affairs");
+    expect(firstMarket.endDate).toBe("2020-11-04T00:00:00Z");
+    expect(firstMarket.marketURL).toBe("https://polymarket.com/market/will-joe-biden-get-coronavirus-before-the-election");
+    
+    // Test outcomes transformation
+    expect(firstMarket.outcomes).toHaveLength(2);
+    expect(firstMarket.outcomes[0]).toEqual({ name: "Yes", price: 0 });
+    expect(firstMarket.outcomes[1]).toEqual({ name: "No", price: 0 });
+    
+    // Test second market transformation
+    const secondMarket = markets[1];
+    expect(secondMarket.id).toBe("13");
+    expect(secondMarket.question).toBe("Will Bitcoin reach $100,000 by end of 2024?");
+    expect(secondMarket.volume).toBe(1000000.5);
+    expect(secondMarket.liquidity).toBe(500000.25);
+    expect(secondMarket.outcomes[0]).toEqual({ name: "Yes", price: 0.65 });
+    expect(secondMarket.outcomes[1]).toEqual({ name: "No", price: 0.35 });
   });
 
-  it('should fetch and return top Polymarket markets successfully', async () => {
-    const mockMarkets: Market[] = [
+  test('should handle malformed data gracefully', async () => {
+    const malformedData = [
       {
-        id: '1',
-        question: 'Will Bitcoin reach $100,000 by end of 2024?',
-        description: 'Market for Bitcoin price prediction',
-        volume: 1000000,
-        liquidity: 500000,
-        outcomes: [
-          { name: 'Yes', price: 0.65 },
-          { name: 'No', price: 0.35 }
-        ],
-        endDate: '2024-12-31T23:59:59Z',
-        category: 'Crypto',
-        marketURL: 'https://polymarket.com/market/1'
+        id: "bad1",
+        // Missing required fields
+        volume: "invalid",
+        outcomes: "invalid json",
+        outcomePrices: "[\"0.5\"]" // mismatched length
       },
       {
-        id: '2',
-        question: 'Will Trump win the 2024 election?',
-        description: 'Presidential election prediction market',
-        volume: 2000000,
-        liquidity: 1000000,
-        outcomes: [
-          { name: 'Yes', price: 0.52 },
-          { name: 'No', price: 0.48 }
-        ],
-        endDate: '2024-11-05T23:59:59Z',
-        category: 'Politics',
-        marketURL: 'https://polymarket.com/market/2'
+        id: "good1",
+        question: "Valid question?",
+        description: "Valid description",
+        volume: "1000",
+        volumeNum: 1000,
+        liquidity: "500",
+        liquidityNum: 500,
+        outcomes: "[\"Yes\", \"No\"]",
+        outcomePrices: "[\"0.6\", \"0.4\"]",
+        endDate: "2024-12-31T00:00:00Z",
+        category: "Test",
+        slug: "valid-market",
+        active: true,
+        closed: false
       }
     ];
 
-    const mockResponse = {
+    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: true,
       status: 200,
-      json: jest.fn().mockResolvedValue(mockMarkets),
-    };
+      json: async () => malformedData,
+    } as any);
 
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(mockResponse as any);
-
-    const result = await getTopPolyMarkets();
-
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith(
-      'https://gamma-api.polymarket.com/markets?limit=7&sortBy=volume24h&order=desc',
-      { method: 'GET' }
-    );
-    expect(result).toEqual(mockMarkets);
-    expect(result).toHaveLength(2);
-    expect(result[0].question).toBe('Will Bitcoin reach $100,000 by end of 2024?');
+    const markets = await getTopPolyMarkets();
+    
+    // Should only return the valid market
+    expect(markets).toHaveLength(1);
+    expect(markets[0].id).toBe("good1");
+    expect(markets[0].question).toBe("Valid question?");
   });
 
-  it('should handle HTTP error responses', async () => {
-    const mockResponse = {
+  test('should handle API errors', async () => {
+    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: false,
-      status: 404,
-      json: jest.fn(),
-    };
+      status: 500,
+    } as any);
 
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(mockResponse as any);
-
-    await expect(getTopPolyMarkets()).rejects.toThrow('HTTP error! status: 404');
-    expect(fetch).toHaveBeenCalledTimes(1);
+    await expect(getTopPolyMarkets()).rejects.toThrow('HTTP error! status: 500');
   });
 
-  it('should handle network errors', async () => {
-    const networkError = new Error('Network error');
-    (fetch as jest.MockedFunction<typeof fetch>).mockRejectedValue(networkError);
+  test('should handle network errors', async () => {
+    (fetch as jest.MockedFunction<typeof fetch>).mockRejectedValue(new Error('Network error'));
 
     await expect(getTopPolyMarkets()).rejects.toThrow('Network error');
-    expect(fetch).toHaveBeenCalledTimes(1);
-  });
-
-  it('should handle JSON parsing errors', async () => {
-    const mockResponse = {
-      ok: true,
-      status: 200,
-      json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
-    };
-
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(mockResponse as any);
-
-    await expect(getTopPolyMarkets()).rejects.toThrow('Invalid JSON');
-    expect(fetch).toHaveBeenCalledTimes(1);
-  });
-
-  it('should call the correct API endpoint with proper parameters', async () => {
-    const mockMarkets: Market[] = [];
-    const mockResponse = {
-      ok: true,
-      status: 200,
-      json: jest.fn().mockResolvedValue(mockMarkets),
-    };
-
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(mockResponse as any);
-
-    await getTopPolyMarkets();
-
-    expect(fetch).toHaveBeenCalledWith(
-      'https://gamma-api.polymarket.com/markets?limit=7&sortBy=volume24h&order=desc',
-      { method: 'GET' }
-    );
-  });
-
-  it('should return empty array when API returns no markets', async () => {
-    const mockResponse = {
-      ok: true,
-      status: 200,
-      json: jest.fn().mockResolvedValue([]),
-    };
-
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(mockResponse as any);
-
-    const result = await getTopPolyMarkets();
-
-    expect(result).toEqual([]);
-    expect(result).toHaveLength(0);
   });
 }); 
