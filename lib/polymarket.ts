@@ -153,8 +153,12 @@ function validateApiResponse(data: unknown): data is RawPolymarketApiResponse {
  */
 async function fetchMarketsFromAPI(limit: number): Promise<Market[]> {
   const options = { method: 'GET' };
+  const endDateMin = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString().split('T')[0];
 
-  const response = await fetch(`https://gamma-api.polymarket.com/markets?limit=${limit}&sortBy=volume24h&ascending=false`, options);
+  console.log(`endDateMin: ${endDateMin}`);
+  console.log(`limit: ${limit}`);
+  
+  const response = await fetch(`https://gamma-api.polymarket.com/events?limit=${limit}&sortBy=volume24h&ascending=false&end_date_min=${endDateMin}closed=false`, options);
   
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
