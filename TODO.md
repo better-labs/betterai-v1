@@ -2,9 +2,24 @@ TODO.md
 
 # Prototype
 
-## Data Sources
-- [ ] Add market data pull from Polymarket , pull-polymarket-data
-- [ ] Add market data pull from Kalshi
+## UX
+- Modify UX layout such that each row is an EVENT.
+- Action should be ""Get AI Prediction"
+
+## Data Modeling
+- Define a canonical data model for events, markets
+- Create database structure for this
+- Create batch process to get fresh data every 60s if last request is less than this amount
+
+Example working trends command:
+
+curl --request GET \
+  --url 'https://gamma-api.polymarket.com/events?limit=5&order=featuredOrder&ascending=true&closed=false' \ | jq 'map(. | del(.markets))'
+
+
+## E2E User flow
+- [ ] Allow user to trigger prediction for a given market
+- [ ] Add hyperlink to markets
 
 ## Authentication & Rate Limiting
 - [ ] Design mechanism to prevent overuse of free prediction
@@ -30,11 +45,13 @@ Terms of Service: Have a clear and robust ToS that prohibits users from scraping
 
 # Post Launch
 - [ ] Submit to Polymarket Docs for Feature: https://docs.polymarket.com/quickstart/introduction/showcase#%F0%9F%A4%9D-want-to-be-featured%3F
-
+- []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket and Kalshi channels. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
 
 ## Completed
 - [x] Add Dark mode
+- [x] Add market data pull from Polymarket , pull-polymarket-data
+
 
 ---
 

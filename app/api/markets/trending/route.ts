@@ -1,49 +1,114 @@
-import { getTopPolyMarkets } from "@/lib/polymarket";
 import { NextResponse } from "next/server"
+
+// Define the new Event interface
+interface Event {
+  id: string;
+  title: string;
+  category: string;
+  markets: Market[];
+}
+
+interface Market {
+  id: string
+  question: string
+  description: string
+  volume: number
+  liquidity: number
+  outcomes: Array<{
+    name: string
+    price: number
+  }>
+  endDate: string
+  category: string
+  marketURL: string
+}
 
 export async function GET() {
   try {
-    // Get real Polymarket data
-    const realtimeMarkets = await getTopPolyMarkets();
-    return NextResponse.json({ markets: realtimeMarkets })
-
-    // Keep mock data as fallback comment for development
-    /* 
-    const mockMarkets = [
+    // Keep mock data for development, now structured as Events
+    const mockEvents: Event[] = [
       {
-        id: "1",
-        question: "Will Bitcoin reach $100,000 by end of 2024?",
-        description: "Bitcoin price prediction market",
-        volume: 125000,
-        
-        outcomes: [
-          { name: "Yes", price: 0.65 },
-          { name: "No", price: 0.35 },
-        ],
-        endDate: "2024-12-31",
+        id: "event-1",
+        title: "US Presidential Election 2024",
+        category: "Politics",
+        markets: [
+          {
+            id: "market-1a",
+            question: "Who will win the 2024 US presidential election?",
+            description: "Market on the winner of the election.",
+            volume: 2500000,
+            liquidity: 1000000,
+            outcomes: [
+              { name: "Trump", price: 0.52 },
+              { name: "Biden", price: 0.46 },
+            ],
+            endDate: "2024-11-05",
+            category: "Politics",
+            marketURL: "https://polymarket.com/event/us-presidential-election-2024",
+          },
+          {
+            id: "market-1b",
+            question: "Will the Democratic party win the popular vote?",
+            description: "Market on the popular vote.",
+            volume: 500000,
+            liquidity: 200000,
+            outcomes: [
+              { name: "Yes", price: 0.60 },
+              { name: "No", price: 0.40 },
+            ],
+            endDate: "2024-11-05",
+            category: "Politics",
+            marketURL: "https://polymarket.com/event/us-presidential-election-2024",
+          },
+        ]
+      },
+      {
+        id: "event-2",
+        title: "Bitcoin Price Speculation",
         category: "Crypto",
-        marketURL: "www.somemarket.com/1234",
+        markets: [
+          {
+            id: "market-2a",
+            question: "Will Bitcoin reach $100,000 by end of 2024?",
+            description: "Bitcoin price prediction market",
+            volume: 125000,
+            liquidity: 45000,
+            outcomes: [
+              { name: "Yes", price: 0.65 },
+              { name: "No", price: 0.35 },
+            ],
+            endDate: "2024-12-31",
+            category: "Crypto",
+            marketURL: "https://polymarket.com/event/bitcoin-price-speculation",
+          },
+        ]
       },
       {
-        id: "2",
-        question: "Will the Lakers make the NBA playoffs?",
-        description: "NBA playoffs prediction",
-        volume: 89000,
-        
-        outcomes: [
-          { name: "Yes", price: 0.72 },
-          { name: "No", price: 0.28 },
-        ],
-        endDate: "2024-04-15",
+        id: "event-3",
+        title: "NBA Finals 2024",
         category: "Sports",
-        marketURL: "www.somemarket.com/1234",
-      },
+        markets: [
+          {
+            id: "market-3a",
+            question: "Who will win the 2024 NBA Finals?",
+            description: "Market on the winner of the NBA finals.",
+            volume: 1200000,
+            liquidity: 500000,
+            outcomes: [
+              { name: "Celtics", price: 0.75 },
+              { name: "Mavericks", price: 0.25 },
+            ],
+            endDate: "2024-06-20",
+            category: "Sports",
+            marketURL: "https://polymarket.com/event/nba-finals-2024",
+          },
+        ],
+      }
     ]
-    return NextResponse.json({ markets: mockMarkets })
-    */
+    return NextResponse.json({ events: mockEvents })
 
   } catch (error) {
-    console.error("Error fetching markets:", error)
-    return NextResponse.json({ error: "Failed to fetch markets" }, { status: 500 })
+    console.error("Error fetching events:", error)
+    return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 })
   }
 }
