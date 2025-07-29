@@ -6,39 +6,32 @@ TODO.md
 
 - Action should be ""Get AI Prediction"
 
-2. Implement Custom Hooks for State Management
-Create useMarketTable() hook to encapsulate all the complex state logic
-Create usePredictions() hook for prediction-related state
-Create useExpandedState() hook for expand/collapse logic
+
+7. Integrate ORM and service backend from other project
+Eg
+
+curl --request GET \
+  --url 'https://gamma-api.polymarket.com/events?limit=5&order=featuredOrder&ascending=true&closed=false' \ | jq 'map(. | del(.markets))'
+
+
+
+## Maintenance
+
+- Ask AI: are there important enhancements we should make to improve the codebase?
+
 
 3. Standardize Error Handling
 Create a consistent error handling pattern across all API routes
 Implement proper error boundaries in React components
 Add proper error types and messages
 
-4. Separate Mock Data from Production Logic
-Create a clear separation between development and production data sources
-Add environment-based data source switching
-Document what's mock vs. real
 
 5. Break Down Large Components
-Extract MarketTable into smaller, focused components
-Create dedicated components for data fetching, state management, and UI rendering
-Implement proper separation of concerns
 
-6. Add Proper Testing Infrastructure
-The current test setup is minimal
-Need comprehensive unit tests for hooks and utilities
+6. Add Jest Testing Infrastructure
+Need unit tests for hooks and utilities
 Need integration tests for API routes
 Need component tests for UI logic
-
-7. Integrate ORM and service backend from other project
-
-
-Example working trends command:
-
-curl --request GET \
-  --url 'https://gamma-api.polymarket.com/events?limit=5&order=featuredOrder&ascending=true&closed=false' \ | jq 'map(. | del(.markets))'
 
 
 ## E2E User flow
