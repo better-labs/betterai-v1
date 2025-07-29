@@ -53,20 +53,20 @@ export function MarketList({
 
             {/* Market Prediction Section */}
             <div className="col-span-2">
-              <div className="border border-muted-foreground/20 rounded-lg p-3 bg-background shadow-sm">
-                <div className="text-xs font-medium text-muted-foreground mb-3">Market Prediction</div>
-                <div className="flex items-center justify-center space-x-2">
+              <div className="border border-muted-foreground/20 rounded-lg p-4 bg-background shadow-sm">
+                <div className="text-xs font-medium text-muted-foreground mb-4">Market Prediction</div>
+                <div className="flex items-center justify-center space-x-3">
                   <div className="text-3xl font-bold text-foreground">
                     {market.question.toLowerCase().includes('libertarian') ? '12%' : 
                      market.question.toLowerCase().includes('democratic') ? '73%' : '58%'}
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground leading-tight">Chance</span>
-                    <div className="w-8 h-1 bg-muted rounded-full mt-1">
+                  <div className="flex flex-col items-center space-y-2">
+                    <span className="text-xs text-muted-foreground">Chance</span>
+                    <div className="w-12 h-2 bg-muted rounded-full">
                       <div 
-                        className={`h-1 rounded-full ${
+                        className={`h-2 rounded-full ${
                           market.question.toLowerCase().includes('libertarian') ? 'w-1 bg-primary' :
-                          market.question.toLowerCase().includes('democratic') ? 'w-6 bg-primary' : 'w-5 bg-primary'
+                          market.question.toLowerCase().includes('democratic') ? 'w-9 bg-primary' : 'w-7 bg-primary'
                         }`}
                       ></div>
                     </div>
@@ -77,20 +77,20 @@ export function MarketList({
 
             {/* AI Prediction (Basic) Section */}
             <div className="col-span-2">
-              <div className="border border-muted-foreground/20 rounded-lg p-3 bg-background shadow-sm">
-                <div className="text-xs font-medium text-muted-foreground mb-3">AI Prediction (Basic)</div>
-                <div className="flex items-center justify-center space-x-2">
+              <div className="border border-muted-foreground/20 rounded-lg p-4 bg-background shadow-sm">
+                <div className="text-xs font-medium text-muted-foreground mb-4">AI Prediction (Basic)</div>
+                <div className="flex items-center justify-center space-x-3">
                   <div className="text-3xl font-bold text-foreground">
                     {market.question.toLowerCase().includes('libertarian') ? '8%' : 
                      market.question.toLowerCase().includes('democratic') ? '68%' : '52%'}
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground leading-tight">Chance</span>
-                    <div className="w-8 h-1 bg-muted rounded-full mt-1">
+                  <div className="flex flex-col items-center space-y-2">
+                    <span className="text-xs text-muted-foreground">Chance</span>
+                    <div className="w-12 h-2 bg-muted rounded-full">
                       <div 
-                        className={`h-1 rounded-full ${
+                        className={`h-2 rounded-full ${
                           market.question.toLowerCase().includes('libertarian') ? 'w-1 bg-green-500' :
-                          market.question.toLowerCase().includes('democratic') ? 'w-5 bg-green-500' : 'w-4 bg-green-500'
+                          market.question.toLowerCase().includes('democratic') ? 'w-8 bg-green-500' : 'w-6 bg-green-500'
                         }`}
                       ></div>
                     </div>
@@ -101,16 +101,14 @@ export function MarketList({
 
             <div className="col-span-2 flex items-center justify-end">
               <div 
-                className="border border-muted-foreground/20 rounded-lg p-3 bg-background shadow-sm w-full cursor-pointer hover:bg-muted/50 transition-colors"
+                className="border border-muted-foreground/20 rounded-lg p-4 bg-background shadow-sm w-full cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => onToggleMarket(market.id)}
                 data-testid={`market-expand-${market.id}`}
               >
-                <div className="text-xs font-bold text-white mb-3">AI Prediction (Pro)</div>
-                <div className="flex items-center justify-center space-x-2">
+                <div className="text-xs font-medium text-muted-foreground mb-4">AI Prediction (Pro)</div>
+                <div className="flex items-center justify-center space-x-3">
                   <div className="text-3xl font-bold text-primary">Go</div>
-                  <div className="flex flex-col items-center">
-                    <ChevronRight className="h-5 w-5 text-primary" />
-                  </div>
+                  <ChevronRight className="h-6 w-6 text-primary" />
                 </div>
               </div>
             </div>
