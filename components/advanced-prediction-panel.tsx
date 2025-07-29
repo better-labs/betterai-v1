@@ -8,28 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Brain, Zap, Database } from "lucide-react"
-
-interface Market {
-  id: string
-  question: string
-  description: string
-  volume: number
-  liquidity: number
-  outcomes: Array<{
-    name: string
-    price: number
-  }>
-  endDate: string
-  category: string
-}
-
-interface PredictionResult {
-  prediction: string
-  confidence: number
-  reasoning: string
-  recommendedOutcome: string
-  riskLevel: "Low" | "Medium" | "High"
-}
+import { Market, PredictionResult } from "@/lib/types"
 
 interface AdvancedPredictionPanelProps {
   market: Market
