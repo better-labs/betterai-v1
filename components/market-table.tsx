@@ -228,7 +228,7 @@ export function MarketTable() {
                   <span>{event.markets.reduce((sum, market) => sum + market.volume, 0).toLocaleString()} 24hr Volume</span>
                 </div>
               </div>
-              <div className="col-span-3 flex items-center text-sm text-muted-foreground" data-testid="event-markets">
+              <div className="col-span-3 flex items-center justify-end text-sm text-muted-foreground" data-testid="event-markets">
                 <BarChart2 className="h-4 w-4 mr-2" />
                 {event.markets.length} Related Market{event.markets.length > 1 ? 's' : ''}
               </div>

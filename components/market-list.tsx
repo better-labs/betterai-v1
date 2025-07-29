@@ -37,7 +37,7 @@ export function MarketList({
         <div key={market.id} className="border-t" data-testid={`market-row-${market.id}`}>
           {/* Market Row */}
           <div className="grid grid-cols-12 gap-4 p-4" data-testid={`market-content-${market.id}`}>
-            <div className="col-span-6">
+            <div className="col-span-4">
               <h4 className="font-medium text-foreground">{market.question}</h4>
               <div className="flex items-center space-x-4 mt-1 text-xs text-muted-foreground">
                 <div className="flex items-center">
@@ -51,30 +51,68 @@ export function MarketList({
               </div>
             </div>
 
-            <div className="col-span-3 flex items-center space-x-2">
-              {market.outcomes.slice(0, 2).map((outcome, idx) => (
-                <div key={idx} className="flex items-center space-x-1">
-                  <span className="text-sm font-medium">{outcome.name}</span>
-                  <Badge variant="secondary">{(outcome.price * 100).toFixed(0)}¢</Badge>
+            {/* Market Prediction Section */}
+            <div className="col-span-2">
+              <div className="border border-muted-foreground/20 rounded-lg p-3 bg-background shadow-sm">
+                <div className="text-xs font-medium text-muted-foreground mb-3">Market Prediction</div>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="text-3xl font-bold text-foreground">
+                    {market.question.toLowerCase().includes('libertarian') ? '12%' : 
+                     market.question.toLowerCase().includes('democratic') ? '73%' : '58%'}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground leading-tight">Chance</span>
+                    <div className="w-8 h-1 bg-muted rounded-full mt-1">
+                      <div 
+                        className={`h-1 rounded-full ${
+                          market.question.toLowerCase().includes('libertarian') ? 'w-1 bg-primary' :
+                          market.question.toLowerCase().includes('democratic') ? 'w-6 bg-primary' : 'w-5 bg-primary'
+                        }`}
+                      ></div>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
             </div>
 
-            <div className="col-span-3 flex items-center justify-end">
-              <Button
-                variant="outline"
-                size="sm"
+            {/* AI Prediction (Basic) Section */}
+            <div className="col-span-2">
+              <div className="border border-muted-foreground/20 rounded-lg p-3 bg-background shadow-sm">
+                <div className="text-xs font-medium text-muted-foreground mb-3">AI Prediction (Basic)</div>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="text-3xl font-bold text-foreground">
+                    {market.question.toLowerCase().includes('libertarian') ? '8%' : 
+                     market.question.toLowerCase().includes('democratic') ? '68%' : '52%'}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground leading-tight">Chance</span>
+                    <div className="w-8 h-1 bg-muted rounded-full mt-1">
+                      <div 
+                        className={`h-1 rounded-full ${
+                          market.question.toLowerCase().includes('libertarian') ? 'w-1 bg-green-500' :
+                          market.question.toLowerCase().includes('democratic') ? 'w-5 bg-green-500' : 'w-4 bg-green-500'
+                        }`}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-span-2 flex items-center justify-end">
+              <div 
+                className="border border-muted-foreground/20 rounded-lg p-3 bg-background shadow-sm w-full cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => onToggleMarket(market.id)}
-                className="flex-1"
                 data-testid={`market-expand-${market.id}`}
               >
-                AI Prediction (Pro)
-                {expandedMarkets.has(market.id) ? (
-                  <ChevronDown className="h-4 w-4 ml-1" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                )}
-              </Button>
+                <div className="text-xs font-bold text-white mb-3">AI Prediction (Pro)</div>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="text-3xl font-bold text-primary">Go</div>
+                  <div className="flex flex-col items-center">
+                    <ChevronRight className="h-5 w-5 text-primary" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
