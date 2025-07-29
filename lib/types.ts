@@ -15,6 +15,29 @@ export interface Market {
   marketURL: string
 }
 
+export interface Event {
+  id: string
+  title: string
+  category: string
+  markets: Market[]
+}
+
+export interface PredictionResult {
+  prediction: string
+  confidence: number
+  reasoning: string
+  recommendedOutcome: string
+  riskLevel: "Low" | "Medium" | "High"
+  keyFactors?: string[]
+  riskFactors?: string[]
+}
+
+export interface ThinkingState {
+  isThinking: boolean
+  message: string
+  progress: number
+}
+
 export interface PolymarketApiResponse {
   markets: Market[]
 }

@@ -6,37 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users, Calendar, BarChart2 } from "lucide-react"
 import { PredictionModal } from "@/components/prediction-modal"
 import { AdvancedPredictionPanel } from "@/components/advanced-prediction-panel"
-
-// Interfaces to represent the new data structure
-interface Event {
-  id: string
-  title: string
-  category: string
-  markets: Market[]
-}
-
-interface Market {
-  id: string
-  question: string
-  description: string
-  volume: number
-  liquidity: number
-  outcomes: Array<{
-    name: string
-    price: number
-  }>
-  endDate: string
-  category: string
-  marketURL: string
-}
-
-interface PredictionResult {
-  prediction: string
-  confidence: number
-  reasoning: string
-  recommendedOutcome: string
-  riskLevel: "Low" | "Medium" | "High"
-}
+import { MarketList } from "@/components/market-list"
+import { Event, Market, PredictionResult, ThinkingState } from "@/lib/types"
 
 export function MarketTable() {
   const [events, setEvents] = useState<Event[]>([])
@@ -49,9 +20,7 @@ export function MarketTable() {
   const [selectedModels, setSelectedModels] = useState<Record<string, string>>({})
   const [selectedDataSources, setSelectedDataSources] = useState<Record<string, string[]>>({})
   const [modalOpen, setModalOpen] = useState<Record<string, boolean>>({})
-  const [thinkingStates, setThinkingStates] = useState<
-    Record<string, { isThinking: boolean; message: string; progress: number }>
-  >({})
+  const [thinkingStates, setThinkingStates] = useState<Record<string, ThinkingState>>({})
 
   useEffect(() => {
     fetchTrendingEvents()
@@ -66,6 +35,11 @@ export function MarketTable() {
         throw new Error("No events data in payload")
       }
       setEvents(data.events)
+
+      // Automatically expand the first event
+      if (data.events.length > 0) {
+        setExpandedEvents(new Set([data.events[0].id]))
+      }
 
       const defaultModels: Record<string, string> = {}
       const defaultDataSources: Record<string, string[]> = {}
@@ -228,20 +202,33 @@ export function MarketTable() {
               className="grid grid-cols-12 gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
               onClick={() => toggleEventRow(event.id)}
             >
-              <div className="col-span-1 flex items-center">
+              <div className="col-span-1 flex items-center" data-testid="event-expand">
                 {expandedEvents.has(event.id) ? (
                   <ChevronDown className="h-5 w-5 text-muted-foreground" />
                 ) : (
                   <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 )}
+                <div className="ml-4" data-testid="event-icon">
+                  <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
+                    <span className="text-xs font-medium text-muted-foreground" data-testid="event-icon-text">
+                      {event.title.charAt(0)}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="col-span-6">
+              <div className="col-span-4" data-testid="event-title">
                 <h3 className="font-semibold text-lg text-foreground">{event.title}</h3>
               </div>
-              <div className="col-span-2 flex items-center">
+              <div className="col-span-1 flex items-center" data-testid="event-category">
                 <Badge variant="outline">{event.category}</Badge>
               </div>
-              <div className="col-span-3 flex items-center text-sm text-muted-foreground">
+              <div className="col-span-2 flex items-center justify-center" data-testid="event-volume">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  <span>{event.markets.reduce((sum, market) => sum + market.volume, 0).toLocaleString()} 24hr Volume</span>
+                </div>
+              </div>
+              <div className="col-span-3 flex items-center text-sm text-muted-foreground" data-testid="event-markets">
                 <BarChart2 className="h-4 w-4 mr-2" />
                 {event.markets.length} Related Market{event.markets.length > 1 ? 's' : ''}
               </div>
@@ -249,80 +236,20 @@ export function MarketTable() {
 
             {/* Expanded Area for Markets */}
             {expandedEvents.has(event.id) && (
-              <div className="pl-8 pr-4 pb-4 bg-muted/20">
-                {event.markets.map(market => (
-                  <div key={market.id} className="border-t">
-                    {/* Market Row */}
-                    <div className="grid grid-cols-12 gap-4 p-4">
-                      <div className="col-span-6">
-                        <h4 className="font-medium text-foreground">{market.question}</h4>
-                        <div className="flex items-center space-x-4 mt-1 text-xs text-muted-foreground">
-                          <div className="flex items-center">
-                            <DollarSign className="h-3 w-3 mr-1" />
-                            <span>${(market.volume / 1000).toFixed(0)}k Vol</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            <span>Ends: {new Date(market.endDate).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="col-span-3 flex items-center space-x-2">
-                        {market.outcomes.slice(0, 2).map((outcome, idx) => (
-                          <div key={idx} className="flex items-center space-x-1">
-                            <span className="text-sm font-medium">{outcome.name}</span>
-                            <Badge variant="secondary">{(outcome.price * 100).toFixed(0)}¢</Badge>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="col-span-3 flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handlePredict(market)}
-                          className="flex-1"
-                        >
-                          Predict
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleMarketRow(market.id)}
-                        >
-                          Advanced
-                          {expandedMarkets.has(market.id) ? (
-                            <ChevronDown className="h-4 w-4 ml-1" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4 ml-1" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Advanced Prediction Panel for each market */}
-                    {expandedMarkets.has(market.id) && (
-                      <div className="p-4 bg-muted/30">
-                        <AdvancedPredictionPanel
-                          market={market}
-                          selectedModel={selectedModels[market.id]}
-                          onModelChange={modelId =>
-                            setSelectedModels({ ...selectedModels, [market.id]: modelId })
-                          }
-                          selectedDataSources={selectedDataSources[market.id] || []}
-                          onDataSourceChange={(sourceId, checked) =>
-                            handleDataSourceChange(market.id, sourceId, checked)
-                          }
-                          onPredict={() => handlePredict(market)}
-                          isLoading={loadingPredictions.has(market.id)}
-                          prediction={predictions[market.id] || null}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <MarketList
+                markets={event.markets}
+                expandedMarkets={expandedMarkets}
+                onToggleMarket={toggleMarketRow}
+                selectedModels={selectedModels}
+                onModelChange={(marketId, modelId) =>
+                  setSelectedModels({ ...selectedModels, [marketId]: modelId })
+                }
+                selectedDataSources={selectedDataSources}
+                onDataSourceChange={handleDataSourceChange}
+                onPredict={handlePredict}
+                loadingPredictions={loadingPredictions}
+                predictions={predictions}
+              />
             )}
           </div>
         ))}

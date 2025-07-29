@@ -6,16 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Brain, Zap, TrendingUp, AlertTriangle, CheckCircle, X } from "lucide-react"
-
-interface PredictionResult {
-  prediction: string
-  confidence: number
-  reasoning: string
-  recommendedOutcome: string
-  riskLevel: "Low" | "Medium" | "High"
-  keyFactors?: string[]
-  riskFactors?: string[]
-}
+import { PredictionResult } from "@/lib/types"
 
 interface PredictionModalProps {
   isOpen: boolean
