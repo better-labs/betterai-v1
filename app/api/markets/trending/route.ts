@@ -1,27 +1,5 @@
 import { NextResponse } from "next/server"
-
-// Define the new Event interface
-interface Event {
-  id: string;
-  title: string;
-  category: string;
-  markets: Market[];
-}
-
-interface Market {
-  id: string
-  question: string
-  description: string
-  volume: number
-  liquidity: number
-  outcomes: Array<{
-    name: string
-    price: number
-  }>
-  endDate: string
-  category: string
-  marketURL: string
-}
+import { Event, Market } from "@/lib/types"
 
 export async function GET() {
   try {
@@ -34,13 +12,13 @@ export async function GET() {
         markets: [
           {
             id: "market-1a",
-            question: "Who will win the 2024 US presidential election?",
-            description: "Market on the winner of the election.",
+            question: "Will the Libertarian party win the popular vote?",
+            description: "Market on the Libertarian party winning the popular vote.",
             volume: 2500000,
             liquidity: 1000000,
             outcomes: [
-              { name: "Trump", price: 0.52 },
-              { name: "Biden", price: 0.46 },
+              { name: "Yes", price: 0.52 },
+              { name: "No", price: 0.46 },
             ],
             endDate: "2024-11-05",
             category: "Politics",

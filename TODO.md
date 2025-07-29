@@ -3,13 +3,37 @@ TODO.md
 # Prototype
 
 ## UX
-- Modify UX layout such that each row is an EVENT.
+
 - Action should be ""Get AI Prediction"
 
-## Data Modeling
-- Define a canonical data model for events, markets
-- Create database structure for this
-- Create batch process to get fresh data every 60s if last request is less than this amount
+2. Implement Custom Hooks for State Management
+Create useMarketTable() hook to encapsulate all the complex state logic
+Create usePredictions() hook for prediction-related state
+Create useExpandedState() hook for expand/collapse logic
+
+3. Standardize Error Handling
+Create a consistent error handling pattern across all API routes
+Implement proper error boundaries in React components
+Add proper error types and messages
+
+4. Separate Mock Data from Production Logic
+Create a clear separation between development and production data sources
+Add environment-based data source switching
+Document what's mock vs. real
+
+5. Break Down Large Components
+Extract MarketTable into smaller, focused components
+Create dedicated components for data fetching, state management, and UI rendering
+Implement proper separation of concerns
+
+6. Add Proper Testing Infrastructure
+The current test setup is minimal
+Need comprehensive unit tests for hooks and utilities
+Need integration tests for API routes
+Need component tests for UI logic
+
+7. Integrate ORM and service backend from other project
+
 
 Example working trends command:
 
@@ -51,7 +75,7 @@ Terms of Service: Have a clear and robust ToS that prohibits users from scraping
 ## Completed
 - [x] Add Dark mode
 - [x] Add market data pull from Polymarket , pull-polymarket-data
-
+- [x] Modify UX layout such that each row is an EVENT.
 
 ---
 
