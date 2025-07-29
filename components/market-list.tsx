@@ -38,7 +38,16 @@ export function MarketList({
           {/* Market Row */}
           <div className="grid grid-cols-12 gap-4 p-4" data-testid={`market-content-${market.id}`}>
             <div className="col-span-4">
-              <h4 className="font-medium text-foreground">{market.question}</h4>
+              <h4 className="font-medium text-foreground">
+                <a 
+                  href={market.marketURL} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  {market.question}
+                </a>
+              </h4>
               <div className="flex items-center space-x-4 mt-1 text-xs text-muted-foreground">
                 <div className="flex items-center">
                   <DollarSign className="h-3 w-3 mr-1" />

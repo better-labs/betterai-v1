@@ -5,7 +5,8 @@ TODO.md
 ## UX
 
 - Action should be ""Get AI Prediction"
-
+-Fix Mobile view layout.
+- Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
 
 7. Integrate ORM and service backend from other project
 Eg

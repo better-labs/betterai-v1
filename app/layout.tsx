@@ -7,7 +7,26 @@ import { Footer } from "@/components/footer"
 export const metadata: Metadata = {
   title: "BetterAI - AI-Powered Market Predictions",
   description: "Leverage world-class AI models with enriched data to make smarter predictions on trending markets",
-    
+  icons: {
+    icon: [
+      {
+        url: "/favicon/favicon.ico",
+        sizes: "any",
+        type: "image/x-icon",
+      },
+      {
+        url: "/favicon/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+    shortcut: "/favicon/favicon.ico",
+    apple: "/favicon/apple-touch-icon.png",
+  },
+  manifest: "/favicon/site.webmanifest",
+  other: {
+    "msapplication-TileColor": "#3B82F6",
+    "theme-color": "#3B82F6",
+  },
 }
 
 export default function RootLayout({
