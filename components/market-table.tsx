@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users, Calendar, BarChart2 } from "lucide-react"
 import { PredictionModal } from "@/components/prediction-modal"
-import { AdvancedPredictionPanel } from "@/components/advanced-prediction-panel"
+import { MarketDetailPanel } from "@/components/market-detail-panel"
 import { MarketList } from "@/components/market-list"
 import { Event, Market, PredictionResult, ThinkingState } from "@/lib/types"
 
@@ -199,38 +199,54 @@ export function MarketTable() {
           <div key={event.id} className="border-b last:border-b-0">
             {/* Event Row */}
             <div
-              className="grid grid-cols-12 gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+              className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
               onClick={() => toggleEventRow(event.id)}
             >
-              <div className="col-span-1 flex items-center" data-testid="event-expand">
-                {expandedEvents.has(event.id) ? (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                )}
-                <div className="ml-4" data-testid="event-icon">
-                  <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
-                    <span className="text-xs font-medium text-muted-foreground" data-testid="event-icon-text">
-                      {event.title.charAt(0)}
+              <div className="flex flex-col space-y-3 md:grid md:grid-cols-12 md:gap-4 md:space-y-0">
+                {/* Event Icon and Expand - Full width on mobile */}
+                <div className="flex items-center space-x-3 md:col-span-1" data-testid="event-expand">
+                  {expandedEvents.has(event.id) ? (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  )}
+                  <div data-testid="event-icon">
+                    <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
+                      <span className="text-xs font-medium text-muted-foreground" data-testid="event-icon-text">
+                        {event.title.charAt(0)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Event Title - Full width on mobile, 4 cols on desktop */}
+                <div className="md:col-span-4" data-testid="event-title">
+                  <h3 className="font-semibold text-base md:text-lg text-foreground leading-tight">{event.title}</h3>
+                </div>
+
+                {/* Event Details - Stack on mobile, grid on desktop */}
+                <div className="flex flex-col space-y-2 md:col-span-7 md:flex-row md:items-center md:space-y-0 md:space-x-4">
+                  {/* Category Badge */}
+                  <div className="flex items-center" data-testid="event-category">
+                    <Badge variant="outline" className="text-xs md:text-sm">{event.category}</Badge>
+                  </div>
+
+                  {/* Volume */}
+                  <div className="flex items-center text-sm text-muted-foreground" data-testid="event-volume">
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    <span className="text-xs md:text-sm">
+                      {event.markets.reduce((sum, market) => sum + market.volume, 0).toLocaleString()} 24hr Volume
+                    </span>
+                  </div>
+
+                  {/* Related Markets */}
+                  <div className="flex items-center text-sm text-muted-foreground" data-testid="event-markets">
+                    <BarChart2 className="h-4 w-4 mr-2" />
+                    <span className="text-xs md:text-sm">
+                      {event.markets.length} Related Market{event.markets.length > 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
-              </div>
-              <div className="col-span-4" data-testid="event-title">
-                <h3 className="font-semibold text-lg text-foreground">{event.title}</h3>
-              </div>
-              <div className="col-span-1 flex items-center" data-testid="event-category">
-                <Badge variant="outline">{event.category}</Badge>
-              </div>
-              <div className="col-span-2 flex items-center justify-center" data-testid="event-volume">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  <span>{event.markets.reduce((sum, market) => sum + market.volume, 0).toLocaleString()} 24hr Volume</span>
-                </div>
-              </div>
-              <div className="col-span-3 flex items-center justify-end text-sm text-muted-foreground" data-testid="event-markets">
-                <BarChart2 className="h-4 w-4 mr-2" />
-                {event.markets.length} Related Market{event.markets.length > 1 ? 's' : ''}
               </div>
             </div>
 

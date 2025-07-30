@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Brain, Zap, Database } from "lucide-react"
 import { Market, PredictionResult } from "@/lib/types"
 
-interface AdvancedPredictionPanelProps {
+interface MarketDetailPanelProps {
   market: Market
   selectedModel: string
   onModelChange: (modelId: string) => void
@@ -34,7 +34,7 @@ const dataSources = [
   { id: "technical", name: "Technical Analysis", description: "Price charts and indicators" },
 ]
 
-export function AdvancedPredictionPanel({
+export function MarketDetailPanel({
   market,
   selectedModel,
   onModelChange,
@@ -43,12 +43,12 @@ export function AdvancedPredictionPanel({
   onPredict,
   isLoading,
   prediction,
-}: AdvancedPredictionPanelProps) {
+}: MarketDetailPanelProps) {
   return (
     <div className="border-t bg-muted/50 p-6">
       <div className="max-w-4xl">
         <div className="mb-6">
-          <h4 className="font-semibold text-foreground mb-2">Market Description</h4>
+          <h4 className="font-semibold text-foreground mb-2">Market Detail</h4>
           <p className="text-foreground text-sm leading-relaxed">{market.description}</p>
         </div>
 
