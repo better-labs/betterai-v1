@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, DollarSign, Calendar, BarChart2 } from "lucide-react"
-import { AdvancedPredictionPanel } from "@/components/advanced-prediction-panel"
+import { MarketDetailPanel } from "@/components/market-detail-panel"
 import { Market, PredictionResult } from "@/lib/types"
 
 interface MarketListProps {
@@ -124,7 +124,7 @@ export function MarketList({
           {/* Advanced Prediction Panel for each market */}
           {expandedMarkets.has(market.id) && (
             <div className="p-4 bg-muted/30" data-testid={`market-panel-${market.id}`}>
-              <AdvancedPredictionPanel
+                              <MarketDetailPanel
                 market={market}
                 selectedModel={selectedModels[market.id]}
                 onModelChange={modelId => onModelChange(market.id, modelId)}

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users, Calendar, BarChart2 } from "lucide-react"
 import { PredictionModal } from "@/components/prediction-modal"
-import { AdvancedPredictionPanel } from "@/components/advanced-prediction-panel"
+import { MarketDetailPanel } from "@/components/market-detail-panel"
 import { MarketList } from "@/components/market-list"
 import { Event, Market, PredictionResult, ThinkingState } from "@/lib/types"
 

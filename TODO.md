@@ -3,8 +3,7 @@ TODO.md
 # Prototype
 
 ## UX
-- Improve mobile view layout.
-- Revise market and prediction views. Optimize for mobile, decide whether to pusht to dedicated event page.
+- Revise market and prediction views. Optimize for mobile, decide whether to push to dedicated event page.
 
 ## Data Integration
 - Integrate ORM and service backend from other project
