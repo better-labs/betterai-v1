@@ -3,17 +3,25 @@ TODO.md
 # Prototype
 
 ## UX
+- Revise market and prediction views. Optimize for mobile, decide whether to push to dedicated event page.
 
-- Action should be ""Get AI Prediction"
--Fix Mobile view layout.
-- Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
-
-7. Integrate ORM and service backend from other project
+## Data Integration
+- Integrate ORM and service backend from other project
 Eg
 
 curl --request GET \
   --url 'https://gamma-api.polymarket.com/events?limit=5&order=featuredOrder&ascending=true&closed=false' \ | jq 'map(. | del(.markets))'
 
+
+## UX
+- Trigger new prediction from ..
+-Fix Mobile view layout.
+- Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
+
+
+## User Authentication
+- Review best options for user authentication
+- Implement user authentication system
 
 
 ## Maintenance
