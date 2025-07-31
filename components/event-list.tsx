@@ -57,7 +57,27 @@ export function EventList() {
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {events.map((event) => (
         <div key={event.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
+          <div className="flex items-center space-x-3 mb-2">
+            {event.icon ? (
+              <img 
+                src={event.icon} 
+                alt={event.title}
+                className="w-10 h-10 rounded-lg object-cover"
+                onError={(e) => {
+                  // Fallback to text if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  target.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+            ) : null}
+            <div className={`w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center ${event.icon ? 'hidden' : ''}`}>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                {event.title.charAt(0)}
+              </span>
+            </div>
+            <h2 className="text-xl font-semibold">{event.title}</h2>
+          </div>
           {event.description && (
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               {event.description}

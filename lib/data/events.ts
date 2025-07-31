@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { events, markets } from '@/lib/db/schema'
 import { eq, desc, gt } from 'drizzle-orm'
 import type { Event, NewEvent, Market } from '@/lib/types'
+import { getEventById as getPolymarketEvent } from '@/lib/polymarket'
 
 export async function getTrendingEvents(): Promise<Event[]> {
   return await db.query.events.findMany({
@@ -75,6 +76,33 @@ export async function updateEvent(id: string, eventData: Partial<NewEvent>): Pro
 export async function deleteEvent(id: string): Promise<boolean> {
   const result = await db.delete(events).where(eq(events.id, id))
   return result.rowCount > 0
+}
+
+export async function updateEventIcon(eventId: string): Promise<Event | null> {
+  try {
+    // Fetch event data from Polymarket
+    const polymarketEvent = await getPolymarketEvent(eventId);
+    
+    if (!polymarketEvent) {
+      console.warn(`Event not found in Polymarket: ${eventId}`);
+      return null;
+    }
+    
+    // Update the event with icon data
+    const [result] = await db
+      .update(events)
+      .set({ 
+        icon: polymarketEvent.icon,
+        updatedAt: new Date() 
+      })
+      .where(eq(events.id, eventId))
+      .returning();
+    
+    return result || null;
+  } catch (error) {
+    console.error('Error updating event icon:', error);
+    return null;
+  }
 }
 
 export async function updateTrendingEvents(): Promise<void> {

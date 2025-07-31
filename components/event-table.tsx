@@ -211,7 +211,20 @@ export function EventTable() {
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div data-testid="event-icon">
-                    <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center shadow-sm">
+                    {event.icon ? (
+                      <img 
+                        src={event.icon} 
+                        alt={event.title}
+                        className="w-8 h-8 rounded-lg object-cover shadow-sm"
+                        onError={(e) => {
+                          // Fallback to text if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-8 h-8 bg-muted rounded-lg flex items-center justify-center shadow-sm ${event.icon ? 'hidden' : ''}`}>
                       <span className="text-xs font-medium text-muted-foreground" data-testid="event-icon-text">
                         {event.title.charAt(0)}
                       </span>

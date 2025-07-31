@@ -21,7 +21,7 @@ export default function TermsOfServicePage() {
               <strong>No Financial Advice:</strong> Information provided by BetterAI is for informational purposes only and does not constitute financial, investment, or legal advice.
             </li>
             <li>
-              <strong>Limitation of Liability:</strong> BetterAI is provided "as is" without warranties of any kind. We are not liable for any damages arising from the use of our service.
+              <strong>Limitation of Liability:</strong> BetterAI is provided &quot;as is&quot; without warranties of any kind. We are not liable for any damages arising from the use of our service.
             </li>
             <li>
               <strong>Changes to Terms:</strong> We may update these Terms of Service at any time. Continued use of the service constitutes acceptance of the new terms.

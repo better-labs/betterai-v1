@@ -1,4 +1,4 @@
-import { Market, MarketOutcome, RawPolymarketApiResponse, RawPolymarketMarket } from './types'
+import { Market, MarketOutcome, RawPolymarketApiResponse, RawPolymarketMarket, PolymarketEvent } from './types'
 
 // Simple cache implementation with TTL
 interface CacheEntry {
@@ -70,7 +70,7 @@ function parseJsonSafely<T>(jsonString: string, fallback: T): T {
 /**
  * Validates and transforms a single raw market from Polymarket API
  */
-function transformRawMarket(rawMarket: any): Market | null {
+function transformRawMarket(rawMarket: unknown): Market | null {
   try {
     // Validate required fields exist
     if (!rawMarket.id || !rawMarket.question || !rawMarket.category) {
@@ -215,6 +215,48 @@ export async function getTopPolyMarkets(limit: number = 7, useCache: boolean = t
   } catch (err) {
     console.error('Error fetching Polymarket data:', err);
     throw err;
+  }
+}
+
+/**
+ * Fetches a single event from Polymarket API by ID
+ */
+export async function getEventById(eventId: string): Promise<PolymarketEvent | null> {
+  try {
+    const response = await fetch(`https://gamma-api.polymarket.com/events/${eventId}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const eventData = await response.json();
+    
+    // Validate the event data structure
+    if (!eventData || !eventData.id || !eventData.title) {
+      console.warn('Invalid event data structure:', eventData);
+      return null;
+    }
+    
+    // Transform to our PolymarketEvent interface
+    const event: PolymarketEvent = {
+      id: eventData.id,
+      title: eventData.title,
+      description: eventData.description || '',
+      slug: eventData.slug || '',
+      icon: eventData.icon || '',
+      tags: eventData.tags || [],
+      endDate: eventData.endDate || '',
+      volume: eventData.volume || 0,
+      markets: eventData.markets || []
+    };
+    
+    return event;
+  } catch (error) {
+    console.error('Error fetching event from Polymarket:', error);
+    return null;
   }
 }
 

@@ -68,7 +68,7 @@ export type RawPolymarketApiResponse = RawPolymarketMarket[]
 // Export all types from schema for convenience
 export type { Event, NewEvent, Market, NewMarket, Prediction, NewPrediction } from "./db/schema"
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   error?: string
@@ -99,6 +99,7 @@ export interface PolymarketEvent {
   title: string;
   description: string;
   slug: string;
+  icon: string; // Add icon URL field
   tags: Array<{
     id: string;
     label: string;
