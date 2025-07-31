@@ -107,12 +107,12 @@ export function MarketList({
                 </div>
               </div>
 
-              {/* AI Prediction (Pro) Section */}
+              {/* AI Prediction (Premium) Section */}
               <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => onToggleMarket(market.id)}
                 data-testid={`market-expand-${market.id}`}
               >
-                <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Pro)</div>
+                <div className="text-sm font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Premium)</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   {expandedMarkets.has(market.id) ? (
                     <ChevronDown className="h-5 w-5 md:h-6 md:w-6 text-primary" />

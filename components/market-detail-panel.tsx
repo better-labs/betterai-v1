@@ -45,15 +45,15 @@ export function MarketDetailPanel({
 }: MarketDetailPanelProps) {
   return (
     <div className="border-t bg-muted/50 p-6 rounded-b-lg">
-      <div className="max-w-4xl">
-        <div className="mb-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 text-center">
           <h4 className="font-semibold text-foreground mb-2">Market Detail</h4>
           <p className="text-foreground text-sm leading-relaxed">{market.description}</p>
         </div>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm max-w-3xl mx-auto">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center justify-center space-x-2">
               <Brain className="h-5 w-5 text-primary" />
               <span>BetterAI Prediction Engine</span>
             </CardTitle>
@@ -142,9 +142,9 @@ export function MarketDetailPanel({
 
         {/* Prediction Results */}
         {prediction && (
-          <Card className="border-primary mt-6 shadow-sm">
+          <Card className="border-primary mt-6 shadow-sm max-w-3xl mx-auto">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-primary">
+              <CardTitle className="flex items-center justify-center space-x-2 text-primary">
                 <Brain className="h-5 w-5" />
                 <span>AI Prediction Result</span>
               </CardTitle>

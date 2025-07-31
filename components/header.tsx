@@ -62,16 +62,6 @@ export function Header() {
             >
               My Portfolio
             </Link>
-            <Link 
-              href="/activity" 
-              className={`text-sm font-medium transition-colors ${
-                isActive("/activity") 
-                  ? "text-foreground border-b-2 border-primary pb-1" 
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Activity
-            </Link>
           </nav>
 
           {/* Actions Section */}
@@ -138,6 +128,11 @@ export function Header() {
                 </DropdownMenuItem>
                 
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/activity" className={`w-full ${isActive("/activity") ? "bg-accent" : ""}`}>
+                    <span>Activity</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <span>Contact Us</span>
                 </DropdownMenuItem>
