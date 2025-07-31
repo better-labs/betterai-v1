@@ -64,7 +64,7 @@ export function MarketList({
             {/* Prediction Sections - Stack vertically on mobile, grid on desktop */}
             <div className="space-y-3 md:space-y-0 md:col-span-8 md:grid md:grid-cols-3 md:gap-4">
               {/* Market Prediction Section */}
-              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm">
+              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow">
                 <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">Market Prediction</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
@@ -86,7 +86,7 @@ export function MarketList({
               </div>
 
               {/* AI Prediction (Basic) Section */}
-              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm">
+              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow">
                 <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Basic)</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
@@ -108,7 +108,7 @@ export function MarketList({
               </div>
 
               {/* AI Prediction (Pro) Section */}
-              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm cursor-pointer hover:bg-muted/50 transition-colors"
+              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => onToggleMarket(market.id)}
                 data-testid={`market-expand-${market.id}`}
               >

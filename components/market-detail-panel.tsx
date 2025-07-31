@@ -52,7 +52,7 @@ export function MarketDetailPanel({
           <p className="text-foreground text-sm leading-relaxed">{market.description}</p>
         </div>
 
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Brain className="h-5 w-5 text-primary" />
@@ -65,7 +65,7 @@ export function MarketDetailPanel({
               <h3 className="font-semibold mb-3 text-foreground">Choose AI Model</h3>
               <RadioGroup value={selectedModel} onValueChange={onModelChange}>
                 {aiModels.map((model) => (
-                  <div key={model.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div key={model.id} className="flex items-center space-x-3 p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <RadioGroupItem value={model.id} id={`${market.id}-${model.id}`} />
                     <Label htmlFor={`${market.id}-${model.id}`} className="flex-1 cursor-pointer">
                       <div className="flex justify-between items-center">
@@ -74,7 +74,7 @@ export function MarketDetailPanel({
                           <div className="text-sm text-muted-foreground">{model.description}</div>
                         </div>
                         <div className="text-right">
-                          <Badge variant={model.cost === 0 ? "secondary" : "default"}>
+                          <Badge variant={model.cost === 0 ? "secondary" : "default"} className="shadow-sm">
                             {model.cost === 0 ? "Free" : `${model.cost} credits`}
                           </Badge>
                           <div className="text-xs text-muted-foreground mt-1">{model.quality}</div>
@@ -92,7 +92,7 @@ export function MarketDetailPanel({
               <h3 className="font-semibold mb-3 text-foreground">Enrich with Data Sources</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {dataSources.map((source) => (
-                  <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <Checkbox
                       id={`${market.id}-${source.id}`}
                       checked={selectedDataSources.includes(source.id)}
@@ -111,7 +111,7 @@ export function MarketDetailPanel({
             <Button
               onClick={onPredict}
               disabled={isLoading}
-              className="w-full"
+              className="w-full shadow-sm hover:shadow-md transition-shadow"
             >
               {isLoading ? (
                 <>
@@ -130,7 +130,7 @@ export function MarketDetailPanel({
 
         {/* Prediction Results */}
         {prediction && (
-          <Card className="border-primary mt-6">
+          <Card className="border-primary mt-6 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-primary">
                 <Brain className="h-5 w-5" />
@@ -161,6 +161,7 @@ export function MarketDetailPanel({
                           ? "default"
                           : "destructive"
                     }
+                    className="shadow-sm"
                   >
                     {prediction.riskLevel} Risk
                   </Badge>
