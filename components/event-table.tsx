@@ -9,7 +9,7 @@ import { MarketDetailPanel } from "@/components/market-detail-panel"
 import { MarketList } from "@/components/market-list"
 import { Event, Market, PredictionResult, ThinkingState } from "@/lib/types"
 
-export function MarketTable() {
+export function EventTable() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
