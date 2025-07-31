@@ -71,9 +71,6 @@ export function Header() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <span>Support</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
                       <span>Contact Us</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
