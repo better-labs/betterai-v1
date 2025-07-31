@@ -45,7 +45,7 @@ export function EventTable() {
 
       const defaultModels: Record<string, string[]> = {}
       const defaultDataSources: Record<string, string[]> = {}
-      data.events.forEach((event: Event) => {
+      data.events.forEach((event: EventWithMarkets) => {
         event.markets.forEach((market: Market) => {
           defaultModels[market.id] = ["gpt-4o"]
           defaultDataSources[market.id] = ["news"]
@@ -242,7 +242,7 @@ export function EventTable() {
                       ))
                     ) : (
                       <Badge variant="outline" className="text-xs md:text-sm shadow-sm">
-                        {event.category || 'Uncategorized'}
+                        No Tags
                       </Badge>
                     )}
                   </div>

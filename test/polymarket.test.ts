@@ -14,7 +14,7 @@ const mockRawApiResponse = [
     outcomes: "[\"Yes\", \"No\"]",
     outcomePrices: "[\"0\", \"0\"]",
     endDate: "2020-11-04T00:00:00Z",
-    category: "US-current-affairs",
+
     slug: "will-joe-biden-get-coronavirus-before-the-election",
     active: true,
     closed: true
@@ -30,7 +30,7 @@ const mockRawApiResponse = [
     outcomes: "[\"Yes\", \"No\"]",
     outcomePrices: "[\"0.65\", \"0.35\"]",
     endDate: "2024-12-31T23:59:59Z",
-    category: "Crypto",
+
     slug: "bitcoin-100k-2024",
     active: true,
     closed: false
@@ -66,14 +66,14 @@ describe('Polymarket Data Processing', () => {
     expect(firstMarket.question).toBe("Will Joe Biden get Coronavirus before the election?");
     expect(firstMarket.volume).toBe(32257.45);
     expect(firstMarket.liquidity).toBe(0);
-    expect(firstMarket.category).toBe("US-current-affairs");
+
     expect(firstMarket.endDate).toBe("2020-11-04T00:00:00Z");
     expect(firstMarket.marketURL).toBe("https://polymarket.com/market/will-joe-biden-get-coronavirus-before-the-election");
     
     // Test outcomes transformation
     expect(firstMarket.outcomes).toHaveLength(2);
-    expect(firstMarket.outcomes[0]).toEqual({ name: "Yes", price: 0 });
-    expect(firstMarket.outcomes[1]).toEqual({ name: "No", price: 0 });
+    expect(firstMarket.outcomes?.[0]).toEqual({ name: "Yes", price: 0 });
+    expect(firstMarket.outcomes?.[1]).toEqual({ name: "No", price: 0 });
     
     // Test second market transformation
     const secondMarket = markets[1];
@@ -81,8 +81,8 @@ describe('Polymarket Data Processing', () => {
     expect(secondMarket.question).toBe("Will Bitcoin reach $100,000 by end of 2024?");
     expect(secondMarket.volume).toBe(1000000.5);
     expect(secondMarket.liquidity).toBe(500000.25);
-    expect(secondMarket.outcomes[0]).toEqual({ name: "Yes", price: 0.65 });
-    expect(secondMarket.outcomes[1]).toEqual({ name: "No", price: 0.35 });
+    expect(secondMarket.outcomes?.[0]).toEqual({ name: "Yes", price: 0.65 });
+    expect(secondMarket.outcomes?.[1]).toEqual({ name: "No", price: 0.35 });
   });
 
   test('should handle malformed data gracefully', async () => {
@@ -105,7 +105,7 @@ describe('Polymarket Data Processing', () => {
         outcomes: "[\"Yes\", \"No\"]",
         outcomePrices: "[\"0.6\", \"0.4\"]",
         endDate: "2024-12-31T00:00:00Z",
-        category: "Test",
+
         slug: "valid-market",
         active: true,
         closed: false

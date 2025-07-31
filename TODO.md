@@ -4,12 +4,10 @@ TODO.md
 
 
 ## Data Integration
--Test Integration via UI
 
 
 ## UX
-- Fix event and market icons to display properly.
-- Trigger new prediction from ..
+- Fix Market amounts to return values from the database.
 - Add Kalshi market updates
 - Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
 

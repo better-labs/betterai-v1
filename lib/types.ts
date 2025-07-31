@@ -3,26 +3,6 @@ export interface MarketOutcome {
   price: number
 }
 
-// Legacy interfaces - kept for backward compatibility
-// Use schema types (Event, Market) for database operations
-export interface LegacyMarket {
-  id: string
-  question: string
-  description: string
-  volume: number
-  liquidity: number
-  outcomes: MarketOutcome[]
-  endDate: string
-  category: string
-  marketURL: string
-}
-
-export interface LegacyEvent {
-  id: string
-  title: string
-  category: string
-  markets: LegacyMarket[]
-}
 
 export interface PredictionResult {
   prediction: string
@@ -40,9 +20,6 @@ export interface ThinkingState {
   progress: number
 }
 
-export interface PolymarketApiResponse {
-  markets: LegacyMarket[]
-}
 
 // Raw Polymarket API types
 export interface RawPolymarketMarket {
@@ -54,9 +31,8 @@ export interface RawPolymarketMarket {
   liquidity: string
   liquidityNum: number
   outcomes: string // JSON string array like "[\"Yes\", \"No\"]"
-  outcomePrices: string // JSON string array like "[\"0.65\", \"0.35\"]"
+  outcomePrices: string // JSON string array like "[\"0.35\", \"0.65\"]"
   endDate: string // ISO date string
-  category: string
   slug: string
   active: boolean
   closed: boolean
@@ -66,19 +42,55 @@ export interface RawPolymarketMarket {
 export type RawPolymarketApiResponse = RawPolymarketMarket[] 
 
 // Export all types from schema for convenience
-export type { Event, NewEvent, Market, NewMarket, Prediction, NewPrediction } from "./db/schema"
+export type { Event, NewEvent, Prediction, NewPrediction } from "./db/schema"
+
+// Re-export NewMarket for compatibility
+export type NewMarket = {
+  question: string;
+  description?: string;
+  eventId?: string | null;
+  outcomePrices?: string[] | null;
+  volume?: string | null;
+  liquidity?: string | null;
+  endDate?: string;
+  marketURL?: string;
+  outcomes?: MarketOutcome[];
+}
+
+// Extended Market type with additional fields
+export interface Market {
+  id: string;
+  question: string;
+  description?: string;
+  eventId?: string | null;
+  outcomePrices?: string[] | null;
+  volume?: string | null;
+  liquidity?: string | null;
+  updatedAt?: Date | null;
+  endDate?: string;
+  marketURL?: string;
+  outcomes?: MarketOutcome[];
+}
 
 // Extended types for API responses
-export interface EventWithMarkets extends Event {
-  markets: import("./db/schema").Market[]
-  category?: string // Optional category for display purposes
+export interface EventWithMarkets {
+  id: string;
+  title: string;
+  description?: string | null;
+  slug?: string | null;
+  icon?: string | null;
   tags?: Array<{
     id: string;
     label: string;
     slug: string;
     forceShow?: boolean;
     updatedAt?: string;
-  }>;
+  }> | null;
+  endDate?: Date | null;
+  volume?: string | null;
+  trendingRank?: number | null;
+  updatedAt?: Date | null;
+  markets: import("./db/schema").Market[];
 }
 
 export interface ApiResponse<T = unknown> {

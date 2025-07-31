@@ -53,11 +53,11 @@ export function MarketList({
               <div className="flex flex-col space-y-2 mt-2 md:flex-row md:items-center md:space-x-4 md:space-y-0 text-xs text-muted-foreground">
                 <div className="flex items-center">
                   <DollarSign className="h-3 w-3 mr-1" />
-                  <span>{formatVolume(market.volume)} Vol</span>
+                  <span>{formatVolume(Number(market.volume) || 0)} Vol</span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-3 w-3 mr-1" />
-                  <span>Ends: {new Date(market.endDate).toLocaleDateString()}</span>
+                  <span>Ends: {market.endDate ? new Date(market.endDate).toLocaleDateString() : 'No end date'}</span>
                 </div>
               </div>
             </div>

@@ -81,7 +81,7 @@ function transformRawMarket(rawMarket: unknown): Market | null {
     const market = rawMarket as any;
     
     // Validate required fields exist
-    if (!market.id || !market.question || !market.category) {
+    if (!market.id || !market.question) {
       console.warn('Missing required fields in market:', market.id);
       return null;
     }
