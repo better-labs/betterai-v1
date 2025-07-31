@@ -1,4 +1,4 @@
-import { MarketTable } from "@/components/market-table"
+import { EventTable } from "@/components/event-table"
 import { Header } from "@/components/header"
 import { TrendingUp, Menu } from "lucide-react"
 
@@ -16,7 +16,7 @@ export default function HomePage() {
             Leverage world-class AI models with enriched data to make smarter predictions on trending markets
           </p>
         </div>
-        <MarketTable />
+        <EventTable />
       </main>
     </div>
   )
