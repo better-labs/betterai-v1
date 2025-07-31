@@ -21,16 +21,16 @@ interface MarketDetailPanelProps {
 }
 
 const aiModels = [
-  { id: "gpt-3.5", name: "GPT-3.5", cost: 0, quality: "Free", description: "Free tier model" },
+  { id: "grok-4", name: "Grok 4.0", cost: 3, quality: "Premium", description: "Latest xAI model" },
   { id: "gpt-4o", name: "GPT-4o", cost: 5, quality: "Premium", description: "Latest OpenAI model" },
   { id: "claude-3", name: "Claude 3", cost: 4, quality: "Premium", description: "Anthropic's advanced model" },
 ]
 
 const dataSources = [
-  { id: "news", name: "News Articles", description: "Latest financial and crypto news" },
-  { id: "twitter", name: "Twitter/X", description: "Social sentiment analysis" },
-  { id: "onchain", name: "On-chain Data", description: "Blockchain metrics and analytics" },
-  { id: "technical", name: "Technical Analysis", description: "Price charts and indicators" },
+  { id: "twitter", name: "X (Twitter)", description: "Social sentiment analysis", cost: 10 },
+  { id: "news", name: "News Articles", description: "Latest financial and crypto news", cost: 1 },
+  { id: "onchain", name: "On-chain Data", description: "Blockchain metrics and analytics", cost: 3 },
+  { id: "technical", name: "Technical Analysis", description: "Price charts and indicators", cost: 2 },
 ]
 
 export function MarketDetailPanel({
@@ -80,7 +80,6 @@ export function MarketDetailPanel({
                           <Badge variant={model.cost === 0 ? "secondary" : "default"} className="shadow-sm">
                             {model.cost === 0 ? "Free" : `${model.cost} credits`}
                           </Badge>
-                          <div className="text-xs text-muted-foreground mt-1">{model.quality}</div>
                         </div>
                       </div>
                     </Label>
@@ -93,7 +92,7 @@ export function MarketDetailPanel({
 
             <div>
               <h3 className="font-semibold mb-3 text-foreground">Enrich with Data Sources</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-3">
                 {dataSources.map((source) => (
                   <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <Checkbox
@@ -102,8 +101,18 @@ export function MarketDetailPanel({
                       onCheckedChange={(checked) => onDataSourceChange(source.id, checked as boolean)}
                     />
                     <Label htmlFor={`${market.id}-${source.id}`} className="flex-1 cursor-pointer">
-                      <div className="font-medium">{source.name}</div>
-                      <div className="text-sm text-muted-foreground">{source.description}</div>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="font-medium">{source.name}</div>
+                          <div className="text-sm text-muted-foreground">{source.description}</div>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant="default" className="shadow-sm">
+                            {source.cost} credit{source.cost !== 1 ? 's' : ''}
+                          </Badge>
+                          
+                        </div>
+                      </div>
                     </Label>
                     <Database className="h-4 w-4 text-primary" />
                   </div>

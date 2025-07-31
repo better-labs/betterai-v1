@@ -114,8 +114,14 @@ export function MarketList({
               >
                 <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Pro)</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">Go</div>
-                  <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                  {expandedMarkets.has(market.id) ? (
+                    <ChevronDown className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                  ) : (
+                    <>
+                      <div className="text-2xl md:text-3xl font-bold text-primary">Go</div>
+                      <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
