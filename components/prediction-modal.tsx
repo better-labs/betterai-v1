@@ -13,7 +13,6 @@ interface PredictionModalProps {
   onClose: () => void
   market: {
     question: string
-    category: string
   }
   isThinking: boolean
   thinkingMessage: string
@@ -48,11 +47,6 @@ export function PredictionModal({
         <div className="space-y-4">
           {/* Market Info */}
           <div className="p-4 bg-muted rounded-lg">
-            <div className="flex items-center space-x-2 mb-2">
-              <Badge variant="outline" className="text-xs">
-                {market.category}
-              </Badge>
-            </div>
             <h3 className="font-medium text-foreground">{market.question}</h3>
           </div>
 

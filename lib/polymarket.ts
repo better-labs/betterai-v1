@@ -1,4 +1,4 @@
-import { Market, MarketOutcome, RawPolymarketApiResponse, RawPolymarketMarket } from './types'
+import { Market, MarketOutcome, RawPolymarketApiResponse, RawPolymarketMarket, PolymarketEvent } from './types'
 
 // Simple cache implementation with TTL
 interface CacheEntry {
@@ -70,21 +70,29 @@ function parseJsonSafely<T>(jsonString: string, fallback: T): T {
 /**
  * Validates and transforms a single raw market from Polymarket API
  */
-function transformRawMarket(rawMarket: any): Market | null {
+function transformRawMarket(rawMarket: unknown): Market | null {
   try {
+    // Type guard to ensure rawMarket is an object with expected properties
+    if (!rawMarket || typeof rawMarket !== 'object') {
+      console.warn('Invalid market data: not an object');
+      return null;
+    }
+    
+    const market = rawMarket as any;
+    
     // Validate required fields exist
-    if (!rawMarket.id || !rawMarket.question || !rawMarket.category) {
-      console.warn('Missing required fields in market:', rawMarket.id);
+    if (!market.id || !market.question) {
+      console.warn('Missing required fields in market:', market.id);
       return null;
     }
 
     // Parse outcomes and prices
-    const outcomes = parseJsonSafely<string[]>(rawMarket.outcomes, []);
-    const outcomePrices = parseJsonSafely<string[]>(rawMarket.outcomePrices, []);
+    const outcomes = parseJsonSafely<string[]>(market.outcomes, []);
+    const outcomePrices = parseJsonSafely<string[]>(market.outcomePrices, []);
 
     // Validate outcomes data
     if (outcomes.length === 0 || outcomes.length !== outcomePrices.length) {
-      console.warn(`Invalid outcomes data for market ${rawMarket.id}:`, {
+      console.warn(`Invalid outcomes data for market ${market.id}:`, {
         outcomes,
         outcomePrices
       });
@@ -98,28 +106,27 @@ function transformRawMarket(rawMarket: any): Market | null {
     }));
 
     // Get numeric values, preferring the Num versions
-    const volume = rawMarket.volumeNum ?? parseFloat(rawMarket.volume) ?? 0;
-    const liquidity = rawMarket.liquidityNum ?? parseFloat(rawMarket.liquidity) ?? 0;
+    const volume = market.volumeNum ?? parseFloat(market.volume) ?? 0;
+    const liquidity = market.liquidityNum ?? parseFloat(market.liquidity) ?? 0;
 
     // Create market URL from slug
-    const marketURL = rawMarket.slug 
-      ? `https://polymarket.com/market/${rawMarket.slug}`
-      : `https://polymarket.com/market/${rawMarket.id}`;
+    const marketURL = market.slug 
+      ? `https://polymarket.com/market/${market.slug}`
+      : `https://polymarket.com/market/${market.id}`;
 
     return {
-      id: rawMarket.id,
-      question: rawMarket.question,
-      description: rawMarket.description || '',
-      volume: volume,
-      liquidity: liquidity,
-      outcomes: transformedOutcomes,
-      endDate: rawMarket.endDate || '',
-      category: rawMarket.category,
-      marketURL: marketURL
+      id: market.id,
+      question: market.question,
+      outcomePrices: null,
+      volume: volume.toString(),
+      liquidity: liquidity.toString(),
+      endDate: market.endDate ? new Date(market.endDate) : null,
+      updatedAt: null,
+      eventId: null
     };
 
   } catch (error) {
-    console.error(`Error transforming market ${rawMarket?.id}:`, error);
+    console.error(`Error transforming market:`, error);
     return null;
   }
 }
@@ -153,12 +160,10 @@ function validateApiResponse(data: unknown): data is RawPolymarketApiResponse {
  */
 async function fetchMarketsFromAPI(limit: number): Promise<Market[]> {
   const options = { method: 'GET' };
-  const endDateMin = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString().split('T')[0];
 
-  console.log(`endDateMin: ${endDateMin}`);
   console.log(`limit: ${limit}`);
   
-  const response = await fetch(`https://gamma-api.polymarket.com/events?limit=${limit}&sortBy=volume24h&ascending=false&end_date_min=${endDateMin}closed=false`, options);
+  const response = await fetch(`https://gamma-api.polymarket.com/events?limit=${limit}&sortBy=volume24h&ascending=false&closed=false`, options);
   
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
@@ -215,6 +220,48 @@ export async function getTopPolyMarkets(limit: number = 7, useCache: boolean = t
   } catch (err) {
     console.error('Error fetching Polymarket data:', err);
     throw err;
+  }
+}
+
+/**
+ * Fetches a single event from Polymarket API by ID
+ */
+export async function getEventById(eventId: string): Promise<PolymarketEvent | null> {
+  try {
+    const response = await fetch(`https://gamma-api.polymarket.com/events/${eventId}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const eventData = await response.json();
+    
+    // Validate the event data structure
+    if (!eventData || !eventData.id || !eventData.title) {
+      console.warn('Invalid event data structure:', eventData);
+      return null;
+    }
+    
+    // Transform to our PolymarketEvent interface
+    const event: PolymarketEvent = {
+      id: eventData.id,
+      title: eventData.title,
+      description: eventData.description || '',
+      slug: eventData.slug || '',
+      icon: eventData.icon || '',
+      tags: eventData.tags || [],
+      volume: eventData.volume || 0,
+      endDate: eventData.endDate ? new Date(eventData.endDate) : null,
+      markets: eventData.markets || []
+    };
+    
+    return event;
+  } catch (error) {
+    console.error('Error fetching event from Polymarket:', error);
+    return null;
   }
 }
 

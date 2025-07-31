@@ -7,10 +7,12 @@ import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users, Calendar, Bar
 import { PredictionModal } from "@/components/prediction-modal"
 import { MarketDetailPanel } from "@/components/market-detail-panel"
 import { MarketList } from "@/components/market-list"
-import { Event, Market, PredictionResult, ThinkingState } from "@/lib/types"
+import { EventIcon } from "@/components/event-icon"
+import { EventWithMarkets, Market, PredictionResult, ThinkingState } from "@/lib/types"
+import { formatVolume } from "@/lib/utils"
 
 export function EventTable() {
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<EventWithMarkets[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
   const [expandedMarkets, setExpandedMarkets] = useState<Set<string>>(new Set())
@@ -43,7 +45,7 @@ export function EventTable() {
 
       const defaultModels: Record<string, string[]> = {}
       const defaultDataSources: Record<string, string[]> = {}
-      data.events.forEach((event: Event) => {
+      data.events.forEach((event: EventWithMarkets) => {
         event.markets.forEach((market: Market) => {
           defaultModels[market.id] = ["gpt-4o"]
           defaultDataSources[market.id] = ["news"]
@@ -211,11 +213,11 @@ export function EventTable() {
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div data-testid="event-icon">
-                    <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center shadow-sm">
-                      <span className="text-xs font-medium text-muted-foreground" data-testid="event-icon-text">
-                        {event.title.charAt(0)}
-                      </span>
-                    </div>
+                    <EventIcon 
+                      icon={event.icon} 
+                      title={event.title} 
+                      size="md"
+                    />
                   </div>
                 </div>
 
@@ -226,16 +228,30 @@ export function EventTable() {
 
                 {/* Event Details - Stack on mobile, grid on desktop */}
                 <div className="flex flex-col space-y-2 md:col-span-7 md:flex-row md:items-center md:space-y-0 md:space-x-4">
-                  {/* Category Badge */}
-                  <div className="flex items-center" data-testid="event-category">
-                    <Badge variant="outline" className="text-xs md:text-sm shadow-sm">{event.category}</Badge>
+                  {/* Tags Badges */}
+                  <div className="flex items-center gap-1" data-testid="event-tags">
+                    {event.tags && Array.isArray(event.tags) && event.tags.length > 0 ? (
+                      event.tags.slice(0, 3).map((tag, index) => (
+                        <Badge 
+                          key={tag.id || index} 
+                          variant="outline" 
+                          className="text-xs md:text-sm shadow-sm"
+                        >
+                          {tag.label}
+                        </Badge>
+                      ))
+                    ) : (
+                      <Badge variant="outline" className="text-xs md:text-sm shadow-sm">
+                        No Tags
+                      </Badge>
+                    )}
                   </div>
 
                   {/* Volume */}
                   <div className="flex items-center text-sm text-muted-foreground" data-testid="event-volume">
                     <DollarSign className="h-4 w-4 mr-2" />
                     <span className="text-xs md:text-sm">
-                      {event.markets.reduce((sum, market) => sum + market.volume, 0).toLocaleString()} 24hr Volume
+                      {formatVolume(event.markets.reduce((sum, market) => sum + (Number(market.volume) || 0), 0))} 24hr Volume
                     </span>
                   </div>
 
