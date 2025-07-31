@@ -4,16 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { Brain, Zap, Database } from "lucide-react"
 import { Market, PredictionResult } from "@/lib/types"
 
 interface MarketDetailPanelProps {
   market: Market
-  selectedModel: string
-  onModelChange: (modelId: string) => void
+  selectedModels: string[]
+  onModelChange: (modelId: string, checked: boolean) => void
   selectedDataSources: string[]
   onDataSourceChange: (sourceId: string, checked: boolean) => void
   onPredict: () => void
@@ -22,21 +21,21 @@ interface MarketDetailPanelProps {
 }
 
 const aiModels = [
-  { id: "gpt-3.5", name: "GPT-3.5", cost: 0, quality: "Free", description: "Free tier model" },
+  { id: "grok-4", name: "Grok 4.0", cost: 3, quality: "Premium", description: "Latest xAI model" },
   { id: "gpt-4o", name: "GPT-4o", cost: 5, quality: "Premium", description: "Latest OpenAI model" },
   { id: "claude-3", name: "Claude 3", cost: 4, quality: "Premium", description: "Anthropic's advanced model" },
 ]
 
 const dataSources = [
-  { id: "news", name: "News Articles", description: "Latest financial and crypto news" },
-  { id: "twitter", name: "Twitter/X", description: "Social sentiment analysis" },
-  { id: "onchain", name: "On-chain Data", description: "Blockchain metrics and analytics" },
-  { id: "technical", name: "Technical Analysis", description: "Price charts and indicators" },
+  { id: "twitter", name: "X (Twitter)", description: "Social sentiment analysis", cost: 10 },
+  { id: "news", name: "News Articles", description: "Latest financial and crypto news", cost: 1 },
+  { id: "onchain", name: "On-chain Data", description: "Blockchain metrics and analytics", cost: 3 },
+  { id: "technical", name: "Technical Analysis", description: "Price charts and indicators", cost: 2 },
 ]
 
 export function MarketDetailPanel({
   market,
-  selectedModel,
+  selectedModels,
   onModelChange,
   selectedDataSources,
   onDataSourceChange,
@@ -45,16 +44,16 @@ export function MarketDetailPanel({
   prediction,
 }: MarketDetailPanelProps) {
   return (
-    <div className="border-t bg-muted/50 p-6">
-      <div className="max-w-4xl">
-        <div className="mb-6">
+    <div className="border-t bg-muted/50 p-6 rounded-b-lg">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 text-center">
           <h4 className="font-semibold text-foreground mb-2">Market Detail</h4>
           <p className="text-foreground text-sm leading-relaxed">{market.description}</p>
         </div>
 
-        <Card>
+        <Card className="shadow-sm max-w-3xl mx-auto">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center justify-center space-x-2">
               <Brain className="h-5 w-5 text-primary" />
               <span>BetterAI Prediction Engine</span>
             </CardTitle>
@@ -62,11 +61,15 @@ export function MarketDetailPanel({
 
           <CardContent className="space-y-6">
             <div>
-              <h3 className="font-semibold mb-3 text-foreground">Choose AI Model</h3>
-              <RadioGroup value={selectedModel} onValueChange={onModelChange}>
+              <h3 className="font-semibold mb-3 text-foreground">Choose AI Models</h3>
+              <div className="space-y-3">
                 {aiModels.map((model) => (
-                  <div key={model.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                    <RadioGroupItem value={model.id} id={`${market.id}-${model.id}`} />
+                  <div key={model.id} className="flex items-center space-x-3 p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <Checkbox
+                      id={`${market.id}-${model.id}`}
+                      checked={selectedModels.includes(model.id)}
+                      onCheckedChange={(checked) => onModelChange(model.id, checked as boolean)}
+                    />
                     <Label htmlFor={`${market.id}-${model.id}`} className="flex-1 cursor-pointer">
                       <div className="flex justify-between items-center">
                         <div>
@@ -74,33 +77,42 @@ export function MarketDetailPanel({
                           <div className="text-sm text-muted-foreground">{model.description}</div>
                         </div>
                         <div className="text-right">
-                          <Badge variant={model.cost === 0 ? "secondary" : "default"}>
+                          <Badge variant={model.cost === 0 ? "secondary" : "default"} className="shadow-sm">
                             {model.cost === 0 ? "Free" : `${model.cost} credits`}
                           </Badge>
-                          <div className="text-xs text-muted-foreground mt-1">{model.quality}</div>
                         </div>
                       </div>
                     </Label>
                   </div>
                 ))}
-              </RadioGroup>
+              </div>
             </div>
 
             <Separator />
 
             <div>
               <h3 className="font-semibold mb-3 text-foreground">Enrich with Data Sources</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-3">
                 {dataSources.map((source) => (
-                  <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <Checkbox
                       id={`${market.id}-${source.id}`}
                       checked={selectedDataSources.includes(source.id)}
                       onCheckedChange={(checked) => onDataSourceChange(source.id, checked as boolean)}
                     />
                     <Label htmlFor={`${market.id}-${source.id}`} className="flex-1 cursor-pointer">
-                      <div className="font-medium">{source.name}</div>
-                      <div className="text-sm text-muted-foreground">{source.description}</div>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="font-medium">{source.name}</div>
+                          <div className="text-sm text-muted-foreground">{source.description}</div>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant="default" className="shadow-sm">
+                            {source.cost} credit{source.cost !== 1 ? 's' : ''}
+                          </Badge>
+                          
+                        </div>
+                      </div>
                     </Label>
                     <Database className="h-4 w-4 text-primary" />
                   </div>
@@ -111,7 +123,7 @@ export function MarketDetailPanel({
             <Button
               onClick={onPredict}
               disabled={isLoading}
-              className="w-full"
+              className="w-full shadow-sm hover:shadow-md transition-shadow"
             >
               {isLoading ? (
                 <>
@@ -130,9 +142,9 @@ export function MarketDetailPanel({
 
         {/* Prediction Results */}
         {prediction && (
-          <Card className="border-primary mt-6">
+          <Card className="border-primary mt-6 shadow-sm max-w-3xl mx-auto">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-primary">
+              <CardTitle className="flex items-center justify-center space-x-2 text-primary">
                 <Brain className="h-5 w-5" />
                 <span>AI Prediction Result</span>
               </CardTitle>
@@ -161,6 +173,7 @@ export function MarketDetailPanel({
                           ? "default"
                           : "destructive"
                     }
+                    className="shadow-sm"
                   >
                     {prediction.riskLevel} Risk
                   </Badge>
