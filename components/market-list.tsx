@@ -10,8 +10,8 @@ interface MarketListProps {
   markets: Market[]
   expandedMarkets: Set<string>
   onToggleMarket: (marketId: string) => void
-  selectedModels: Record<string, string>
-  onModelChange: (marketId: string, modelId: string) => void
+  selectedModels: Record<string, string[]>
+  onModelChange: (marketId: string, modelId: string, checked: boolean) => void
   selectedDataSources: Record<string, string[]>
   onDataSourceChange: (marketId: string, sourceId: string, checked: boolean) => void
   onPredict: (market: Market) => void
@@ -124,10 +124,10 @@ export function MarketList({
           {/* Advanced Prediction Panel for each market */}
           {expandedMarkets.has(market.id) && (
             <div className="p-4 bg-muted/30" data-testid={`market-panel-${market.id}`}>
-                              <MarketDetailPanel
+              <MarketDetailPanel
                 market={market}
-                selectedModel={selectedModels[market.id]}
-                onModelChange={modelId => onModelChange(market.id, modelId)}
+                selectedModels={selectedModels[market.id] || []}
+                onModelChange={(modelId, checked) => onModelChange(market.id, modelId, checked)}
                 selectedDataSources={selectedDataSources[market.id] || []}
                 onDataSourceChange={(sourceId, checked) =>
                   onDataSourceChange(market.id, sourceId, checked)

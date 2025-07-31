@@ -4,16 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { Brain, Zap, Database } from "lucide-react"
 import { Market, PredictionResult } from "@/lib/types"
 
 interface MarketDetailPanelProps {
   market: Market
-  selectedModel: string
-  onModelChange: (modelId: string) => void
+  selectedModels: string[]
+  onModelChange: (modelId: string, checked: boolean) => void
   selectedDataSources: string[]
   onDataSourceChange: (sourceId: string, checked: boolean) => void
   onPredict: () => void
@@ -36,7 +35,7 @@ const dataSources = [
 
 export function MarketDetailPanel({
   market,
-  selectedModel,
+  selectedModels,
   onModelChange,
   selectedDataSources,
   onDataSourceChange,
@@ -45,7 +44,7 @@ export function MarketDetailPanel({
   prediction,
 }: MarketDetailPanelProps) {
   return (
-    <div className="border-t bg-muted/50 p-6">
+    <div className="border-t bg-muted/50 p-6 rounded-b-lg">
       <div className="max-w-4xl">
         <div className="mb-6">
           <h4 className="font-semibold text-foreground mb-2">Market Detail</h4>
@@ -62,11 +61,15 @@ export function MarketDetailPanel({
 
           <CardContent className="space-y-6">
             <div>
-              <h3 className="font-semibold mb-3 text-foreground">Choose AI Model</h3>
-              <RadioGroup value={selectedModel} onValueChange={onModelChange}>
+              <h3 className="font-semibold mb-3 text-foreground">Choose AI Models</h3>
+              <div className="space-y-3">
                 {aiModels.map((model) => (
                   <div key={model.id} className="flex items-center space-x-3 p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                    <RadioGroupItem value={model.id} id={`${market.id}-${model.id}`} />
+                    <Checkbox
+                      id={`${market.id}-${model.id}`}
+                      checked={selectedModels.includes(model.id)}
+                      onCheckedChange={(checked) => onModelChange(model.id, checked as boolean)}
+                    />
                     <Label htmlFor={`${market.id}-${model.id}`} className="flex-1 cursor-pointer">
                       <div className="flex justify-between items-center">
                         <div>
@@ -83,7 +86,7 @@ export function MarketDetailPanel({
                     </Label>
                   </div>
                 ))}
-              </RadioGroup>
+              </div>
             </div>
 
             <Separator />

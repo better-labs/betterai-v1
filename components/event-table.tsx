@@ -17,7 +17,7 @@ export function EventTable() {
 
   const [predictions, setPredictions] = useState<Record<string, PredictionResult>>({})
   const [loadingPredictions, setLoadingPredictions] = useState<Set<string>>(new Set())
-  const [selectedModels, setSelectedModels] = useState<Record<string, string>>({})
+  const [selectedModels, setSelectedModels] = useState<Record<string, string[]>>({})
   const [selectedDataSources, setSelectedDataSources] = useState<Record<string, string[]>>({})
   const [modalOpen, setModalOpen] = useState<Record<string, boolean>>({})
   const [thinkingStates, setThinkingStates] = useState<Record<string, ThinkingState>>({})
@@ -41,11 +41,11 @@ export function EventTable() {
         setExpandedEvents(new Set([data.events[0].id]))
       }
 
-      const defaultModels: Record<string, string> = {}
+      const defaultModels: Record<string, string[]> = {}
       const defaultDataSources: Record<string, string[]> = {}
       data.events.forEach((event: Event) => {
         event.markets.forEach((market: Market) => {
-          defaultModels[market.id] = "gpt-4o"
+          defaultModels[market.id] = ["gpt-4o"]
           defaultDataSources[market.id] = ["news"]
         })
       })
@@ -257,9 +257,14 @@ export function EventTable() {
                 expandedMarkets={expandedMarkets}
                 onToggleMarket={toggleMarketRow}
                 selectedModels={selectedModels}
-                onModelChange={(marketId, modelId) =>
-                  setSelectedModels({ ...selectedModels, [marketId]: modelId })
-                }
+                onModelChange={(marketId, modelId, checked) => {
+                  const currentModels = selectedModels[marketId] || []
+                  if (checked) {
+                    setSelectedModels({ ...selectedModels, [marketId]: [...currentModels, modelId] })
+                  } else {
+                    setSelectedModels({ ...selectedModels, [marketId]: currentModels.filter(id => id !== modelId) })
+                  }
+                }}
                 selectedDataSources={selectedDataSources}
                 onDataSourceChange={handleDataSourceChange}
                 onPredict={handlePredict}
