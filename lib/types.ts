@@ -3,7 +3,9 @@ export interface MarketOutcome {
   price: number
 }
 
-export interface Market {
+// Legacy interfaces - kept for backward compatibility
+// Use schema types (Event, Market) for database operations
+export interface LegacyMarket {
   id: string
   question: string
   description: string
@@ -15,11 +17,11 @@ export interface Market {
   marketURL: string
 }
 
-export interface Event {
+export interface LegacyEvent {
   id: string
   title: string
   category: string
-  markets: Market[]
+  markets: LegacyMarket[]
 }
 
 export interface PredictionResult {
@@ -39,7 +41,7 @@ export interface ThinkingState {
 }
 
 export interface PolymarketApiResponse {
-  markets: Market[]
+  markets: LegacyMarket[]
 }
 
 // Raw Polymarket API types
@@ -62,3 +64,59 @@ export interface RawPolymarketMarket {
 }
 
 export type RawPolymarketApiResponse = RawPolymarketMarket[] 
+
+// Export all types from schema for convenience
+export type { Event, NewEvent, Market, NewMarket, Prediction, NewPrediction } from "./db/schema"
+
+export interface ApiResponse<T = any> {
+  success: boolean
+  data?: T
+  error?: string
+  message?: string
+  timestamp?: string
+}
+
+export interface PredictionResult {
+  prediction: string
+  probability: number
+  reasoning: string
+  confidence_level: "High" | "Medium" | "Low"
+  key_factors: string[]
+  timeframe: string
+  risks: string[]
+  methodology?: string
+}
+
+export interface DatabaseMetadata {
+  database: "neon"
+  orm: "drizzle"
+  timestamp: string
+  requestId: string
+}
+
+export interface PolymarketEvent {
+  id: string;
+  title: string;
+  description: string;
+  slug: string;
+  tags: Array<{
+    id: string;
+    label: string;
+    slug: string;
+    forceShow: boolean;
+    updatedAt: string;
+  }>;
+  endDate: string;
+  volume: number;
+  markets: PolymarketMarket[];
+}
+
+export interface PolymarketMarket {
+  id: string;
+  question: string;
+  outcomePrices: string; // JSON string
+  volume: string;
+  liquidity: string;
+  eventId?: string; // Added by us during processing
+} 
+

@@ -24,6 +24,8 @@ curl --request GET \
 - Review best options for user authentication
 - Implement user authentication system
 
+## Scale
+- Add caching to data service layer calls.
 
 ## Maintenance
 
