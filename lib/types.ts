@@ -32,7 +32,7 @@ export interface RawPolymarketMarket {
   liquidityNum: number
   outcomes: string // JSON string array like "[\"Yes\", \"No\"]"
   outcomePrices: string // JSON string array like "[\"0.35\", \"0.65\"]"
-  endTime: string // ISO date string
+
   slug: string
   active: boolean
   closed: boolean
@@ -52,7 +52,7 @@ export type NewMarket = {
   outcomePrices?: string[] | null;
   volume?: string | null;
   liquidity?: string | null;
-  endTime?: string | null;
+  endDate?: Date | null;
   marketURL?: string;
   outcomes?: MarketOutcome[];
 }
@@ -66,8 +66,8 @@ export interface Market {
   outcomePrices?: string[] | null;
   volume?: string | null;
   liquidity?: string | null;
+  endDate?: Date | null;
   updatedAt?: Date | null;
-  endTime?: string | null;
   marketURL?: string;
   outcomes?: MarketOutcome[];
 }
@@ -86,9 +86,9 @@ export interface EventWithMarkets {
     forceShow?: boolean;
     updatedAt?: string;
   }> | null;
-  endTime?: Date | null;
   volume?: string | null;
   trendingRank?: number | null;
+  endDate?: Date | null;
   updatedAt?: Date | null;
   markets: import("./db/schema").Market[];
 }
@@ -132,7 +132,6 @@ export interface PolymarketEvent {
     forceShow: boolean;
     updatedAt: string;
   }>;
-  endTime: string;
   volume: number;
   markets: PolymarketMarket[];
 }

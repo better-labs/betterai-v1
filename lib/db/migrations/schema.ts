@@ -42,7 +42,6 @@ export const events = pgTable("events", {
 	id: text().primaryKey().notNull(),
 	title: text().notNull(),
 	description: text(),
-	endTime: timestamp("end_time", { mode: 'string' }),
 	volume: numeric().default('0'),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow(),
 	trendingRank: integer("trending_rank"),

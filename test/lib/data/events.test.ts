@@ -242,7 +242,6 @@ describe('Events Data Functions', () => {
         slug: 'test-event',
         icon: 'https://example.com/icon.png',
         tags: [],
-        endTime: '2024-12-31',
         volume: 1000000,
         markets: []
       }

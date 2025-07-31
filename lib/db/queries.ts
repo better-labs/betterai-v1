@@ -50,7 +50,6 @@ export const eventQueries = {
                 description: event.description,
                 slug: event.slug,
                 tags: event.tags,
-                endTime: event.endTime,
                 volume: event.volume,
                 trendingRank: event.trendingRank,
                 updatedAt: sql`NOW()`,

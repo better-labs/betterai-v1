@@ -9,15 +9,16 @@ export const events = pgTable(
     slug: text("slug"),
     icon: text("icon"), // Add icon URL field
     tags: jsonb("tags"),
-    endTime: timestamp("end_time"),
     volume: numeric("volume").default("0"),
     trendingRank: integer("trending_rank"),
+    endDate: timestamp("end_date"), // Add endDate field
     updatedAt: timestamp("updated_at").defaultNow(),
   },
   (table) => ({
     volumeIdx: index("idx_events_volume").on(table.volume),
     trendingRankIdx: index("idx_events_trending_rank").on(table.trendingRank),
     slugIdx: index("idx_events_slug").on(table.slug),
+    endDateIdx: index("idx_events_end_date").on(table.endDate),
   }),
 )
 
@@ -30,11 +31,13 @@ export const markets = pgTable(
     outcomePrices: numeric("outcome_prices").array(),
     volume: numeric("volume").default("0"),
     liquidity: numeric("liquidity").default("0"),
+    endDate: timestamp("end_date"), // Add endDate field
     updatedAt: timestamp("updated_at").defaultNow(),
   },
   (table) => ({
     eventIdIdx: index("idx_markets_event_id").on(table.eventId),
     volumeIdx: index("idx_markets_volume").on(table.volume),
+    endDateIdx: index("idx_markets_end_date").on(table.endDate),
   }),
 )
 

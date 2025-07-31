@@ -29,6 +29,20 @@
       "when": 1753647000001,
       "tag": "0003_rename_end_date_to_end_time",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1753994893057,
+      "tag": "0004_typical_george_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1753995069421,
+      "tag": "0005_lying_millenium_guard",
+      "breakpoints": true
     }
   ]
 }
