@@ -17,7 +17,12 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.json'
+      tsconfig: 'tsconfig.jest.json',
+      jsx: 'react-jsx'
     }]
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons'],
   }
 }; 

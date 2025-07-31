@@ -2,21 +2,13 @@ TODO.md
 
 # Prototype
 
-## UX
-- Revise market detail and prediction view for readability and mobile.
-- 
 
 ## Data Integration
-- Integrate ORM and service backend from other project
-Eg
-
-curl --request GET \
-  --url 'https://gamma-api.polymarket.com/events?limit=5&order=featuredOrder&ascending=true&closed=false' \ | jq 'map(. | del(.markets))'
 
 
 ## UX
-- Trigger new prediction from ..
--Fix Mobile view layout.
+- Fix Market amounts to return values from the database.
+- Add Kalshi market updates
 - Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
 
 
@@ -24,6 +16,8 @@ curl --request GET \
 - Review best options for user authentication
 - Implement user authentication system
 
+## Scale
+- Add caching to data service layer calls.
 
 ## Maintenance
 
