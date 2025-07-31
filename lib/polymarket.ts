@@ -254,7 +254,7 @@ export async function getEventById(eventId: string): Promise<PolymarketEvent | n
       slug: eventData.slug || '',
       icon: eventData.icon || '',
       tags: eventData.tags || [],
-      endDate: eventData.endDate || '',
+      endTime: eventData.endTime || '',
       volume: eventData.volume || 0,
       markets: eventData.markets || []
     };

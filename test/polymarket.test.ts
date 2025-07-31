@@ -13,7 +13,7 @@ const mockRawApiResponse = [
     liquidityNum: 0,
     outcomes: "[\"Yes\", \"No\"]",
     outcomePrices: "[\"0\", \"0\"]",
-    endDate: "2020-11-04T00:00:00Z",
+    endTime: "2020-11-04T00:00:00Z",
 
     slug: "will-joe-biden-get-coronavirus-before-the-election",
     active: true,
@@ -29,7 +29,7 @@ const mockRawApiResponse = [
     liquidityNum: 500000.25,
     outcomes: "[\"Yes\", \"No\"]",
     outcomePrices: "[\"0.65\", \"0.35\"]",
-    endDate: "2024-12-31T23:59:59Z",
+    endTime: "2024-12-31T23:59:59Z",
 
     slug: "bitcoin-100k-2024",
     active: true,
@@ -67,7 +67,7 @@ describe('Polymarket Data Processing', () => {
     expect(firstMarket.volume).toBe(32257.45);
     expect(firstMarket.liquidity).toBe(0);
 
-    expect(firstMarket.endDate).toBe("2020-11-04T00:00:00Z");
+    expect(firstMarket.endTime).toBe("2020-11-04T00:00:00Z");
     expect(firstMarket.marketURL).toBe("https://polymarket.com/market/will-joe-biden-get-coronavirus-before-the-election");
     
     // Test outcomes transformation
@@ -104,7 +104,7 @@ describe('Polymarket Data Processing', () => {
         liquidityNum: 500,
         outcomes: "[\"Yes\", \"No\"]",
         outcomePrices: "[\"0.6\", \"0.4\"]",
-        endDate: "2024-12-31T00:00:00Z",
+        endTime: "2024-12-31T00:00:00Z",
 
         slug: "valid-market",
         active: true,

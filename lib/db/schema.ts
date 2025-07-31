@@ -9,7 +9,7 @@ export const events = pgTable(
     slug: text("slug"),
     icon: text("icon"), // Add icon URL field
     tags: jsonb("tags"),
-    endDate: timestamp("end_date"),
+    endTime: timestamp("end_time"),
     volume: numeric("volume").default("0"),
     trendingRank: integer("trending_rank"),
     updatedAt: timestamp("updated_at").defaultNow(),

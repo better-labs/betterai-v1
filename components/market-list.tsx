@@ -57,7 +57,7 @@ export function MarketList({
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-3 w-3 mr-1" />
-                  <span>Ends: {market.endDate ? new Date(market.endDate).toLocaleDateString() : 'No end date'}</span>
+                  <span>Ends: {market.endTime ? new Date(market.endTime).toLocaleDateString() : 'No end time'}</span>
                 </div>
               </div>
             </div>
