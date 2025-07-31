@@ -120,6 +120,7 @@ function transformRawMarket(rawMarket: unknown): Market | null {
       outcomePrices: null,
       volume: volume.toString(),
       liquidity: liquidity.toString(),
+      endDate: market.endDate ? new Date(market.endDate) : null,
       updatedAt: null,
       eventId: null
     };
@@ -253,6 +254,7 @@ export async function getEventById(eventId: string): Promise<PolymarketEvent | n
       icon: eventData.icon || '',
       tags: eventData.tags || [],
       volume: eventData.volume || 0,
+      endDate: eventData.endDate ? new Date(eventData.endDate) : null,
       markets: eventData.markets || []
     };
     

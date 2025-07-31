@@ -112,13 +112,13 @@ export async function generatePredictionForMarket(marketId: string): Promise<Pre
     // Convert OpenRouter format to our internal PredictionResult format
     const internalPredictionResult: PredictionResult = {
       prediction: predictionResult.prediction,
-      confidence: Math.round(predictionResult.probability * 100),
+      probability: predictionResult.probability,
       reasoning: predictionResult.reasoning,
-      recommendedOutcome: predictionResult.probability > 0.5 ? "Yes" : "No",
-      riskLevel: predictionResult.confidence_level === "High" ? "Low" : 
-                 predictionResult.confidence_level === "Medium" ? "Medium" : "High",
-      keyFactors: predictionResult.key_factors,
-      riskFactors: predictionResult.risks,
+      confidence_level: predictionResult.confidence_level,
+      key_factors: predictionResult.key_factors,
+      timeframe: predictionResult.timeframe,
+      risks: predictionResult.risks,
+      methodology: predictionResult.methodology,
     }
 
     // Store the prediction in database

@@ -1,5 +1,5 @@
 {
-  "id": "e7eb771c-96ce-4c19-84a5-78d73ad96ecb",
+  "id": "eab83470-a0e6-4a38-a66f-c8767131735e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -32,15 +32,15 @@
           "primaryKey": false,
           "notNull": false
         },
-        "tags": {
-          "name": "tags",
-          "type": "jsonb",
+        "icon": {
+          "name": "icon",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "end_date": {
-          "name": "end_date",
-          "type": "timestamp",
+        "tags": {
+          "name": "tags",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -54,6 +54,12 @@
         "trending_rank": {
           "name": "trending_rank",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
@@ -101,6 +107,21 @@
           "columns": [
             {
               "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_events_end_date": {
+          "name": "idx_events_end_date",
+          "columns": [
+            {
+              "expression": "end_date",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -161,6 +182,12 @@
           "notNull": false,
           "default": "'0'"
         },
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
@@ -190,6 +217,21 @@
           "columns": [
             {
               "expression": "volume",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_markets_end_date": {
+          "name": "idx_markets_end_date",
+          "columns": [
+            {
+              "expression": "end_date",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -238,6 +280,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "market_id": {
+          "name": "market_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "prediction_result": {
           "name": "prediction_result",
           "type": "jsonb",
@@ -273,9 +321,38 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "idx_predictions_market_id": {
+          "name": "idx_predictions_market_id",
+          "columns": [
+            {
+              "expression": "market_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "predictions_market_id_markets_id_fk": {
+          "name": "predictions_market_id_markets_id_fk",
+          "tableFrom": "predictions",
+          "tableTo": "markets",
+          "columnsFrom": [
+            "market_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

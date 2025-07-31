@@ -4,15 +4,7 @@ export interface MarketOutcome {
 }
 
 
-export interface PredictionResult {
-  prediction: string
-  confidence: number
-  reasoning: string
-  recommendedOutcome: string
-  riskLevel: "Low" | "Medium" | "High"
-  keyFactors?: string[]
-  riskFactors?: string[]
-}
+
 
 export interface ThinkingState {
   isThinking: boolean
@@ -133,6 +125,7 @@ export interface PolymarketEvent {
     updatedAt: string;
   }>;
   volume: number;
+  endDate?: Date | null;
   markets: PolymarketMarket[];
 }
 
@@ -142,6 +135,7 @@ export interface PolymarketMarket {
   outcomePrices: string; // JSON string
   volume: string;
   liquidity: string;
+  endDate?: Date | null;
   eventId?: string; // Added by us during processing
 } 
 
