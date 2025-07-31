@@ -10,8 +10,8 @@ interface MarketListProps {
   markets: Market[]
   expandedMarkets: Set<string>
   onToggleMarket: (marketId: string) => void
-  selectedModels: Record<string, string>
-  onModelChange: (marketId: string, modelId: string) => void
+  selectedModels: Record<string, string[]>
+  onModelChange: (marketId: string, modelId: string, checked: boolean) => void
   selectedDataSources: Record<string, string[]>
   onDataSourceChange: (marketId: string, sourceId: string, checked: boolean) => void
   onPredict: (market: Market) => void
@@ -64,7 +64,7 @@ export function MarketList({
             {/* Prediction Sections - Stack vertically on mobile, grid on desktop */}
             <div className="space-y-3 md:space-y-0 md:col-span-8 md:grid md:grid-cols-3 md:gap-4">
               {/* Market Prediction Section */}
-              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm">
+              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow">
                 <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">Market Prediction</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
@@ -86,7 +86,7 @@ export function MarketList({
               </div>
 
               {/* AI Prediction (Basic) Section */}
-              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm">
+              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow">
                 <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Basic)</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
@@ -107,15 +107,21 @@ export function MarketList({
                 </div>
               </div>
 
-              {/* AI Prediction (Pro) Section */}
-              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm cursor-pointer hover:bg-muted/50 transition-colors"
+              {/* AI Prediction (Premium) Section */}
+              <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => onToggleMarket(market.id)}
                 data-testid={`market-expand-${market.id}`}
               >
-                <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Pro)</div>
+                <div className="text-sm font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Premium)</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">Go</div>
-                  <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                  {expandedMarkets.has(market.id) ? (
+                    <ChevronDown className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                  ) : (
+                    <>
+                      <div className="text-2xl md:text-3xl font-bold text-primary">Go</div>
+                      <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -124,10 +130,10 @@ export function MarketList({
           {/* Advanced Prediction Panel for each market */}
           {expandedMarkets.has(market.id) && (
             <div className="p-4 bg-muted/30" data-testid={`market-panel-${market.id}`}>
-                              <MarketDetailPanel
+              <MarketDetailPanel
                 market={market}
-                selectedModel={selectedModels[market.id]}
-                onModelChange={modelId => onModelChange(market.id, modelId)}
+                selectedModels={selectedModels[market.id] || []}
+                onModelChange={(modelId, checked) => onModelChange(market.id, modelId, checked)}
                 selectedDataSources={selectedDataSources[market.id] || []}
                 onDataSourceChange={(sourceId, checked) =>
                   onDataSourceChange(market.id, sourceId, checked)

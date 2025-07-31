@@ -17,7 +17,7 @@ export function EventTable() {
 
   const [predictions, setPredictions] = useState<Record<string, PredictionResult>>({})
   const [loadingPredictions, setLoadingPredictions] = useState<Set<string>>(new Set())
-  const [selectedModels, setSelectedModels] = useState<Record<string, string>>({})
+  const [selectedModels, setSelectedModels] = useState<Record<string, string[]>>({})
   const [selectedDataSources, setSelectedDataSources] = useState<Record<string, string[]>>({})
   const [modalOpen, setModalOpen] = useState<Record<string, boolean>>({})
   const [thinkingStates, setThinkingStates] = useState<Record<string, ThinkingState>>({})
@@ -41,11 +41,11 @@ export function EventTable() {
         setExpandedEvents(new Set([data.events[0].id]))
       }
 
-      const defaultModels: Record<string, string> = {}
+      const defaultModels: Record<string, string[]> = {}
       const defaultDataSources: Record<string, string[]> = {}
       data.events.forEach((event: Event) => {
         event.markets.forEach((market: Market) => {
-          defaultModels[market.id] = "gpt-4o"
+          defaultModels[market.id] = ["gpt-4o"]
           defaultDataSources[market.id] = ["news"]
         })
       })
@@ -188,13 +188,13 @@ export function EventTable() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-foreground">Trending Events</h2>
-        <Badge variant="secondary" className="bg-primary/10 text-primary">
+        <Badge variant="secondary" className="bg-primary/10 text-primary shadow-sm">
           <TrendingUp className="h-4 w-4 mr-2" />
           Top Events
         </Badge>
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
         {events.map(event => (
           <div key={event.id} className="border-b last:border-b-0">
             {/* Event Row */}
@@ -211,7 +211,7 @@ export function EventTable() {
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div data-testid="event-icon">
-                    <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center shadow-sm">
                       <span className="text-xs font-medium text-muted-foreground" data-testid="event-icon-text">
                         {event.title.charAt(0)}
                       </span>
@@ -228,7 +228,7 @@ export function EventTable() {
                 <div className="flex flex-col space-y-2 md:col-span-7 md:flex-row md:items-center md:space-y-0 md:space-x-4">
                   {/* Category Badge */}
                   <div className="flex items-center" data-testid="event-category">
-                    <Badge variant="outline" className="text-xs md:text-sm">{event.category}</Badge>
+                    <Badge variant="outline" className="text-xs md:text-sm shadow-sm">{event.category}</Badge>
                   </div>
 
                   {/* Volume */}
@@ -257,9 +257,14 @@ export function EventTable() {
                 expandedMarkets={expandedMarkets}
                 onToggleMarket={toggleMarketRow}
                 selectedModels={selectedModels}
-                onModelChange={(marketId, modelId) =>
-                  setSelectedModels({ ...selectedModels, [marketId]: modelId })
-                }
+                onModelChange={(marketId, modelId, checked) => {
+                  const currentModels = selectedModels[marketId] || []
+                  if (checked) {
+                    setSelectedModels({ ...selectedModels, [marketId]: [...currentModels, modelId] })
+                  } else {
+                    setSelectedModels({ ...selectedModels, [marketId]: currentModels.filter(id => id !== modelId) })
+                  }
+                }}
                 selectedDataSources={selectedDataSources}
                 onDataSourceChange={handleDataSourceChange}
                 onPredict={handlePredict}
