@@ -1,7 +1,9 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
-import type { Event, ApiResponse } from '@/lib/types'
+import { useEffect, useState } from "react"
+import { Event, ApiResponse } from "@/lib/types"
+import { EventIcon } from "@/components/event-icon"
+import { formatVolume } from "@/lib/utils"
 
 export function EventList() {
   const [events, setEvents] = useState<Event[]>([])
@@ -58,24 +60,11 @@ export function EventList() {
       {events.map((event) => (
         <div key={event.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div className="flex items-center space-x-3 mb-2">
-            {event.icon ? (
-              <img 
-                src={event.icon} 
-                alt={event.title}
-                className="w-10 h-10 rounded-lg object-cover"
-                onError={(e) => {
-                  // Fallback to text if image fails to load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.nextElementSibling?.classList.remove('hidden');
-                }}
-              />
-            ) : null}
-            <div className={`w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center ${event.icon ? 'hidden' : ''}`}>
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                {event.title.charAt(0)}
-              </span>
-            </div>
+            <EventIcon 
+              icon={event.icon} 
+              title={event.title} 
+              size="lg"
+            />
             <h2 className="text-xl font-semibold">{event.title}</h2>
           </div>
           {event.description && (
@@ -86,7 +75,7 @@ export function EventList() {
           
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-500">
-              Volume: ${Number(event.volume).toLocaleString()}
+              Volume: {formatVolume(Number(event.volume) || 0)}
             </span>
             {event.trendingRank && event.trendingRank > 0 && (
               <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">

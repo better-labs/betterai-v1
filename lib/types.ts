@@ -68,6 +68,12 @@ export type RawPolymarketApiResponse = RawPolymarketMarket[]
 // Export all types from schema for convenience
 export type { Event, NewEvent, Market, NewMarket, Prediction, NewPrediction } from "./db/schema"
 
+// Extended types for API responses
+export interface EventWithMarkets extends Event {
+  markets: import("./db/schema").Market[]
+  category?: string // Optional category for display purposes
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T

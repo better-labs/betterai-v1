@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, DollarSign, Calendar, BarChart2 } from "lucide-react"
 import { MarketDetailPanel } from "@/components/market-detail-panel"
 import { Market, PredictionResult } from "@/lib/types"
+import { formatVolume } from "@/lib/utils"
 
 interface MarketListProps {
   markets: Market[]
@@ -52,7 +53,7 @@ export function MarketList({
               <div className="flex flex-col space-y-2 mt-2 md:flex-row md:items-center md:space-x-4 md:space-y-0 text-xs text-muted-foreground">
                 <div className="flex items-center">
                   <DollarSign className="h-3 w-3 mr-1" />
-                  <span>${(market.volume / 1000).toFixed(0)}k Vol</span>
+                  <span>{formatVolume(market.volume)} Vol</span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-3 w-3 mr-1" />

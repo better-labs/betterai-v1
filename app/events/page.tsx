@@ -1,6 +1,7 @@
 import { getTrendingEvents } from '@/lib/data/events'
 import { getMarketsByEventId } from '@/lib/data/markets'
 import type { Event, Market } from '@/lib/types'
+import { formatVolume } from '@/lib/utils'
 
 // Server Component - Direct data function usage
 export default async function EventsPage() {
@@ -34,7 +35,7 @@ async function EventCard({ event }: { event: Event }) {
       
       <div className="flex justify-between items-center mb-4">
         <span className="text-sm text-gray-500">
-          Volume: ${Number(event.volume).toLocaleString()}
+          Volume: {formatVolume(Number(event.volume) || 0)}
         </span>
         {event.trendingRank && event.trendingRank > 0 && (
           <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
@@ -51,7 +52,7 @@ async function EventCard({ event }: { event: Event }) {
               <div key={market.id} className="text-sm">
                 <div className="font-medium">{market.question}</div>
                 <div className="text-gray-500">
-                  Volume: ${Number(market.volume).toLocaleString()}
+                  Volume: {formatVolume(Number(market.volume) || 0)}
                 </div>
               </div>
             ))}
