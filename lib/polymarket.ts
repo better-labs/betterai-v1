@@ -72,19 +72,27 @@ function parseJsonSafely<T>(jsonString: string, fallback: T): T {
  */
 function transformRawMarket(rawMarket: unknown): Market | null {
   try {
+    // Type guard to ensure rawMarket is an object with expected properties
+    if (!rawMarket || typeof rawMarket !== 'object') {
+      console.warn('Invalid market data: not an object');
+      return null;
+    }
+    
+    const market = rawMarket as any;
+    
     // Validate required fields exist
-    if (!rawMarket.id || !rawMarket.question || !rawMarket.category) {
-      console.warn('Missing required fields in market:', rawMarket.id);
+    if (!market.id || !market.question || !market.category) {
+      console.warn('Missing required fields in market:', market.id);
       return null;
     }
 
     // Parse outcomes and prices
-    const outcomes = parseJsonSafely<string[]>(rawMarket.outcomes, []);
-    const outcomePrices = parseJsonSafely<string[]>(rawMarket.outcomePrices, []);
+    const outcomes = parseJsonSafely<string[]>(market.outcomes, []);
+    const outcomePrices = parseJsonSafely<string[]>(market.outcomePrices, []);
 
     // Validate outcomes data
     if (outcomes.length === 0 || outcomes.length !== outcomePrices.length) {
-      console.warn(`Invalid outcomes data for market ${rawMarket.id}:`, {
+      console.warn(`Invalid outcomes data for market ${market.id}:`, {
         outcomes,
         outcomePrices
       });
@@ -98,28 +106,26 @@ function transformRawMarket(rawMarket: unknown): Market | null {
     }));
 
     // Get numeric values, preferring the Num versions
-    const volume = rawMarket.volumeNum ?? parseFloat(rawMarket.volume) ?? 0;
-    const liquidity = rawMarket.liquidityNum ?? parseFloat(rawMarket.liquidity) ?? 0;
+    const volume = market.volumeNum ?? parseFloat(market.volume) ?? 0;
+    const liquidity = market.liquidityNum ?? parseFloat(market.liquidity) ?? 0;
 
     // Create market URL from slug
-    const marketURL = rawMarket.slug 
-      ? `https://polymarket.com/market/${rawMarket.slug}`
-      : `https://polymarket.com/market/${rawMarket.id}`;
+    const marketURL = market.slug 
+      ? `https://polymarket.com/market/${market.slug}`
+      : `https://polymarket.com/market/${market.id}`;
 
     return {
-      id: rawMarket.id,
-      question: rawMarket.question,
-      description: rawMarket.description || '',
-      volume: volume,
-      liquidity: liquidity,
-      outcomes: transformedOutcomes,
-      endDate: rawMarket.endDate || '',
-      category: rawMarket.category,
-      marketURL: marketURL
+      id: market.id,
+      question: market.question,
+      outcomePrices: null,
+      volume: volume.toString(),
+      liquidity: liquidity.toString(),
+      updatedAt: null,
+      eventId: null
     };
 
   } catch (error) {
-    console.error(`Error transforming market ${rawMarket?.id}:`, error);
+    console.error(`Error transforming market:`, error);
     return null;
   }
 }

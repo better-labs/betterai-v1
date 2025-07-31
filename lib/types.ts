@@ -72,6 +72,13 @@ export type { Event, NewEvent, Market, NewMarket, Prediction, NewPrediction } fr
 export interface EventWithMarkets extends Event {
   markets: import("./db/schema").Market[]
   category?: string // Optional category for display purposes
+  tags?: Array<{
+    id: string;
+    label: string;
+    slug: string;
+    forceShow?: boolean;
+    updatedAt?: string;
+  }>;
 }
 
 export interface ApiResponse<T = unknown> {

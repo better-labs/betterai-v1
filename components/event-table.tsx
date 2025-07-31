@@ -228,9 +228,23 @@ export function EventTable() {
 
                 {/* Event Details - Stack on mobile, grid on desktop */}
                 <div className="flex flex-col space-y-2 md:col-span-7 md:flex-row md:items-center md:space-y-0 md:space-x-4">
-                  {/* Category Badge */}
-                  <div className="flex items-center" data-testid="event-category">
-                    <Badge variant="outline" className="text-xs md:text-sm shadow-sm">{event.category}</Badge>
+                  {/* Tags Badges */}
+                  <div className="flex items-center gap-1" data-testid="event-tags">
+                    {event.tags && Array.isArray(event.tags) && event.tags.length > 0 ? (
+                      event.tags.slice(0, 3).map((tag, index) => (
+                        <Badge 
+                          key={tag.id || index} 
+                          variant="outline" 
+                          className="text-xs md:text-sm shadow-sm"
+                        >
+                          {tag.label}
+                        </Badge>
+                      ))
+                    ) : (
+                      <Badge variant="outline" className="text-xs md:text-sm shadow-sm">
+                        {event.category || 'Uncategorized'}
+                      </Badge>
+                    )}
                   </div>
 
                   {/* Volume */}

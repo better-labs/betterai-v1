@@ -106,8 +106,7 @@ export async function updateEventIcon(eventId: string): Promise<Event | null> {
 }
 
 export async function updateTrendingEvents(): Promise<void> {
-  // This would contain your trending calculation logic
-  // For now, just update the trending rank based on volume
+  // Update trending rank based on volume
   await db.execute(`
     UPDATE events 
     SET trending_rank = CASE 
@@ -118,4 +117,24 @@ export async function updateTrendingEvents(): Promise<void> {
     END,
     updated_at = NOW()
   `)
+
+  // Also update icons for all events
+  const allEvents = await db.query.events.findMany({
+    columns: {
+      id: true
+    }
+  })
+
+  console.log(`Updating icons for ${allEvents.length} events...`)
+  
+  for (const event of allEvents) {
+    try {
+      await updateEventIcon(event.id)
+      console.log(`Updated icon for event: ${event.id}`)
+    } catch (error) {
+      console.error(`Failed to update icon for event ${event.id}:`, error)
+    }
+  }
+  
+  console.log('Finished updating event icons')
 } 

@@ -10,6 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "migrate": "node scripts/migrate.js",
+    "cron:update-trending": "node scripts/cron-update-trending.js",
     "db:setup": "npm run db:generate && npm run db:migrate",
     "db:generate": "drizzle-kit generate",
     "db:reset": "drizzle-kit drop && npm run db:migrate",

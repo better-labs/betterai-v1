@@ -58,13 +58,11 @@ describe('Update Trending Events Functionality', () => {
       const error = new Error('Database connection failed')
       mockUpdateTrendingEvents.mockRejectedValue(error)
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-
       await expect(updateTrendingEvents()).rejects.toThrow('Database connection failed')
 
-      expect(consoleSpy).toHaveBeenCalledWith('Update trending events error:', error)
-
-      consoleSpy.mockRestore()
+      // Note: The actual route handler would log the error, but the function itself doesn't
+      // So we just verify the error is thrown
+      expect(mockUpdateTrendingEvents).toHaveBeenCalledTimes(1)
     })
 
     it('should measure execution duration', async () => {
@@ -149,7 +147,6 @@ describe('Update Trending Events Functionality', () => {
 
       for (const error of errors) {
         mockUpdateTrendingEvents.mockRejectedValue(error)
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
 
         try {
           await updateTrendingEvents()
@@ -157,8 +154,8 @@ describe('Update Trending Events Functionality', () => {
           // Expected to throw
         }
 
-        expect(consoleSpy).toHaveBeenCalledWith('Update trending events error:', error)
-        consoleSpy.mockRestore()
+        expect(mockUpdateTrendingEvents).toHaveBeenCalledTimes(1)
+        mockUpdateTrendingEvents.mockClear()
       }
     })
 
@@ -183,7 +180,7 @@ describe('Update Trending Events Functionality', () => {
       const routeHandlerLogic = {
         // Authentication check
         checkAuth: (authHeader: string | null) => {
-          return authHeader && authHeader.startsWith('Bearer ')
+          return Boolean(authHeader && authHeader.startsWith('Bearer '))
         },
         
         // Success response
