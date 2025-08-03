@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, numeric, jsonb, serial, index, integer } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, numeric, jsonb, serial, index, integer, boolean } from "drizzle-orm/pg-core"
 
 export const events = pgTable(
   "events",
@@ -14,12 +14,14 @@ export const events = pgTable(
     endDate: timestamp("end_date"), // Add endDate field
     updatedAt: timestamp("updated_at").defaultNow(),
   },
-  (table) => ({
-    volumeIdx: index("idx_events_volume").on(table.volume),
-    trendingRankIdx: index("idx_events_trending_rank").on(table.trendingRank),
-    slugIdx: index("idx_events_slug").on(table.slug),
-    endDateIdx: index("idx_events_end_date").on(table.endDate),
-  }),
+  (table) => {
+    return {
+      volumeIdx: index("idx_events_volume").on(table.volume),
+      trendingRankIdx: index("idx_events_trending_rank").on(table.trendingRank),
+      slugIdx: index("idx_events_slug").on(table.slug),
+      endDateIdx: index("idx_events_end_date").on(table.endDate),
+    }
+  },
 )
 
 export const markets = pgTable(
@@ -31,14 +33,20 @@ export const markets = pgTable(
     outcomePrices: numeric("outcome_prices").array(),
     volume: numeric("volume").default("0"),
     liquidity: numeric("liquidity").default("0"),
+    category: text("category"),
+    description: text("description"),
+    active: boolean("active"),
+    closed: boolean("closed"),
     endDate: timestamp("end_date"), // Add endDate field
     updatedAt: timestamp("updated_at").defaultNow(),
   },
-  (table) => ({
-    eventIdIdx: index("idx_markets_event_id").on(table.eventId),
-    volumeIdx: index("idx_markets_volume").on(table.volume),
-    endDateIdx: index("idx_markets_end_date").on(table.endDate),
-  }),
+  (table) => {
+    return {
+      eventIdIdx: index("idx_markets_event_id").on(table.eventId),
+      volumeIdx: index("idx_markets_volume").on(table.volume),
+      endDateIdx: index("idx_markets_end_date").on(table.endDate),
+    }
+  },
 )
 
 export const predictions = pgTable(
@@ -48,13 +56,17 @@ export const predictions = pgTable(
     question: text("question").notNull(),
     marketId: text("market_id").references(() => markets.id),
     predictionResult: jsonb("prediction_result").notNull(),
+    modelName: text("model_name"),
+    systemPrompt: text("system_prompt"),
     aiResponse: text("ai_response"),
     createdAt: timestamp("created_at").defaultNow(),
   },
-  (table) => ({
-    createdAtIdx: index("idx_predictions_created_at").on(table.createdAt),
-    marketIdIdx: index("idx_predictions_market_id").on(table.marketId),
-  }),
+  (table) => {
+    return {
+      createdAtIdx: index("idx_predictions_created_at").on(table.createdAt),
+      marketIdIdx: index("idx_predictions_market_id").on(table.marketId),
+    }
+  },
 )
 
 // Drizzle inferred types

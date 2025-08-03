@@ -4,7 +4,11 @@ TODO.md
 
 
 ## Data Integration
+Run a few predictions to see if the data is working.
 
+## Market Detail Page
+
+## 
 
 ## UX
 - Fix Market amounts to return values from the database.
