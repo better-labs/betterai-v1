@@ -99,8 +99,6 @@ export interface PredictionResult {
   reasoning: string
   confidence_level: "High" | "Medium" | "Low"
   key_factors: string[]
-  timeframe: string
-  risks: string[]
   methodology?: string
 }
 

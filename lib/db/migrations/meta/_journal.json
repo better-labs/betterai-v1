@@ -22,6 +22,13 @@
       "when": 1754224098162,
       "tag": "0002_strange_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1754226815192,
+      "tag": "0003_optimal_toad",
+      "breakpoints": true
     }
   ]
 }

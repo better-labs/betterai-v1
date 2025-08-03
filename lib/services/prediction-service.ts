@@ -7,8 +7,6 @@ interface OpenRouterPredictionResult {
   reasoning: string
   confidence_level: "High" | "Medium" | "Low"
   key_factors: string[]
-  timeframe: string
-  risks: string[]
   methodology?: string
 }
 
@@ -69,14 +67,26 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
               "reasoning": "detailed explanation of your reasoning",
               "confidence_level": "High/Medium/Low",
               "key_factors": ["factor1", "factor2", "factor3"],
-              "timeframe": "expected timeframe for this prediction",
-              "risks": ["risk1", "risk2"],
               "methodology": "brief explanation of analysis approach"
             }`
           },
           {
             role: 'user',
-            content: `Analyze this market question and provide a comprehensive prediction: "${market.question}"`,
+            content: `Analyze this market and provide a comprehensive prediction:
+
+        Market Question: "${market.question}"
+        ${
+          market.description 
+            ? `Market Description: ${market.description}` 
+            : ''
+        }
+        ${
+          market.endDate 
+            ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` 
+            : ''
+        }
+
+        Please consider the market context, timing, and any relevant factors when making your prediction.`,
           },
         ],
       }),
@@ -103,8 +113,6 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
         reasoning: text,
         confidence_level: "Medium",
         key_factors: ["AI Analysis", "Pattern Recognition"],
-        timeframe: "Unknown",
-        risks: ["Prediction uncertainty", "Limited data"],
         methodology: "GPT-4 analysis with fallback parsing",
       }
     }
@@ -116,14 +124,12 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
       reasoning: predictionResult.reasoning,
       confidence_level: predictionResult.confidence_level,
       key_factors: predictionResult.key_factors,
-      timeframe: predictionResult.timeframe,
-      risks: predictionResult.risks,
       methodology: predictionResult.methodology,
     }
 
     // Store the prediction in database
     const newPrediction = {
-      question: market.question,
+      userMessage: market.question,
       marketId: marketId,
       predictionResult: internalPredictionResult,
       modelName: modelName || 'google/gemini-2.5-flash-lite',
@@ -134,8 +140,6 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
         "reasoning": "detailed explanation of your reasoning",
         "confidence_level": "High/Medium/Low",
         "key_factors": ["factor1", "factor2", "factor3"],
-        "timeframe": "expected timeframe for this prediction",
-        "risks": ["risk1", "risk2"],
         "methodology": "brief explanation of analysis approach"
       }`,
       aiResponse: text,
