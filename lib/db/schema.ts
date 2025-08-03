@@ -53,7 +53,7 @@ export const predictions = pgTable(
   "predictions",
   {
     id: serial("id").primaryKey(),
-    question: text("question").notNull(),
+    userMessage: text("user_message").notNull(),
     marketId: text("market_id").references(() => markets.id),
     predictionResult: jsonb("prediction_result").notNull(),
     modelName: text("model_name"),

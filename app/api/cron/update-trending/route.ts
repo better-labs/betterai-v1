@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { updateTrendingEvents } from '@/lib/data/events'
-import { eventQueries, marketQueries, type NewEvent, type NewMarket } from '@/lib/db/queries'
+import { eventQueries, marketQueries, predictionQueries, type NewEvent, type NewMarket } from '@/lib/db/queries'
 import type { ApiResponse, DatabaseMetadata, PolymarketEvent, PolymarketMarket } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
@@ -116,12 +116,6 @@ export async function POST(request: NextRequest) {
           updatedAt: new Date(),
         }
       })
-
-    // Clear existing data and insert new data
-    console.log("Clearing existing events and markets...")
-    const deletedMarketsCount = await marketQueries.deleteAllMarkets()
-    const deletedEventsCount = await eventQueries.deleteAllEvents()
-    console.log(`Deleted ${deletedMarketsCount} existing markets and ${deletedEventsCount} existing events`)
 
     // Insert new data
     console.log(`Upserting ${eventsToInsert.length} events...`)

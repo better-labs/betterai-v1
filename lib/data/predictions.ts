@@ -43,22 +43,22 @@ export async function deletePrediction(id: number): Promise<boolean> {
   return result.rowCount > 0
 }
 
-export async function getPredictionsByQuestion(question: string): Promise<Prediction[]> {
+export async function getPredictionsByUserMessage(userMessage: string): Promise<Prediction[]> {
   return await db.query.predictions.findMany({
-    where: (predictions, { eq }) => eq(predictions.question, question),
+    where: (predictions, { eq }) => eq(predictions.userMessage, userMessage),
     orderBy: (predictions, { desc }) => [desc(predictions.createdAt)]
   })
 }
 
 export async function storePredictionResult(
   marketId: string,
-  question: string,
+  userMessage: string,
   predictionResult: PredictionResult,
   aiResponse?: string
 ): Promise<Prediction> {
   const predictionData: NewPrediction = {
     marketId,
-    question,
+    userMessage,
     predictionResult,
     aiResponse
   }

@@ -129,6 +129,17 @@ export const marketQueries = {
 
 // Prediction queries
 export const predictionQueries = {
+  // Delete all predictions
+  deleteAllPredictions: async () => {
+    try {
+      const result = await db.delete(predictions).returning()
+      return result.length
+    } catch (error) {
+      console.error("Error deleting all predictions:", error)
+      throw error
+    }
+  },
+
   // Create new prediction
   createPrediction: async (predictionData: NewPrediction) => {
     try {
@@ -167,12 +178,12 @@ export const predictionQueries = {
       .limit(limit)
   },
 
-  // Search predictions by question
-  searchPredictionsByQuestion: async (searchTerm: string, limit = 5) => {
+  // Search predictions by userMessage
+  searchPredictionsByUserMessage: async (searchTerm: string, limit = 5) => {
     return await db
       .select()
       .from(predictions)
-      .where(sql`${predictions.question} ILIKE ${`%${searchTerm}%`}`)
+      .where(sql`${predictions.userMessage} ILIKE ${`%${searchTerm}%`}`)
       .orderBy(desc(predictions.createdAt))
       .limit(limit)
   },
