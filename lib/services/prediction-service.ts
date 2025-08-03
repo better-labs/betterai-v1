@@ -44,6 +44,33 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
     // Generate new prediction using OpenRouter API
     console.log(`Generating AI prediction for market: ${marketId}`)
     
+    // Generate system and user messages before the fetch call
+    const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and key factors. Format your response as a JSON object with the following structure:
+    {
+      "prediction": "your prediction outcome",
+      "probability": 0.XX (number between 0 and 1),
+      "reasoning": "detailed explanation of your reasoning",
+      "confidence_level": "High/Medium/Low",
+      "key_factors": ["factor1", "factor2", "factor3"],
+      "methodology": "brief explanation of analysis approach"
+    }`
+
+    const userMessage = `Analyze this market and provide a comprehensive prediction:
+
+Market: "${market.question}"
+${
+  market.description 
+    ? `Market Description: ${market.description}` 
+    : ''
+}
+${
+  market.endDate 
+    ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` 
+    : ''
+}
+
+Please consider the market context, timing, and any relevant factors when making your prediction.`
+    
     // Add a small delay to avoid rate limiting
     await new Promise(resolve => setTimeout(resolve, 1000))
     
@@ -60,33 +87,11 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
         messages: [
           {
             role: 'system',
-            content: `You are a prediction analysis expert. Analyze the given market question and provide a structured prediction with probability, reasoning, and key factors. Format your response as a JSON object with the following structure:
-            {
-              "prediction": "your prediction outcome",
-              "probability": 0.XX (number between 0 and 1),
-              "reasoning": "detailed explanation of your reasoning",
-              "confidence_level": "High/Medium/Low",
-              "key_factors": ["factor1", "factor2", "factor3"],
-              "methodology": "brief explanation of analysis approach"
-            }`
+            content: systemMessage
           },
           {
             role: 'user',
-            content: `Analyze this market and provide a comprehensive prediction:
-
-        Market Question: "${market.question}"
-        ${
-          market.description 
-            ? `Market Description: ${market.description}` 
-            : ''
-        }
-        ${
-          market.endDate 
-            ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` 
-            : ''
-        }
-
-        Please consider the market context, timing, and any relevant factors when making your prediction.`,
+            content: userMessage
           },
         ],
       }),
@@ -133,15 +138,7 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
       marketId: marketId,
       predictionResult: internalPredictionResult,
       modelName: modelName || 'google/gemini-2.5-flash-lite',
-      systemPrompt: `You are a prediction analysis expert. Analyze the given market question and provide a structured prediction with probability, reasoning, and key factors. Format your response as a JSON object with the following structure:
-      {
-        "prediction": "your prediction outcome",
-        "probability": 0.XX (number between 0 and 1),
-        "reasoning": "detailed explanation of your reasoning",
-        "confidence_level": "High/Medium/Low",
-        "key_factors": ["factor1", "factor2", "factor3"],
-        "methodology": "brief explanation of analysis approach"
-      }`,
+      systemPrompt: systemMessage,
       aiResponse: text,
       createdAt: new Date(),
     }

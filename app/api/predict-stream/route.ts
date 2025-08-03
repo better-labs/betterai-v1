@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server"
 import { generatePredictionStream } from "@/lib/services/prediction-service"
 
 export async function POST(request: NextRequest) {
-  const { marketId, question, model, dataSources } = await request.json()
+  const { marketId, userMessage, model, dataSources } = await request.json()
 
   if (!marketId) {
     return new Response(

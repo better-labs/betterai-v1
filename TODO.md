@@ -6,6 +6,7 @@ TODO.md
 ## Market Detail Page
 - Create a new Market Detail page. Page should accept marketId as a query parameter. Page should display the market details and the most recent prediction for that market.
 
+
 ## UX
 - Fix Market amounts to return values from the database.
 - Add Kalshi market updates
