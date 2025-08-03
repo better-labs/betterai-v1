@@ -42,9 +42,7 @@ export function MarketList({
             <div className="md:col-span-4">
               <h4 className="font-medium text-foreground text-sm md:text-base">
                 <a 
-                  href={market.marketURL} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                  href={`/market/${market.id}`}
                   className="hover:text-primary transition-colors"
                 >
                   {market.question}
