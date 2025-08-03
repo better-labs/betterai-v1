@@ -8,6 +8,20 @@
       "when": 1753995451645,
       "tag": "0000_true_nitro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1753995451646,
+      "tag": "0001_add_prediction_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1754224098162,
+      "tag": "0002_strange_quicksilver",
+      "breakpoints": true
     }
   ]
 }

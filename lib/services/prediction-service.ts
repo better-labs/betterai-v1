@@ -24,7 +24,7 @@ interface PredictionServiceResponse {
  * @param marketId - The unique identifier of the market
  * @returns Promise<PredictionServiceResponse>
  */
-export async function generatePredictionForMarket(marketId: string): Promise<PredictionServiceResponse> {
+export async function generatePredictionForMarket(marketId: string, modelName?: string): Promise<PredictionServiceResponse> {
   try {
     if (!marketId) {
       return {
@@ -58,7 +58,7 @@ export async function generatePredictionForMarket(marketId: string): Promise<Pre
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
+        model: modelName || 'google/gemini-2.5-flash-lite',
         messages: [
           {
             role: 'system',
@@ -126,6 +126,18 @@ export async function generatePredictionForMarket(marketId: string): Promise<Pre
       question: market.question,
       marketId: marketId,
       predictionResult: internalPredictionResult,
+      modelName: modelName || 'google/gemini-2.5-flash-lite',
+      systemPrompt: `You are a prediction analysis expert. Analyze the given market question and provide a structured prediction with probability, reasoning, and key factors. Format your response as a JSON object with the following structure:
+      {
+        "prediction": "your prediction outcome",
+        "probability": 0.XX (number between 0 and 1),
+        "reasoning": "detailed explanation of your reasoning",
+        "confidence_level": "High/Medium/Low",
+        "key_factors": ["factor1", "factor2", "factor3"],
+        "timeframe": "expected timeframe for this prediction",
+        "risks": ["risk1", "risk2"],
+        "methodology": "brief explanation of analysis approach"
+      }`,
       aiResponse: text,
       createdAt: new Date(),
     }
