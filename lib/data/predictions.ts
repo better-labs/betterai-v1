@@ -64,4 +64,12 @@ export async function storePredictionResult(
   }
   
   return await createPrediction(predictionData)
+}
+
+export async function getMostRecentPredictionByMarketId(marketId: string): Promise<Prediction | null> {
+  const result = await db.query.predictions.findFirst({
+    where: (predictions, { eq }) => eq(predictions.marketId, marketId),
+    orderBy: (predictions, { desc }) => [desc(predictions.createdAt)]
+  })
+  return result || null
 } 
