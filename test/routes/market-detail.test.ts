@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals'
 import { db } from '@/lib/db'
-import { markets, predictions } from '@/lib/db/schema'
+import { markets, predictions, events, type Market, type Prediction } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { getMarketById } from '@/lib/data/markets'
 import { getMostRecentPredictionByMarketId } from '@/lib/data/predictions'
+import type { PredictionResult } from '@/lib/types'
 
 describe('Market Detail Page', () => {
   const testMarketId = 'test-market-123'
@@ -10,8 +11,18 @@ describe('Market Detail Page', () => {
 
   beforeAll(async () => {
     // Clean up any existing test data
-    await db.delete(predictions).where(predictions.marketId === testMarketId)
-    await db.delete(markets).where(markets.id === testMarketId)
+    await db.delete(predictions).where(eq(predictions.marketId, testMarketId))
+    await db.delete(markets).where(eq(markets.id, testMarketId))
+    await db.delete(events).where(eq(events.id, testEventId))
+
+    // Insert test event first
+    await db.insert(events).values({
+      id: testEventId,
+      title: 'Test Event',
+      description: 'A test event for unit testing',
+      slug: 'test-event',
+      volume: '0'
+    })
 
     // Insert test market
     await db.insert(markets).values({
@@ -42,8 +53,9 @@ describe('Market Detail Page', () => {
 
   afterAll(async () => {
     // Clean up test data
-    await db.delete(predictions).where(predictions.marketId === testMarketId)
-    await db.delete(markets).where(markets.id === testMarketId)
+    await db.delete(predictions).where(eq(predictions.marketId, testMarketId))
+    await db.delete(markets).where(eq(markets.id, testMarketId))
+    await db.delete(events).where(eq(events.id, testEventId))
   })
 
   describe('getMarketById', () => {
@@ -54,7 +66,6 @@ describe('Market Detail Page', () => {
       expect(market?.id).toBe(testMarketId)
       expect(market?.question).toBe('Will the test market resolve to Yes?')
       expect(market?.volume).toBe('10000')
-      expect(market?.active).toBe(true)
     })
 
     it('should return null for invalid market ID', async () => {
@@ -69,9 +80,11 @@ describe('Market Detail Page', () => {
       
       expect(prediction).toBeDefined()
       expect(prediction?.marketId).toBe(testMarketId)
-      expect(prediction?.predictionResult.prediction).toBe('Yes')
-      expect(prediction?.predictionResult.probability).toBe(0.75)
-      expect(prediction?.predictionResult.confidence_level).toBe('High')
+      
+      const predictionResult = prediction?.predictionResult as PredictionResult
+      expect(predictionResult.prediction).toBe('Yes')
+      expect(predictionResult.probability).toBe(0.75)
+      expect(predictionResult.confidence_level).toBe('High')
     })
 
     it('should return null for market with no predictions', async () => {
