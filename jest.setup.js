@@ -1,5 +1,8 @@
 require('whatwg-fetch')
 
+// Load environment variables from .env.local
+require('dotenv').config({ path: '.env.local' })
+
 // Add TextDecoder polyfill for Node.js environment
 global.TextDecoder = global.TextDecoder || require('util').TextDecoder
 global.TextEncoder = global.TextEncoder || require('util').TextEncoder

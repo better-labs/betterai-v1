@@ -3,7 +3,7 @@ import { generatePredictionForMarket } from "@/lib/services/prediction-service"
 
 export async function POST(request: NextRequest) {
   try {
-    const { marketId, question, model, dataSources } = await request.json()
+    const { marketId, userMessage, model, dataSources } = await request.json()
 
     if (!marketId) {
       return NextResponse.json({ error: "Market ID is required" }, { status: 400 })
