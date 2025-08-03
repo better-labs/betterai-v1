@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -87,7 +87,7 @@ const filterTags = [
   "List", "Kash Patel", "FBI", "Cabinet", "Trump Presid"
 ]
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get("q") || ""
   
@@ -312,5 +312,20 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading search results...</p>
+        </div>
+      </div>
+    }>
+      <SearchPageContent />
+    </Suspense>
   )
 } 
