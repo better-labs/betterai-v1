@@ -34,8 +34,8 @@ test/
   - `createEvent()`
   - `updateEvent()`
   - `deleteEvent()`
-  - `updateEventIcon()`
-  - `updateTrendingEventsAndMarketData()`
+  
+  - `updatePolymarketTrendingEventsAndMarketData()`
 
 ### 2. Edge Case Tests (`routes/events-edge-cases.test.ts`)
 - **Purpose**: Test error handling and boundary conditions
@@ -66,7 +66,7 @@ test/
 Provides realistic test data for events and markets:
 - `eventFixtures`: Sample events with various trending ranks
 - `marketFixtures`: Sample markets linked to events
-- `polymarketEventFixtures`: Polymarket API response data
+
 - Helper functions for filtering and finding test data
 
 ### Helpers (`helpers.ts`)

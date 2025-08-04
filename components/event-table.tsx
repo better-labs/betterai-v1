@@ -24,9 +24,14 @@ export function EventTable() {
     try {
       const response = await fetch("/api/markets/trending")
       const data = await response.json()
+      
       if (!data.events || data.events.length === 0) {
-        throw new Error("No events data in payload")
+        // Handle empty state gracefully instead of throwing error
+        console.warn("No trending events available")
+        setEvents([])
+        return
       }
+      
       setEvents(data.events)
 
       // Automatically expand the first event
@@ -35,7 +40,8 @@ export function EventTable() {
       }
     } catch (error) {
       console.error("Failed to fetch trending events:", error)
-      // Fallback to empty state or mock can be handled here
+      // Set empty state on error
+      setEvents([])
     } finally {
       setLoading(false)
     }
@@ -73,6 +79,40 @@ export function EventTable() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Handle empty state
+  if (!loading && events.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-foreground">Trending Events</h2>
+          <Badge variant="secondary" className="bg-primary/10 text-primary shadow-sm">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Top Events
+          </Badge>
+        </div>
+
+        <div className="border rounded-lg p-8 text-center">
+          <div className="flex flex-col items-center space-y-4">
+            <TrendingUp className="h-12 w-12 text-muted-foreground/50" />
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium text-foreground">No Trending Events</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                There are currently no trending events available. Check back later for updates.
+              </p>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={fetchTrendingEvents}
+              className="mt-4"
+            >
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
     )

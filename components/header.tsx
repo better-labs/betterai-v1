@@ -55,7 +55,7 @@ export function Header() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Trending
+                Home
               </Link>
               <Link 
                 href="/market-alpha" 
@@ -179,7 +179,7 @@ export function Header() {
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>
                   <Link href="/" className={`w-full ${isActive("/") ? "bg-accent" : ""}`}>
-                    <span>Trending</span>
+                    <span>Home</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

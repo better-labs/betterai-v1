@@ -12,6 +12,7 @@ export const events = pgTable(
     volume: numeric("volume").default("0"),
     trendingRank: integer("trending_rank"),
     endDate: timestamp("end_date"), // Add endDate field
+    marketProvider: text("market_provider"), // Add marketProvider field
     updatedAt: timestamp("updated_at").defaultNow(),
   },
   (table) => {
