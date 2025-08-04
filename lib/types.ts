@@ -109,7 +109,6 @@ export interface PredictionResult {
   confidence_level: "High" | "Medium" | "Low"
   recommendedOutcome: string
   riskLevel: "Low" | "Medium" | "High"
-  key_factors: string[]
   keyFactors: string[]
   riskFactors?: string[]
   methodology?: string

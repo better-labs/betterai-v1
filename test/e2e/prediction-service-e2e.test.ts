@@ -59,7 +59,7 @@ describe('Prediction Service E2E Tests', () => {
       expect(result.prediction).toHaveProperty('probability')
       expect(result.prediction).toHaveProperty('reasoning')
       expect(result.prediction).toHaveProperty('confidence_level')
-      expect(result.prediction).toHaveProperty('key_factors')
+
       expect(result.prediction).toHaveProperty('methodology')
 
       // Verify prediction data types
@@ -67,21 +67,21 @@ describe('Prediction Service E2E Tests', () => {
       expect(typeof result.prediction!.probability).toBe('number')
       expect(typeof result.prediction!.reasoning).toBe('string')
       expect(['High', 'Medium', 'Low']).toContain(result.prediction!.confidence_level)
-      expect(Array.isArray(result.prediction!.key_factors)).toBe(true)
+      expect(Array.isArray(result.prediction!.keyFactors)).toBe(true)
       expect(typeof result.prediction!.methodology).toBe('string')
 
       // Verify probability is within valid range
       expect(result.prediction!.probability).toBeGreaterThanOrEqual(0)
       expect(result.prediction!.probability).toBeLessThanOrEqual(1)
 
-      // Verify key_factors is not empty
-      expect(result.prediction!.key_factors.length).toBeGreaterThan(0)
+      // Verify keyFactors is not empty
+      expect(result.prediction!.keyFactors.length).toBeGreaterThan(0)
 
       console.log(`✅ Prediction generated successfully!`)
       console.log(`📝 Prediction: ${result.prediction!.prediction}`)
       console.log(`📊 Probability: ${result.prediction!.probability}`)
       console.log(`🎯 Confidence: ${result.prediction!.confidence_level}`)
-      console.log(`🔑 Key Factors: ${result.prediction!.key_factors.join(', ')}`)
+      console.log(`🔑 Key Factors: ${result.prediction!.keyFactors.join(', ')}`)
 
       // Verify that a new database record was actually created
       const updatedPredictions = await predictionQueries.getRecentPredictions(1000)

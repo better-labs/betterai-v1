@@ -3,62 +3,8 @@ TODO.md
 # Prototype
 
 
-# Database
-✅ Generate a new model table for ai models named "ai_models". Copy the fields in the response from https://openrouter.ai/docs/api-reference/list-available-models 
-
-example here:
-
-{
-  "data": [
-    {
-      "id": "string",
-      "name": "string",
-      "created": 1741818122,
-      "description": "string",
-      "architecture": {
-        "input_modalities": [
-          "text",
-          "image"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "tokenizer": "GPT",
-        "instruct_type": "string"
-      },
-      "top_provider": {
-        "is_moderated": true,
-        "context_length": 128000,
-        "max_completion_tokens": 16384
-      },
-      "pricing": {
-        "prompt": "0.0000007",
-        "completion": "0.0000007",
-        "image": "0",
-        "request": "0",
-        "web_search": "0",
-        "internal_reasoning": "0",
-        "input_cache_read": "0",
-        "input_cache_write": "0"
-      },
-      "canonical_slug": "string",
-      "context_length": 128000,
-      "hugging_face_id": "string",
-      "per_request_limits": {},
-      "supported_parameters": [
-        "string"
-      ]
-    }
-  ]
-}
-✅ Add a data service named "updateAIModels"that pulls from openrouter  api at https://openrouter.ai/docs/api-reference/list-available-models and saves to new "ai_models" table.
-✅ Add an api route that calls the "updateAIModels" service and can be called as a cron job.
-
-## Market Detail Page
-- [x] Create a new Market Detail page. Page should accept marketId as a query parameter. Page should display the market details and the most recent prediction for that market.
-
-
 ## Predictions
+- Integrate so that Prediction Engine API uses the prediction service when button is clicked.
 - Add necessary buttons Generate prediction button for all markets.
 
 

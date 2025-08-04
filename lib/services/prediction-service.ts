@@ -1,13 +1,12 @@
 import { marketQueries, predictionQueries } from '../db/queries'
 import type { PredictionResult } from '../types'
-import { AI_MODELS, DEFAULT_MODELS } from './ai-models'
+import { DEFAULT_MODEL } from '../data/ai-models'
 
 interface OpenRouterPredictionResult {
   prediction: string
   probability: number
   reasoning: string
   confidence_level: "High" | "Medium" | "Low"
-  key_factors: string[]
   methodology?: string
 }
 
@@ -21,7 +20,7 @@ interface PredictionServiceResponse {
 /**
  * Generate a new prediction for a specific market using OpenRouter AI
  * @param marketId - The unique identifier of the market (required)
- * @param modelName - The AI model to use for prediction. Must be one of the supported models from AI_MODELS. If not provided, defaults to DEFAULT_MODELS.FAST
+ * @param modelName - The AI model to use for prediction. 
  * @returns Promise<PredictionServiceResponse>
  */
 export async function generatePredictionForMarket(marketId: string, modelName?: string): Promise<PredictionServiceResponse> {
@@ -33,13 +32,7 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
       }
     }
 
-    // Validate modelName - if provided, it must be a valid AI model
-    if (modelName && !Object.values(AI_MODELS).includes(modelName as any)) {
-      return {
-        success: false,
-        message: `Invalid model name: ${modelName}. Must be one of the supported AI models.`
-      }
-    }
+    
 
     // Fetch market data from database
     const market = await marketQueries.getMarketById(marketId)
@@ -55,13 +48,12 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
     console.log(`Generating AI prediction for market: ${marketId}`)
     
     // Generate system and user messages before the fetch call
-    const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and key factors. Format your response as a JSON object with the following structure:
+    const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and confidence level. Format your response as a JSON object with the following structure:
     {
       "prediction": "your prediction outcome",
       "probability": 0.XX (number between 0 and 1),
       "reasoning": "detailed explanation of your reasoning",
       "confidence_level": "High/Medium/Low",
-      "key_factors": ["factor1", "factor2", "factor3"],
       "methodology": "brief explanation of analysis approach"
     }`
 
@@ -93,7 +85,7 @@ Please consider the market context, timing, and any relevant factors when making
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelName || DEFAULT_MODELS.FAST,
+        model: modelName || DEFAULT_MODEL,
         messages: [
           {
             role: 'system',
@@ -127,7 +119,6 @@ Please consider the market context, timing, and any relevant factors when making
         probability: 0.5,
         reasoning: text,
         confidence_level: "Medium",
-        key_factors: ["AI Analysis", "Pattern Recognition"],
         methodology: "GPT-4 analysis with fallback parsing",
       }
     }
@@ -137,12 +128,11 @@ Please consider the market context, timing, and any relevant factors when making
       prediction: predictionResult.prediction,
       probability: predictionResult.probability,
       reasoning: predictionResult.reasoning,
-      confidence: Math.round(predictionResult.probability * 100),
+      confidence: predictionResult.probability, // Use probability as confidence
       confidence_level: predictionResult.confidence_level,
-      recommendedOutcome: predictionResult.prediction,
+      recommendedOutcome: predictionResult.prediction, // Use prediction as recommended outcome
       riskLevel: predictionResult.confidence_level === "High" ? "Low" : predictionResult.confidence_level === "Medium" ? "Medium" : "High",
-      key_factors: predictionResult.key_factors,
-      keyFactors: predictionResult.key_factors,
+      keyFactors: ["AI Analysis", "Market Trends"], // Default key factors
       methodology: predictionResult.methodology,
     }
 

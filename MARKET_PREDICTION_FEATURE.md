@@ -38,7 +38,7 @@ This feature enhances the trending events table by adding logic to display the l
     "probability": 0.75,
     "reasoning": "Based on current market conditions",
     "confidence_level": "High",
-    "key_factors": ["Factor 1", "Factor 2"],
+    
     "methodology": "AI analysis"
   },
   "createdAt": "2024-01-15T10:00:00Z",

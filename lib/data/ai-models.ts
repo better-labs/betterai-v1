@@ -4,6 +4,8 @@ import { eq, desc } from 'drizzle-orm'
 import type { AIModel, NewAIModel } from '@/lib/types'
 import { sql } from 'drizzle-orm'
 
+export const DEFAULT_MODEL = 'google/gemini-2.5-flash-lite'
+
 export async function getAllAIModels(): Promise<AIModel[]> {
   return await db.query.aiModels.findMany({
     orderBy: (aiModels, { desc }) => [desc(aiModels.updatedAt)]
