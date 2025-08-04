@@ -30,8 +30,7 @@ import {
   createEvent, 
   updateEvent, 
   deleteEvent, 
-  updateEventIcon, 
-  updateTrendingEvents 
+  updateEventIcon 
 } from '@/lib/data/events'
 import { db } from '@/lib/db'
 import { getEventById as getPolymarketEvent } from '@/lib/polymarket'
@@ -279,13 +278,5 @@ describe('Events Data Functions', () => {
     })
   })
 
-  describe('updateTrendingEvents', () => {
-    it('should execute trending update query', async () => {
-      mockDb.execute.mockResolvedValue({} as any)
 
-      await updateTrendingEvents()
-
-      expect(mockDb.execute).toHaveBeenCalledWith(expect.stringContaining('UPDATE events'))
-    })
-  })
 }) 

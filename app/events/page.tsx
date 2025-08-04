@@ -13,13 +13,21 @@ import { formatVolume } from '@/lib/utils'
 export default async function EventsPage() {
   const events = await getTrendingEvents()
   
+  // Fetch markets for all events
+  const eventsWithMarkets = await Promise.all(
+    events.map(async (event) => {
+      const markets = await getMarketsByEventId(event.id)
+      return { event, markets }
+    })
+  )
+  
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Trending Events</h1>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
+        {eventsWithMarkets.map(({ event, markets }) => (
+          <EventCard key={event.id} event={event} markets={markets} />
         ))}
       </div>
     </div>
@@ -27,8 +35,7 @@ export default async function EventsPage() {
 }
 
 // Server Component for individual event cards
-async function EventCard({ event }: { event: Event }) {
-  const markets = await getMarketsByEventId(event.id)
+function EventCard({ event, markets }: { event: Event; markets: Market[] }) {
   
   return (
     <Card className="hover:shadow-lg transition-shadow">

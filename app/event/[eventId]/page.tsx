@@ -10,13 +10,13 @@ import Link from 'next/link'
 import { formatVolume } from '@/lib/utils'
 
 interface EventDetailPageProps {
-  params: {
+  params: Promise<{
     eventId: string
-  }
+  }>
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
-  const { eventId } = params
+  const { eventId } = await params
 
   // Fetch event data
   const event = await getEventById(eventId)
@@ -130,18 +130,27 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               </div>
             )}
 
-            {event.tags && Array.isArray(event.tags) && event.tags.length > 0 && (
+            {event.tags && Array.isArray(event.tags) && event.tags.length > 0 ? (
               <div>
                 <h4 className="font-medium mb-2">Tags</h4>
                 <div className="flex flex-wrap gap-1">
-                  {event.tags.map((tag: string, index: number) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
+                  {event.tags.map((tag: unknown, index: number) => {
+                    let tagText = 'Unknown'
+                    if (typeof tag === 'string') {
+                      tagText = tag
+                    } else if (tag && typeof tag === 'object' && tag !== null) {
+                      const tagObj = tag as Record<string, unknown>
+                      tagText = (tagObj.label || tagObj.slug || tagObj.name || 'Unknown') as string
+                    }
+                    return (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {tagText}
+                      </Badge>
+                    )
+                  })}
                 </div>
               </div>
-            )}
+            ) : null}
 
             <div>
               <h4 className="font-medium mb-2">Last Updated</h4>

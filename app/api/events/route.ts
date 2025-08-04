@@ -11,33 +11,42 @@ export async function GET(request: NextRequest) {
     if (id) {
       const event = await getEventById(id)
       if (!event) {
-        return Response.json(
-          { success: false, error: 'Event not found' } as ApiResponse,
-          { status: 404 }
+        return new Response(
+          JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
+          { status: 404, headers: { 'Content-Type': 'application/json' } }
         )
       }
-      return Response.json({ success: true, data: event } as ApiResponse)
+      return new Response(
+        JSON.stringify({ success: true, data: event } as ApiResponse),
+        { headers: { 'Content-Type': 'application/json' } }
+      )
     }
 
     if (slug) {
       const event = await getEventById(slug)
       if (!event) {
-        return Response.json(
-          { success: false, error: 'Event not found' } as ApiResponse,
-          { status: 404 }
+        return new Response(
+          JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
+          { status: 404, headers: { 'Content-Type': 'application/json' } }
         )
       }
-      return Response.json({ success: true, data: event } as ApiResponse)
+      return new Response(
+        JSON.stringify({ success: true, data: event } as ApiResponse),
+        { headers: { 'Content-Type': 'application/json' } }
+      )
     }
 
     // Default: get trending events
     const events = await getTrendingEvents()
-    return Response.json({ success: true, data: events } as ApiResponse)
+    return new Response(
+      JSON.stringify({ success: true, data: events } as ApiResponse),
+      { headers: { 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
     console.error('Events API error:', error)
-    return Response.json(
-      { success: false, error: 'Internal server error' } as ApiResponse,
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ success: false, error: 'Internal server error' } as ApiResponse),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }
 }
@@ -51,23 +60,29 @@ export async function POST(request: NextRequest) {
     if (action === 'updateIcon' && eventId) {
       const updatedEvent = await updateEventIcon(eventId)
       if (!updatedEvent) {
-        return Response.json(
-          { success: false, error: 'Failed to update event icon' } as ApiResponse,
-          { status: 404 }
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to update event icon' } as ApiResponse),
+          { status: 404, headers: { 'Content-Type': 'application/json' } }
         )
       }
-      return Response.json({ success: true, data: updatedEvent } as ApiResponse)
+      return new Response(
+        JSON.stringify({ success: true, data: updatedEvent } as ApiResponse),
+        { headers: { 'Content-Type': 'application/json' } }
+      )
     }
 
     // Handle regular event creation
     const eventData: NewEvent = body
     const event = await createEvent(eventData)
-    return Response.json({ success: true, data: event } as ApiResponse)
+    return new Response(
+      JSON.stringify({ success: true, data: event } as ApiResponse),
+      { headers: { 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
     console.error('Events API POST error:', error)
-    return Response.json(
-      { success: false, error: 'Internal server error' } as ApiResponse,
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ success: false, error: 'Internal server error' } as ApiResponse),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }
 }
@@ -78,9 +93,9 @@ export async function PUT(request: NextRequest) {
     const id = searchParams.get('id')
     
     if (!id) {
-      return Response.json(
-        { success: false, error: 'Event ID required' } as ApiResponse,
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ success: false, error: 'Event ID required' } as ApiResponse),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
@@ -88,18 +103,21 @@ export async function PUT(request: NextRequest) {
     const event = await updateEvent(id, eventData)
     
     if (!event) {
-      return Response.json(
-        { success: false, error: 'Event not found' } as ApiResponse,
-        { status: 404 }
+      return new Response(
+        JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
-    return Response.json({ success: true, data: event } as ApiResponse)
+    return new Response(
+      JSON.stringify({ success: true, data: event } as ApiResponse),
+      { headers: { 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
     console.error('Update event error:', error)
-    return Response.json(
-      { success: false, error: 'Failed to update event' } as ApiResponse,
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ success: false, error: 'Failed to update event' } as ApiResponse),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }
 }
@@ -110,27 +128,30 @@ export async function DELETE(request: NextRequest) {
     const id = searchParams.get('id')
     
     if (!id) {
-      return Response.json(
-        { success: false, error: 'Event ID required' } as ApiResponse,
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ success: false, error: 'Event ID required' } as ApiResponse),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
-    const deleted = await deleteEvent(id)
+    const success = await deleteEvent(id)
     
-    if (!deleted) {
-      return Response.json(
-        { success: false, error: 'Event not found' } as ApiResponse,
-        { status: 404 }
+    if (!success) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
-    return Response.json({ success: true, message: 'Event deleted' } as ApiResponse)
+    return new Response(
+      JSON.stringify({ success: true, message: 'Event deleted' } as ApiResponse),
+      { headers: { 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
     console.error('Delete event error:', error)
-    return Response.json(
-      { success: false, error: 'Failed to delete event' } as ApiResponse,
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ success: false, error: 'Failed to delete event' } as ApiResponse),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }
 } 

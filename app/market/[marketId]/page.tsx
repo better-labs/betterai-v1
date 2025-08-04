@@ -248,11 +248,11 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     </div>
                   )}
 
-                  {(prediction.predictionResult as any).key_factors && (prediction.predictionResult as any).key_factors.length > 0 && (
+                  {(prediction.predictionResult as any).keyFactors && (prediction.predictionResult as any).keyFactors.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Key Factors</h4>
                       <div className="flex flex-wrap gap-1">
-                        {(prediction.predictionResult as any).key_factors.map((factor: string, index: number) => (
+                        {(prediction.predictionResult as any).keyFactors.map((factor: string, index: number) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {factor}
                           </Badge>
