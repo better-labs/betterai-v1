@@ -35,7 +35,7 @@ test/
   - `updateEvent()`
   - `deleteEvent()`
   - `updateEventIcon()`
-  - `updateTrendingEvents()`
+  - `updateTrendingEventsAndMarketData()`
 
 ### 2. Edge Case Tests (`routes/events-edge-cases.test.ts`)
 - **Purpose**: Test error handling and boundary conditions
