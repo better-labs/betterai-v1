@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Brain, Zap, Database } from "lucide-react"
 import { Market, PredictionResult } from "@/lib/types"
 
-interface MarketDetailPanelProps {
+interface PredictionEnginePanelProps {
   market: Market
   selectedModels: string[]
   onModelChange: (modelId: string, checked: boolean) => void
@@ -33,7 +33,7 @@ const dataSources = [
 
 ]
 
-export function MarketDetailPanel({
+export function PredictionEnginePanel({
   market,
   selectedModels,
   onModelChange,
@@ -42,18 +42,36 @@ export function MarketDetailPanel({
   onPredict,
   isLoading,
   prediction,
-}: MarketDetailPanelProps) {
+}: PredictionEnginePanelProps) {
   return (
     <div className="border-t bg-muted/50 p-6 rounded-b-lg">
       <div className="max-w-4xl mx-auto">
         
 
         <Card className="shadow-sm max-w-3xl mx-auto">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-center space-x-2">
+          <CardHeader className="relative">
+            <CardTitle className="flex items-center space-x-2">
               <Brain className="h-5 w-5 text-primary" />
               <span>Prediction Engine</span>
             </CardTitle>
+            <Button
+              onClick={onPredict}
+              disabled={isLoading}
+              size="sm"
+              className="absolute top-4 right-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              {isLoading ? (
+                <>
+                  <Zap className="h-3 w-3 mr-1 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Brain className="h-3 w-3 mr-1" />
+                  Launch AI Prediction
+                </>
+              )}
+            </Button>
           </CardHeader>
 
           <CardContent className="space-y-6">

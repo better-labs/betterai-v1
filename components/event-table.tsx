@@ -4,25 +4,16 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users, Calendar, BarChart2 } from "lucide-react"
-import { PredictionModal } from "@/components/prediction-modal"
-import { MarketDetailPanel } from "@/components/market-detail-panel"
 import { MarketList } from "@/components/market-list"
 import { EventIcon } from "@/components/event-icon"
-import { EventWithMarkets, Market, PredictionResult, ThinkingState } from "@/lib/types"
+import { EventWithMarkets, Market, PredictionResult } from "@/lib/types"
 import { formatVolume } from "@/lib/utils"
 
 export function EventTable() {
   const [events, setEvents] = useState<EventWithMarkets[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
-  const [expandedMarkets, setExpandedMarkets] = useState<Set<string>>(new Set())
-
   const [predictions, setPredictions] = useState<Record<string, PredictionResult>>({})
-  const [loadingPredictions, setLoadingPredictions] = useState<Set<string>>(new Set())
-  const [selectedModels, setSelectedModels] = useState<Record<string, string[]>>({})
-  const [selectedDataSources, setSelectedDataSources] = useState<Record<string, string[]>>({})
-  const [modalOpen, setModalOpen] = useState<Record<string, boolean>>({})
-  const [thinkingStates, setThinkingStates] = useState<Record<string, ThinkingState>>({})
 
   useEffect(() => {
     fetchTrendingEvents()
@@ -42,17 +33,6 @@ export function EventTable() {
       if (data.events.length > 0) {
         setExpandedEvents(new Set([data.events[0].id]))
       }
-
-      const defaultModels: Record<string, string[]> = {}
-      const defaultDataSources: Record<string, string[]> = {}
-      data.events.forEach((event: EventWithMarkets) => {
-        event.markets.forEach((market: Market) => {
-          defaultModels[market.id] = ["gpt-4o"]
-          defaultDataSources[market.id] = ["news"]
-        })
-      })
-      setSelectedModels(defaultModels)
-      setSelectedDataSources(defaultDataSources)
     } catch (error) {
       console.error("Failed to fetch trending events:", error)
       // Fallback to empty state or mock can be handled here
@@ -69,94 +49,6 @@ export function EventTable() {
       newExpanded.add(eventId)
     }
     setExpandedEvents(newExpanded)
-  }
-
-  const toggleMarketRow = (marketId: string) => {
-    const newExpanded = new Set(expandedMarkets)
-    if (newExpanded.has(marketId)) {
-      newExpanded.delete(marketId)
-    } else {
-      newExpanded.add(marketId)
-    }
-    setExpandedMarkets(newExpanded)
-  }
-
-  const handlePredict = async (market: Market) => {
-    setModalOpen({ ...modalOpen, [market.id]: true })
-    setThinkingStates({
-      ...thinkingStates,
-      [market.id]: { isThinking: true, message: "Initializing AI analysis...", progress: 0 },
-    })
-
-    try {
-      const response = await fetch("/api/predict-stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          marketId: market.id,
-          question: market.question,
-          model: selectedModels[market.id],
-          dataSources: selectedDataSources[market.id] || ["news"],
-        }),
-      })
-
-      if (!response.body) throw new Error("No response body")
-
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const chunk = decoder.decode(value)
-        const lines = chunk.split("\n")
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6))
-              if (data.type === "thinking") {
-                setThinkingStates(prev => ({
-                  ...prev,
-                  [market.id]: { isThinking: true, message: data.message, progress: data.progress || 0 },
-                }))
-              } else if (data.type === "result") {
-                setThinkingStates(prev => ({
-                  ...prev,
-                  [market.id]: { isThinking: false, message: "", progress: 100 },
-                }))
-                setPredictions(prev => ({ ...prev, [market.id]: data.prediction }))
-              }
-            } catch (e) {
-              console.error("Error parsing SSE data:", e)
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Prediction failed:", error)
-      setThinkingStates(prev => ({
-        ...prev,
-        [market.id]: { isThinking: false, message: "", progress: 0 },
-      }))
-    }
-  }
-
-  const closeModal = (marketId: string) => {
-    setModalOpen({ ...modalOpen, [marketId]: false })
-  }
-
-  const handleDataSourceChange = (marketId: string, sourceId: string, checked: boolean) => {
-    const currentSources = selectedDataSources[marketId] || []
-    if (checked) {
-      setSelectedDataSources({
-        ...selectedDataSources,
-        [marketId]: [...currentSources, sourceId],
-      })
-    } else {
-      setSelectedDataSources({
-        ...selectedDataSources,
-        [marketId]: currentSources.filter(id => id !== sourceId),
-      })
-    }
   }
 
   if (loading) {
@@ -198,15 +90,18 @@ export function EventTable() {
 
       <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
         {events.map(event => (
-          <div key={event.id} className="border-b last:border-b-0">
+          <div key={event.id} className="border-b last:border-b-0" data-testid={`event-row-${event.id}`}>
             {/* Event Row */}
-            <div
-              className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={() => toggleEventRow(event.id)}
-            >
-              <div className="flex flex-col space-y-3 md:grid md:grid-cols-12 md:gap-4 md:space-y-0">
-                {/* Event Icon and Expand - Full width on mobile */}
-                <div className="flex items-center space-x-3 md:col-span-1" data-testid="event-expand">
+            <div className="p-4 space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4" data-testid={`event-content-${event.id}`}>
+              {/* Expand/Collapse Button - 1 col on desktop */}
+              <div className="md:col-span-1 flex items-center justify-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleEventRow(event.id)}
+                  className="p-1 hover:bg-muted/50 transition-colors"
+                  data-testid={`event-toggle-${event.id}`}
+                >
                   {expandedEvents.has(event.id) ? (
                     <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   ) : (
@@ -219,49 +114,49 @@ export function EventTable() {
                       size="md"
                     />
                   </div>
-                </div>
+                </Button>
+              </div>
 
-                {/* Event Title - Full width on mobile, 4 cols on desktop */}
-                <div className="md:col-span-4" data-testid="event-title">
-                  <h3 className="font-semibold text-base md:text-lg text-foreground leading-tight">{event.title}</h3>
-                </div>
+              {/* Event Title - Full width on mobile, 4 cols on desktop */}
+              <div className="md:col-span-4" data-testid="event-title">
+                <h3 className="font-semibold text-base md:text-lg text-foreground leading-tight">{event.title}</h3>
+              </div>
 
-                {/* Event Details - Stack on mobile, grid on desktop */}
-                <div className="flex flex-col space-y-2 md:col-span-7 md:flex-row md:items-center md:space-y-0 md:space-x-4">
-                  {/* Tags Badges */}
-                  <div className="flex items-center gap-1" data-testid="event-tags">
-                    {event.tags && Array.isArray(event.tags) && event.tags.length > 0 ? (
-                      event.tags.slice(0, 3).map((tag, index) => (
-                        <Badge 
-                          key={tag.id || index} 
-                          variant="outline" 
-                          className="text-xs md:text-sm shadow-sm"
-                        >
-                          {tag.label}
-                        </Badge>
-                      ))
-                    ) : (
-                      <Badge variant="outline" className="text-xs md:text-sm shadow-sm">
-                        No Tags
+              {/* Event Details - Stack on mobile, grid on desktop */}
+              <div className="flex flex-col space-y-2 md:col-span-7 md:flex-row md:items-center md:space-y-0 md:space-x-4">
+                {/* Tags Badges */}
+                <div className="flex items-center gap-1" data-testid="event-tags">
+                  {event.tags && Array.isArray(event.tags) && event.tags.length > 0 ? (
+                    event.tags.slice(0, 3).map((tag, index) => (
+                      <Badge 
+                        key={tag.id || index} 
+                        variant="outline" 
+                        className="text-xs md:text-sm shadow-sm"
+                      >
+                        {tag.label}
                       </Badge>
-                    )}
-                  </div>
+                    ))
+                  ) : (
+                    <Badge variant="outline" className="text-xs md:text-sm shadow-sm">
+                      No Tags
+                    </Badge>
+                  )}
+                </div>
 
-                  {/* Volume */}
-                  <div className="flex items-center text-sm text-muted-foreground" data-testid="event-volume">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    <span className="text-xs md:text-sm">
-                      {formatVolume(event.markets.reduce((sum, market) => sum + (Number(market.volume) || 0), 0))} 24hr Volume
-                    </span>
-                  </div>
+                {/* Volume */}
+                <div className="flex items-center text-sm text-muted-foreground" data-testid="event-volume">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  <span className="text-xs md:text-sm">
+                    {formatVolume(event.markets.reduce((sum, market) => sum + (Number(market.volume) || 0), 0))} 24hr Volume
+                  </span>
+                </div>
 
-                  {/* Related Markets */}
-                  <div className="flex items-center text-sm text-muted-foreground" data-testid="event-markets">
-                    <BarChart2 className="h-4 w-4 mr-2" />
-                    <span className="text-xs md:text-sm">
-                      {event.markets.length} Related Market{event.markets.length > 1 ? 's' : ''}
-                    </span>
-                  </div>
+                {/* Related Markets */}
+                <div className="flex items-center text-sm text-muted-foreground" data-testid="event-markets">
+                  <BarChart2 className="h-4 w-4 mr-2" />
+                  <span className="text-xs md:text-sm">
+                    {event.markets.length} Related Market{event.markets.length > 1 ? 's' : ''}
+                  </span>
                 </div>
               </div>
             </div>
@@ -270,41 +165,12 @@ export function EventTable() {
             {expandedEvents.has(event.id) && (
               <MarketList
                 markets={event.markets}
-                expandedMarkets={expandedMarkets}
-                onToggleMarket={toggleMarketRow}
-                selectedModels={selectedModels}
-                onModelChange={(marketId, modelId, checked) => {
-                  const currentModels = selectedModels[marketId] || []
-                  if (checked) {
-                    setSelectedModels({ ...selectedModels, [marketId]: [...currentModels, modelId] })
-                  } else {
-                    setSelectedModels({ ...selectedModels, [marketId]: currentModels.filter(id => id !== modelId) })
-                  }
-                }}
-                selectedDataSources={selectedDataSources}
-                onDataSourceChange={handleDataSourceChange}
-                onPredict={handlePredict}
-                loadingPredictions={loadingPredictions}
                 predictions={predictions}
               />
             )}
           </div>
         ))}
       </div>
-
-      {/* Prediction Modals */}
-      {events.flatMap(event => event.markets).map(market => (
-        <PredictionModal
-          key={`modal-${market.id}`}
-          isOpen={modalOpen[market.id] || false}
-          onClose={() => closeModal(market.id)}
-          market={market}
-          isThinking={thinkingStates[market.id]?.isThinking || false}
-          thinkingMessage={thinkingStates[market.id]?.message || ""}
-          progress={thinkingStates[market.id]?.progress || 0}
-          prediction={predictions[market.id] || null}
-        />
-      ))}
     </div>
   )
 }
