@@ -1,5 +1,11 @@
 import { getTrendingEvents } from '@/lib/data/events'
 import { getMarketsByEventId } from '@/lib/data/markets'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { EventIcon } from '@/components/event-icon'
+import { TrendingUp, BarChart2, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import type { Event, Market } from '@/lib/types'
 import { formatVolume } from '@/lib/utils'
 
@@ -20,50 +26,83 @@ export default async function EventsPage() {
   )
 }
 
-// Client Component for individual event cards
+// Server Component for individual event cards
 async function EventCard({ event }: { event: Event }) {
   const markets = await getMarketsByEventId(event.id)
   
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
-      {event.description && (
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
-          {event.description}
-        </p>
-      )}
-      
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-sm text-gray-500">
-          Volume: {formatVolume(Number(event.volume) || 0)}
-        </span>
-        {event.trendingRank && event.trendingRank > 0 && (
-          <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
-            Trending #{event.trendingRank}
-          </span>
-        )}
-      </div>
-      
-      {markets.length > 0 && (
-        <div className="border-t pt-4">
-          <h3 className="font-medium mb-2">Markets ({markets.length})</h3>
-          <div className="space-y-2">
-            {markets.slice(0, 3).map((market) => (
-              <div key={market.id} className="text-sm">
-                <div className="font-medium">{market.question}</div>
-                <div className="text-gray-500">
-                  Volume: {formatVolume(Number(market.volume) || 0)}
-                </div>
-              </div>
-            ))}
-            {markets.length > 3 && (
-              <div className="text-sm text-gray-500">
-                +{markets.length - 3} more markets
-              </div>
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex items-start gap-3">
+          <EventIcon 
+            icon={event.icon} 
+            title={event.title} 
+            size="md" 
+            className="flex-shrink-0"
+          />
+          <div className="flex-1">
+            <CardTitle className="text-xl mb-2">
+              <Link href={`/event/${event.id}`} className="hover:text-primary transition-colors">
+                {event.title}
+              </Link>
+            </CardTitle>
+            {event.description && (
+              <CardDescription className="line-clamp-2">
+                {event.description}
+              </CardDescription>
             )}
           </div>
         </div>
-      )}
-    </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">
+            Volume: {formatVolume(Number(event.volume) || 0)}
+          </span>
+          {event.trendingRank && event.trendingRank > 0 && (
+            <Badge variant="secondary">
+              <TrendingUp className="h-3 w-3 mr-1" />
+              #{event.trendingRank}
+            </Badge>
+          )}
+        </div>
+        
+        {markets.length > 0 && (
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-sm flex items-center gap-1">
+                <BarChart2 className="h-4 w-4" />
+                Markets ({markets.length})
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {markets.slice(0, 3).map((market) => (
+                <div key={market.id} className="text-sm">
+                  <div className="font-medium line-clamp-1">{market.question}</div>
+                  <div className="text-muted-foreground">
+                    Volume: {formatVolume(Number(market.volume) || 0)}
+                  </div>
+                </div>
+              ))}
+              {markets.length > 3 && (
+                <div className="text-sm text-muted-foreground">
+                  +{markets.length - 3} more markets
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        <div className="pt-2">
+          <Button variant="outline" size="sm" asChild className="w-full">
+            <Link href={`/event/${event.id}`} className="flex items-center gap-2">
+              View Event Details
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 } 

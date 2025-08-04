@@ -1,5 +1,6 @@
 import { marketQueries, predictionQueries } from '../db/queries'
 import type { PredictionResult } from '../types'
+import { AI_MODELS, DEFAULT_MODELS } from './ai-models'
 
 interface OpenRouterPredictionResult {
   prediction: string
@@ -19,7 +20,8 @@ interface PredictionServiceResponse {
 
 /**
  * Generate a new prediction for a specific market using OpenRouter AI
- * @param marketId - The unique identifier of the market
+ * @param marketId - The unique identifier of the market (required)
+ * @param modelName - The AI model to use for prediction. Must be one of the supported models from AI_MODELS. If not provided, defaults to DEFAULT_MODELS.FAST
  * @returns Promise<PredictionServiceResponse>
  */
 export async function generatePredictionForMarket(marketId: string, modelName?: string): Promise<PredictionServiceResponse> {
@@ -28,6 +30,14 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
       return {
         success: false,
         message: "Market ID is required"
+      }
+    }
+
+    // Validate modelName - if provided, it must be a valid AI model
+    if (modelName && !Object.values(AI_MODELS).includes(modelName as any)) {
+      return {
+        success: false,
+        message: `Invalid model name: ${modelName}. Must be one of the supported AI models.`
       }
     }
 
@@ -83,7 +93,7 @@ Please consider the market context, timing, and any relevant factors when making
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelName || 'google/gemini-2.5-flash-lite',
+        model: modelName || DEFAULT_MODELS.FAST,
         messages: [
           {
             role: 'system',
@@ -137,7 +147,7 @@ Please consider the market context, timing, and any relevant factors when making
       userMessage: market.question,
       marketId: marketId,
       predictionResult: internalPredictionResult,
-      modelName: modelName || 'google/gemini-2.5-flash-lite',
+      modelName: modelName,
       systemPrompt: systemMessage,
       aiResponse: text,
       createdAt: new Date(),

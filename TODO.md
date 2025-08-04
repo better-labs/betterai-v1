@@ -7,8 +7,12 @@ TODO.md
 - [x] Create a new Market Detail page. Page should accept marketId as a query parameter. Page should display the market details and the most recent prediction for that market.
 
 
+## Predictions
+Generate prediction button for all markets.
+
+
 ## UX
-- Fix Market amounts to return values from the database.
+- [x] Fix Market amounts to return values from the database.
 - Add Kalshi market updates
 - Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
 
@@ -40,8 +44,9 @@ Need component tests for UI logic
 
 
 ## E2E User flow
-- [ ] Allow user to trigger prediction for a given market
-- [ ] Add hyperlink to markets
+- [x] Allow user to trigger prediction for a given market
+- [x] Add hyperlink to markets
+- [x] Display latest market prediction from database when AI prediction doesn't exist
 
 ## Authentication & Rate Limiting
 - [ ] Design mechanism to prevent overuse of free prediction
