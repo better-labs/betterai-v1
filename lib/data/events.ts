@@ -191,3 +191,113 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
 
 
 
+export async function updatePolymarketAllEventsAndMarketData(): Promise<{
+  insertedEvents: Event[],
+  insertedMarkets: Market[]
+}> {
+  // Fetch all active events from Polymarket API
+  const eventsResponse = await fetch("https://gamma-api.polymarket.com/events?order=id&closed=false&active=true&limit=10000", {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "PredictionService/1.0",
+    },
+  })
+
+  if (!eventsResponse.ok) {
+    throw new Error(`Polymarket API error: ${eventsResponse.status}`)
+  }
+
+  const eventsData = await eventsResponse.json()
+  
+  if (!Array.isArray(eventsData)) {
+    throw new Error("Invalid response format from Polymarket events API")
+  }
+  
+  const allEvents: PolymarketEvent[] = eventsData
+    .filter((event): event is PolymarketEvent => {
+      const isValid = event && 
+             typeof event === 'object' && 
+             typeof event.id === 'string' &&
+             typeof event.title === 'string' &&
+             typeof event.description === 'string' &&
+             typeof event.volume === 'number' &&
+             (event.slug === undefined || typeof event.slug === 'string') &&
+             (event.tags === undefined || Array.isArray(event.tags))
+      
+      return isValid
+    })
+    .sort((a: PolymarketEvent, b: PolymarketEvent) => b.volume - a.volume)
+
+  console.log(`Fetched ${allEvents.length} active events from Polymarket`)
+
+  // Extract markets from events
+  const allMarkets = allEvents
+    .flatMap(event => (event.markets || []).map(market => ({ ...market, eventId: event.id })))
+  
+  console.log(`Extracted ${allMarkets.length} markets from events`)
+
+  // Transform events data for database
+  const eventsToInsert: NewEvent[] = allEvents.map((event) => ({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    slug: event.slug || null,
+    tags: event.tags || null,
+    endDate: event.endDate ? new Date(event.endDate) : null,
+    volume: event.volume.toString(),
+    trendingRank: null, // No trending rank for all events
+    marketProvider: "polymarket",
+    updatedAt: new Date(),
+  }))
+
+  // Transform markets data for database
+  const marketsToInsert: NewMarket[] = allMarkets
+    .filter((market): market is PolymarketMarket & { eventId: string } => {
+      const isValid = market && 
+             typeof market === 'object' && 
+             typeof market.id === 'string' &&
+             typeof market.question === 'string' &&
+             typeof market.outcomePrices === 'string' &&
+             typeof market.volume === 'string' &&
+             typeof market.liquidity === 'string' &&
+             typeof market.eventId === 'string'
+      
+      return isValid
+    })
+    .map((market: PolymarketMarket) => {
+      let outcomePricesArray: string[] = []
+      try {
+        const parsed = JSON.parse(market.outcomePrices)
+        outcomePricesArray = Array.isArray(parsed) ? parsed.map(p => p.toString()) : []
+      } catch (error) {
+        console.error(`Failed to parse outcomePrices for market ${market.id}:`, error)
+      }
+      
+      return {
+        id: market.id,
+        question: market.question,
+        eventId: market.eventId,
+        outcomePrices: outcomePricesArray,
+        volume: market.volume,
+        liquidity: market.liquidity,
+        updatedAt: new Date(),
+      }
+    })
+
+  // Insert new data
+  console.log(`Upserting ${eventsToInsert.length} events...`)
+  const insertedEvents = await eventQueries.upsertEvents(eventsToInsert)
+
+  console.log(`Upserting ${marketsToInsert.length} markets...`)
+  const insertedMarkets = await marketQueries.upsertMarkets(marketsToInsert)
+
+  console.log(`Successfully updated ${insertedEvents.length} events and ${insertedMarkets.length} markets`)
+
+  return {
+    insertedEvents: insertedEvents.filter(Boolean) as Event[],
+    insertedMarkets: insertedMarkets.filter(Boolean) as Market[]
+  }
+}
+
+
+
