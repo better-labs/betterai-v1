@@ -1,28 +1,16 @@
 #!/usr/bin/env node
 
-import { drizzle } from 'drizzle-orm/neon-http'
-import { neon } from '@neondatabase/serverless'
-import { config } from 'dotenv'
 import { sql as drizzleSql } from 'drizzle-orm'
 import { events } from '../lib/db/schema'
 import { CATEGORIES } from '../lib/categorize'
+import { initializeDatabase, runDatabaseOperation, handleScriptCompletion } from './db-utils'
 
-// Load environment variables
-config({ path: '.env.local' })
-
-const connectionString = process.env.DATABASE_URL
-if (!connectionString) {
-  console.error('DATABASE_URL environment variable is required')
-  process.exit(1)
-}
-
-const neonSql = neon(connectionString)
-const db = drizzle(neonSql)
+const db = initializeDatabase()
 
 async function getTopEventsByCategory() {
   console.log('🏆 Top Events by Category (by Volume)\n')
   
-  try {
+  return runDatabaseOperation(async () => {
     // Get all categories that have events
     const categoryStats = await db
       .select({
@@ -117,20 +105,12 @@ async function getTopEventsByCategory() {
         maximumFractionDigits: 0
       })}`)
     }
-
-  } catch (error) {
-    console.error('❌ Error fetching top events by category:', error)
-    process.exit(1)
-  }
+  }, 'fetching top events by category')
 }
 
 // Run the script
+const { onSuccess, onError } = handleScriptCompletion('Top events by category analysis completed!')
+
 getTopEventsByCategory()
-  .then(() => {
-    console.log('✅ Top events by category analysis completed!')
-    process.exit(0)
-  })
-  .catch((error) => {
-    console.error('💥 Script failed:', error)
-    process.exit(1)
-  }) 
+  .then(onSuccess)
+  .catch(onError) 

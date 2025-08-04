@@ -243,6 +243,7 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
         outcomePrices: outcomePricesArray,
         volume: market.volume,
         liquidity: market.liquidity,
+        endDate: market.endDate ? new Date(market.endDate) : null,
         updatedAt: new Date(),
       }
     })
@@ -359,6 +360,7 @@ export async function updatePolymarketAllEventsAndMarketData(): Promise<{
         outcomePrices: outcomePricesArray,
         volume: market.volume,
         liquidity: market.liquidity,
+        endDate: market.endDate ? new Date(market.endDate) : null,
         updatedAt: new Date(),
       }
     })
