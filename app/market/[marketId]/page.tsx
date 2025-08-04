@@ -1,27 +1,31 @@
 import { notFound } from 'next/navigation'
 import { getMarketById } from '@/lib/data/markets'
 import { getMostRecentPredictionByMarketId } from '@/lib/data/predictions'
+import { getEventById } from '@/lib/data/events'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Calendar, DollarSign, BarChart2, TrendingUp } from 'lucide-react'
+import { ArrowLeft, Calendar, DollarSign, BarChart2, TrendingUp, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { formatVolume } from '@/lib/utils'
 
 interface MarketDetailPageProps {
-  params: {
+  params: Promise<{
     marketId: string
-  }
+  }>
 }
 
 export default async function MarketDetailPage({ params }: MarketDetailPageProps) {
-  const { marketId } = params
+  const { marketId } = await params
 
   // Fetch market data
   const market = await getMarketById(marketId)
   if (!market) {
     notFound()
   }
+
+  // Fetch event data if market has an eventId
+  const event = market.eventId ? await getEventById(market.eventId) : null
 
   // Fetch most recent prediction
   const prediction = await getMostRecentPredictionByMarketId(marketId)
@@ -38,6 +42,54 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
             </Button>
           </Link>
         </div>
+
+        {/* Event Information */}
+        {event && (
+          <Link href={`/event/${event.id}`}>
+            <Card className="mb-6 hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  {event.icon && (
+                    <img 
+                      src={event.icon} 
+                      alt={event.title}
+                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                      {event.title}
+                    </h3>
+                    {event.description && (
+                      <p className="text-muted-foreground mb-4">
+                        {event.description}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      {event.endDate && (
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>{new Date(event.endDate as Date).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      {event.volume && (
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-4 w-4" />
+                          <span>{formatVolume(Number(event.volume) || 0)}</span>
+                        </div>
+                      )}
+                      {event.trendingRank && event.trendingRank > 0 && (
+                        <Badge variant="secondary">
+                          #{event.trendingRank}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        )}
 
         {/* Market Header */}
         <div className="mb-8">
@@ -154,7 +206,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                   <div>
                     <h4 className="font-medium mb-2">Prediction</h4>
                     <p className="text-lg font-semibold text-primary">
-                      {prediction.predictionResult.prediction}
+                      {(prediction.predictionResult as any).prediction}
                     </p>
                   </div>
 
@@ -162,13 +214,13 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     <h4 className="font-medium mb-2">Probability</h4>
                     <div className="flex items-center gap-3">
                       <span className="text-2xl font-bold">
-                        {(prediction.predictionResult.probability * 100).toFixed(1)}%
+                        {((prediction.predictionResult as any).probability * 100).toFixed(1)}%
                       </span>
                       <div className="flex-1 bg-muted rounded-full h-3">
                         <div 
                           className="bg-primary h-3 rounded-full transition-all"
                           style={{ 
-                            width: `${prediction.predictionResult.probability * 100}%` 
+                            width: `${(prediction.predictionResult as any).probability * 100}%` 
                           }}
                         />
                       </div>
@@ -179,28 +231,28 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     <h4 className="font-medium mb-2">Confidence Level</h4>
                     <Badge 
                       variant={
-                        prediction.predictionResult.confidence_level === "High" ? "default" :
-                        prediction.predictionResult.confidence_level === "Medium" ? "secondary" : "outline"
+                        (prediction.predictionResult as any).confidence_level === "High" ? "default" :
+                        (prediction.predictionResult as any).confidence_level === "Medium" ? "secondary" : "outline"
                       }
                     >
-                      {prediction.predictionResult.confidence_level}
+                      {(prediction.predictionResult as any).confidence_level}
                     </Badge>
                   </div>
 
-                  {prediction.predictionResult.reasoning && (
+                  {(prediction.predictionResult as any).reasoning && (
                     <div>
                       <h4 className="font-medium mb-2">Reasoning</h4>
                       <p className="text-sm text-muted-foreground">
-                        {prediction.predictionResult.reasoning}
+                        {(prediction.predictionResult as any).reasoning}
                       </p>
                     </div>
                   )}
 
-                  {prediction.predictionResult.key_factors && prediction.predictionResult.key_factors.length > 0 && (
+                  {(prediction.predictionResult as any).key_factors && (prediction.predictionResult as any).key_factors.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Key Factors</h4>
                       <div className="flex flex-wrap gap-1">
-                        {prediction.predictionResult.key_factors.map((factor, index) => (
+                        {(prediction.predictionResult as any).key_factors.map((factor: string, index: number) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {factor}
                           </Badge>
@@ -211,7 +263,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
 
                   <div className="pt-4 border-t">
                     <p className="text-xs text-muted-foreground">
-                      Prediction made on {new Date(prediction.createdAt).toLocaleString()}
+                      Prediction made on {new Date(prediction.createdAt as Date).toLocaleString()}
                     </p>
                   </div>
                 </div>

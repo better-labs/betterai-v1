@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, DollarSign, Calendar, BarChart2 } from "lucide-react"
@@ -32,6 +33,49 @@ export function MarketList({
   loadingPredictions,
   predictions,
 }: MarketListProps) {
+  const [marketPredictions, setMarketPredictions] = useState<Record<string, PredictionResult>>({})
+  const [loadingMarketPredictions, setLoadingMarketPredictions] = useState<Set<string>>(new Set())
+  const processedMarkets = useRef<Set<string>>(new Set())
+
+  const fetchMarketPrediction = useCallback(async (marketId: string) => {
+    if (loadingMarketPredictions.has(marketId) || marketPredictions[marketId]) {
+      return
+    }
+
+    setLoadingMarketPredictions(prev => new Set(prev).add(marketId))
+    
+    try {
+      const response = await fetch(`/api/markets/${marketId}/prediction`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.prediction) {
+          setMarketPredictions(prev => ({
+            ...prev,
+            [marketId]: data.prediction
+          }))
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to fetch market prediction for ${marketId}:`, error)
+    } finally {
+      setLoadingMarketPredictions(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(marketId)
+        return newSet
+      })
+    }
+  }, [loadingMarketPredictions, marketPredictions])
+
+  // Fetch market predictions for markets that don't have AI predictions
+  useEffect(() => {
+    markets.forEach(market => {
+      if (!predictions[market.id] && !marketPredictions[market.id] && !loadingMarketPredictions.has(market.id) && !processedMarkets.current.has(market.id)) {
+        processedMarkets.current.add(market.id)
+        fetchMarketPrediction(market.id)
+      }
+    })
+  }, [markets, predictions])
+
   return (
     <div className="pl-4 pr-4 pb-4 bg-muted/20 md:pl-8" data-testid="market-list">
       {markets.map(market => (
@@ -67,17 +111,18 @@ export function MarketList({
                 <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">Market Prediction</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
-                    {market.question.toLowerCase().includes('libertarian') ? '12%' : 
-                     market.question.toLowerCase().includes('democratic') ? '73%' : '58%'}
+                    {market.outcomePrices?.[0] ? `${(Number(market.outcomePrices[0]) * 100).toFixed(0)}%` : 'N/A'}
                   </div>
                   <div className="flex flex-col items-center space-y-1 md:space-y-2">
                     <span className="text-xs text-muted-foreground">Chance</span>
                     <div className="w-10 md:w-12 h-2 bg-muted rounded-full">
                       <div 
-                        className={`h-2 rounded-full ${
-                          market.question.toLowerCase().includes('libertarian') ? 'w-1 bg-primary' :
-                          market.question.toLowerCase().includes('democratic') ? 'w-9 bg-primary' : 'w-7 bg-primary'
-                        }`}
+                        className="h-2 rounded-full bg-primary"
+                        style={{ 
+                          width: market.outcomePrices?.[0] 
+                            ? `${Math.min(100, Number(market.outcomePrices[0]) * 100)}%` 
+                            : '0%' 
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -89,16 +134,51 @@ export function MarketList({
                 <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Basic)</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
-                    {market.question.toLowerCase().includes('libertarian') ? '8%' : 
-                     market.question.toLowerCase().includes('democratic') ? '68%' : '52%'}
+                    {(() => {
+                      // First check if there's a current AI prediction
+                      if (predictions[market.id]) {
+                        const prediction = predictions[market.id]
+                        return `${(prediction.probability * 100).toFixed(0)}%`
+                      }
+                      
+                      
+                      // Show loading state
+                      if (loadingMarketPredictions.has(market.id)) {
+                        return '...'
+                      }
+                      
+                      
+                      // Default fallback
+                      return '--'
+                    })()}
                   </div>
                   <div className="flex flex-col items-center space-y-1 md:space-y-2">
                     <span className="text-xs text-muted-foreground">Chance</span>
                     <div className="w-10 md:w-12 h-2 bg-muted rounded-full">
                       <div 
                         className={`h-2 rounded-full ${
-                          market.question.toLowerCase().includes('libertarian') ? 'w-1 bg-green-500' :
-                          market.question.toLowerCase().includes('democratic') ? 'w-8 bg-green-500' : 'w-6 bg-green-500'
+                          (() => {
+                            // First check if there's a current AI prediction
+                            if (predictions[market.id]) {
+                              const prediction = predictions[market.id]
+                              return `w-${Math.min(12, Math.max(1, Math.round(prediction.probability * 12)))} bg-green-500`
+                            }
+                            
+                            // Then check if there's a stored market prediction
+                            if (marketPredictions[market.id]) {
+                              const prediction = marketPredictions[market.id]
+                              return `w-${Math.min(12, Math.max(1, Math.round(prediction.probability * 12)))} bg-green-500`
+                            }
+                            
+                            // Show loading state
+                            if (loadingMarketPredictions.has(market.id)) {
+                              return 'w-6 bg-muted-foreground animate-pulse'
+                            }
+                            
+                            
+                            // Default fallback
+                            return 'w-6 bg-green-500'
+                          })()
                         }`}
                       ></div>
                     </div>
@@ -117,7 +197,13 @@ export function MarketList({
                     <ChevronDown className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                   ) : (
                     <>
-                      <div className="text-2xl md:text-3xl font-bold text-primary">Go</div>
+                      <div className="text-2xl md:text-3xl font-bold text-primary">
+                        {(() => {
+                          
+                          // Show "--" when no prediction is available
+                          return '--'
+                        })()}
+                      </div>
                       <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                     </>
                   )}
