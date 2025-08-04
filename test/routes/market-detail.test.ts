@@ -45,7 +45,7 @@ describe('Market Detail Page', () => {
         probability: 0.75,
         reasoning: 'Test reasoning for the prediction',
         confidence_level: 'High',
-        key_factors: ['Factor 1', 'Factor 2']
+
       },
       aiResponse: 'Test AI response'
     })

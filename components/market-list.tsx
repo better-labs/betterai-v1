@@ -108,7 +108,7 @@ export function MarketList({
             <div className="space-y-3 md:space-y-0 md:col-span-8 md:grid md:grid-cols-3 md:gap-4">
               {/* Market Prediction Section */}
               <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">Market Prediction</div>
+                <div className="text-sm font-medium text-muted-foreground mb-3 md:mb-4">Market Prediction</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
                     {market.outcomePrices?.[0] ? `${(Number(market.outcomePrices[0]) * 100).toFixed(0)}%` : 'N/A'}
@@ -131,7 +131,7 @@ export function MarketList({
 
               {/* AI Prediction (Basic) Section */}
               <div className="border border-muted-foreground/20 rounded-lg p-3 md:p-4 bg-background shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-xs font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Basic)</div>
+                <div className="text-med font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Basic)</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   <div className="text-2xl md:text-3xl font-bold text-foreground">
                     {(() => {
@@ -191,7 +191,7 @@ export function MarketList({
                 onClick={() => onToggleMarket(market.id)}
                 data-testid={`market-expand-${market.id}`}
               >
-                <div className="text-sm font-medium text-muted-foreground mb-3 md:mb-4">AI Prediction (Premium)</div>
+                <div className="text-base font-medium text-muted-foreground mb-3 md:mb-4">Prediction Engine</div>
                 <div className="flex items-center justify-center space-x-2 md:space-x-3">
                   {expandedMarkets.has(market.id) ? (
                     <ChevronDown className="h-5 w-5 md:h-6 md:w-6 text-primary" />
@@ -200,8 +200,8 @@ export function MarketList({
                       <div className="text-2xl md:text-3xl font-bold text-primary">
                         {(() => {
                           
-                          // Show "--" when no prediction is available
-                          return '--'
+                        
+                          return 'Go'
                         })()}
                       </div>
                       <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />

@@ -69,6 +69,32 @@ export const predictions = pgTable(
   },
 )
 
+export const aiModels = pgTable(
+  "ai_models",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    created: integer("created"),
+    description: text("description"),
+    architecture: jsonb("architecture"),
+    topProvider: jsonb("top_provider"),
+    pricing: jsonb("pricing"),
+    canonicalSlug: text("canonical_slug"),
+    contextLength: integer("context_length"),
+    huggingFaceId: text("hugging_face_id"),
+    perRequestLimits: jsonb("per_request_limits"),
+    supportedParameters: jsonb("supported_parameters"),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => {
+    return {
+      nameIdx: index("idx_ai_models_name").on(table.name),
+      contextLengthIdx: index("idx_ai_models_context_length").on(table.contextLength),
+      canonicalSlugIdx: index("idx_ai_models_canonical_slug").on(table.canonicalSlug),
+    }
+  },
+)
+
 // Drizzle inferred types
 export type Event = typeof events.$inferSelect
 export type NewEvent = typeof events.$inferInsert
@@ -76,3 +102,5 @@ export type Market = typeof markets.$inferSelect
 export type NewMarket = typeof markets.$inferInsert
 export type Prediction = typeof predictions.$inferSelect
 export type NewPrediction = typeof predictions.$inferInsert
+export type AIModel = typeof aiModels.$inferSelect
+export type NewAIModel = typeof aiModels.$inferInsert

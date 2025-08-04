@@ -1,6 +1,6 @@
 // Mock modules before importing
 jest.mock('@/lib/data/events', () => ({
-  updateTrendingEvents: jest.fn()
+  updateTrendingEventsAndMarketData: jest.fn()
 }))
 
 // Mock crypto.randomUUID globally
@@ -10,11 +10,11 @@ Object.defineProperty(global, 'crypto', {
   }
 })
 
-import { updateTrendingEvents } from '@/lib/data/events'
+import { updateTrendingEventsAndMarketData } from '@/lib/data/events'
 
-const mockUpdateTrendingEvents = updateTrendingEvents as jest.MockedFunction<typeof updateTrendingEvents>
+const mockUpdateTrendingEventsAndMarketData = updateTrendingEventsAndMarketData as jest.MockedFunction<typeof updateTrendingEventsAndMarketData>
 
-describe('Update Trending Events Functionality', () => {
+describe('Update Trending Events and Market Data Functionality', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -44,39 +44,71 @@ describe('Update Trending Events Functionality', () => {
     })
   })
 
-  describe('updateTrendingEvents function', () => {
-    it('should call updateTrendingEvents successfully', async () => {
-      mockUpdateTrendingEvents.mockResolvedValue(undefined)
+  describe('updateTrendingEventsAndMarketData function', () => {
+    it('should call updateTrendingEventsAndMarketData successfully', async () => {
+      const mockResult = {
+        insertedEvents: [{ 
+          id: '1', 
+          title: 'Event 1',
+          description: null,
+          slug: null,
+          icon: null,
+          tags: null,
+          volume: null,
+          trendingRank: null,
+          endDate: null,
+          updatedAt: null
+        }],
+        insertedMarkets: [{ 
+          id: 'm1', 
+          question: 'Market 1',
+          eventId: null,
+          outcomePrices: null,
+          volume: null,
+          liquidity: null,
+          category: null,
+          active: null,
+          closed: null,
+          endDate: null,
+          updatedAt: null,
+          description: null
+        }]
+      }
+      mockUpdateTrendingEventsAndMarketData.mockResolvedValue(mockResult)
 
-      await updateTrendingEvents()
+      const result = await updateTrendingEventsAndMarketData()
 
-      expect(mockUpdateTrendingEvents).toHaveBeenCalledTimes(1)
-      expect(mockUpdateTrendingEvents).toHaveBeenCalledWith()
+      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
+      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledWith()
+      expect(result).toEqual(mockResult)
     })
 
-    it('should handle errors from updateTrendingEvents', async () => {
+    it('should handle errors from updateTrendingEventsAndMarketData', async () => {
       const error = new Error('Database connection failed')
-      mockUpdateTrendingEvents.mockRejectedValue(error)
+      mockUpdateTrendingEventsAndMarketData.mockRejectedValue(error)
 
-      await expect(updateTrendingEvents()).rejects.toThrow('Database connection failed')
+      await expect(updateTrendingEventsAndMarketData()).rejects.toThrow('Database connection failed')
 
-      // Note: The actual route handler would log the error, but the function itself doesn't
-      // So we just verify the error is thrown
-      expect(mockUpdateTrendingEvents).toHaveBeenCalledTimes(1)
+      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
     })
 
     it('should measure execution duration', async () => {
-      mockUpdateTrendingEvents.mockImplementation(async () => {
+      const mockResult = {
+        insertedEvents: [] as any[],
+        insertedMarkets: [] as any[]
+      }
+      mockUpdateTrendingEventsAndMarketData.mockImplementation(async () => {
         // Simulate some processing time
         await new Promise(resolve => setTimeout(resolve, 10))
+        return mockResult
       })
 
       const startTime = Date.now()
-      await updateTrendingEvents()
+      await updateTrendingEventsAndMarketData()
       const endTime = Date.now()
 
       expect(endTime - startTime).toBeGreaterThanOrEqual(10)
-      expect(mockUpdateTrendingEvents).toHaveBeenCalledTimes(1)
+      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -84,9 +116,11 @@ describe('Update Trending Events Functionality', () => {
     it('should return correct success response structure', () => {
       const successResponse = {
         success: true,
-        message: 'Trending events updated successfully',
+        message: 'Successfully synced 2 events and 3 markets from Polymarket',
         data: {
           duration: '50ms',
+          events_count: 2,
+          markets_count: 3,
           metadata: {
             database: 'neon',
             orm: 'drizzle',
@@ -100,6 +134,8 @@ describe('Update Trending Events Functionality', () => {
       expect(successResponse).toHaveProperty('message')
       expect(successResponse).toHaveProperty('data')
       expect(successResponse.data).toHaveProperty('duration')
+      expect(successResponse.data).toHaveProperty('events_count')
+      expect(successResponse.data).toHaveProperty('markets_count')
       expect(successResponse.data).toHaveProperty('metadata')
       expect(successResponse.data.metadata).toHaveProperty('database', 'neon')
       expect(successResponse.data.metadata).toHaveProperty('orm', 'drizzle')
@@ -146,31 +182,35 @@ describe('Update Trending Events Functionality', () => {
       ]
 
       for (const error of errors) {
-        mockUpdateTrendingEvents.mockRejectedValue(error)
+        mockUpdateTrendingEventsAndMarketData.mockRejectedValue(error)
 
         try {
-          await updateTrendingEvents()
+          await updateTrendingEventsAndMarketData()
         } catch (e) {
           // Expected to throw
         }
 
-        expect(mockUpdateTrendingEvents).toHaveBeenCalledTimes(1)
-        mockUpdateTrendingEvents.mockClear()
+        expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
+        mockUpdateTrendingEventsAndMarketData.mockClear()
       }
     })
 
     it('should handle concurrent execution', async () => {
-      mockUpdateTrendingEvents.mockResolvedValue(undefined)
+      const mockResult = {
+        insertedEvents: [] as any[],
+        insertedMarkets: [] as any[]
+      }
+      mockUpdateTrendingEventsAndMarketData.mockResolvedValue(mockResult)
 
       const promises = [
-        updateTrendingEvents(),
-        updateTrendingEvents(),
-        updateTrendingEvents()
+        updateTrendingEventsAndMarketData(),
+        updateTrendingEventsAndMarketData(),
+        updateTrendingEventsAndMarketData()
       ]
 
       await Promise.all(promises)
 
-      expect(mockUpdateTrendingEvents).toHaveBeenCalledTimes(3)
+      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(3)
     })
   })
 
@@ -184,11 +224,13 @@ describe('Update Trending Events Functionality', () => {
         },
         
         // Success response
-        successResponse: (duration: number) => ({
+        successResponse: (duration: number, eventsCount: number, marketsCount: number) => ({
           success: true,
-          message: 'Trending events updated successfully',
+          message: `Successfully synced ${eventsCount} events and ${marketsCount} markets from Polymarket`,
           data: {
             duration: `${duration}ms`,
+            events_count: eventsCount,
+            markets_count: marketsCount,
             metadata: {
               database: 'neon',
               orm: 'drizzle',
@@ -211,9 +253,11 @@ describe('Update Trending Events Functionality', () => {
       expect(routeHandlerLogic.checkAuth(null)).toBe(false)
 
       // Test success response
-      const successResp = routeHandlerLogic.successResponse(100)
+      const successResp = routeHandlerLogic.successResponse(100, 2, 3)
       expect(successResp.success).toBe(true)
       expect(successResp.data.duration).toBe('100ms')
+      expect(successResp.data.events_count).toBe(2)
+      expect(successResp.data.markets_count).toBe(3)
       expect(successResp.data.metadata.database).toBe('neon')
 
       // Test error response

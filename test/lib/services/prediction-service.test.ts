@@ -36,7 +36,7 @@ describe('generatePredictionForMarket', () => {
           probability: 0.75,
           reasoning: 'Team A has shown strong performance throughout the season',
           confidence_level: 'High',
-          key_factors: ['Recent form', 'Head-to-head record', 'Home advantage'],
+
           methodology: 'Analysis based on recent performance and statistics'
         })
       }
@@ -47,14 +47,13 @@ describe('generatePredictionForMarket', () => {
     id: 1,
     userMessage: mockMarket.question,
     marketId: mockMarket.id,
-    predictionResult: {
-      prediction: 'Yes, Team A will win',
-      probability: 0.75,
-      reasoning: 'Team A has shown strong performance throughout the season',
-      confidence_level: 'High' as const,
-      key_factors: ['Recent form', 'Head-to-head record', 'Home advantage'],
-      methodology: 'Analysis based on recent performance and statistics'
-    },
+          predictionResult: {
+        prediction: 'Yes, Team A will win',
+        probability: 0.75,
+        reasoning: 'Team A has shown strong performance throughout the season',
+        confidence_level: 'High' as const,
+        methodology: 'Analysis based on recent performance and statistics'
+      },
     modelName: 'google/gemini-2.5-flash-lite',
     systemPrompt: expect.any(String),
     aiResponse: JSON.stringify(mockOpenRouterResponse.choices[0].message.content),
@@ -88,7 +87,6 @@ describe('generatePredictionForMarket', () => {
         probability: 0.75,
         reasoning: 'Team A has shown strong performance throughout the season',
         confidence_level: 'High',
-        key_factors: ['Recent form', 'Head-to-head record', 'Home advantage'],
         methodology: 'Analysis based on recent performance and statistics'
       })
     })
@@ -217,7 +215,7 @@ describe('generatePredictionForMarket', () => {
         probability: 0.5,
         reasoning: 'This is not valid JSON',
         confidence_level: 'Medium',
-        key_factors: ['AI Analysis', 'Pattern Recognition'],
+
         methodology: 'GPT-4 analysis with fallback parsing'
       })
     })
@@ -286,7 +284,7 @@ describe('generatePredictionForMarket', () => {
       expect(systemMessage.content).toContain('"probability"')
       expect(systemMessage.content).toContain('"reasoning"')
       expect(systemMessage.content).toContain('"confidence_level"')
-      expect(systemMessage.content).toContain('"key_factors"')
+
       expect(systemMessage.content).toContain('"methodology"')
       expect(systemMessage.content).not.toContain('"timeframe"')
       expect(systemMessage.content).not.toContain('"risks"')

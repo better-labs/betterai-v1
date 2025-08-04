@@ -87,7 +87,7 @@ describe('Events Integration Tests', () => {
 
   describe('Trending events workflow', () => {
     it('should get trending events and then get them with markets', async () => {
-      const trendingEvents = eventFixtures.filter(e => e.trendingRank > 0).slice(0, 2)
+      const trendingEvents = eventFixtures.filter(e => e.trendingRank && e.trendingRank > 0).slice(0, 2)
       const marketsForEvents = marketFixtures.filter(m => 
         trendingEvents.some(e => e.id === m.eventId)
       )

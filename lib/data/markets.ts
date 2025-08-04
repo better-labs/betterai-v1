@@ -26,7 +26,12 @@ export async function getHighVolumeMarkets(limit: number = 20): Promise<Market[]
 }
 
 export async function createMarket(marketData: NewMarket): Promise<Market> {
-  const [result] = await db.insert(markets).values(marketData).returning()
+  // Ensure id is provided for new markets
+  const marketWithId = {
+    ...marketData,
+    id: marketData.id || crypto.randomUUID()
+  }
+  const [result] = await db.insert(markets).values(marketWithId).returning()
   return result
 }
 

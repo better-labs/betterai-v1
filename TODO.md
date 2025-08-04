@@ -3,12 +3,9 @@ TODO.md
 # Prototype
 
 
-## Market Detail Page
-- [x] Create a new Market Detail page. Page should accept marketId as a query parameter. Page should display the market details and the most recent prediction for that market.
-
-
 ## Predictions
-Generate prediction button for all markets.
+- Integrate so that Prediction Engine API uses the prediction service when button is clicked.
+- Add necessary buttons Generate prediction button for all markets.
 
 
 ## UX

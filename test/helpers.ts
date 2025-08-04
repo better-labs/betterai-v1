@@ -10,6 +10,7 @@ export const createMockEvent = (overrides: Partial<Event> = {}): Event => ({
   tags: [],
   volume: '1000000',
   trendingRank: 3,
+  endDate: new Date('2024-12-31T23:59:59Z'),
   updatedAt: new Date(),
   ...overrides
 })
