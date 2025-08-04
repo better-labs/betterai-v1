@@ -164,35 +164,7 @@ export function MarketDetailPanel({
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {prediction.confidence}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Confidence</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-foreground">
-                    {prediction.recommendedOutcome}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Recommended</div>
-                </div>
-                <div className="text-center">
-                  <Badge
-                    variant={
-                      prediction.riskLevel === "Low"
-                        ? "secondary"
-                        : prediction.riskLevel === "Medium"
-                          ? "default"
-                          : "destructive"
-                    }
-                    className="shadow-sm"
-                  >
-                    {prediction.riskLevel} Risk
-                  </Badge>
-                  <div className="text-sm text-muted-foreground mt-1">Risk Level</div>
-                </div>
-              </div>
+
 
               <Separator />
 

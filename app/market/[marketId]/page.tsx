@@ -227,17 +227,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-medium mb-2">Confidence Level</h4>
-                    <Badge 
-                      variant={
-                        (prediction.predictionResult as any).confidence_level === "High" ? "default" :
-                        (prediction.predictionResult as any).confidence_level === "Medium" ? "secondary" : "outline"
-                      }
-                    >
-                      {(prediction.predictionResult as any).confidence_level}
-                    </Badge>
-                  </div>
+
 
                   {(prediction.predictionResult as any).reasoning && (
                     <div>
@@ -248,18 +238,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     </div>
                   )}
 
-                  {(prediction.predictionResult as any).keyFactors && (prediction.predictionResult as any).keyFactors.length > 0 && (
-                    <div>
-                      <h4 className="font-medium mb-2">Key Factors</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {(prediction.predictionResult as any).keyFactors.map((factor: string, index: number) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {factor}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+
 
                   <div className="pt-4 border-t">
                     <p className="text-xs text-muted-foreground">

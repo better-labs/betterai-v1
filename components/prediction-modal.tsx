@@ -68,32 +68,7 @@ export function PredictionModal({
           {/* Prediction Results */}
           {prediction && !isThinking && (
             <div className="space-y-6">
-              {/* Key Metrics */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-primary/5 rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{prediction.confidence}%</div>
-                  <div className="text-sm text-muted-foreground">Confidence</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-lg font-semibold text-foreground">{prediction.recommendedOutcome}</div>
-                  <div className="text-sm text-muted-foreground">Recommended</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <Badge
-                    variant={
-                      prediction.riskLevel === "Low"
-                        ? "secondary"
-                        : prediction.riskLevel === "Medium"
-                          ? "default"
-                          : "destructive"
-                    }
-                    className="mb-1"
-                  >
-                    {prediction.riskLevel} Risk
-                  </Badge>
-                  <div className="text-sm text-muted-foreground">Risk Level</div>
-                </div>
-              </div>
+
 
               <Separator />
 
@@ -112,41 +87,9 @@ export function PredictionModal({
                 <p className="text-foreground leading-relaxed">{prediction.reasoning}</p>
               </div>
 
-              {/* Key Factors */}
-              {prediction.keyFactors && (
-                <div>
-                  <h4 className="font-semibold mb-3 text-foreground flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                    Supporting Factors
-                  </h4>
-                  <ul className="space-y-2">
-                    {prediction.keyFactors.map((factor, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">{factor}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
 
-              {/* Risk Factors */}
-              {prediction.riskFactors && (
-                <div>
-                  <h4 className="font-semibold mb-3 text-foreground flex items-center">
-                    <AlertTriangle className="h-4 w-4 mr-2 text-orange-600" />
-                    Risk Factors
-                  </h4>
-                  <ul className="space-y-2">
-                    {prediction.riskFactors.map((factor, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">{factor}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+
+
 
               {/* Action Buttons */}
               <div className="flex space-x-3 pt-4">
