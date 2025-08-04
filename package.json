@@ -13,8 +13,6 @@
     "cron:update-polymarket-all": "node scripts/cron-update-polymarket-all.js",
     "cron:update-ai-models": "node scripts/cron-update-ai-models.js",
     "db:populate-categories": "tsx scripts/populate-categories.ts",
-    "db:top-events": "tsx scripts/top-events-by-category.ts",
-    "db:top-event": "tsx scripts/top-event-by-category.ts",
     "db:setup": "npm run db:generate && npm run db:migrate",
     "db:generate": "drizzle-kit generate",
     "db:reset": "drizzle-kit drop && npm run db:migrate",

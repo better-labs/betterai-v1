@@ -136,6 +136,7 @@ export interface PolymarketEvent {
 export interface PolymarketMarket {
   id: string;
   question: string;
+  description?: string;
   outcomePrices: string; // JSON string
   volume: string;
   liquidity: string;

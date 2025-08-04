@@ -145,12 +145,16 @@ export async function getCategoryStats(): Promise<Array<{
 
 
 
-export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
+export async function updatePolymarketEventsAndMarketData(options: {
+  url: string,
+  processEvents: (events: PolymarketEvent[]) => PolymarketEvent[],
+  getTrendingRank: (event: PolymarketEvent, index: number) => number | null
+}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[]
 }> {
-  // Fetch top 10 events from Polymarket API
-  const eventsResponse = await fetch("https://gamma-api.polymarket.com/events?limit=10&order=featuredOrder&ascending=true&closed=false&sortBy=volume24h", {
+  // Fetch events from Polymarket API
+  const eventsResponse = await fetch(options.url, {
     headers: {
       Accept: "application/json",
       "User-Agent": "PredictionService/1.0",
@@ -167,7 +171,7 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
     throw new Error("Invalid response format from Polymarket events API")
   }
   
-  const topEvents: PolymarketEvent[] = eventsData
+  const rawEvents: PolymarketEvent[] = eventsData
     .filter((event): event is PolymarketEvent => {
       const isValid = event && 
              typeof event === 'object' && 
@@ -180,19 +184,20 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
       
       return isValid
     })
-    .sort((a: PolymarketEvent, b: PolymarketEvent) => b.volume - a.volume)
-    .slice(0, 10)
 
-  console.log(`Fetched ${topEvents.length} top events from Polymarket`)
+  // Process events according to the provided function
+  const processedEvents = options.processEvents(rawEvents)
+  
+  console.log(`Fetched ${processedEvents.length} events from Polymarket`)
 
   // Extract markets from events
-  const allMarkets = topEvents
+  const allMarkets = processedEvents
     .flatMap(event => (event.markets || []).map(market => ({ ...market, eventId: event.id })))
   
   console.log(`Extracted ${allMarkets.length} markets from events`)
 
   // Transform events data for database
-  const eventsToInsert: NewEvent[] = topEvents.map((event, index) => {
+  const eventsToInsert: NewEvent[] = processedEvents.map((event, index) => {
     // Calculate category based on tags
     const tags = event.tags || []
     const tagLabels = tags.map(tag => tag.label)
@@ -203,11 +208,12 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
       title: event.title,
       description: event.description,
       slug: event.slug || null,
+      icon: event.icon || null,
       tags: event.tags || null,
       category: category,
       endDate: event.endDate ? new Date(event.endDate) : null,
       volume: event.volume.toString(),
-      trendingRank: index + 1,
+      trendingRank: options.getTrendingRank(event, index),
       marketProvider: "polymarket",
       updatedAt: new Date(),
     }
@@ -243,6 +249,7 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
         outcomePrices: outcomePricesArray,
         volume: market.volume,
         liquidity: market.liquidity,
+        description: market.description,
         endDate: market.endDate ? new Date(market.endDate) : null,
         updatedAt: new Date(),
       }
@@ -261,55 +268,294 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
   }
 }
 
-
+export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
+  insertedEvents: Event[],
+  insertedMarkets: Market[]
+}> {
+  return updatePolymarketEventsAndMarketData({
+    url: "https://gamma-api.polymarket.com/events?limit=10&order=featuredOrder&ascending=true&closed=false&sortBy=volume24h",
+    processEvents: (events) => events
+      .sort((a: PolymarketEvent, b: PolymarketEvent) => b.volume - a.volume)
+      .slice(0, 10),
+    getTrendingRank: (event, index) => index + 1
+  })
+}
 
 export async function updatePolymarketAllEventsAndMarketData(): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[]
 }> {
-  // Fetch all active events from Polymarket API
-  const eventsResponse = await fetch("https://gamma-api.polymarket.com/events?order=id&closed=false&active=true&limit=10000", {
-    headers: {
-      Accept: "application/json",
-      "User-Agent": "PredictionService/1.0",
-    },
+  return updatePolymarketEventsAndMarketData({
+    url: "https://gamma-api.polymarket.com/events",
+    processEvents: (events) => events
+      .sort((a: PolymarketEvent, b: PolymarketEvent) => b.volume - a.volume),
+    getTrendingRank: () => null
   })
+}
 
-  if (!eventsResponse.ok) {
-    throw new Error(`Polymarket API error: ${eventsResponse.status}`)
-  }
+/**
+ * Safely pulls all events from Polymarket API with throttling and pagination
+ * 
+ * @param options Configuration options for the API calls
+ * @returns Promise with all fetched events and markets
+ */
+export async function fetchAllPolymarketEventsWithThrottling(options: {
+  limit?: number,           // Number of events per request (default: 100)
+  delayMs?: number,         // Delay between requests in milliseconds (default: 1000)
+  maxRetries?: number,      // Maximum number of retries per request (default: 3)
+  retryDelayMs?: number,    // Delay before retry in milliseconds (default: 2000)
+  timeoutMs?: number,       // Request timeout in milliseconds (default: 30000)
+  userAgent?: string,       // Custom User-Agent header
+} = {}): Promise<{
+  events: PolymarketEvent[],
+  totalFetched: number,
+  totalRequests: number,
+  errors: string[]
+}> {
+  const {
+    limit = 100,
+    delayMs = 1000,
+    maxRetries = 3,
+    retryDelayMs = 2000,
+    timeoutMs = 30000,
+    userAgent = "BetterAI/1.0"
+  } = options
 
-  const eventsData = await eventsResponse.json()
-  
-  if (!Array.isArray(eventsData)) {
-    throw new Error("Invalid response format from Polymarket events API")
-  }
-  
-  const allEvents: PolymarketEvent[] = eventsData
-    .filter((event): event is PolymarketEvent => {
-      const isValid = event && 
-             typeof event === 'object' && 
-             typeof event.id === 'string' &&
-             typeof event.title === 'string' &&
-             typeof event.description === 'string' &&
-             typeof event.volume === 'number' &&
-             (event.slug === undefined || typeof event.slug === 'string') &&
-             (event.tags === undefined || Array.isArray(event.tags))
+  const allEvents: PolymarketEvent[] = []
+  const errors: string[] = []
+  let totalRequests = 0
+  let offset = 0
+  let hasMoreData = true
+
+  console.log(`Starting to fetch all Polymarket events with limit=${limit}, delay=${delayMs}ms`)
+
+  while (hasMoreData) {
+    try {
+      totalRequests++
+      console.log(`Fetching batch ${totalRequests} with offset=${offset}, limit=${limit}`)
+
+      const url = `https://gamma-api.polymarket.com/events?limit=${limit}&offset=${offset}`
       
-      return isValid
-    })
-    .sort((a: PolymarketEvent, b: PolymarketEvent) => b.volume - a.volume)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
-  console.log(`Fetched ${allEvents.length} active events from Polymarket`)
+      const response = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": userAgent,
+        },
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        const errorMsg = `HTTP ${response.status}: ${response.statusText}`
+        console.error(`Request failed: ${errorMsg}`)
+        
+        if (response.status === 429) {
+          // Rate limited - wait longer
+          console.log(`Rate limited, waiting ${retryDelayMs * 2}ms before retry...`)
+          await new Promise(resolve => setTimeout(resolve, retryDelayMs * 2))
+          continue
+        }
+        
+        if (response.status >= 500) {
+          // Server error - retry with exponential backoff
+          for (let retry = 1; retry <= maxRetries; retry++) {
+            console.log(`Server error, retrying ${retry}/${maxRetries}...`)
+            await new Promise(resolve => setTimeout(resolve, retryDelayMs * retry))
+            
+            try {
+              const retryResponse = await fetch(url, {
+                headers: {
+                  Accept: "application/json",
+                  "User-Agent": userAgent,
+                },
+                signal: controller.signal
+              })
+              
+              if (retryResponse.ok) {
+                const retryData = await retryResponse.json()
+                if (Array.isArray(retryData)) {
+                  allEvents.push(...retryData)
+                  console.log(`Retry successful, got ${retryData.length} events`)
+                  break
+                }
+              }
+            } catch (retryError) {
+              console.error(`Retry ${retry} failed:`, retryError)
+              if (retry === maxRetries) {
+                errors.push(`Failed after ${maxRetries} retries: ${errorMsg}`)
+                hasMoreData = false
+                break
+              }
+            }
+          }
+          continue
+        }
+        
+        errors.push(errorMsg)
+        hasMoreData = false
+        break
+      }
+
+      const data = await response.json()
+      
+      if (!Array.isArray(data)) {
+        console.error("Invalid response format - expected array")
+        errors.push("Invalid response format from API")
+        hasMoreData = false
+        break
+      }
+
+      // Filter and validate events
+      const validEvents = data.filter((event): event is PolymarketEvent => {
+        const isValid = event && 
+               typeof event === 'object' && 
+               typeof event.id === 'string' &&
+               typeof event.title === 'string' &&
+               typeof event.description === 'string' &&
+               typeof event.volume === 'number' &&
+               (event.slug === undefined || typeof event.slug === 'string') &&
+               (event.tags === undefined || Array.isArray(event.tags))
+        
+        return isValid
+      })
+
+      allEvents.push(...validEvents)
+      console.log(`Batch ${totalRequests}: Got ${data.length} events, ${validEvents.length} valid`)
+
+      // Check if we've reached the end
+      if (data.length < limit) {
+        console.log(`Received ${data.length} events (less than limit ${limit}), stopping pagination`)
+        hasMoreData = false
+      } else {
+        offset += limit
+        console.log(`Moving to next batch, new offset: ${offset}`)
+      }
+
+      // Throttle requests
+      if (hasMoreData) {
+        console.log(`Waiting ${delayMs}ms before next request...`)
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+      }
+
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      console.error(`Request error:`, errorMsg)
+      errors.push(errorMsg)
+      
+      // If it's an abort error (timeout), try to continue
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log("Request timed out, continuing to next batch...")
+        offset += limit
+        continue
+      }
+      
+      // For other errors, try retrying
+      for (let retry = 1; retry <= maxRetries; retry++) {
+        console.log(`Retrying ${retry}/${maxRetries} after error...`)
+        await new Promise(resolve => setTimeout(resolve, retryDelayMs * retry))
+        
+        try {
+          const url = `https://gamma-api.polymarket.com/events?limit=${limit}&offset=${offset}`
+          const response = await fetch(url, {
+            headers: {
+              Accept: "application/json",
+              "User-Agent": userAgent,
+            }
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            if (Array.isArray(data)) {
+              const validEvents = data.filter((event): event is PolymarketEvent => {
+                const isValid = event && 
+                       typeof event === 'object' && 
+                       typeof event.id === 'string' &&
+                       typeof event.title === 'string' &&
+                       typeof event.description === 'string' &&
+                       typeof event.volume === 'number' &&
+                       (event.slug === undefined || typeof event.slug === 'string') &&
+                       (event.tags === undefined || Array.isArray(event.tags))
+                
+                return isValid
+              })
+              
+              allEvents.push(...validEvents)
+              console.log(`Retry successful, got ${data.length} events`)
+              break
+            }
+          }
+        } catch (retryError) {
+          console.error(`Retry ${retry} failed:`, retryError)
+          if (retry === maxRetries) {
+            errors.push(`Failed after ${maxRetries} retries: ${errorMsg}`)
+            hasMoreData = false
+            break
+          }
+        }
+      }
+    }
+  }
+
+  console.log(`Finished fetching events. Total: ${allEvents.length}, Requests: ${totalRequests}, Errors: ${errors.length}`)
+  
+  return {
+    events: allEvents,
+    totalFetched: allEvents.length,
+    totalRequests,
+    errors
+  }
+}
+
+/**
+ * Updates all Polymarket events and markets with proper throttling and pagination
+ */
+export async function updatePolymarketAllEventsAndMarketDataWithThrottling(options: {
+  limit?: number,
+  delayMs?: number,
+  maxRetries?: number,
+  retryDelayMs?: number,
+  timeoutMs?: number,
+  userAgent?: string,
+} = {}): Promise<{
+  insertedEvents: Event[],
+  insertedMarkets: Market[],
+  totalFetched: number,
+  totalRequests: number,
+  errors: string[]
+}> {
+  console.log("Starting throttled update of all Polymarket events...")
+  
+  const { events: allEvents, totalFetched, totalRequests, errors } = 
+    await fetchAllPolymarketEventsWithThrottling(options)
+
+  if (allEvents.length === 0) {
+    console.log("No events fetched, returning empty results")
+    return {
+      insertedEvents: [],
+      insertedMarkets: [],
+      totalFetched,
+      totalRequests,
+      errors
+    }
+  }
+
+  // Sort events by volume (highest first)
+  const sortedEvents = allEvents.sort((a, b) => b.volume - a.volume)
+  
+  console.log(`Processing ${sortedEvents.length} events...`)
 
   // Extract markets from events
-  const allMarkets = allEvents
+  const allMarkets = sortedEvents
     .flatMap(event => (event.markets || []).map(market => ({ ...market, eventId: event.id })))
   
   console.log(`Extracted ${allMarkets.length} markets from events`)
 
   // Transform events data for database
-  const eventsToInsert: NewEvent[] = allEvents.map((event) => {
+  const eventsToInsert: NewEvent[] = sortedEvents.map((event) => {
     // Calculate category based on tags
     const tags = event.tags || []
     const tagLabels = tags.map(tag => tag.label)
@@ -320,6 +566,7 @@ export async function updatePolymarketAllEventsAndMarketData(): Promise<{
       title: event.title,
       description: event.description,
       slug: event.slug || null,
+      icon: event.icon || null,
       tags: event.tags || null,
       category: category,
       endDate: event.endDate ? new Date(event.endDate) : null,
@@ -360,6 +607,7 @@ export async function updatePolymarketAllEventsAndMarketData(): Promise<{
         outcomePrices: outcomePricesArray,
         volume: market.volume,
         liquidity: market.liquidity,
+        description: market.description,
         endDate: market.endDate ? new Date(market.endDate) : null,
         updatedAt: new Date(),
       }
@@ -372,11 +620,12 @@ export async function updatePolymarketAllEventsAndMarketData(): Promise<{
   console.log(`Upserting ${marketsToInsert.length} markets...`)
   const insertedMarkets = await marketQueries.upsertMarkets(marketsToInsert)
 
-  console.log(`Successfully updated ${insertedEvents.length} events and ${insertedMarkets.length} markets`)
-
   return {
     insertedEvents: insertedEvents.filter(Boolean) as Event[],
-    insertedMarkets: insertedMarkets.filter(Boolean) as Market[]
+    insertedMarkets: insertedMarkets.filter(Boolean) as Market[],
+    totalFetched,
+    totalRequests,
+    errors
   }
 }
 

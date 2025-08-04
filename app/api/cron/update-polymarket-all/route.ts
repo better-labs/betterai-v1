@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { updatePolymarketAllEventsAndMarketData } from '@/lib/data/events'
+import { updatePolymarketAllEventsAndMarketDataWithThrottling } from '@/lib/data/events'
 import type { ApiResponse, DatabaseMetadata } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
@@ -24,10 +24,23 @@ export async function POST(request: NextRequest) {
 
     const startTime = Date.now()
     
-    console.log("Starting Polymarket all events data sync...")
+    console.log("Starting throttled Polymarket all events data sync...")
     
-    // Use the new function to update all events and market data
-    const { insertedEvents, insertedMarkets } = await updatePolymarketAllEventsAndMarketData()
+    // Use the new throttled function to update all events and market data
+    const { 
+      insertedEvents, 
+      insertedMarkets, 
+      totalFetched, 
+      totalRequests, 
+      errors 
+    } = await updatePolymarketAllEventsAndMarketDataWithThrottling({
+      limit: 100,           // Fetch 100 events per request
+      delayMs: 1000,        // Wait 1 second between requests
+      maxRetries: 3,        // Retry failed requests up to 3 times
+      retryDelayMs: 2000,   // Wait 2 seconds before retry
+      timeoutMs: 30000,     // 30 second timeout per request
+      userAgent: "BetterAI/1.0"
+    })
     
     const duration = Date.now() - startTime
 
@@ -46,6 +59,10 @@ export async function POST(request: NextRequest) {
           duration: `${duration}ms`,
           events_count: insertedEvents.length,
           markets_count: insertedMarkets.length,
+          total_fetched: totalFetched,
+          total_requests: totalRequests,
+          errors_count: errors.length,
+          errors: errors.length > 0 ? errors : undefined,
           metadata
         }
       } as ApiResponse),
@@ -54,7 +71,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Update all Polymarket events error:', error)
     return new Response(
-      JSON.stringify({ success: false, error: 'Failed to update all Polymarket events' } as ApiResponse),
+      JSON.stringify({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      } as ApiResponse),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }

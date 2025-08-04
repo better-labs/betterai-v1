@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1753995451645,
-      "tag": "0000_true_nitro",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1753995451646,
-      "tag": "0001_add_prediction_fields",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1754224098162,
-      "tag": "0002_strange_quicksilver",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1754226815192,
-      "tag": "0003_optimal_toad",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1754269183395,
-      "tag": "0004_green_dark_phoenix",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1754311671472,
-      "tag": "0005_salty_ted_forrester",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1754334496450,
-      "tag": "0006_charming_sabretooth",
+      "when": 1754338056740,
+      "tag": "0000_keen_sinister_six",
       "breakpoints": true
     }
   ]
