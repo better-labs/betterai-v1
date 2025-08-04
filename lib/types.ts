@@ -58,6 +58,9 @@ export interface Market {
   outcomePrices?: string[] | null;
   volume?: string | null;
   liquidity?: string | null;
+  category?: string | null;
+  active?: boolean | null;
+  closed?: boolean | null;
   endDate?: Date | null;
   updatedAt?: Date | null;
   marketURL?: string;

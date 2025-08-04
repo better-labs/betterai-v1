@@ -94,7 +94,7 @@ describe('generatePredictionForMarket', () => {
     })
 
     it('should use custom model name when provided', async () => {
-      const customModel = 'anthropic/claude-3.5-sonnet'
+      const customModel = 'anthropic/claude-3.7-sonnet'
       await generatePredictionForMarket('test-market-1', customModel)
 
       expect(global.fetch).toHaveBeenCalledWith(
@@ -159,6 +159,13 @@ describe('generatePredictionForMarket', () => {
 
       expect(result.success).toBe(false)
       expect(result.message).toBe('Market with ID non-existent-market not found in database')
+    })
+
+    it('should return error when invalid model name is provided', async () => {
+      const result = await generatePredictionForMarket('test-market-1', 'invalid-model-name')
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe('Invalid model name: invalid-model-name. Must be one of the supported AI models.')
     })
 
     it('should handle OpenRouter API errors', async () => {
