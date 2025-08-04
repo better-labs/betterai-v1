@@ -29,14 +29,12 @@ import {
   getEventBySlug, 
   createEvent, 
   updateEvent, 
-  deleteEvent, 
-  updateEventIcon 
+  deleteEvent 
 } from '@/lib/data/events'
 import { db } from '@/lib/db'
-import { getEventById as getPolymarketEvent } from '@/lib/polymarket'
+
 
 const mockDb = db as any
-const mockGetPolymarketEvent = getPolymarketEvent as jest.MockedFunction<typeof getPolymarketEvent>
 
 describe('Events Data Functions', () => {
   beforeEach(() => {
@@ -232,51 +230,7 @@ describe('Events Data Functions', () => {
     })
   })
 
-  describe('updateEventIcon', () => {
-    it('should update event icon from Polymarket data', async () => {
-      const polymarketEvent = { 
-        id: '1', 
-        title: 'Test Event',
-        description: 'Test description',
-        slug: 'test-event',
-        icon: 'https://example.com/icon.png',
-        tags: [],
-        volume: 1000000,
-        markets: []
-      }
-      const updatedEvent = { id: '1', title: 'Event', icon: 'https://example.com/icon.png' }
-      
-      mockGetPolymarketEvent.mockResolvedValue(polymarketEvent)
-      mockDb.update.mockReturnValue({
-        set: jest.fn().mockReturnValue({
-          where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([updatedEvent])
-          })
-        })
-      } as any)
 
-      const result = await updateEventIcon('1')
-
-      expect(result).toEqual(updatedEvent)
-      expect(mockGetPolymarketEvent).toHaveBeenCalledWith('1')
-    })
-
-    it('should return null when Polymarket event not found', async () => {
-      mockGetPolymarketEvent.mockResolvedValue(null)
-
-      const result = await updateEventIcon('nonexistent')
-
-      expect(result).toBeNull()
-    })
-
-    it('should return null when error occurs', async () => {
-      mockGetPolymarketEvent.mockRejectedValue(new Error('API Error'))
-
-      const result = await updateEventIcon('1')
-
-      expect(result).toBeNull()
-    })
-  })
 
 
 }) 

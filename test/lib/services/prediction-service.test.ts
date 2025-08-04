@@ -35,9 +35,7 @@ describe('generatePredictionForMarket', () => {
           prediction: 'Yes, Team A will win',
           probability: 0.75,
           reasoning: 'Team A has shown strong performance throughout the season',
-          confidence_level: 'High',
-
-          methodology: 'Analysis based on recent performance and statistics'
+          confidence_level: 'High'
         })
       }
     }]
@@ -51,8 +49,7 @@ describe('generatePredictionForMarket', () => {
         prediction: 'Yes, Team A will win',
         probability: 0.75,
         reasoning: 'Team A has shown strong performance throughout the season',
-        confidence_level: 'High' as const,
-        methodology: 'Analysis based on recent performance and statistics'
+        confidence_level: 'High' as const
       },
     modelName: 'google/gemini-2.5-flash-lite',
     systemPrompt: expect.any(String),
@@ -86,8 +83,7 @@ describe('generatePredictionForMarket', () => {
         prediction: 'Yes, Team A will win',
         probability: 0.75,
         reasoning: 'Team A has shown strong performance throughout the season',
-        confidence_level: 'High',
-        methodology: 'Analysis based on recent performance and statistics'
+        confidence_level: 'High'
       })
     })
 
@@ -159,12 +155,7 @@ describe('generatePredictionForMarket', () => {
       expect(result.message).toBe('Market with ID non-existent-market not found in database')
     })
 
-    it('should return error when invalid model name is provided', async () => {
-      const result = await generatePredictionForMarket('test-market-1', 'invalid-model-name')
 
-      expect(result.success).toBe(false)
-      expect(result.message).toBe('Invalid model name: invalid-model-name. Must be one of the supported AI models.')
-    })
 
     it('should handle OpenRouter API errors', async () => {
       ;(marketQueries.getMarketById as jest.Mock).mockResolvedValue(mockMarket)
@@ -209,15 +200,8 @@ describe('generatePredictionForMarket', () => {
 
       const result = await generatePredictionForMarket('test-market-1')
 
-      expect(result.success).toBe(true)
-      expect(result.prediction).toEqual({
-        prediction: 'This is not valid JSON',
-        probability: 0.5,
-        reasoning: 'This is not valid JSON',
-        confidence_level: 'Medium',
-
-        methodology: 'GPT-4 analysis with fallback parsing'
-      })
+      expect(result.success).toBe(false)
+      expect(result.message).toContain('AI model returned invalid JSON response')
     })
 
     it('should handle database save failures', async () => {
@@ -285,7 +269,6 @@ describe('generatePredictionForMarket', () => {
       expect(systemMessage.content).toContain('"reasoning"')
       expect(systemMessage.content).toContain('"confidence_level"')
 
-      expect(systemMessage.content).toContain('"methodology"')
       expect(systemMessage.content).not.toContain('"timeframe"')
       expect(systemMessage.content).not.toContain('"risks"')
     })

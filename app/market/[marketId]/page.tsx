@@ -38,7 +38,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           <Link href="/">
             <Button variant="ghost" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to Markets
+              Back to Home
             </Button>
           </Link>
         </div>
@@ -69,19 +69,8 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                       {event.endDate && (
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{new Date(event.endDate as Date).toLocaleDateString()}</span>
+                          <span>End Date: {new Date(event.endDate as Date).toLocaleDateString()}</span>
                         </div>
-                      )}
-                      {event.volume && (
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{formatVolume(Number(event.volume) || 0)}</span>
-                        </div>
-                      )}
-                      {event.trendingRank && event.trendingRank > 0 && (
-                        <Badge variant="secondary">
-                          #{event.trendingRank}
-                        </Badge>
                       )}
                     </div>
                   </div>
@@ -153,22 +142,6 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2">Market ID</h4>
-                <p className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
-                  {market.id}
-                </p>
-              </div>
-              
-              {market.eventId && (
-                <div>
-                  <h4 className="font-medium mb-2">Event ID</h4>
-                  <p className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
-                    {market.eventId}
-                  </p>
-                </div>
-              )}
-
               {market.outcomePrices && market.outcomePrices.length > 0 && (
                 <div>
                   <h4 className="font-medium mb-2">Outcome Prices</h4>
@@ -227,17 +200,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-medium mb-2">Confidence Level</h4>
-                    <Badge 
-                      variant={
-                        (prediction.predictionResult as any).confidence_level === "High" ? "default" :
-                        (prediction.predictionResult as any).confidence_level === "Medium" ? "secondary" : "outline"
-                      }
-                    >
-                      {(prediction.predictionResult as any).confidence_level}
-                    </Badge>
-                  </div>
+
 
                   {(prediction.predictionResult as any).reasoning && (
                     <div>
@@ -248,18 +211,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     </div>
                   )}
 
-                  {(prediction.predictionResult as any).keyFactors && (prediction.predictionResult as any).keyFactors.length > 0 && (
-                    <div>
-                      <h4 className="font-medium mb-2">Key Factors</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {(prediction.predictionResult as any).keyFactors.map((factor: string, index: number) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {factor}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+
 
                   <div className="pt-4 border-t">
                     <p className="text-xs text-muted-foreground">

@@ -1,6 +1,6 @@
 // Mock modules before importing
 jest.mock('@/lib/data/events', () => ({
-  updateTrendingEventsAndMarketData: jest.fn()
+  updatePolymarketTrendingEventsAndMarketData: jest.fn()
 }))
 
 // Mock crypto.randomUUID globally
@@ -10,9 +10,9 @@ Object.defineProperty(global, 'crypto', {
   }
 })
 
-import { updateTrendingEventsAndMarketData } from '@/lib/data/events'
+import { updatePolymarketTrendingEventsAndMarketData } from '@/lib/data/events'
 
-const mockUpdateTrendingEventsAndMarketData = updateTrendingEventsAndMarketData as jest.MockedFunction<typeof updateTrendingEventsAndMarketData>
+const mockUpdatePolymarketTrendingEventsAndMarketData = updatePolymarketTrendingEventsAndMarketData as jest.MockedFunction<typeof updatePolymarketTrendingEventsAndMarketData>
 
 describe('Update Trending Events and Market Data Functionality', () => {
   beforeEach(() => {
@@ -44,8 +44,8 @@ describe('Update Trending Events and Market Data Functionality', () => {
     })
   })
 
-  describe('updateTrendingEventsAndMarketData function', () => {
-    it('should call updateTrendingEventsAndMarketData successfully', async () => {
+  describe('updatePolymarketTrendingEventsAndMarketData function', () => {
+    it('should call updatePolymarketTrendingEventsAndMarketData successfully', async () => {
       const mockResult = {
         insertedEvents: [{ 
           id: '1', 
@@ -57,7 +57,8 @@ describe('Update Trending Events and Market Data Functionality', () => {
           volume: null,
           trendingRank: null,
           endDate: null,
-          updatedAt: null
+          updatedAt: null,
+          marketProvider: null
         }],
         insertedMarkets: [{ 
           id: 'm1', 
@@ -71,25 +72,26 @@ describe('Update Trending Events and Market Data Functionality', () => {
           closed: null,
           endDate: null,
           updatedAt: null,
-          description: null
+          description: null,
+          marketProvider: null
         }]
       }
-      mockUpdateTrendingEventsAndMarketData.mockResolvedValue(mockResult)
+      mockUpdatePolymarketTrendingEventsAndMarketData.mockResolvedValue(mockResult)
 
-      const result = await updateTrendingEventsAndMarketData()
+      const result = await updatePolymarketTrendingEventsAndMarketData()
 
-      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
-      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledWith()
+      expect(mockUpdatePolymarketTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
+      expect(mockUpdatePolymarketTrendingEventsAndMarketData).toHaveBeenCalledWith()
       expect(result).toEqual(mockResult)
     })
 
-    it('should handle errors from updateTrendingEventsAndMarketData', async () => {
+    it('should handle errors from updatePolymarketTrendingEventsAndMarketData', async () => {
       const error = new Error('Database connection failed')
-      mockUpdateTrendingEventsAndMarketData.mockRejectedValue(error)
+      mockUpdatePolymarketTrendingEventsAndMarketData.mockRejectedValue(error)
 
-      await expect(updateTrendingEventsAndMarketData()).rejects.toThrow('Database connection failed')
+      await expect(updatePolymarketTrendingEventsAndMarketData()).rejects.toThrow('Database connection failed')
 
-      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
+      expect(mockUpdatePolymarketTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
     })
 
     it('should measure execution duration', async () => {
@@ -97,18 +99,18 @@ describe('Update Trending Events and Market Data Functionality', () => {
         insertedEvents: [] as any[],
         insertedMarkets: [] as any[]
       }
-      mockUpdateTrendingEventsAndMarketData.mockImplementation(async () => {
+      mockUpdatePolymarketTrendingEventsAndMarketData.mockImplementation(async () => {
         // Simulate some processing time
         await new Promise(resolve => setTimeout(resolve, 10))
         return mockResult
       })
 
       const startTime = Date.now()
-      await updateTrendingEventsAndMarketData()
+      await updatePolymarketTrendingEventsAndMarketData()
       const endTime = Date.now()
 
       expect(endTime - startTime).toBeGreaterThanOrEqual(10)
-      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
+      expect(mockUpdatePolymarketTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -182,16 +184,16 @@ describe('Update Trending Events and Market Data Functionality', () => {
       ]
 
       for (const error of errors) {
-        mockUpdateTrendingEventsAndMarketData.mockRejectedValue(error)
+        mockUpdatePolymarketTrendingEventsAndMarketData.mockRejectedValue(error)
 
         try {
-          await updateTrendingEventsAndMarketData()
+          await updatePolymarketTrendingEventsAndMarketData()
         } catch (e) {
           // Expected to throw
         }
 
-        expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
-        mockUpdateTrendingEventsAndMarketData.mockClear()
+        expect(mockUpdatePolymarketTrendingEventsAndMarketData).toHaveBeenCalledTimes(1)
+        mockUpdatePolymarketTrendingEventsAndMarketData.mockClear()
       }
     })
 
@@ -200,17 +202,17 @@ describe('Update Trending Events and Market Data Functionality', () => {
         insertedEvents: [] as any[],
         insertedMarkets: [] as any[]
       }
-      mockUpdateTrendingEventsAndMarketData.mockResolvedValue(mockResult)
+      mockUpdatePolymarketTrendingEventsAndMarketData.mockResolvedValue(mockResult)
 
       const promises = [
-        updateTrendingEventsAndMarketData(),
-        updateTrendingEventsAndMarketData(),
-        updateTrendingEventsAndMarketData()
+        updatePolymarketTrendingEventsAndMarketData(),
+        updatePolymarketTrendingEventsAndMarketData(),
+        updatePolymarketTrendingEventsAndMarketData()
       ]
 
       await Promise.all(promises)
 
-      expect(mockUpdateTrendingEventsAndMarketData).toHaveBeenCalledTimes(3)
+      expect(mockUpdatePolymarketTrendingEventsAndMarketData).toHaveBeenCalledTimes(3)
     })
   })
 

@@ -7,7 +7,6 @@ interface OpenRouterPredictionResult {
   probability: number
   reasoning: string
   confidence_level: "High" | "Medium" | "Low"
-  methodology?: string
 }
 
 interface PredictionServiceResponse {
@@ -53,8 +52,7 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
       "prediction": "your prediction outcome",
       "probability": 0.XX (number between 0 and 1),
       "reasoning": "detailed explanation of your reasoning",
-      "confidence_level": "High/Medium/Low",
-      "methodology": "brief explanation of analysis approach"
+      "confidence_level": "High/Medium/Low"
     }`
 
     const userMessage = `Analyze this market and provide a comprehensive prediction:
@@ -113,14 +111,8 @@ Please consider the market context, timing, and any relevant factors when making
     try {
       predictionResult = JSON.parse(text)
     } catch (parseError) {
-      console.warn("AI response was not valid JSON, creating fallback structure")
-      predictionResult = {
-        prediction: text.substring(0, 200),
-        probability: 0.5,
-        reasoning: text,
-        confidence_level: "Medium",
-        methodology: "GPT-4 analysis with fallback parsing",
-      }
+      console.error("AI response was not valid JSON:", text)
+      throw new Error(`AI model returned invalid JSON response. Raw response: ${text.substring(0, 200)}...`)
     }
 
     // Convert OpenRouter format to our internal PredictionResult format
@@ -128,12 +120,7 @@ Please consider the market context, timing, and any relevant factors when making
       prediction: predictionResult.prediction,
       probability: predictionResult.probability,
       reasoning: predictionResult.reasoning,
-      confidence: predictionResult.probability, // Use probability as confidence
       confidence_level: predictionResult.confidence_level,
-      recommendedOutcome: predictionResult.prediction, // Use prediction as recommended outcome
-      riskLevel: predictionResult.confidence_level === "High" ? "Low" : predictionResult.confidence_level === "Medium" ? "Medium" : "High",
-      keyFactors: ["AI Analysis", "Market Trends"], // Default key factors
-      methodology: predictionResult.methodology,
     }
 
     // Store the prediction in database

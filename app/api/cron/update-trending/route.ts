@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { updateTrendingEventsAndMarketData } from '@/lib/data/events'
+import { updatePolymarketTrendingEventsAndMarketData } from '@/lib/data/events'
 import type { ApiResponse, DatabaseMetadata } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     console.log("Starting Polymarket data sync...")
     
     // Use the new function to update trending events and market data
-    const { insertedEvents, insertedMarkets } = await updateTrendingEventsAndMarketData()
+    const { insertedEvents, insertedMarkets } = await updatePolymarketTrendingEventsAndMarketData()
     
     const duration = Date.now() - startTime
 

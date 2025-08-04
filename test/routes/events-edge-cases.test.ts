@@ -24,16 +24,14 @@ jest.mock('@/lib/polymarket', () => ({
 
 import { 
   getTrendingEventsWithMarkets, 
-  updateEventIcon, 
   updateEvent, 
   deleteEvent 
 } from '@/lib/data/events'
 import { db } from '@/lib/db'
-import { getEventById as getPolymarketEvent } from '@/lib/polymarket'
-import { eventFixtures, marketFixtures, polymarketEventFixtures } from '../fixtures'
+
+import { eventFixtures, marketFixtures } from '../fixtures'
 
 const mockDb = db as any
-const mockGetPolymarketEvent = getPolymarketEvent as jest.MockedFunction<typeof getPolymarketEvent>
 
 describe('Events Edge Cases', () => {
   beforeEach(() => {
@@ -80,53 +78,7 @@ describe('Events Edge Cases', () => {
     })
   })
 
-  describe('updateEventIcon edge cases', () => {
-    it('should handle Polymarket API timeout', async () => {
-      mockGetPolymarketEvent.mockRejectedValue(new Error('Request timeout'))
 
-      const result = await updateEventIcon('event-1')
-
-      expect(result).toBeNull()
-    })
-
-    it('should handle invalid event ID format', async () => {
-      const result = await updateEventIcon('invalid-event-id')
-
-      expect(result).toBeNull()
-    })
-
-    it('should handle database update failure', async () => {
-      const polymarketEvent = polymarketEventFixtures[0]
-      mockGetPolymarketEvent.mockResolvedValue(polymarketEvent)
-      mockDb.update.mockReturnValue({
-        set: jest.fn().mockReturnValue({
-          where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockRejectedValue(new Error('Update failed'))
-          })
-        })
-      } as any)
-
-      const result = await updateEventIcon('event-1')
-
-      expect(result).toBeNull()
-    })
-
-    it('should handle empty icon URL from Polymarket', async () => {
-      const polymarketEvent = { ...polymarketEventFixtures[0], icon: '' }
-      mockGetPolymarketEvent.mockResolvedValue(polymarketEvent)
-      mockDb.update.mockReturnValue({
-        set: jest.fn().mockReturnValue({
-          where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([{ ...eventFixtures[0], icon: '' }])
-          })
-        })
-      } as any)
-
-      const result = await updateEventIcon('event-1')
-
-      expect(result).toEqual({ ...eventFixtures[0], icon: '' })
-    })
-  })
 
   describe('updateEvent edge cases', () => {
     it('should handle partial updates with empty fields', async () => {
@@ -206,25 +158,5 @@ describe('Events Edge Cases', () => {
     })
   })
 
-  describe('Error handling patterns', () => {
-    it('should log errors appropriately', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-      mockGetPolymarketEvent.mockRejectedValue(new Error('API Error'))
 
-      await updateEventIcon('event-1')
-
-      expect(consoleSpy).toHaveBeenCalledWith('Error updating event icon:', expect.any(Error))
-      consoleSpy.mockRestore()
-    })
-
-    it('should log warnings for missing Polymarket events', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
-      mockGetPolymarketEvent.mockResolvedValue(null)
-
-      await updateEventIcon('event-1')
-
-      expect(consoleSpy).toHaveBeenCalledWith('Event not found in Polymarket: event-1')
-      consoleSpy.mockRestore()
-    })
-  })
 }) 
