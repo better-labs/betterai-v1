@@ -34,17 +34,22 @@ export interface RawPolymarketMarket {
 export type RawPolymarketApiResponse = RawPolymarketMarket[] 
 
 // Export all types from schema for convenience
-export type { Event, NewEvent, Prediction, NewPrediction } from "./db/schema"
+export type { Event, NewEvent, Prediction, NewPrediction, AIModel, NewAIModel } from "./db/schema"
 
 // Re-export NewMarket for compatibility
 export type NewMarket = {
+  id?: string;
   question: string;
-  description?: string;
+  description?: string | null;
   eventId?: string | null;
   outcomePrices?: string[] | null;
   volume?: string | null;
   liquidity?: string | null;
+  category?: string | null;
+  active?: boolean | null;
+  closed?: boolean | null;
   endDate?: Date | null;
+  updatedAt?: Date | null;
   marketURL?: string;
   outcomes?: MarketOutcome[];
 }
@@ -53,7 +58,7 @@ export type NewMarket = {
 export interface Market {
   id: string;
   question: string;
-  description?: string;
+  description?: string | null;
   eventId?: string | null;
   outcomePrices?: string[] | null;
   volume?: string | null;
@@ -100,8 +105,13 @@ export interface PredictionResult {
   prediction: string
   probability: number
   reasoning: string
+  confidence: number
   confidence_level: "High" | "Medium" | "Low"
+  recommendedOutcome: string
+  riskLevel: "Low" | "Medium" | "High"
   key_factors: string[]
+  keyFactors: string[]
+  riskFactors?: string[]
   methodology?: string
 }
 

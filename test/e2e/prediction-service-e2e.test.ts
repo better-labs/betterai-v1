@@ -1,6 +1,6 @@
 import { generatePredictionForMarket } from '@/lib/services/prediction-service'
 import { marketQueries, predictionQueries } from '@/lib/db/queries'
-import type { Market } from '@/lib/types'
+import type { Market, PredictionResult } from '@/lib/types'
 
 describe('Prediction Service E2E Tests', () => {
   let testMarket: Market | null = null
@@ -147,9 +147,10 @@ describe('Prediction Service E2E Tests', () => {
       
       if (marketPredictions.length > 0) {
         const latestPrediction = marketPredictions[0]
-        console.log(`📝 Latest prediction: "${latestPrediction.predictionResult.prediction}"`)
-        console.log(`📊 Probability: ${latestPrediction.predictionResult.probability}`)
-        console.log(`🎯 Confidence: ${latestPrediction.predictionResult.confidence_level}`)
+        const predictionResult = latestPrediction.predictionResult as PredictionResult
+        console.log(`📝 Latest prediction: "${predictionResult.prediction}"`)
+        console.log(`📊 Probability: ${predictionResult.probability}`)
+        console.log(`🎯 Confidence: ${predictionResult.confidence_level}`)
       }
 
       // Verify we have at least one prediction for our test market

@@ -30,7 +30,7 @@ const dataSources = [
   { id: "twitter", name: "X (Twitter)", description: "Social sentiment analysis", cost: 10 },
   { id: "news", name: "News Articles", description: "Latest financial and crypto news", cost: 1 },
   { id: "onchain", name: "On-chain Data", description: "Blockchain metrics and analytics", cost: 3 },
-  { id: "technical", name: "Technical Analysis", description: "Price charts and indicators", cost: 2 },
+
 ]
 
 export function MarketDetailPanel({
@@ -46,21 +46,18 @@ export function MarketDetailPanel({
   return (
     <div className="border-t bg-muted/50 p-6 rounded-b-lg">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6 text-center">
-          <h4 className="font-semibold text-foreground mb-2">Market Detail</h4>
-          <p className="text-foreground text-sm leading-relaxed">{market.description}</p>
-        </div>
+        
 
         <Card className="shadow-sm max-w-3xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center justify-center space-x-2">
               <Brain className="h-5 w-5 text-primary" />
-              <span>BetterAI Prediction Engine</span>
+              <span>Prediction Engine</span>
             </CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <div>
+            <div className="relative">
               <h3 className="font-semibold mb-3 text-foreground">Choose AI Models</h3>
               <div className="space-y-3">
                 {aiModels.map((model) => (
@@ -86,11 +83,19 @@ export function MarketDetailPanel({
                   </div>
                 ))}
               </div>
+              
+              {/* Coming Soon Overlay */}
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-foreground mb-1">Coming Soon</div>
+                  <div className="text-sm text-muted-foreground">AI model selection will be available soon</div>
+                </div>
+              </div>
             </div>
 
             <Separator />
 
-            <div>
+            <div className="relative">
               <h3 className="font-semibold mb-3 text-foreground">Enrich with Data Sources</h3>
               <div className="space-y-3">
                 {dataSources.map((source) => (
@@ -117,6 +122,14 @@ export function MarketDetailPanel({
                     <Database className="h-4 w-4 text-primary" />
                   </div>
                 ))}
+              </div>
+              
+              {/* Coming Soon Overlay */}
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-foreground mb-1">Coming Soon</div>
+                  <div className="text-sm text-muted-foreground">Data source enrichment will be available soon</div>
+                </div>
               </div>
             </div>
 

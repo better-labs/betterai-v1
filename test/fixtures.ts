@@ -11,6 +11,7 @@ export const eventFixtures: Event[] = [
     tags: [{ id: 'crypto', label: 'Cryptocurrency', slug: 'crypto', forceShow: true, updatedAt: '2024-01-01' }],
     volume: '5000000',
     trendingRank: 5,
+    endDate: new Date('2024-12-31T23:59:59Z'),
     updatedAt: new Date('2024-01-15T10:00:00Z')
   },
   {
@@ -22,6 +23,7 @@ export const eventFixtures: Event[] = [
     tags: [{ id: 'politics', label: 'Politics', slug: 'politics', forceShow: true, updatedAt: '2024-01-01' }],
     volume: '3000000',
     trendingRank: 4,
+    endDate: new Date('2024-11-05T23:59:59Z'),
     updatedAt: new Date('2024-01-15T10:00:00Z')
   },
   {
@@ -33,6 +35,7 @@ export const eventFixtures: Event[] = [
     tags: [{ id: 'tech', label: 'Technology', slug: 'tech', forceShow: true, updatedAt: '2024-01-01' }],
     volume: '1000000',
     trendingRank: 2,
+    endDate: new Date('2024-09-30T23:59:59Z'),
     updatedAt: new Date('2024-01-15T10:00:00Z')
   }
 ]

@@ -137,8 +137,12 @@ Please consider the market context, timing, and any relevant factors when making
       prediction: predictionResult.prediction,
       probability: predictionResult.probability,
       reasoning: predictionResult.reasoning,
+      confidence: Math.round(predictionResult.probability * 100),
       confidence_level: predictionResult.confidence_level,
+      recommendedOutcome: predictionResult.prediction,
+      riskLevel: predictionResult.confidence_level === "High" ? "Low" : predictionResult.confidence_level === "Medium" ? "Medium" : "High",
       key_factors: predictionResult.key_factors,
+      keyFactors: predictionResult.key_factors,
       methodology: predictionResult.methodology,
     }
 
