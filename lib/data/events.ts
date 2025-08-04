@@ -2,7 +2,7 @@ import { db } from '@/lib/db'
 import { events, markets } from '@/lib/db/schema'
 import { eq, desc, gt, sql } from 'drizzle-orm'
 import type { Event, NewEvent, Market } from '@/lib/types'
-import { getEventById as getPolymarketEvent } from '@/lib/polymarket'
+
 import { eventQueries, marketQueries, type NewMarket } from '@/lib/db/queries'
 import type { PolymarketEvent, PolymarketMarket } from '@/lib/types'
 
@@ -80,34 +80,9 @@ export async function deleteEvent(id: string): Promise<boolean> {
   return result.rowCount > 0
 }
 
-export async function updateEventIcon(eventId: string): Promise<Event | null> {
-  try {
-    // Fetch event data from Polymarket
-    const polymarketEvent = await getPolymarketEvent(eventId);
-    
-    if (!polymarketEvent) {
-      console.warn(`Event not found in Polymarket: ${eventId}`);
-      return null;
-    }
-    
-    // Update the event with icon data
-    const [result] = await db
-      .update(events)
-      .set({ 
-        icon: polymarketEvent.icon,
-        updatedAt: new Date() 
-      })
-      .where(eq(events.id, eventId))
-      .returning();
-    
-    return result || null;
-  } catch (error) {
-    console.error('Error updating event icon:', error);
-    return null;
-  }
-}
 
-export async function updateTrendingEventsAndMarketData(): Promise<{
+
+export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[]
 }> {
@@ -163,6 +138,7 @@ export async function updateTrendingEventsAndMarketData(): Promise<{
     endDate: event.endDate ? new Date(event.endDate) : null,
     volume: event.volume.toString(),
     trendingRank: index + 1,
+    marketProvider: "polymarket",
     updatedAt: new Date(),
   }))
 

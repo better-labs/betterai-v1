@@ -12,6 +12,7 @@ export const eventFixtures: Event[] = [
     volume: '5000000',
     trendingRank: 5,
     endDate: new Date('2024-12-31T23:59:59Z'),
+    marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
   },
   {
@@ -24,6 +25,7 @@ export const eventFixtures: Event[] = [
     volume: '3000000',
     trendingRank: 4,
     endDate: new Date('2024-11-05T23:59:59Z'),
+    marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
   },
   {
@@ -36,6 +38,7 @@ export const eventFixtures: Event[] = [
     volume: '1000000',
     trendingRank: 2,
     endDate: new Date('2024-09-30T23:59:59Z'),
+    marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
   }
 ]
@@ -80,29 +83,6 @@ export const marketFixtures: Market[] = [
   }
 ]
 
-// Polymarket event fixtures
-export const polymarketEventFixtures: PolymarketEvent[] = [
-  {
-    id: 'event-1',
-    title: 'Will Bitcoin reach $100k by end of 2024?',
-    description: 'Prediction market for Bitcoin price target',
-    slug: 'bitcoin-100k-2024',
-    icon: 'https://example.com/bitcoin-icon.png',
-    tags: [{ id: 'crypto', label: 'Cryptocurrency', slug: 'crypto', forceShow: true, updatedAt: '2024-01-01' }],
-    volume: 5000000,
-    markets: [
-      {
-        id: 'market-1',
-        question: 'Will Bitcoin reach $100k by end of 2024?',
-        outcomePrices: '["0.65", "0.35"]',
-        volume: '5000000',
-        liquidity: '2500000',
-        eventId: 'event-1'
-      }
-    ]
-  }
-]
-
 // Helper functions to get fixtures by criteria
 export const getEventById = (id: string): Event | undefined => 
   eventFixtures.find(event => event.id === id)
@@ -114,7 +94,4 @@ export const getMarketsByEventId = (eventId: string): Market[] =>
   marketFixtures.filter(market => market.eventId === eventId)
 
 export const getTrendingEvents = (): Event[] => 
-  eventFixtures.filter(event => event.trendingRank && event.trendingRank > 0).sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0))
-
-export const getPolymarketEventById = (id: string): PolymarketEvent | undefined => 
-  polymarketEventFixtures.find(event => event.id === id) 
+  eventFixtures.filter(event => event.trendingRank && event.trendingRank > 0).sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0)) 

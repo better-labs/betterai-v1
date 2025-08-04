@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getTrendingEvents, getEventById, createEvent, updateEvent, deleteEvent, updateEventIcon } from '@/lib/data/events'
+import { getTrendingEvents, getEventById, createEvent, updateEvent, deleteEvent } from '@/lib/data/events'
 import type { ApiResponse, NewEvent } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
@@ -54,24 +54,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { action, eventId } = body
-
-    // Handle icon update action
-    if (action === 'updateIcon' && eventId) {
-      const updatedEvent = await updateEventIcon(eventId)
-      if (!updatedEvent) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Failed to update event icon' } as ApiResponse),
-          { status: 404, headers: { 'Content-Type': 'application/json' } }
-        )
-      }
-      return new Response(
-        JSON.stringify({ success: true, data: updatedEvent } as ApiResponse),
-        { headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Handle regular event creation
     const eventData: NewEvent = body
     const event = await createEvent(eventData)
     return new Response(

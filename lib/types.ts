@@ -105,13 +105,7 @@ export interface PredictionResult {
   prediction: string
   probability: number
   reasoning: string
-  confidence: number
   confidence_level: "High" | "Medium" | "Low"
-  recommendedOutcome: string
-  riskLevel: "Low" | "Medium" | "High"
-  keyFactors: string[]
-  riskFactors?: string[]
-  methodology?: string
 }
 
 export interface DatabaseMetadata {
