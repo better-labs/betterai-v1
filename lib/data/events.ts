@@ -5,6 +5,7 @@ import type { Event, NewEvent, Market } from '@/lib/types'
 
 import { eventQueries, marketQueries, type NewMarket } from '@/lib/db/queries'
 import type { PolymarketEvent, PolymarketMarket } from '@/lib/types'
+import { mapTagsToCategory, CATEGORIES } from '@/lib/categorize'
 
 export async function getTrendingEvents(): Promise<Event[]> {
   return await db.query.events.findMany({
@@ -80,6 +81,68 @@ export async function deleteEvent(id: string): Promise<boolean> {
   return result.rowCount > 0
 }
 
+export async function getEventsByCategory(categoryId: number): Promise<Event[]> {
+  return await db.query.events.findMany({
+    where: (events, { eq }) => eq(events.category, categoryId),
+    orderBy: (events, { desc }) => [desc(events.volume)]
+  })
+}
+
+export async function getEventsByCategoryWithMarkets(categoryId: number): Promise<(Event & { markets: Market[] })[]> {
+  // Get events by category
+  const categoryEvents = await db.query.events.findMany({
+    where: (events, { eq }) => eq(events.category, categoryId),
+    orderBy: (events, { desc }) => [desc(events.volume)]
+  })
+
+  // Get all markets for these events in a single query
+  const eventIds = categoryEvents.map(event => event.id)
+  const allMarkets = await db.query.markets.findMany({
+    where: (markets, { inArray }) => inArray(markets.eventId, eventIds),
+    orderBy: (markets, { desc }) => [desc(markets.volume)]
+  })
+
+  // Group markets by eventId
+  const marketsByEventId = allMarkets.reduce((acc, market) => {
+    if (market.eventId) {
+      if (!acc[market.eventId]) {
+        acc[market.eventId] = []
+      }
+      acc[market.eventId].push(market)
+    }
+    return acc
+  }, {} as Record<string, Market[]>)
+
+  // Combine events with their markets
+  return categoryEvents.map(event => ({
+    ...event,
+    markets: marketsByEventId[event.id] || []
+  }))
+}
+
+export async function getCategoryStats(): Promise<Array<{
+  categoryId: number;
+  categoryName: string;
+  eventCount: number;
+}>> {
+  // Get event counts by category
+  const result = await db
+    .select({
+      category: events.category,
+      count: sql<number>`count(*)::int`
+    })
+    .from(events)
+    .where(sql`${events.category} IS NOT NULL`)
+    .groupBy(events.category)
+
+  // Map to include category names
+  return result.map(row => ({
+    categoryId: row.category!,
+    categoryName: CATEGORIES[row.category as keyof typeof CATEGORIES] || 'Unknown',
+    eventCount: row.count
+  })).sort((a, b) => b.eventCount - a.eventCount)
+}
+
 
 
 export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
@@ -129,18 +192,26 @@ export async function updatePolymarketTrendingEventsAndMarketData(): Promise<{
   console.log(`Extracted ${allMarkets.length} markets from events`)
 
   // Transform events data for database
-  const eventsToInsert: NewEvent[] = topEvents.map((event, index) => ({
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    slug: event.slug || null,
-    tags: event.tags || null,
-    endDate: event.endDate ? new Date(event.endDate) : null,
-    volume: event.volume.toString(),
-    trendingRank: index + 1,
-    marketProvider: "polymarket",
-    updatedAt: new Date(),
-  }))
+  const eventsToInsert: NewEvent[] = topEvents.map((event, index) => {
+    // Calculate category based on tags
+    const tags = event.tags || []
+    const tagLabels = tags.map(tag => tag.label)
+    const category = mapTagsToCategory(tagLabels)
+    
+    return {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      slug: event.slug || null,
+      tags: event.tags || null,
+      category: category,
+      endDate: event.endDate ? new Date(event.endDate) : null,
+      volume: event.volume.toString(),
+      trendingRank: index + 1,
+      marketProvider: "polymarket",
+      updatedAt: new Date(),
+    }
+  })
 
   // Transform markets data for database
   const marketsToInsert: NewMarket[] = allMarkets
@@ -237,18 +308,26 @@ export async function updatePolymarketAllEventsAndMarketData(): Promise<{
   console.log(`Extracted ${allMarkets.length} markets from events`)
 
   // Transform events data for database
-  const eventsToInsert: NewEvent[] = allEvents.map((event) => ({
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    slug: event.slug || null,
-    tags: event.tags || null,
-    endDate: event.endDate ? new Date(event.endDate) : null,
-    volume: event.volume.toString(),
-    trendingRank: null, // No trending rank for all events
-    marketProvider: "polymarket",
-    updatedAt: new Date(),
-  }))
+  const eventsToInsert: NewEvent[] = allEvents.map((event) => {
+    // Calculate category based on tags
+    const tags = event.tags || []
+    const tagLabels = tags.map(tag => tag.label)
+    const category = mapTagsToCategory(tagLabels)
+    
+    return {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      slug: event.slug || null,
+      tags: event.tags || null,
+      category: category,
+      endDate: event.endDate ? new Date(event.endDate) : null,
+      volume: event.volume.toString(),
+      trendingRank: null, // No trending rank for all events
+      marketProvider: "polymarket",
+      updatedAt: new Date(),
+    }
+  })
 
   // Transform markets data for database
   const marketsToInsert: NewMarket[] = allMarkets

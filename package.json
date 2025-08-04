@@ -12,6 +12,9 @@
     "cron:update-polymarket-trending": "node scripts/cron-update-polymarket-trending.js",
     "cron:update-polymarket-all": "node scripts/cron-update-polymarket-all.js",
     "cron:update-ai-models": "node scripts/cron-update-ai-models.js",
+    "db:populate-categories": "tsx scripts/populate-categories.ts",
+    "db:top-events": "tsx scripts/top-events-by-category.ts",
+    "db:top-event": "tsx scripts/top-event-by-category.ts",
     "db:setup": "npm run db:generate && npm run db:migrate",
     "db:generate": "drizzle-kit generate",
     "db:reset": "drizzle-kit drop && npm run db:migrate",
@@ -23,7 +26,6 @@
     "@ai-sdk/openai": "latest",
     "@hookform/resolvers": "^3.9.1",
     "@neondatabase/serverless": "latest",
-    
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -66,6 +68,7 @@
     "next": "15.2.4",
     "next-themes": "latest",
     "pg": "^8.16.3",
+    "postgres": "^3.4.7",
     "react": "^19",
     "react-day-picker": "latest",
     "react-dom": "^19",
@@ -93,6 +96,7 @@
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.2.5",
+    "tsx": "^4.20.3",
     "typescript": "^5",
     "vitest": "^3.2.4",
     "whatwg-fetch": "^3.6.20"

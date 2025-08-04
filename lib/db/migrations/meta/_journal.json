@@ -43,6 +43,13 @@
       "when": 1754311671472,
       "tag": "0005_salty_ted_forrester",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1754334496450,
+      "tag": "0006_charming_sabretooth",
+      "breakpoints": true
     }
   ]
 }

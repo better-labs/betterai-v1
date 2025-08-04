@@ -9,6 +9,7 @@ export const events = pgTable(
     slug: text("slug"),
     icon: text("icon"), // Add icon URL field
     tags: jsonb("tags"),
+    category: integer("category"), // Add category field
     volume: numeric("volume").default("0"),
     trendingRank: integer("trending_rank"),
     endDate: timestamp("end_date"), // Add endDate field
@@ -21,6 +22,7 @@ export const events = pgTable(
       trendingRankIdx: index("idx_events_trending_rank").on(table.trendingRank),
       slugIdx: index("idx_events_slug").on(table.slug),
       endDateIdx: index("idx_events_end_date").on(table.endDate),
+      categoryIdx: index("idx_events_category").on(table.category), // Add category index
     }
   },
 )
