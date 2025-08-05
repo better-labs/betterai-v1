@@ -29,47 +29,92 @@ const mockSearchResults: Market[] = [
   {
     id: "1",
     question: "Will Trump pardon Ghislaine Maxwell by August 31?",
+    description: null,
+    eventId: null,
+    slug: null,
+    outcomePrices: ["0.03", "0.97"],
+    outcomes: ["Yes", "No"],
     volume: "191000",
-    outcomes: [
-      { name: "Yes", price: 0.03 },
-      { name: "No", price: 0.97 }
-    ]
+    liquidity: "0",
+    category: null,
+    active: true,
+    closed: false,
+    startDate: null,
+    endDate: null,
+    resolutionSource: null,
+    updatedAt: new Date()
   },
   {
     id: "2", 
     question: "Who will leave Trump Administration in 2025?",
+    description: null,
+    eventId: null,
+    slug: null,
+    outcomePrices: ["0.26", "0.74"],
+    outcomes: ["Dan Bongino", "Others"],
     volume: "45000",
-    outcomes: [
-      { name: "Dan Bongino", price: 0.26 },
-      { name: "Others", price: 0.74 }
-    ]
+    liquidity: "0",
+    category: null,
+    active: true,
+    closed: false,
+    startDate: null,
+    endDate: null,
+    resolutionSource: null,
+    updatedAt: new Date()
   },
   {
     id: "3",
     question: "Will Epstein list be released by end of 2024?",
+    description: null,
+    eventId: null,
+    slug: null,
+    outcomePrices: ["0.21", "0.79"],
+    outcomes: ["Yes", "No"],
     volume: "125000",
-    outcomes: [
-      { name: "Yes", price: 0.21 },
-      { name: "No", price: 0.79 }
-    ]
+    liquidity: "0",
+    category: null,
+    active: true,
+    closed: false,
+    startDate: null,
+    endDate: null,
+    resolutionSource: null,
+    updatedAt: new Date()
   },
   {
     id: "4",
     question: "Will Trump face Epstein-related charges?",
+    description: null,
+    eventId: null,
+    slug: null,
+    outcomePrices: ["0.13", "0.87"],
+    outcomes: ["Yes", "No"],
     volume: "89000",
-    outcomes: [
-      { name: "Yes", price: 0.13 },
-      { name: "No", price: 0.87 }
-    ]
+    liquidity: "0",
+    category: null,
+    active: true,
+    closed: false,
+    startDate: null,
+    endDate: null,
+    resolutionSource: null,
+    updatedAt: new Date()
   },
   {
     id: "5",
     question: "Will Maxwell cooperate with prosecutors?",
+    description: null,
+    eventId: null,
+    slug: null,
+    outcomePrices: ["0.08", "0.92"],
+    outcomes: ["Yes", "No"],
     volume: "67000",
-    outcomes: [
-      { name: "Yes", price: 0.08 },
-      { name: "No", price: 0.92 }
-    ]
+    liquidity: "0",
+    category: null,
+    active: true,
+    closed: false,
+    startDate: null,
+    endDate: null,
+    resolutionSource: null,
+    updatedAt: new Date()
   }
 ]
 
@@ -204,7 +249,7 @@ function SearchPageContent() {
                       <div className="flex items-center space-x-2">
                         <div className="text-right">
                           <div className="text-lg font-bold text-foreground">
-                            {market.outcomes?.[0]?.price ? Math.round(market.outcomes[0].price * 100) : 0}%
+                            {market.outcomePrices?.[0] ? Math.round(Number(market.outcomePrices[0]) * 100) : 0}%
                           </div>
                           {market.question.toLowerCase().includes("administration") && (
                             <div className="text-xs text-muted-foreground">Dan Bongino</div>

@@ -21,10 +21,19 @@ export const createMockEvent = (overrides: Partial<Event> = {}): Event => ({
 export const createMockMarket = (overrides: Partial<Market> = {}): Market => ({
   id: 'test-market-1',
   question: 'Will the event happen?',
+  description: null,
   eventId: 'test-event-1',
+  slug: null,
   outcomePrices: ['0.65', '0.35'],
+  outcomes: ['Yes', 'No'],
   volume: '100000',
   liquidity: '50000',
+  category: null,
+  active: true,
+  closed: false,
+  startDate: null,
+  endDate: null,
+  resolutionSource: null,
   updatedAt: new Date(),
   ...overrides
 })

@@ -1,19 +1,15 @@
-export interface MarketOutcome {
-  name: string
-  price: number
-}
-
-
-
-
+/**
+ * Application-specific TypeScript types and interfaces.
+ * Contains type definitions that are used in the application but don't directly map to database models.
+ * These types are used for UI state management, API responses, and other application-specific data structures.
+ */
 export interface ThinkingState {
   isThinking: boolean
   message: string
   progress: number
 }
 
-
-// Raw Polymarket API types
+// Raw Polymarket API types (external API responses)
 export interface RawPolymarketMarket {
   id: string
   question: string
@@ -24,7 +20,6 @@ export interface RawPolymarketMarket {
   liquidityNum: number
   outcomes: string // JSON string array like "[\"Yes\", \"No\"]"
   outcomePrices: string // JSON string array like "[\"0.35\", \"0.65\"]"
-
   slug: string
   active: boolean
   closed: boolean
@@ -33,52 +28,44 @@ export interface RawPolymarketMarket {
 
 export type RawPolymarketApiResponse = RawPolymarketMarket[] 
 
-// Export all types from schema for convenience
-export type { Event, NewEvent, Prediction, NewPrediction, AIModel, NewAIModel } from "./db/schema"
-
-// Re-export NewMarket for compatibility
-export type NewMarket = {
-  id?: string;
-  question: string;
-  description?: string | null;
-  eventId?: string | null;
-  slug?: string | null;
-  outcomePrices?: string[] | null;
-  volume?: string | null;
-  liquidity?: string | null;
-  category?: string | null;
-  active?: boolean | null;
-  closed?: boolean | null;
+// Polymarket API types (before database transformation)
+export interface PolymarketEvent {
+  id: string;
+  title: string;
+  description: string;
+  slug: string;
+  icon: string;
+  tags: Array<{
+    id: string;
+    label: string;
+    slug: string;
+    forceShow: boolean;
+    updatedAt: string;
+  }>;
+  volume: number;
   startDate?: Date | null;
   endDate?: Date | null;
-  resolutionSource?: string | null;
-  updatedAt?: Date | null;
-  marketURL?: string;
-  outcomes?: MarketOutcome[];
+  markets: PolymarketMarket[];
 }
 
-// Extended Market type with additional fields
-export interface Market {
+export interface PolymarketMarket {
   id: string;
   question: string;
-  description?: string | null;
-  eventId?: string | null;
-  slug?: string | null;
-  outcomePrices?: string[] | null;
-  volume?: string | null;
-  liquidity?: string | null;
-  category?: string | null;
-  active?: boolean | null;
-  closed?: boolean | null;
+  description?: string;
+  slug?: string;
+  outcomePrices: string; // JSON string
+  outcomes?: string; // JSON string array like "[\"Yes\", \"No\"]"
+  volume: string;
+  liquidity: string;
+  active?: boolean;
+  closed?: boolean;
   startDate?: Date | null;
   endDate?: Date | null;
-  resolutionSource?: string | null;
-  updatedAt?: Date | null;
-  marketURL?: string;
-  outcomes?: MarketOutcome[];
+  resolutionSource?: string;
+  eventId?: string; // Added by us during processing
 }
 
-// Extended types for API responses
+// Extended types for API responses (UI/API specific)
 export interface EventWithMarkets {
   id: string;
   title: string;
@@ -121,36 +108,15 @@ export interface DatabaseMetadata {
   requestId: string
 }
 
-export interface PolymarketEvent {
-  id: string;
-  title: string;
-  description: string;
-  slug: string;
-  icon: string; // Add icon URL field
-  tags: Array<{
-    id: string;
-    label: string;
-    slug: string;
-    forceShow: boolean;
-    updatedAt: string;
-  }>;
-  volume: number;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  markets: PolymarketMarket[];
-}
-
-export interface PolymarketMarket {
-  id: string;
-  question: string;
-  description?: string;
-  slug?: string;
-  outcomePrices: string; // JSON string
-  volume: string;
-  liquidity: string;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  resolutionSource?: string;
-  eventId?: string; // Added by us during processing
-} 
+// Re-export all database types from schema for convenience
+export type { 
+  Event, 
+  NewEvent, 
+  Market, 
+  NewMarket,
+  Prediction, 
+  NewPrediction, 
+  AIModel, 
+  NewAIModel 
+} from "./db/schema" 
 

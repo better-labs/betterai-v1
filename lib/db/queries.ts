@@ -110,8 +110,12 @@ export const marketQueries = {
                 question: market.question,
                 eventId: market.eventId,
                 outcomePrices: market.outcomePrices,
+                outcomes: market.outcomes,
                 volume: market.volume,
                 liquidity: market.liquidity,
+                active: market.active,
+                closed: market.closed,
+                resolutionSource: market.resolutionSource,
                 updatedAt: sql`NOW()`,
               },
             })
