@@ -97,7 +97,7 @@ export async function generateBatchPredictions(
 
   for (const marketId of marketIds) {
     try {
-      console.log(`\nGenerating prediction for market: ${marketId}`)
+      
       const result = await generatePredictionForMarket(marketId, modelName)
       
       results.push({
