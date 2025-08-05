@@ -37,6 +37,7 @@ export const markets = pgTable(
     eventId: text("event_id").references(() => events.id),
     slug: text("slug"), // Add slug field
     outcomePrices: numeric("outcome_prices").array(),
+    outcomes: text("outcomes").array(),
     volume: numeric("volume").default("0"),
     liquidity: numeric("liquidity").default("0"),
     category: text("category"),
@@ -66,6 +67,7 @@ export const predictions = pgTable(
     userMessage: text("user_message").notNull(),
     marketId: text("market_id").references(() => markets.id),
     predictionResult: jsonb("prediction_result").notNull(),
+    probability: numeric("probability"),
     modelName: text("model_name"),
     systemPrompt: text("system_prompt"),
     aiResponse: text("ai_response"),

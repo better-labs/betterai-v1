@@ -12,6 +12,8 @@
     "cron:update-polymarket-trending": "node scripts/cron-update-polymarket-trending.js",
     "cron:update-polymarket-all": "node scripts/cron-update-polymarket-all.js",
     "cron:update-ai-models": "node scripts/cron-update-ai-models.js",
+    "update-events": "tsx scripts/update-polymarket-events.ts",
+    "generate-batch-predictions": "tsx scripts/generate-batch-predictions.ts",
     "db:populate-categories": "tsx scripts/populate-categories.ts",
     "db:setup": "npm run db:generate && npm run db:migrate",
     "db:generate": "drizzle-kit generate",
