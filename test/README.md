@@ -20,45 +20,6 @@ test/
 └── polymarket.test.ts          # Existing Polymarket API tests
 ```
 
-## Test Categories
-
-### 1. Unit Tests (`lib/data/events.test.ts`)
-- **Purpose**: Test individual functions in isolation
-- **Coverage**: All exported functions from `lib/data/events.ts`
-- **Focus**: Happy path scenarios and basic error cases
-- **Functions tested**:
-  - `getTrendingEvents()`
-  - `getTrendingEventsWithMarkets()`
-  - `getEventById()`
-  - `getEventBySlug()`
-  - `createEvent()`
-  - `updateEvent()`
-  - `deleteEvent()`
-  
-  - `updatePolymarketTrendingEventsAndMarketData()`
-
-### 2. Edge Case Tests (`routes/events-edge-cases.test.ts`)
-- **Purpose**: Test error handling and boundary conditions
-- **Coverage**: Database errors, API timeouts, invalid data
-- **Focus**: Robustness and error recovery
-- **Scenarios tested**:
-  - Database connection failures
-  - Polymarket API timeouts
-  - Invalid event IDs
-  - Empty or null data handling
-  - Constraint violations
-  - Concurrent operations
-
-### 3. Integration Tests (`e2e/events-integration.test.ts`)
-- **Purpose**: Test multiple functions working together
-- **Coverage**: End-to-end workflows and data consistency
-- **Focus**: Real-world usage patterns
-- **Workflows tested**:
-  - Complete event lifecycle (create → read → update → delete)
-  - Trending events workflow
-  - Data consistency across operations
-  - Error recovery scenarios
-  - Performance with large datasets
 
 ## Test Utilities
 
