@@ -45,7 +45,7 @@ export async function updatePolymarketAllEventsAndMarketData(options: {
   // Local function to construct the API URL
   const buildEventsURL = (offset: number, limit: number): string => {
     const baseEventsURL = 'https://gamma-api.polymarket.com/events'
-    const daysToFetch = 15
+    const daysToFetch = 10
     const defaultStartDate = new Date(Date.now() - daysToFetch * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     const defaultEndDate = new Date(Date.now() + daysToFetch * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     const params = `start_date_min=${defaultStartDate}&end_date_max=${defaultEndDate}&ascending=true`
@@ -313,6 +313,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
         eventId: market.eventId,
         slug: market.slug || null,
         outcomePrices: outcomePricesArray,
+        outcomes: market.outcomes ? JSON.parse(market.outcomes) : null,
         volume: market.volume,
         liquidity: market.liquidity,
         description: market.description,

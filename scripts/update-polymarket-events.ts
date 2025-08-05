@@ -19,7 +19,7 @@ async function main() {
     const { updatePolymarketAllEventsAndMarketData } = await import('../lib/services/events')
     
     const result = await updatePolymarketAllEventsAndMarketData({
-      limit: 10, // Small limit for testing
+      limit: 150, // Small limit for testing
       delayMs: 100, // Faster delay for testing
       maxRetries: 1, // Fewer retries for testing
       timeoutMs: 10000, // Shorter timeout for testing

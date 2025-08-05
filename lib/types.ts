@@ -54,6 +54,7 @@ export interface PolymarketMarket {
   description?: string;
   slug?: string;
   outcomePrices: string; // JSON string
+  outcomes?: string; // JSON string array like "[\"Yes\", \"No\"]"
   volume: string;
   liquidity: string;
   active?: boolean;
