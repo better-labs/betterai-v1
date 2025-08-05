@@ -112,6 +112,8 @@ export const marketQueries = {
                 outcomePrices: market.outcomePrices,
                 volume: market.volume,
                 liquidity: market.liquidity,
+                active: market.active,
+                closed: market.closed,
                 updatedAt: sql`NOW()`,
               },
             })

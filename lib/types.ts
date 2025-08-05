@@ -1,4 +1,8 @@
-// Application-specific types that don't exist in the database
+/**
+ * Application-specific TypeScript types and interfaces.
+ * Contains type definitions that are used in the application but don't directly map to database models.
+ * These types are used for UI state management, API responses, and other application-specific data structures.
+ */
 export interface ThinkingState {
   isThinking: boolean
   message: string
@@ -52,6 +56,8 @@ export interface PolymarketMarket {
   outcomePrices: string; // JSON string
   volume: string;
   liquidity: string;
+  active?: boolean;
+  closed?: boolean;
   startDate?: Date | null;
   endDate?: Date | null;
   resolutionSource?: string;

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { updatePolymarketAllEventsAndMarketData } from '@/lib/data/events'
+import { updatePolymarketAllEventsAndMarketData } from '@/lib/services/events'
 import type { ApiResponse, DatabaseMetadata } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
