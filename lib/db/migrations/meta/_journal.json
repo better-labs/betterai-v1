@@ -15,6 +15,13 @@
       "when": 1754355774589,
       "tag": "0001_polite_trauma",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1754402719635,
+      "tag": "0002_brown_shiva",
+      "breakpoints": true
     }
   ]
 }

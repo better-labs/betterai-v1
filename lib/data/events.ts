@@ -8,7 +8,7 @@ import type { PolymarketEvent, PolymarketMarket } from '@/lib/types'
 import { mapTagsToCategory, CATEGORIES } from '@/lib/categorize'
 
 const baseEventsURL = 'https://gamma-api.polymarket.com/events'
-const baseEventsURLParams = 'start_date_min=2025-07-01&end_date_max=2025-09-01&ascending=true'
+const baseEventsURLParams = 'start_date_min=2025-08-01&end_date_max=2025-08-10&ascending=true'
 
 export async function getTrendingEvents(): Promise<Event[]> {
   return await db.query.events.findMany({
@@ -152,7 +152,7 @@ export async function getCategoryStats(): Promise<Array<{
 /**
  * Updates all Polymarket events and markets with proper throttling and pagination
  */
-export async function updatePolymarketAllEventsAndMarketDataWithThrottling(options: {
+export async function updatePolymarketAllEventsAndMarketData(options: {
   limit?: number,
   delayMs?: number,
   maxRetries?: number,
@@ -167,7 +167,7 @@ export async function updatePolymarketAllEventsAndMarketDataWithThrottling(optio
   errors: string[]
 }> {
   const {
-    limit = 100,
+    limit = 200,
     delayMs = 1000,
     maxRetries = 3,
     retryDelayMs = 2000,
@@ -187,12 +187,17 @@ export async function updatePolymarketAllEventsAndMarketDataWithThrottling(optio
 
   console.log(`Starting to fetch and process Polymarket events with limit=${limit}, delay=${delayMs}ms`)
 
+  // Local function to construct the API URL
+  const buildEventsURL = (offset: number, limit: number): string => {
+    return `${baseEventsURL}?${baseEventsURLParams}&offset=${offset}&limit=${limit}`
+  }
+
   while (hasMoreData) {
     try {
       totalRequests++
       console.log(`Fetching batch ${totalRequests} with offset=${offset}, limit=${limit}`)
 
-      const url = `${baseEventsURL}?${baseEventsURLParams}&offset=${offset}&limit=${limit}`
+      const url = buildEventsURL(offset, limit)
       console.log('url:', url)
       
       const controller = new AbortController()
@@ -314,7 +319,7 @@ export async function updatePolymarketAllEventsAndMarketDataWithThrottling(optio
         await new Promise(resolve => setTimeout(resolve, retryDelayMs * retry))
         
         try {
-          const url = `${baseEventsURL}?${baseEventsURLParams}&offset=${offset}&limit=${limit}`
+          const url = buildEventsURL(offset, limit)
           const response = await fetch(url, {
             headers: {
               Accept: "application/json",

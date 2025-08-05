@@ -10,8 +10,10 @@ if (!process.env.DATABASE_URL) {
   throw new Error("Missing env.DATABASE_URL - Please add your Neon database connection string")
 }
 
-// Create Neon HTTP client
-const sql = neon(process.env.DATABASE_URL)
+// Create Neon HTTP client with warning suppression
+const sql = neon(process.env.DATABASE_URL, {
+  disableWarningInBrowsers: true
+})
 
 // Initialize Drizzle with Neon client and schema
 export const db = drizzle(sql, { schema })

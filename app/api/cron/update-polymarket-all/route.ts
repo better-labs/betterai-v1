@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { updatePolymarketAllEventsAndMarketDataWithThrottling } from '@/lib/data/events'
+import { updatePolymarketAllEventsAndMarketData } from '@/lib/data/events'
 import type { ApiResponse, DatabaseMetadata } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       totalFetched, 
       totalRequests, 
       errors 
-    } = await updatePolymarketAllEventsAndMarketDataWithThrottling({
+    } = await updatePolymarketAllEventsAndMarketData({
       limit: 100,           // Fetch 100 events per request
       delayMs: 1000,        // Wait 1 second between requests
       maxRetries: 3,        // Retry failed requests up to 3 times

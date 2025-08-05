@@ -66,6 +66,7 @@ export const predictions = pgTable(
     userMessage: text("user_message").notNull(),
     marketId: text("market_id").references(() => markets.id),
     predictionResult: jsonb("prediction_result").notNull(),
+    probability: numeric("probability"),
     modelName: text("model_name"),
     systemPrompt: text("system_prompt"),
     aiResponse: text("ai_response"),

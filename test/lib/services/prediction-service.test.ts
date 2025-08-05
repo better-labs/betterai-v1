@@ -1,6 +1,7 @@
 import { generatePredictionForMarket } from '@/lib/services/prediction-service'
 import { marketQueries, predictionQueries } from '@/lib/db/queries'
 import type { Market } from '@/lib/types'
+import { parseAIResponse } from '../../../lib/utils'
 
 // Mock the database queries
 jest.mock('@/lib/db/queries', () => ({
@@ -271,6 +272,48 @@ describe('generatePredictionForMarket', () => {
 
       expect(systemMessage.content).not.toContain('"timeframe"')
       expect(systemMessage.content).not.toContain('"risks"')
+    })
+  })
+})
+
+describe('parseAIResponse', () => {
+  it('should parse clean JSON directly', () => {
+    const json = '{"prediction": "test", "probability": 0.5}'
+    const result = parseAIResponse(json)
+    expect(result).toEqual({ prediction: "test", probability: 0.5 })
+  })
+
+  it('should parse JSON wrapped in markdown code blocks', () => {
+    const json = '```json\n{"prediction": "test", "probability": 0.5}\n```'
+    const result = parseAIResponse(json)
+    expect(result).toEqual({ prediction: "test", probability: 0.5 })
+  })
+
+  it('should parse JSON wrapped in generic code blocks', () => {
+    const json = '```\n{"prediction": "test", "probability": 0.5}\n```'
+    const result = parseAIResponse(json)
+    expect(result).toEqual({ prediction: "test", probability: 0.5 })
+  })
+
+  it('should parse JSON with single backticks', () => {
+    const json = '`{"prediction": "test", "probability": 0.5}`'
+    const result = parseAIResponse(json)
+    expect(result).toEqual({ prediction: "test", probability: 0.5 })
+  })
+
+  it('should throw error for invalid JSON', () => {
+    const invalidJson = '{"prediction": "test", "probability": invalid}'
+    expect(() => parseAIResponse(invalidJson)).toThrow()
+  })
+
+  it('should handle complex JSON with nested objects', () => {
+    const json = '```json\n{"prediction": "test", "probability": 0.5, "reasoning": "test reasoning", "confidence_level": "High"}\n```'
+    const result = parseAIResponse(json)
+    expect(result).toEqual({
+      prediction: "test",
+      probability: 0.5,
+      reasoning: "test reasoning",
+      confidence_level: "High"
     })
   })
 }) 

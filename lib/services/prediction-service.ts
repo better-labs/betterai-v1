@@ -1,6 +1,7 @@
 import { marketQueries, predictionQueries } from '../db/queries'
 import type { PredictionResult } from '../types'
 import { DEFAULT_MODEL } from '../data/ai-models'
+import { parseAIResponse, validateProbability } from '../utils'
 
 interface OpenRouterPredictionResult {
   prediction: string
@@ -47,13 +48,20 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
     console.log(`Generating AI prediction for market: ${marketId}`)
     
     // Generate system and user messages before the fetch call
-    const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and confidence level. Format your response as a JSON object with the following structure:
-    {
-      "prediction": "your prediction outcome",
-      "probability": 0.XX (number between 0 and 1),
-      "reasoning": "detailed explanation of your reasoning",
-      "confidence_level": "High/Medium/Low"
-    }`
+    const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and confidence level. 
+
+
+
+Format your response as a JSON object with the following structure:
+{
+  "prediction": "your prediction outcome",
+  "probability": 0.XX (must be a number between 0 and 1, e.g., 0.75 for 75%),
+  "reasoning": "detailed explanation of your reasoning",
+  "confidence_level": "High/Medium/Low"
+}
+
+IMPORTANT: Return ONLY a valid JSON object. Do NOT wrap your response in markdown code blocks, backticks, or any other formatting. Return pure JSON.
+IMPORTANT: The probability field must be a numeric value between 0 and 1. Do not use percentages, text, or any other format.`
 
     const userMessage = `Analyze this market and provide a comprehensive prediction:
 
@@ -107,18 +115,15 @@ Please consider the market context, timing, and any relevant factors when making
     const data = await response.json()
     const text = data.choices[0].message.content
 
-    let predictionResult: OpenRouterPredictionResult
-    try {
-      predictionResult = JSON.parse(text)
-    } catch (parseError) {
-      console.error("AI response was not valid JSON:", text)
-      throw new Error(`AI model returned invalid JSON response. Raw response: ${text.substring(0, 200)}...`)
-    }
+    const predictionResult: OpenRouterPredictionResult = parseAIResponse<OpenRouterPredictionResult>(text)
+
+    // Validate and sanitize probability value
+    const validatedProbability = validateProbability(predictionResult.probability)
 
     // Convert OpenRouter format to our internal PredictionResult format
     const internalPredictionResult: PredictionResult = {
       prediction: predictionResult.prediction,
-      probability: predictionResult.probability,
+      probability: validatedProbability,
       reasoning: predictionResult.reasoning,
       confidence_level: predictionResult.confidence_level,
     }
@@ -128,7 +133,8 @@ Please consider the market context, timing, and any relevant factors when making
       userMessage: market.question,
       marketId: marketId,
       predictionResult: internalPredictionResult,
-      modelName: modelName,
+      probability: validatedProbability.toString(),
+      modelName: modelName || DEFAULT_MODEL,
       systemPrompt: systemMessage,
       aiResponse: text,
       createdAt: new Date(),
