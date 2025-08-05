@@ -37,6 +37,7 @@ export const markets = pgTable(
     eventId: text("event_id").references(() => events.id),
     slug: text("slug"), // Add slug field
     outcomePrices: numeric("outcome_prices").array(),
+    outcomes: text("outcomes").array(),
     volume: numeric("volume").default("0"),
     liquidity: numeric("liquidity").default("0"),
     category: text("category"),

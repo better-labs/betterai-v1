@@ -145,10 +145,6 @@ export async function getCategoryStats(): Promise<Array<{
     eventCount: row.count
   })).sort((a, b) => b.eventCount - a.eventCount)
 }
-
-
-
-
 /**
  * Updates all Polymarket events and markets with proper throttling and pagination
  */
@@ -474,6 +470,10 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
     totalFetched: validEvents.length
   }
 }
+
+
+
+
 
 
 
