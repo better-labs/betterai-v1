@@ -12,6 +12,7 @@ export const eventFixtures: Event[] = [
     category: 1,
     volume: '5000000',
     trendingRank: 5,
+    startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-12-31T23:59:59Z'),
     marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
@@ -26,6 +27,7 @@ export const eventFixtures: Event[] = [
     category: 2,
     volume: '3000000',
     trendingRank: 4,
+    startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-11-05T23:59:59Z'),
     marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
@@ -40,6 +42,7 @@ export const eventFixtures: Event[] = [
     category: 3,
     volume: '1000000',
     trendingRank: 2,
+    startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-09-30T23:59:59Z'),
     marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
