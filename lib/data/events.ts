@@ -7,6 +7,9 @@ import { eventQueries, marketQueries, type NewMarket } from '@/lib/db/queries'
 import type { PolymarketEvent, PolymarketMarket } from '@/lib/types'
 import { mapTagsToCategory, CATEGORIES } from '@/lib/categorize'
 
+const baseEventsURL = 'https://gamma-api.polymarket.com/events'
+const baseEventsURLParams = 'start_date_min=2025-07-01&end_date_max=2025-09-01&ascending=true'
+
 export async function getTrendingEvents(): Promise<Event[]> {
   return await db.query.events.findMany({
     where: (events, { gt }) => gt(events.trendingRank, 0),
@@ -145,21 +148,20 @@ export async function getCategoryStats(): Promise<Array<{
 
 
 
+
 /**
- * Safely pulls all events from Polymarket API with throttling and pagination
- * 
- * @param options Configuration options for the API calls
- * @returns Promise with all fetched events and markets
+ * Updates all Polymarket events and markets with proper throttling and pagination
  */
-export async function fetchAllPolymarketEventsWithThrottling(options: {
-  limit?: number,           // Number of events per request (default: 100)
-  delayMs?: number,         // Delay between requests in milliseconds (default: 1000)
-  maxRetries?: number,      // Maximum number of retries per request (default: 3)
-  retryDelayMs?: number,    // Delay before retry in milliseconds (default: 2000)
-  timeoutMs?: number,       // Request timeout in milliseconds (default: 30000)
-  userAgent?: string,       // Custom User-Agent header
+export async function updatePolymarketAllEventsAndMarketDataWithThrottling(options: {
+  limit?: number,
+  delayMs?: number,
+  maxRetries?: number,
+  retryDelayMs?: number,
+  timeoutMs?: number,
+  userAgent?: string,
 } = {}): Promise<{
-  events: PolymarketEvent[],
+  insertedEvents: Event[],
+  insertedMarkets: Market[],
   totalFetched: number,
   totalRequests: number,
   errors: string[]
@@ -173,20 +175,25 @@ export async function fetchAllPolymarketEventsWithThrottling(options: {
     userAgent = "BetterAI/1.0"
   } = options
 
-  const allEvents: PolymarketEvent[] = []
+  console.log("Starting throttled update of all Polymarket events with batch processing...")
+  
+  const allInsertedEvents: Event[] = []
+  const allInsertedMarkets: Market[] = []
   const errors: string[] = []
   let totalRequests = 0
   let offset = 0
   let hasMoreData = true
+  let totalFetched = 0
 
-  console.log(`Starting to fetch all Polymarket events with limit=${limit}, delay=${delayMs}ms`)
+  console.log(`Starting to fetch and process Polymarket events with limit=${limit}, delay=${delayMs}ms`)
 
   while (hasMoreData) {
     try {
       totalRequests++
       console.log(`Fetching batch ${totalRequests} with offset=${offset}, limit=${limit}`)
 
-      const url = `https://gamma-api.polymarket.com/events?limit=${limit}&offset=${offset}`
+      const url = `${baseEventsURL}?${baseEventsURLParams}&offset=${offset}&limit=${limit}`
+      console.log('url:', url)
       
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
@@ -230,8 +237,12 @@ export async function fetchAllPolymarketEventsWithThrottling(options: {
               if (retryResponse.ok) {
                 const retryData = await retryResponse.json()
                 if (Array.isArray(retryData)) {
-                  allEvents.push(...retryData)
-                  console.log(`Retry successful, got ${retryData.length} events`)
+                  // Process and upsert this batch
+                  const batchResult = await processAndUpsertBatch(retryData)
+                  allInsertedEvents.push(...batchResult.insertedEvents)
+                  allInsertedMarkets.push(...batchResult.insertedMarkets)
+                  totalFetched += batchResult.totalFetched
+                  console.log(`Retry successful, processed ${retryData.length} events`)
                   break
                 }
               }
@@ -261,22 +272,14 @@ export async function fetchAllPolymarketEventsWithThrottling(options: {
         break
       }
 
-      // Filter and validate events
-      const validEvents = data.filter((event): event is PolymarketEvent => {
-        const isValid = event && 
-               typeof event === 'object' && 
-               typeof event.id === 'string' &&
-               typeof event.title === 'string' &&
-               typeof event.description === 'string' &&
-               typeof event.volume === 'number' &&
-               (event.slug === undefined || typeof event.slug === 'string') &&
-               (event.tags === undefined || Array.isArray(event.tags))
-        
-        return isValid
-      })
+      // Process and upsert this batch
+      console.log(`Processing batch ${totalRequests} with ${data.length} events...`)
+      const batchResult = await processAndUpsertBatch(data)
+      allInsertedEvents.push(...batchResult.insertedEvents)
+      allInsertedMarkets.push(...batchResult.insertedMarkets)
+      totalFetched += batchResult.totalFetched
 
-      allEvents.push(...validEvents)
-      console.log(`Batch ${totalRequests}: Got ${data.length} events, ${validEvents.length} valid`)
+      console.log(`Batch ${totalRequests}: Processed ${data.length} events, ${batchResult.insertedEvents.length} events upserted, ${batchResult.insertedMarkets.length} markets upserted`)
 
       // Check if we've reached the end
       if (data.length < limit) {
@@ -311,32 +314,24 @@ export async function fetchAllPolymarketEventsWithThrottling(options: {
         await new Promise(resolve => setTimeout(resolve, retryDelayMs * retry))
         
         try {
-          const url = `https://gamma-api.polymarket.com/events?limit=${limit}&offset=${offset}`
+          const url = `${baseEventsURL}?${baseEventsURLParams}&offset=${offset}&limit=${limit}`
           const response = await fetch(url, {
             headers: {
               Accept: "application/json",
               "User-Agent": userAgent,
             }
           })
-          
+          console.log('url:', url)
+
           if (response.ok) {
             const data = await response.json()
             if (Array.isArray(data)) {
-              const validEvents = data.filter((event): event is PolymarketEvent => {
-                const isValid = event && 
-                       typeof event === 'object' && 
-                       typeof event.id === 'string' &&
-                       typeof event.title === 'string' &&
-                       typeof event.description === 'string' &&
-                       typeof event.volume === 'number' &&
-                       (event.slug === undefined || typeof event.slug === 'string') &&
-                       (event.tags === undefined || Array.isArray(event.tags))
-                
-                return isValid
-              })
-              
-              allEvents.push(...validEvents)
-              console.log(`Retry successful, got ${data.length} events`)
+              // Process and upsert this batch
+              const batchResult = await processAndUpsertBatch(data)
+              allInsertedEvents.push(...batchResult.insertedEvents)
+              allInsertedMarkets.push(...batchResult.insertedMarkets)
+              totalFetched += batchResult.totalFetched
+              console.log(`Retry successful, processed ${data.length} events`)
               break
             }
           }
@@ -352,60 +347,54 @@ export async function fetchAllPolymarketEventsWithThrottling(options: {
     }
   }
 
-  console.log(`Finished fetching events. Total: ${allEvents.length}, Requests: ${totalRequests}, Errors: ${errors.length}`)
+  console.log(`Finished processing all batches. Total: ${totalFetched}, Requests: ${totalRequests}, Errors: ${errors.length}`)
   
   return {
-    events: allEvents,
-    totalFetched: allEvents.length,
+    insertedEvents: allInsertedEvents,
+    insertedMarkets: allInsertedMarkets,
+    totalFetched,
     totalRequests,
     errors
   }
 }
 
 /**
- * Updates all Polymarket events and markets with proper throttling and pagination
+ * Helper function to process and upsert a batch of events and their markets
  */
-export async function updatePolymarketAllEventsAndMarketDataWithThrottling(options: {
-  limit?: number,
-  delayMs?: number,
-  maxRetries?: number,
-  retryDelayMs?: number,
-  timeoutMs?: number,
-  userAgent?: string,
-} = {}): Promise<{
+async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
-  totalFetched: number,
-  totalRequests: number,
-  errors: string[]
+  totalFetched: number
 }> {
-  console.log("Starting throttled update of all Polymarket events...")
-  
-  const { events: allEvents, totalFetched, totalRequests, errors } = 
-    await fetchAllPolymarketEventsWithThrottling(options)
+  // Filter and validate events
+  const validEvents = eventsData.filter((event): event is PolymarketEvent => {
+    const isValid = event && 
+           typeof event === 'object' && 
+           typeof event.id === 'string' &&
+           typeof event.title === 'string' &&
+           typeof event.description === 'string' &&
+           typeof event.volume === 'number' &&
+           (event.slug === undefined || typeof event.slug === 'string') &&
+           (event.tags === undefined || Array.isArray(event.tags))
+    
+    return isValid
+  })
 
-  if (allEvents.length === 0) {
-    console.log("No events fetched, returning empty results")
+  if (validEvents.length === 0) {
     return {
       insertedEvents: [],
       insertedMarkets: [],
-      totalFetched,
-      totalRequests,
-      errors
+      totalFetched: 0
     }
   }
 
   // Sort events by volume (highest first)
-  const sortedEvents = allEvents.sort((a, b) => b.volume - a.volume)
+  const sortedEvents = validEvents.sort((a, b) => b.volume - a.volume)
   
-  console.log(`Processing ${sortedEvents.length} events...`)
-
   // Extract markets from events
   const allMarkets = sortedEvents
     .flatMap(event => (event.markets || []).map(market => ({ ...market, eventId: event.id })))
   
-  console.log(`Extracted ${allMarkets.length} markets from events`)
-
   // Transform events data for database
   const eventsToInsert: NewEvent[] = sortedEvents.map((event) => {
     // Calculate category based on tags
@@ -421,6 +410,7 @@ export async function updatePolymarketAllEventsAndMarketDataWithThrottling(optio
       icon: event.icon || null,
       tags: event.tags || null,
       category: category,
+      startDate: event.startDate ? new Date(event.startDate) : null,
       endDate: event.endDate ? new Date(event.endDate) : null,
       volume: event.volume.toString(),
       trendingRank: null, // No trending rank for all events
@@ -456,28 +446,27 @@ export async function updatePolymarketAllEventsAndMarketDataWithThrottling(optio
         id: market.id,
         question: market.question,
         eventId: market.eventId,
+        slug: market.slug || null,
         outcomePrices: outcomePricesArray,
         volume: market.volume,
         liquidity: market.liquidity,
         description: market.description,
+        startDate: market.startDate ? new Date(market.startDate) : null,
         endDate: market.endDate ? new Date(market.endDate) : null,
+        resolutionSource: market.resolutionSource || null,
         updatedAt: new Date(),
       }
     })
 
-  // Insert new data
-  console.log(`Upserting ${eventsToInsert.length} events...`)
+  // Upsert events and markets for this batch
+  console.log(`Upserting batch: ${eventsToInsert.length} events, ${marketsToInsert.length} markets...`)
   const insertedEvents = await eventQueries.upsertEvents(eventsToInsert)
-
-  console.log(`Upserting ${marketsToInsert.length} markets...`)
   const insertedMarkets = await marketQueries.upsertMarkets(marketsToInsert)
 
   return {
     insertedEvents: insertedEvents.filter(Boolean) as Event[],
     insertedMarkets: insertedMarkets.filter(Boolean) as Market[],
-    totalFetched,
-    totalRequests,
-    errors
+    totalFetched: validEvents.length
   }
 }
 
