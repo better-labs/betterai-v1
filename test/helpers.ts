@@ -8,9 +8,12 @@ export const createMockEvent = (overrides: Partial<Event> = {}): Event => ({
   slug: 'test-event',
   icon: 'https://example.com/icon.png',
   tags: [],
+  category: 1,
   volume: '1000000',
   trendingRank: 3,
+  startDate: new Date('2024-01-01T00:00:00Z'),
   endDate: new Date('2024-12-31T23:59:59Z'),
+  marketProvider: 'polymarket',
   updatedAt: new Date(),
   ...overrides
 })

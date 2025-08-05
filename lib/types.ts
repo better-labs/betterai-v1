@@ -42,13 +42,16 @@ export type NewMarket = {
   question: string;
   description?: string | null;
   eventId?: string | null;
+  slug?: string | null;
   outcomePrices?: string[] | null;
   volume?: string | null;
   liquidity?: string | null;
   category?: string | null;
   active?: boolean | null;
   closed?: boolean | null;
+  startDate?: Date | null;
   endDate?: Date | null;
+  resolutionSource?: string | null;
   updatedAt?: Date | null;
   marketURL?: string;
   outcomes?: MarketOutcome[];
@@ -60,13 +63,16 @@ export interface Market {
   question: string;
   description?: string | null;
   eventId?: string | null;
+  slug?: string | null;
   outcomePrices?: string[] | null;
   volume?: string | null;
   liquidity?: string | null;
   category?: string | null;
   active?: boolean | null;
   closed?: boolean | null;
+  startDate?: Date | null;
   endDate?: Date | null;
+  resolutionSource?: string | null;
   updatedAt?: Date | null;
   marketURL?: string;
   outcomes?: MarketOutcome[];
@@ -129,6 +135,7 @@ export interface PolymarketEvent {
     updatedAt: string;
   }>;
   volume: number;
+  startDate?: Date | null;
   endDate?: Date | null;
   markets: PolymarketMarket[];
 }
@@ -136,10 +143,14 @@ export interface PolymarketEvent {
 export interface PolymarketMarket {
   id: string;
   question: string;
+  description?: string;
+  slug?: string;
   outcomePrices: string; // JSON string
   volume: string;
   liquidity: string;
+  startDate?: Date | null;
   endDate?: Date | null;
+  resolutionSource?: string;
   eventId?: string; // Added by us during processing
 } 
 

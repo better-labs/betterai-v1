@@ -9,8 +9,10 @@ export const eventFixtures: Event[] = [
     slug: 'bitcoin-100k-2024',
     icon: 'https://example.com/bitcoin-icon.png',
     tags: [{ id: 'crypto', label: 'Cryptocurrency', slug: 'crypto', forceShow: true, updatedAt: '2024-01-01' }],
+    category: 1,
     volume: '5000000',
     trendingRank: 5,
+    startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-12-31T23:59:59Z'),
     marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
@@ -22,8 +24,10 @@ export const eventFixtures: Event[] = [
     slug: 'trump-2024-election',
     icon: 'https://example.com/politics-icon.png',
     tags: [{ id: 'politics', label: 'Politics', slug: 'politics', forceShow: true, updatedAt: '2024-01-01' }],
+    category: 2,
     volume: '3000000',
     trendingRank: 4,
+    startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-11-05T23:59:59Z'),
     marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
@@ -35,8 +39,10 @@ export const eventFixtures: Event[] = [
     slug: 'apple-iphone-september-2024',
     icon: 'https://example.com/tech-icon.png',
     tags: [{ id: 'tech', label: 'Technology', slug: 'tech', forceShow: true, updatedAt: '2024-01-01' }],
+    category: 3,
     volume: '1000000',
     trendingRank: 2,
+    startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-09-30T23:59:59Z'),
     marketProvider: 'polymarket',
     updatedAt: new Date('2024-01-15T10:00:00Z')
