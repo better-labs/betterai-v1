@@ -9,8 +9,10 @@ export const events = pgTable(
     slug: text("slug"),
     icon: text("icon"), // Add icon URL field
     tags: jsonb("tags"),
+    category: integer("category"), // Add category field
     volume: numeric("volume").default("0"),
     trendingRank: integer("trending_rank"),
+    startDate: timestamp("start_date"), // Add startDate field
     endDate: timestamp("end_date"), // Add endDate field
     marketProvider: text("market_provider"), // Add marketProvider field
     updatedAt: timestamp("updated_at").defaultNow(),
@@ -20,7 +22,9 @@ export const events = pgTable(
       volumeIdx: index("idx_events_volume").on(table.volume),
       trendingRankIdx: index("idx_events_trending_rank").on(table.trendingRank),
       slugIdx: index("idx_events_slug").on(table.slug),
+      startDateIdx: index("idx_events_start_date").on(table.startDate),
       endDateIdx: index("idx_events_end_date").on(table.endDate),
+      categoryIdx: index("idx_events_category").on(table.category), // Add category index
     }
   },
 )
@@ -31,6 +35,7 @@ export const markets = pgTable(
     id: text("id").primaryKey(),
     question: text("question").notNull(),
     eventId: text("event_id").references(() => events.id),
+    slug: text("slug"), // Add slug field
     outcomePrices: numeric("outcome_prices").array(),
     volume: numeric("volume").default("0"),
     liquidity: numeric("liquidity").default("0"),
@@ -38,13 +43,17 @@ export const markets = pgTable(
     description: text("description"),
     active: boolean("active"),
     closed: boolean("closed"),
+    startDate: timestamp("start_date"), // Add startDate field
     endDate: timestamp("end_date"), // Add endDate field
+    resolutionSource: text("resolution_source"), // Add resolutionSource field
     updatedAt: timestamp("updated_at").defaultNow(),
   },
   (table) => {
     return {
       eventIdIdx: index("idx_markets_event_id").on(table.eventId),
+      slugIdx: index("idx_markets_slug").on(table.slug),
       volumeIdx: index("idx_markets_volume").on(table.volume),
+      startDateIdx: index("idx_markets_start_date").on(table.startDate),
       endDateIdx: index("idx_markets_end_date").on(table.endDate),
     }
   },
