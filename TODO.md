@@ -8,7 +8,7 @@
 
 - [ ] Reflect on learning: both the model and dataset searches are many to many !!
 - [ ] Generate Free predictions for same markets with data from API provider.
-- [] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database? I like that approach. Ask AI's opinions.
+- [ ] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database? I like that approach. Ask AI's opinions.
 - [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
 - [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
 

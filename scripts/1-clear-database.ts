@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { config } from 'dotenv'
-import { PrismaClient } from '../../lib/generated/prisma'
+import { PrismaClient } from '../lib/generated/prisma'
 
 // Load environment variables from .env (standard approach)
 config()
