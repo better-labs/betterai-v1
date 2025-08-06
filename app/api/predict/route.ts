@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generatePredictionForMarket } from "@/lib/services/prediction-service"
+import { generatePredictionForMarket } from "@/lib/services/generate-single-prediction"
 
 export async function POST(request: NextRequest) {
   try {

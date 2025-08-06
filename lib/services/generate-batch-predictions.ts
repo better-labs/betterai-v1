@@ -1,5 +1,5 @@
 import { marketQueries } from '../db/queries'
-import { generatePredictionForMarket } from './prediction-service'
+import { generatePredictionForMarket } from './generate-single-prediction'
 import { prisma } from '../db/prisma'
 
 interface BatchPredictionConfig {

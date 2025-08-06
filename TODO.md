@@ -1,12 +1,11 @@
 # For the week of 8/6
 
 - Question to answer: Does prediction accuracy go up when more models are used? 1, 10, 20, ...?
-
+- reflect on learning: both the model and dataset searches are many to many !!
 
 
 ## Afternoon work 
 
-- [ ] Reflect on learning: both the model and dataset searches are many to many !!
 - [ ] Generate Free predictions for same markets with data from API provider.
 - [ ] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database? I like that approach. Ask AI's opinions.
 - [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
