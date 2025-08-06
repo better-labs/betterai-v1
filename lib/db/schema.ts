@@ -107,6 +107,29 @@ export const aiModels = pgTable(
   },
 )
 
+export const marketQueryCache = pgTable(
+  "market_query_cache",
+  {
+    id: serial("id").primaryKey(),
+    marketId: text("market_id").references(() => markets.id),
+    modelName: text("model_name").notNull(),
+    systemMessage: text("system_message"),
+    userMessage: text("user_message").notNull(),
+    response: jsonb("response"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => {
+    return {
+      createdAtIdx: index("idx_market_query_cache_created_at").on(
+        table.createdAt,
+      ),
+      marketIdIdx: index("idx_market_query_cache_market_id").on(
+        table.marketId,
+      ),
+    }
+  },
+)
+
 // Drizzle inferred types
 export type Event = typeof events.$inferSelect
 export type NewEvent = typeof events.$inferInsert
