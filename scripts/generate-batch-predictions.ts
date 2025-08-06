@@ -3,7 +3,7 @@
 import { config } from 'dotenv'
 
 // Load environment variables FIRST, before any other imports
-config({ path: '.env.local' })
+config()
 
 // Verify DATABASE_URL is loaded
 if (!process.env.DATABASE_URL) {

@@ -3,8 +3,8 @@
 import { config } from 'dotenv'
 import { PrismaClient } from '../../lib/generated/prisma'
 
-// Load environment variables
-config({ path: '.env.local' })
+// Load environment variables from .env (standard approach)
+config()
 
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL environment variable is required')
