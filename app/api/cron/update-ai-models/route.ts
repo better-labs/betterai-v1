@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { updateAIModels } from '@/lib/data/ai-models'
+import { updateAIModels } from '@/lib/services/ai-models'
 import type { ApiResponse } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
@@ -14,12 +14,22 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Starting AI models update...')
-    await updateAIModels()
+    const result = await updateAIModels()
+    
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: result.error || 'Failed to update AI models'
+        } as ApiResponse),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
     
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'AI models updated successfully'
+        message: `AI models updated successfully. Fetched: ${result.totalFetched}, Upserted: ${result.totalUpserted}`
       } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )
@@ -47,12 +57,22 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('Starting AI models update...')
-    await updateAIModels()
+    const result = await updateAIModels()
+    
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: result.error || 'Failed to update AI models'
+        } as ApiResponse),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
     
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'AI models updated successfully'
+        message: `AI models updated successfully. Fetched: ${result.totalFetched}, Upserted: ${result.totalUpserted}`
       } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )

@@ -7,13 +7,14 @@ import { mapTagsToCategory } from '@/lib/categorize'
 /**
  * Updates all Polymarket events and markets with proper throttling and pagination
  */
-export async function updatePolymarketAllEventsAndMarketData(options: {
+export async function updatePolymarketEventsAndMarketData(options: {
   limit?: number,
   delayMs?: number,
   maxRetries?: number,
   retryDelayMs?: number,
   timeoutMs?: number,
   userAgent?: string,
+  daysToFetch?: number,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -27,7 +28,8 @@ export async function updatePolymarketAllEventsAndMarketData(options: {
     maxRetries = 3,
     retryDelayMs = 2000,
     timeoutMs = 30000,
-    userAgent = "BetterAI/1.0"
+    userAgent = "BetterAI/1.0",
+    daysToFetch = 10
   } = options
 
   console.log("Starting throttled update of all Polymarket events with batch processing...")
@@ -45,7 +47,6 @@ export async function updatePolymarketAllEventsAndMarketData(options: {
   // Local function to construct the API URL
   const buildEventsURL = (offset: number, limit: number): string => {
     const baseEventsURL = 'https://gamma-api.polymarket.com/events'
-    const daysToFetch = 10
     const defaultStartDate = new Date(Date.now() - daysToFetch * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     const defaultEndDate = new Date(Date.now() + daysToFetch * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     const params = `start_date_min=${defaultStartDate}&end_date_max=${defaultEndDate}&ascending=true`
