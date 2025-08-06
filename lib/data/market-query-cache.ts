@@ -11,7 +11,7 @@ export async function getCachedMarketQuery(
 ): Promise<MarketQueryCache | null> {
   const oneHourAgo = new Date(Date.now() - CACHE_DURATION_MS);
   
-  return await db.query.marketQueryCache.findFirst({
+  const result = await db.query.marketQueryCache.findFirst({
     where: and(
       eq(marketQueryCache.marketId, marketId),
       eq(marketQueryCache.modelName, modelName),
@@ -19,6 +19,8 @@ export async function getCachedMarketQuery(
     ),
     orderBy: [desc(marketQueryCache.createdAt)]
   });
+
+  return result || null;
 }
 
 export async function createMarketQueryCache(
