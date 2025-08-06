@@ -1,8 +1,6 @@
 
-import { marketQueries } from '../db/queries';
-import { DEFAULT_MODEL } from '../data/ai-models';
+import { marketQueries, DEFAULT_MODEL, marketQueryCacheQueries } from '../db/queries';
 import { parseAIResponse } from '../utils';
-import { getCachedMarketQuery, createMarketQueryCache } from '../data/market-query-cache';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 interface WebSearchResult {
@@ -39,7 +37,7 @@ export async function performMarketResearch(
 
     const model = modelName || DEFAULT_MODEL;
 
-    const cachedEntry = await getCachedMarketQuery(marketId, model);
+    const cachedEntry = await marketQueryCacheQueries.getCachedMarketQuery(marketId, model);
 
     if (cachedEntry && cachedEntry.response) {
       return cachedEntry.response as MarketResearchResponse;
@@ -122,7 +120,7 @@ Focus on recent news, developments, and any factors that could influence the out
       research: researchResult,
     };
 
-    await createMarketQueryCache({
+    await marketQueryCacheQueries.createMarketQueryCache({
       marketId: marketId,
       modelName: model,
       systemMessage: systemMessage,

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
-import { getTrendingEventsWithMarkets } from "@/lib/data/events"
+import { eventQueries } from "@/lib/db/queries"
 
 export async function GET() {
   try {
-    const eventsWithMarkets = await getTrendingEventsWithMarkets()
+    const eventsWithMarkets = await eventQueries.getTrendingEventsWithMarkets()
     
     return NextResponse.json({ events: eventsWithMarkets })
 

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getAllAIModels, getAIModelById } from '@/lib/data/ai-models'
+import { aiModelQueries } from '@/lib/db/queries'
 import type { ApiResponse } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     if (id) {
       // Get specific AI model by ID
-      const model = await getAIModelById(id)
+      const model = await aiModelQueries.getAIModelById(id)
       if (!model) {
         return new Response(
           JSON.stringify({ success: false, error: 'AI model not found' } as ApiResponse),
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all AI models
-    const models = await getAllAIModels()
+    const models = await aiModelQueries.getAllAIModels()
     return new Response(
       JSON.stringify({
         success: true,
