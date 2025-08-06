@@ -13,51 +13,44 @@ The average prediction market user does not have the data or ai engineering expe
 **Solution**: Leverage world-class AI models with world class enriched data to make smarter predictions on trending markets for consumer users.
 
 
-## User Flows
-### Initial Release
-**User Flow1: AI Market Prediction**
-1. User logs into the app and sees the top 10 trending events on polymarket. Those markets are pulled by the app from polymarket api (https://gamma-api.polymarket.com/)
-2. User selects one of the markets and is presented with options to have an AI predict the most likely bet (outcome) of the market.
-3. User is given the option to choose between a more expensive (paid) latest AI model
-4. User is given the option to enrich the AI coach with a given dataset (Twitter/X, News, historical sports stats, etc.)
-5. User clicks “Predict” with a given AI model
-6. If user is logged in and has account balance: the app initiates a call to the backend app to initiate an AI prediction for the market.
-7. If not, they are prompted to login or add funds to their balance.
-8. User is shown to a Prediction Detail result modal
-9. User is given the prediction result and also a link to share. Sharability & SEO: Each prediction can have a dedicated URL, useful for social sharing, community discussions (on X, Discord, etc.), and even some SEO benefits.
+## User Flows & Roadmap
+To maximise early user value while keeping scope tight, the flows are grouped into phased releases. Each phase ships a complete slice of functionality and sets the stage for the next.
 
-**User Flow2: Account Creation and Authentication**
-- User creates an account and authenticates with the provider of their choice.
+### Phase 0 – Private Alpha (MVP)
+1. **AI Market Prediction (core loop)**
+   - User sees the top trending Polymarket events.
+   - Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link).
+   - Advanced options (paid model, extra data enrichment) can be deferred.
 
-**User Flow3: Funding Balance**
-- User clicks on “Add Funds”.
-- User follows checkout flow to add minimum funds
-- User now has a positive account balance to fund predictions.
+2. **Account Creation & Authentication**
+   - Lightweight email / social login.
+   - Required for persisting predictions and preparing for payments.
 
-**User Flow4: Activity Page**
-- User navigates to Activity Page from expandable hamburger menu
-- User sees a list of all past predictions with a link to the prediction detail and their associated cost.
+*Alpha note*: Provide a free daily credit pool; skip the funding flow for now.
 
-**User Flow5: Search Page**
-- Future UX for Prediction Markets
-- Chrome Extension // good for v2
-- Add MCP Server user flow to future features
-- Voice interaction
+### Phase 1 – Public Beta
+3. **Funding Balance**
+   - Users add funds to access premium models or additional predictions.
+   - Simple checkout with minimal amount and stored balance.
 
-### Future User Flows
-**User Flow: My Portfolio (Risk, Opportunity, flow name tbd)**
-1. User clicks on My Portfolio page.
-2. User clicks to integrate their active bets from prediction markets to the My Portfolio view.
-3. User can choose to trigger an AI prediction for each current bet in their portfolio.
-4. User then sees the delta between the current market price
-5. User Flow: Alert My Portfolio: the user can track their current bids
+4. **Activity Page**
+   - Displays past predictions, cost, timestamp and deep-link to detail view.
+   - Encourages retention and social sharing.
 
-**User Flow: Market Alpha**
-(Term explanation: Often used in finance to denote a data-driven insight that suggests an opportunity for outperformance.)
-1. User is shown the markets that have the highest Alpha Signal based on free low powered AI Prediction.
-2. User is given the option to select markets and then trigger a higher quality paid AI Prediction.
+### Phase 2 – Power-User Suite
+5. **My Portfolio**
+   - Connect external prediction-market accounts; show active positions and allow re-running AI predictions.
+   - Optionally alert users to meaningful price deltas.
 
-**User Flow: Trust but verify mode with IPFS or s3**
+6. **Market Alpha**
+   - Surfaces markets with the highest mis-pricing signal based on batch predictions.
+   - Acts as discovery feed and upsell path to paid predictions.
+
+7. **Search / Voice / Browser Extension**
+   - Convenience and distribution channels once the core loop and monetisation are validated.
+
+### Deferred / Experimental
+- **Trust-but-Verify (IPFS/S3 audit trail)** – revisit after paid traction.
 
 ## Legal
 Consistently describe the app as a way to "enable the user to invoke multiple LLMs with enriched datasets". Emphasize that this is a tool for analysis, not a financial advisor.

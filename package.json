@@ -9,6 +9,7 @@
     "start": "next start",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:e2e": "jest --testPathPattern=/test/e2e/",
     "cron:update-polymarket-trending": "node scripts/cron-update-polymarket-trending.js",
     "cron:update-polymarket-data": "node scripts/cron/cron-update-polymarket-data.js",
     "cron:update-ai-models": "node scripts/cron-update-ai-models.js",
