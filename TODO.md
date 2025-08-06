@@ -45,6 +45,12 @@
 - [ ] Thoroughly test the application locally to ensure all database interactions work as expected.
 
 
+## Afternoon work 
+
+- [ ] Reflect on learning: both the model and dataset searches are many to many !!
+- [ ] Generate Free predictions for same markets with data from API provider.
+- [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
+
 
 
 
@@ -57,6 +63,7 @@
 ## Tools to add
 - Auth: maybe Clerk
 - Payments: maybe Stripe
+- Voice: Gemini live
 
 
 - Integrate so that Prediction Engine API uses the prediction service when button is clicked.

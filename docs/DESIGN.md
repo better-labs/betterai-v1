@@ -1,10 +1,7 @@
 # BetterAI App Design Doc
 
-
-## Tagline: Leverage world-class AI models with enriched data to make smarter predictions on trending markets.
-
 ## Overview
-**Purpose**: enable the user to invoke multiple LLMs with enriched datasets to predict the outcome of a given market (like Polymarket or Kalshi). The AI is a tool for analysis.
+**Purpose**: enable the user to invoke multiple LLMs with enriched datasets to predict the outcome of a given market (like Polymarket or Kalshi). The AI is a tool for analysis. 
 
 **Thesis**: 
 Everyone, regardless of their technical skill, should be able to invoke the world’s best super intelligences, enriched from the best data (context), from a single mouse click, to enhance a given bet.
@@ -12,6 +9,9 @@ Each ai platform will improve its ease of use and capability over time, but thos
 
 **Problem**:
 The average prediction market user does not have the data or ai engineering expertise or time to maximize the use of the latest AI models. 
+
+**Solution**: Leverage world-class AI models with world class enriched data to make smarter predictions on trending markets for consumer users.
+
 
 ## User Flows
 ### Initial Release
