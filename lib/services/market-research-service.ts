@@ -2,9 +2,7 @@
 import { marketQueries } from '../db/queries';
 import { DEFAULT_MODEL } from '../data/ai-models';
 import { parseAIResponse } from '../utils';
-import { db as defaultDb } from '../db';
-import { marketQueryCache } from '../db/schema';
-import { and, eq, gte, desc } from 'drizzle-orm';
+import { getCachedMarketQuery, createMarketQueryCache } from '../data/market-query-cache';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 interface WebSearchResult {
@@ -18,7 +16,7 @@ interface MarketResearchResponse {
   research?: WebSearchResult;
 }
 
-const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
 
 /**
  * Performs web research for a given market using OpenRouter AI
@@ -39,17 +37,9 @@ export async function performMarketResearch(
       };
     }
 
-    const oneHourAgo = new Date(Date.now() - CACHE_DURATION_MS);
     const model = modelName || DEFAULT_MODEL;
 
-    const cachedEntry = await db.query.marketQueryCache.findFirst({
-      where: and(
-        eq(marketQueryCache.marketId, marketId),
-        eq(marketQueryCache.modelName, model),
-        gte(marketQueryCache.createdAt, oneHourAgo)
-      ),
-      orderBy: [desc(marketQueryCache.createdAt)]
-    });
+    const cachedEntry = await getCachedMarketQuery(marketId, model);
 
     if (cachedEntry && cachedEntry.response) {
       return cachedEntry.response as MarketResearchResponse;
@@ -132,7 +122,7 @@ Focus on recent news, developments, and any factors that could influence the out
       research: researchResult,
     };
 
-    await db.insert(marketQueryCache).values({
+    await createMarketQueryCache({
       marketId: marketId,
       modelName: model,
       systemMessage: systemMessage,

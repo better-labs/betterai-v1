@@ -139,3 +139,5 @@ export type Prediction = typeof predictions.$inferSelect
 export type NewPrediction = typeof predictions.$inferInsert
 export type AIModel = typeof aiModels.$inferSelect
 export type NewAIModel = typeof aiModels.$inferInsert
+export type MarketQueryCache = typeof marketQueryCache.$inferSelect
+export type NewMarketQueryCache = typeof marketQueryCache.$inferInsert

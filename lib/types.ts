@@ -117,6 +117,8 @@ export type {
   Prediction, 
   NewPrediction, 
   AIModel, 
-  NewAIModel 
+  NewAIModel,
+  MarketQueryCache,
+  NewMarketQueryCache
 } from "./db/schema" 
 
