@@ -7,8 +7,7 @@ import { CATEGORIES } from '@/lib/categorize'
 
 export async function getTrendingEvents(): Promise<Event[]> {
   return await db.query.events.findMany({
-    where: (events, { gt }) => gt(events.trendingRank, 0),
-    orderBy: (events, { desc }) => [desc(events.trendingRank)],
+    orderBy: (events, { desc }) => [desc(events.volume)],
     limit: 10
   })
 }
@@ -16,8 +15,7 @@ export async function getTrendingEvents(): Promise<Event[]> {
 export async function getTrendingEventsWithMarkets(): Promise<(Event & { markets: Market[] })[]> {
   // Get trending events first
   const trendingEvents = await db.query.events.findMany({
-    where: (events, { gt }) => gt(events.trendingRank, 0),
-    orderBy: (events, { desc }) => [desc(events.trendingRank)],
+    orderBy: (events, { desc }) => [desc(events.volume)],
     limit: 10
   })
 
@@ -40,7 +38,7 @@ export async function getTrendingEventsWithMarkets(): Promise<(Event & { markets
   }, {} as Record<string, Market[]>)
 
   // Combine events with their markets
-  return topEvents.map(event => ({
+  return trendingEvents.map(event => ({
     ...event,
     markets: marketsByEventId[event.id] || []
   }))
