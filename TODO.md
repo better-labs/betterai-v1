@@ -21,34 +21,39 @@
 ### 4. Centralize Configuration and Hardcoded Values
 - [ ] Move hardcoded values like API URLs, default model names, and cache durations into a centralized configuration file (e.g., `lib/config.ts`) or environment variables.
 
-
 # Migration to Prisma
-- [ ] **Phase 1: Setup & Installation**
-- [ ] Install Prisma CLI (`prisma`) as a dev dependency and Prisma Client (`@prisma/client`) as a dependency.
-- [ ] Run `pnpm dlx prisma init` to create the `prisma` directory and `schema.prisma` file.
-- [ ] Configure the `datasource db` in `schema.prisma` to connect to your database using the `DATABASE_URL`.
-- [ ] **Phase 2: Schema Conversion & Generation**
-- [ ] Run `pnpm dlx prisma db pull` to introspect the existing database and generate the initial Prisma schema.
-- [ ] Manually review and refine the generated `schema.prisma`. Pay close attention to relations (`@relation`), enums, and any custom types. Ensure it matches the Drizzle schema's intent.
-- [ ] Run `pnpm dlx prisma generate` to generate the Prisma Client based on the new schema.
-- [ ] **Phase 3: Code Refactoring**
-- [ ] Create a single Prisma client instance (e.g., in `lib/db/prisma.ts`).
-- [ ] **Rewrite `lib/db/queries.ts`:** Methodically translate all Drizzle queries in `lib/db/queries.ts` to their Prisma Client equivalents. This is the largest task of the migration.
-- [ ] Search the rest of the codebase for any other direct usages of the Drizzle client and replace them.
-- [ ] **Phase 4: Migration & Cleanup**
-- [ ] Create an initial "baseline" migration with Prisma to align its migration history with the current schema: `pnpm dlx prisma migrate dev --name initial-migration`.
-- [ ] Update `package.json` scripts: remove Drizzle commands and add Prisma equivalents (e.g., `prisma:generate`, `prisma:migrate`, `prisma:studio`).
-- [ ] Uninstall Drizzle packages: `pnpm remove drizzle-orm drizzle-kit @neondatabase/serverless`.
-- [ ] Delete old Drizzle files: `drizzle.config.ts` and the contents of `lib/db/migrations`.
-- [ ] **Phase 5: Verification**
-- [ ] Update any database-related tests in the `test/` directory to use the new Prisma setup.
-- [ ] Thoroughly test the application locally to ensure all database interactions work as expected.
+- [x] **Phase 1: Setup & Installation**
+- [x] Install Prisma CLI (`prisma`) as a dev dependency and Prisma Client (`@prisma/client`) as a dependency.
+- [x] Run `pnpm dlx prisma init` to create the `prisma` directory and `schema.prisma` file.
+- [x] Configure the `datasource db` in `schema.prisma` to connect to your database using the `DATABASE_URL`.
+- [x] **Phase 2: Schema Conversion & Generation**
+- [x] Run `pnpm dlx prisma db pull` to introspect the existing database and generate the initial Prisma schema.
+- [x] Manually review and refine the generated `schema.prisma`. Pay close attention to relations (`@relation`), enums, and any custom types. Ensure it matches the Drizzle schema's intent.
+- [x] Run `pnpm dlx prisma generate` to generate the Prisma Client based on the new schema.
+- [x] **Phase 3: Code Refactoring**
+- [x] Create a single Prisma client instance (e.g., in `lib/db/prisma.ts`).
+- [x] **Rewrite `lib/db/queries.ts`:** Methodically translate all Drizzle queries in `lib/db/queries.ts` to their Prisma Client equivalents. This is the largest task of the migration.
+- [x] Search the rest of the codebase for any other direct usages of the Drizzle client and replace them.
+- [x] **Phase 4: Migration & Cleanup**
+- [x] Create an initial "baseline" migration with Prisma to align its migration history with the current schema: `pnpm dlx prisma migrate dev --name initial-migration`.
+- [x] Update `package.json` scripts: remove Drizzle commands and add Prisma equivalents (e.g., `prisma:generate`, `prisma:migrate`, `prisma:studio`).
+- [x] Uninstall Drizzle packages: `pnpm remove drizzle-orm drizzle-kit @neondatabase/serverless`.
+- [x] Delete old Drizzle files: `drizzle.config.ts` and the contents of `lib/db/migrations`.
+- [x] **Phase 5: Verification**
+- [x] Update any database-related tests in the `test/` directory to use the new Prisma setup.
+- [x] Thoroughly test the application locally to ensure all database interactions work as expected.
+
+# Post migration manual testing
+- [] test data downloads and similar ..
+- [] try adding new tables and columns to existing tables.
 
 
 ## Afternoon work 
 
 - [ ] Reflect on learning: both the model and dataset searches are many to many !!
 - [ ] Generate Free predictions for same markets with data from API provider.
+- [] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database? I like that approach.
+- [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
 - [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
 
 

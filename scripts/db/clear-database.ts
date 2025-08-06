@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import { config } from 'dotenv'
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
+import { PrismaClient } from '../../lib/generated/prisma'
 
 // Load environment variables
 config({ path: '.env.local' })
@@ -12,32 +11,20 @@ if (!process.env.DATABASE_URL) {
   process.exit(1)
 }
 
+const prisma = new PrismaClient()
+
 async function clearDatabase() {
   console.log('Connecting to database...')
-  
-  const client = postgres(process.env.DATABASE_URL!)
-  const db = drizzle(client)
   
   try {
     console.log('Clearing all tables...')
     
-    // Get all table names from the database
-    const tables = await client`
-      SELECT tablename 
-      FROM pg_tables 
-      WHERE schemaname = 'public'
-    `
-    
-    if (tables.length === 0) {
-      console.log('No tables found to clear')
-      return
-    }
-    
-    const tableNames = tables.map(t => t.tablename).join(', ')
-    console.log(`Found tables: ${tableNames}`)
-    
-    // Truncate all tables with CASCADE to handle foreign key constraints
-    await client`TRUNCATE TABLE ${client.unsafe(tableNames)} CASCADE`
+    // Order of deletion matters due to foreign key constraints
+    await prisma.prediction.deleteMany({})
+    await prisma.marketQueryCache.deleteMany({})
+    await prisma.market.deleteMany({})
+    await prisma.event.deleteMany({})
+    await prisma.aiModel.deleteMany({})
     
     console.log('✅ All tables cleared successfully!')
     
@@ -45,8 +32,8 @@ async function clearDatabase() {
     console.error('❌ Error clearing database:', error)
     process.exit(1)
   } finally {
-    await client.end()
+    await prisma.$disconnect()
   }
 }
 
-clearDatabase() 
+clearDatabase()

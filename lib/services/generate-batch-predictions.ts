@@ -1,8 +1,6 @@
 import { marketQueries } from '../db/queries'
 import { generatePredictionForMarket } from './prediction-service'
-import { and, desc, gte, isNotNull, lte, sql } from 'drizzle-orm'
-import { markets } from '../db/schema'
-import { db } from '../db/index'
+import { prisma } from '../db/prisma'
 
 interface BatchPredictionConfig {
   topMarketsCount: number
@@ -40,29 +38,31 @@ export async function getTopMarketsByVolumeAndEndDate(
     console.log(`Searching for markets ending between ${rangeStart.toISOString()} and ${rangeEnd.toISOString()}`)
 
     // Query markets with end dates in the specified range, ordered by volume
-    const topMarkets = await db
-      .select({
-        id: markets.id,
-        question: markets.question,
-        volume: markets.volume,
-        endDate: markets.endDate
-      })
-      .from(markets)
-      .where(
-        and(
-          isNotNull(markets.endDate),
-          gte(markets.endDate, rangeStart),
-          lte(markets.endDate, rangeEnd)
-        )
-      )
-      .orderBy(desc(markets.volume))
-      .limit(config.topMarketsCount)
+    const topMarkets = await prisma.market.findMany({
+      where: {
+        endDate: {
+          gte: rangeStart,
+          lte: rangeEnd
+        }
+      },
+      orderBy: {
+        volume: 'desc'
+      },
+      take: config.topMarketsCount,
+      select: {
+        id: true,
+        question: true,
+        volume: true,
+        endDate: true
+      }
+    })
 
     // Convert volume from string to number and filter out null values
     const processedMarkets: MarketWithEndDate[] = topMarkets
       .map(market => ({
         ...market,
-        volume: market.volume ? parseFloat(market.volume) : null
+        volume: market.volume ? parseFloat(market.volume.toString()) : null,
+        endDate: market.endDate
       }))
       .filter(market => market.volume !== null) as MarketWithEndDate[]
 
@@ -154,14 +154,16 @@ export async function runBatchPredictionGeneration(
     const marketIds = topMarkets.map(market => market.id)
     
     // Generate predictions for the selected markets
-    console.log(`\nGenerating predictions for ${marketIds.length} markets...`)
+    console.log(`
+Generating predictions for ${marketIds.length} markets...`)
     const results = await generateBatchPredictions(marketIds, modelName)
     
     // Log summary
     const successful = results.filter(r => r.success).length
     const failed = results.filter(r => !r.success).length
     
-    console.log(`\nBatch prediction generation complete:`)
+    console.log(`
+Batch prediction generation complete:`)
     console.log(`- Successful: ${successful}`)
     console.log(`- Failed: ${failed}`)
     console.log(`- Total: ${results.length}`)
@@ -170,4 +172,4 @@ export async function runBatchPredictionGeneration(
     console.error('Error in batch prediction generation:', error)
     throw error
   }
-} 
+}
