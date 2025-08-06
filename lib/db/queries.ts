@@ -13,10 +13,7 @@ export const eventQueries = {
     return await db.select().from(events).orderBy(desc(events.volume)).limit(limit)
   },
 
-  // Get all events ordered by trending rank
-  getTrendingEventIDs: async (limit = 10) => {
-    return await db.select().from(events).orderBy(events.trendingRank).limit(limit)
-  },
+  
 
   // Get event by ID
   getEventById: async (id: string) => {

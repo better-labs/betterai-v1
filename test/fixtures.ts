@@ -135,5 +135,5 @@ export const getEventBySlug = (slug: string): Event | undefined =>
 export const getMarketsByEventId = (eventId: string): Market[] => 
   marketFixtures.filter(market => market.eventId === eventId)
 
-export const getTrendingEvents = (): Event[] => 
-  eventFixtures.filter(event => event.trendingRank && event.trendingRank > 0).sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0)) 
+export const getTopEventsByVolume = (): Event[] => 
+  eventFixtures.sort((a, b) => (Number(b.volume) || 0) - (Number(a.volume) || 0)) 

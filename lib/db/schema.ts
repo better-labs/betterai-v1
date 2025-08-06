@@ -11,7 +11,7 @@ export const events = pgTable(
     tags: jsonb("tags"),
     category: integer("category"), // Add category field
     volume: numeric("volume").default("0"),
-    trendingRank: integer("trending_rank"),
+    
     startDate: timestamp("start_date"), // Add startDate field
     endDate: timestamp("end_date"), // Add endDate field
     marketProvider: text("market_provider"), // Add marketProvider field
@@ -20,7 +20,7 @@ export const events = pgTable(
   (table) => {
     return {
       volumeIdx: index("idx_events_volume").on(table.volume),
-      trendingRankIdx: index("idx_events_trending_rank").on(table.trendingRank),
+      
       slugIdx: index("idx_events_slug").on(table.slug),
       startDateIdx: index("idx_events_start_date").on(table.startDate),
       endDateIdx: index("idx_events_end_date").on(table.endDate),

@@ -40,7 +40,7 @@ export async function getTrendingEventsWithMarkets(): Promise<(Event & { markets
   }, {} as Record<string, Market[]>)
 
   // Combine events with their markets
-  return trendingEvents.map(event => ({
+  return topEvents.map(event => ({
     ...event,
     markets: marketsByEventId[event.id] || []
   }))

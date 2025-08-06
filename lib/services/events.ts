@@ -278,7 +278,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       startDate: event.startDate ? new Date(event.startDate) : null,
       endDate: event.endDate ? new Date(event.endDate) : null,
       volume: event.volume.toString(),
-      trendingRank: null, // No trending rank for all events
+      
       marketProvider: "polymarket",
       updatedAt: new Date(),
     }

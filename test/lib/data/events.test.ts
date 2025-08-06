@@ -70,11 +70,11 @@ describe('Events Data Functions', () => {
     })
   })
 
-  describe('getTrendingEventsWithMarkets', () => {
-    it('should return trending events with their markets', async () => {
+  describe('getTopEventsByVolumeWithMarkets', () => {
+    it('should return top events with their markets', async () => {
       const mockEvents = [
-        { id: '1', title: 'Event 1', trendingRank: 3 },
-        { id: '2', title: 'Event 2', trendingRank: 2 }
+        { id: '1', title: 'Event 1', volume: '3000' },
+        { id: '2', title: 'Event 2', volume: '2000' }
       ]
 
       const mockMarkets = [
@@ -86,7 +86,7 @@ describe('Events Data Functions', () => {
       mockDb.query.events.findMany.mockResolvedValue(mockEvents)
       mockDb.query.markets.findMany.mockResolvedValue(mockMarkets)
 
-      const result = await getTrendingEventsWithMarkets()
+      const result = await getTopEventsByVolumeWithMarkets()
 
       expect(result).toEqual([
         {
@@ -101,12 +101,12 @@ describe('Events Data Functions', () => {
     })
 
     it('should return events with empty markets array when no markets exist', async () => {
-      const mockEvents = [{ id: '1', title: 'Event 1', trendingRank: 3 }]
+      const mockEvents = [{ id: '1', title: 'Event 1', volume: '3000' }]
       
       mockDb.query.events.findMany.mockResolvedValue(mockEvents)
       mockDb.query.markets.findMany.mockResolvedValue([])
 
-      const result = await getTrendingEventsWithMarkets()
+      const result = await getTopEventsByVolumeWithMarkets()
 
       expect(result).toEqual([
         { ...mockEvents[0], markets: [] }

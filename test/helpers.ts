@@ -87,9 +87,9 @@ export const resetMocks = () => {
 
 // Common test data
 export const mockEvents = [
-  createMockEvent({ id: 'event-1', title: 'Event 1', trendingRank: 3 }),
-  createMockEvent({ id: 'event-2', title: 'Event 2', trendingRank: 2 }),
-  createMockEvent({ id: 'event-3', title: 'Event 3', trendingRank: 1 })
+  createMockEvent({ id: 'event-1', title: 'Event 1' }),
+  createMockEvent({ id: 'event-2', title: 'Event 2' }),
+  createMockEvent({ id: 'event-3', title: 'Event 3' })
 ]
 
 export const mockMarkets = [

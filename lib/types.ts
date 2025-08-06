@@ -80,7 +80,7 @@ export interface EventWithMarkets {
     updatedAt?: string;
   }> | null;
   volume?: string | null;
-  trendingRank?: number | null;
+  
   endDate?: Date | null;
   updatedAt?: Date | null;
   markets: import("./db/schema").Market[];
