@@ -2,7 +2,7 @@ import { execa } from 'execa';
 import { resolve } from 'path';
 
 // Set a long timeout for these E2E tests
-jest.setTimeout(120000); // 2 minutes
+vi.setConfig({ testTimeout: 120000 }); // 2 minutes
 
 const SCRIPT_PATH = resolve(__dirname, '../../../scripts');
 
