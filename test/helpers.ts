@@ -10,7 +10,6 @@ export const createMockEvent = (overrides: Partial<Event> = {}): Event => ({
   tags: [],
   category: 1,
   volume: '1000000',
-  trendingRank: 3,
   startDate: new Date('2024-01-01T00:00:00Z'),
   endDate: new Date('2024-12-31T23:59:59Z'),
   marketProvider: 'polymarket',
@@ -87,9 +86,9 @@ export const resetMocks = () => {
 
 // Common test data
 export const mockEvents = [
-  createMockEvent({ id: 'event-1', title: 'Event 1', trendingRank: 3 }),
-  createMockEvent({ id: 'event-2', title: 'Event 2', trendingRank: 2 }),
-  createMockEvent({ id: 'event-3', title: 'Event 3', trendingRank: 1 })
+  createMockEvent({ id: 'event-1', title: 'Event 1' }),
+  createMockEvent({ id: 'event-2', title: 'Event 2' }),
+  createMockEvent({ id: 'event-3', title: 'Event 3' })
 ]
 
 export const mockMarkets = [

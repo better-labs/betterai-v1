@@ -28,29 +28,35 @@ export function formatVolume(volume: number): string {
 export function parseAIResponse<T>(text: string): T {
   try {
     // First attempt: direct JSON parsing
-    return JSON.parse(text)
+    return JSON.parse(text);
   } catch (parseError) {
-    // Second attempt: handle markdown-wrapped JSON
-    let cleanedText = text.trim()
-    
+    // Second attempt: handle markdown-wrapped JSON and other non-JSON text
+    let cleanedText = text.trim();
+
+    // Remove <think>...</think> blocks
+    const thinkTagEnd = cleanedText.lastIndexOf('</think>');
+    if (thinkTagEnd !== -1) {
+      cleanedText = cleanedText.substring(thinkTagEnd + '</think>'.length).trim();
+    }
+
     // Remove markdown code blocks (```json ... ```)
     if (cleanedText.startsWith('```json') && cleanedText.endsWith('```')) {
-      cleanedText = cleanedText.slice(7, -3).trim()
+      cleanedText = cleanedText.slice(7, -3).trim();
     } else if (cleanedText.startsWith('```') && cleanedText.endsWith('```')) {
-      cleanedText = cleanedText.slice(3, -3).trim()
+      cleanedText = cleanedText.slice(3, -3).trim();
     }
-    
+
     // Remove any remaining backticks
-    cleanedText = cleanedText.replace(/^`+|`+$/g, '').trim()
-    
+    cleanedText = cleanedText.replace(/^`+|`+$/g, '').trim();
+
     try {
-      const result = JSON.parse(cleanedText)
-      console.log("Successfully parsed JSON after cleaning markdown formatting")
-      return result
+      const result = JSON.parse(cleanedText);
+      console.log('Successfully parsed JSON after cleaning formatting');
+      return result;
     } catch (secondParseError) {
-      console.error("AI response was not valid JSON even after cleaning:", text)
-      console.error("Cleaned text:", cleanedText)
-      throw new Error(`AI model returned invalid JSON response. Raw response: ${text.substring(0, 200)}...`)
+      console.error('AI response was not valid JSON even after cleaning:', text);
+      console.error('Cleaned text:', cleanedText);
+      throw new Error(`AI model returned invalid JSON response. Raw response: ${text.substring(0, 200)}...`);
     }
   }
 }

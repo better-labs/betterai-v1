@@ -77,11 +77,7 @@ export function EventList() {
             <span className="text-sm text-gray-500">
               Volume: {formatVolume(Number(event.volume) || 0)}
             </span>
-            {event.trendingRank && event.trendingRank > 0 && (
-              <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
-                Trending #{event.trendingRank}
-              </span>
-            )}
+            
           </div>
         </div>
       ))}

@@ -16,9 +16,9 @@ async function main() {
   
   try {
     // Dynamically import the function after environment variables are loaded
-    const { updatePolymarketAllEventsAndMarketData } = await import('../lib/services/events')
+    const { updatePolymarketEventsAndMarketData } = await import('../lib/services/events')
     
-    const result = await updatePolymarketAllEventsAndMarketData({
+    const result = await updatePolymarketEventsAndMarketData({
       limit: 150, // Small limit for testing
       delayMs: 100, // Faster delay for testing
       maxRetries: 1, // Fewer retries for testing
@@ -37,6 +37,23 @@ async function main() {
     if (result.errors.length > 0) {
       console.log('Errors encountered:', result.errors)
     }
+
+    console.log('Starting AI models update...')
+    const { updateAIModels } = await import('../lib/services/ai-models')
+    const aiModelsResult = await updateAIModels()
+
+    console.log('AI models update completed successfully!')
+    console.log('Results:', {
+      totalFetched: aiModelsResult.totalFetched,
+      totalUpserted: aiModelsResult.totalUpserted,
+      success: aiModelsResult.success,
+      error: aiModelsResult.error
+    })
+
+    if (aiModelsResult.error) {
+      console.log('Error encountered:', aiModelsResult.error)
+    }
+
 
   } catch (error) {
     console.error('Script failed:', error)

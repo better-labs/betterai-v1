@@ -24,7 +24,7 @@ interface MarketWithEndDate {
  */
 export async function getTopMarketsByVolumeAndEndDate(
   config: BatchPredictionConfig = {
-    topMarketsCount: 3,
+    topMarketsCount: 1,
     endDateRangeHours: 12,
     targetDaysFromNow: 7
   }

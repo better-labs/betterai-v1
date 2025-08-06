@@ -85,6 +85,24 @@ export const events = pgTable("events", {
 	index("idx_events_volume").using("btree", table.volume.asc().nullsLast().op("numeric_ops")),
 ]);
 
+export const marketQueryCache = pgTable("market_query_cache", {
+	id: serial().primaryKey().notNull(),
+	marketId: text("market_id"),
+	modelName: text("model_name").notNull(),
+	systemMessage: text("system_message"),
+	userMessage: text("user_message").notNull(),
+	response: jsonb(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+}, (table) => [
+	index("idx_market_query_cache_created_at").using("btree", table.createdAt.asc().nullsLast().op("timestamp_ops")),
+	index("idx_market_query_cache_market_id").using("btree", table.marketId.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.marketId],
+			foreignColumns: [markets.id],
+			name: "market_query_cache_market_id_markets_id_fk"
+		}),
+]);
+
 export const drizzleMigrations = pgTable("__drizzle_migrations", {
 	id: serial().primaryKey().notNull(),
 	hash: text().notNull(),

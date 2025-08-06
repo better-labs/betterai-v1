@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { updatePolymarketAllEventsAndMarketData } from '@/lib/services/events'
+import { updatePolymarketEventsAndMarketData } from '@/lib/services/events'
 import type { ApiResponse, DatabaseMetadata } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
@@ -22,9 +22,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Parse request body for optional parameters
+    let requestBody: { daysToFetch?: number } = {}
+    try {
+      const body = await request.text()
+      if (body) {
+        requestBody = JSON.parse(body)
+      }
+    } catch (error) {
+      // If body parsing fails, use default values
+      console.log('No request body or invalid JSON, using defaults')
+    }
+
+    const daysToFetch = requestBody.daysToFetch || 10
     const startTime = Date.now()
     
-    console.log("Starting throttled Polymarket all events data sync...")
+    console.log(`Starting throttled Polymarket events data sync with daysToFetch=${daysToFetch}...`)
     
     // Use the new throttled function to update all events and market data
     const { 
@@ -33,13 +46,14 @@ export async function POST(request: NextRequest) {
       totalFetched, 
       totalRequests, 
       errors 
-    } = await updatePolymarketAllEventsAndMarketData({
+    } = await updatePolymarketEventsAndMarketData({
       limit: 100,           // Fetch 100 events per request
       delayMs: 1000,        // Wait 1 second between requests
       maxRetries: 3,        // Retry failed requests up to 3 times
       retryDelayMs: 2000,   // Wait 2 seconds before retry
       timeoutMs: 30000,     // 30 second timeout per request
-      userAgent: "BetterAI/1.0"
+      userAgent: "BetterAI/1.0",
+      daysToFetch: daysToFetch
     })
     
     const duration = Date.now() - startTime
@@ -54,7 +68,7 @@ export async function POST(request: NextRequest) {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Successfully synced ${insertedEvents.length} events and ${insertedMarkets.length} markets from Polymarket`,
+        message: `Successfully synced ${insertedEvents.length} events and ${insertedMarkets.length} markets from Polymarket (${daysToFetch} days range)`,
         data: {
           duration: `${duration}ms`,
           events_count: insertedEvents.length,
@@ -63,6 +77,7 @@ export async function POST(request: NextRequest) {
           total_requests: totalRequests,
           errors_count: errors.length,
           errors: errors.length > 0 ? errors : undefined,
+          days_to_fetch: daysToFetch,
           metadata
         }
       } as ApiResponse),
@@ -85,10 +100,18 @@ export async function GET() {
   return new Response(
     JSON.stringify({
       success: true,
-      message: 'Update all Polymarket events endpoint',
+      message: 'Update Polymarket events and market data endpoint',
       data: {
         method: 'POST',
-        description: 'Updates all active events and markets from Polymarket'
+        description: 'Updates events and markets from Polymarket with configurable date range',
+        parameters: {
+          daysToFetch: {
+            type: 'number',
+            optional: true,
+            default: 10,
+            description: 'Number of days to fetch events for (past and future)'
+          }
+        }
       }
     } as ApiResponse),
     { headers: { 'Content-Type': 'application/json' } }
