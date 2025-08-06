@@ -9,24 +9,6 @@ export interface ThinkingState {
   progress: number
 }
 
-// Raw Polymarket API types (external API responses)
-export interface RawPolymarketMarket {
-  id: string
-  question: string
-  description: string
-  volume: string
-  volumeNum: number
-  liquidity: string
-  liquidityNum: number
-  outcomes: string // JSON string array like "[\"Yes\", \"No\"]"
-  outcomePrices: string // JSON string array like "[\"0.35\", \"0.65\"]"
-  slug: string
-  active: boolean
-  closed: boolean
-  // ... many other fields we don't need
-}
-
-export type RawPolymarketApiResponse = RawPolymarketMarket[] 
 
 // Polymarket API types (before database transformation)
 export interface PolymarketEvent {
@@ -84,6 +66,8 @@ export interface PolymarketMarket {
   question: string;
   description?: string;
   slug?: string;
+  icon?: string;
+  image?: string;
   outcomePrices: string; // JSON string
   outcomes?: string; // JSON string array like "[\"Yes\", \"No\"]"
   volume: string;

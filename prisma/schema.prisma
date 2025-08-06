@@ -72,6 +72,8 @@ model Market {
   id               String             @id
   question         String
   eventId          String?            @map("event_id")
+  icon             String?
+  image            String?
   outcomePrices    Decimal[]          @map("outcome_prices") @db.Decimal
   volume           Decimal?           @default(0) @db.Decimal
   liquidity        Decimal?           @default(0) @db.Decimal

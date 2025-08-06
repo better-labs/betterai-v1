@@ -11,7 +11,7 @@ interface PredictionServiceResponse {
   prediction?: PredictionResult
 }
 
-function constructPredictionPrompt(market: Market): { systemMessage: string; userMessage: string } {
+function constructPredictionPrompt(market: Market, additionalUserMessageContext?: string): { systemMessage: string; userMessage: string } {
   const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and confidence level.
 
 Format your response as a JSON object with the following structure:
@@ -31,7 +31,9 @@ Market: "${market.question}"
 ${market.description ? `Market Description: ${market.description}` : ''}
 ${market.endDate ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` : ''}
 
-Please consider the market context, timing, and any relevant factors when making your prediction.`
+Please consider the market context, timing, and any relevant factors when making your prediction.
+
+${additionalUserMessageContext ? `Additional context: ${additionalUserMessageContext}` : ''}`
 
   return { systemMessage, userMessage }
 }
@@ -68,7 +70,7 @@ async function savePrediction(
   return createdPrediction.id
 }
 
-export async function generatePredictionForMarket(marketId: string, modelName?: string): Promise<PredictionServiceResponse> {
+export async function generatePredictionForMarket(marketId: string, modelName?: string, additionalUserMessageContext?: string): Promise<PredictionServiceResponse> {
   try {
     if (!marketId) {
       return { success: false, message: "Market ID is required" }
@@ -81,7 +83,7 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
 
     console.log(`Generating AI prediction for market: ${marketId}`)
     const model = modelName || DEFAULT_MODEL
-    const { systemMessage, userMessage } = constructPredictionPrompt(market)
+    const { systemMessage, userMessage } = constructPredictionPrompt(market, additionalUserMessageContext)
 
     await new Promise(resolve => setTimeout(resolve, 1000)) // Delay to avoid rate limiting
 

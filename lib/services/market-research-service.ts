@@ -74,6 +74,11 @@ ${
     ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}`
     : ''
 }
+${
+  market.resolutionSource
+    ? `Resolution Source: ${market.resolutionSource}`
+    : ''
+}
 
 Focus on recent news, developments, and any factors that could influence the outcome.`;
 

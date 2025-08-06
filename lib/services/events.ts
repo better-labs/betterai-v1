@@ -168,6 +168,8 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
         question: market.question,
         eventId: market.eventId || null,
         slug: market.slug || null,
+        icon: market.icon || null,
+        image: market.image || null,
         outcomePrices: outcomePricesArray,
         outcomes: market.outcomes ? JSON.parse(market.outcomes) : null,
         volume: new Decimal(market.volume),
