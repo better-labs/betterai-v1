@@ -147,12 +147,15 @@ export function EventTable() {
                   ) : (
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   )}
-                  <div data-testid="event-icon">
+                  <div data-testid="event-icon" className="flex items-center">
                     <EventIcon 
                       icon={event.icon} 
                       title={event.title} 
                       size="md"
                     />
+                    {event.image && (
+                      <img src={event.image} alt={event.title} className="h-10 w-10 ml-2 rounded-md object-cover" />
+                    )}
                   </div>
                 </Button>
               </div>

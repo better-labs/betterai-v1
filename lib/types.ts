@@ -35,6 +35,7 @@ export interface PolymarketEvent {
   description: string;
   slug: string;
   icon: string;
+  image?: string;
   tags: Array<{
     id: string;
     label: string;

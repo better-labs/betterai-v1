@@ -35,6 +35,7 @@ model Event {
   description    String?
   slug           String?
   icon           String?
+  image          String?
   tags           Json?
   category       Int?
   volume         Decimal?  @default(0) @db.Decimal

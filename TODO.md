@@ -2,16 +2,13 @@
 
 - Question to answer: Does prediction accuracy go up when more models are used? 1, 10, 20, ...?
 
-# Post migration manual testing
-- [x] test data downloads and similar ..
-- [] try adding new tables and columns to existing tables.
 
 
 ## Afternoon work 
 
 - [ ] Reflect on learning: both the model and dataset searches are many to many !!
 - [ ] Generate Free predictions for same markets with data from API provider.
-- [] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database? I like that approach.
+- [] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database? I like that approach. Ask AI's opinions.
 - [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
 - [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
 
@@ -60,9 +57,7 @@ Add proper error types and messages
 
 
 ## E2E User flow
-- [x] Allow user to trigger prediction for a given market
-- [x] Add hyperlink to markets
-- [x] Display latest market prediction from database when AI prediction doesn't exist
+
 
 ## Authentication & Rate Limiting
 - [ ] Design mechanism to prevent overuse of free prediction
@@ -80,10 +75,10 @@ Add proper error types and messages
 ## Operational
 - [ ] Research best practices for rate limiting and user authentication
 
-## Legal
-Check Copyright concerns with name?
-Generate Terms of Service & Privacy Policy
-Terms of Service: Have a clear and robust ToS that prohibits users from scraping your results, reverse-engineering the service, or using your output to train a competing AI model. While difficult to enforce perfectly, it provides a legal foundation.
+## Security
+- [] plan out and end to end 
+
+
 
 
 # Post Launch

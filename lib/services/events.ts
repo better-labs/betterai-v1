@@ -128,6 +128,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       description: event.description,
       slug: event.slug || null,
       icon: event.icon || null,
+      image: event.image || null,
       tags: event.tags || null,
       category: category,
       startDate: event.startDate ? new Date(event.startDate) : null,
