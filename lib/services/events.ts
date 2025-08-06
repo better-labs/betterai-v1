@@ -2,6 +2,7 @@ import { eventQueries, marketQueries, type NewMarket, type NewEvent } from '@/li
 import type { Event, Market, PolymarketEvent, PolymarketMarket } from '@/lib/types'
 import { mapTagsToCategory } from '@/lib/categorize'
 import { fetchPolymarketEvents } from './polymarket-client'
+import { Decimal } from '@prisma/client/runtime/library'
 
 /**
  * Updates all Polymarket events and markets with proper throttling and pagination
@@ -131,7 +132,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       category: category,
       startDate: event.startDate ? new Date(event.startDate) : null,
       endDate: event.endDate ? new Date(event.endDate) : null,
-      volume: event.volume.toString(),
+      volume: new Decimal(event.volume),
       
       marketProvider: "polymarket",
       updatedAt: new Date(),
@@ -153,10 +154,10 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       return isValid
     })
     .map((market: PolymarketMarket) => {
-      let outcomePricesArray: string[] = []
+      let outcomePricesArray: Decimal[] = []
       try {
         const parsed = JSON.parse(market.outcomePrices)
-        outcomePricesArray = Array.isArray(parsed) ? parsed.map(p => p.toString()) : []
+        outcomePricesArray = Array.isArray(parsed) ? parsed.map(p => new Decimal(p.toString())) : []
       } catch (error) {
         console.error(`Failed to parse outcomePrices for market ${market.id}:`, error)
       }
@@ -164,15 +165,16 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       return {
         id: market.id,
         question: market.question,
-        eventId: market.eventId,
+        eventId: market.eventId || null,
         slug: market.slug || null,
         outcomePrices: outcomePricesArray,
         outcomes: market.outcomes ? JSON.parse(market.outcomes) : null,
-        volume: market.volume,
-        liquidity: market.liquidity,
-        description: market.description,
-        active: market.active,
-        closed: market.closed,
+        volume: new Decimal(market.volume),
+        liquidity: new Decimal(market.liquidity),
+        description: market.description || null,
+        category: null, // Markets don't have categories, they inherit from events
+        active: market.active ?? null,
+        closed: market.closed ?? null,
         startDate: market.startDate ? new Date(market.startDate) : null,
         endDate: market.endDate ? new Date(market.endDate) : null,
         resolutionSource: market.resolutionSource || null,

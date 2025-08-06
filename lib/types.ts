@@ -95,26 +95,6 @@ export interface PolymarketMarket {
   eventId?: string; // Added by us during processing
 }
 
-// Extended types for API responses (UI/API specific)
-export interface EventWithMarkets {
-  id: string;
-  title: string;
-  description?: string | null;
-  slug?: string | null;
-  icon?: string | null;
-  tags?: Array<{
-    id: string;
-    label: string;
-    slug: string;
-    forceShow?: boolean;
-    updatedAt?: string;
-  }> | null;
-  volume?: string | null;
-  
-  endDate?: Date | null;
-  updatedAt?: Date | null;
-  markets: import("./db/schema").Market[];
-}
 
 export interface ApiResponse<T = unknown> {
   success: boolean
@@ -138,17 +118,12 @@ export interface DatabaseMetadata {
   requestId: string
 }
 
-// Re-export all database types from schema for convenience
+// Re-export all database types from Prisma for convenience
 export type { 
   Event, 
-  NewEvent, 
   Market, 
-  NewMarket,
   Prediction, 
-  NewPrediction, 
-  AIModel, 
-  NewAIModel,
-  MarketQueryCache,
-  NewMarketQueryCache
-} from "./db/schema" 
+  AiModel, 
+  MarketQueryCache
+} from "../lib/generated/prisma" 
 

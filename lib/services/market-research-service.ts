@@ -37,7 +37,7 @@ export async function performMarketResearch(
     const cachedEntry = await marketQueryCacheQueries.getCachedMarketQuery(marketId, model);
 
     if (cachedEntry && cachedEntry.response) {
-      return cachedEntry.response as MarketResearchResponse;
+      return cachedEntry.response as unknown as MarketResearchResponse;
     }
 
     // Fetch market data from the database

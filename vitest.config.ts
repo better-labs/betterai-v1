@@ -14,9 +14,7 @@ export default defineConfig({
       '@': resolve(__dirname, '.'),
     },
   },
-  server: {
-    deps: {
-      inline: ['execa'],
-    },
+  optimizeDeps: {
+    include: ['execa'],
   },
 });

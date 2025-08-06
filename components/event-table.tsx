@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users, Calendar, BarChart2 } from "lucide-react"
 import { MarketList } from "@/components/market-list"
 import { EventIcon } from "@/components/event-icon"
-import { EventWithMarkets, Market, PredictionResult } from "@/lib/types"
+import { Market, PredictionResult } from "@/lib/types"
 import { formatVolume } from "@/lib/utils"
 
 export function EventTable() {
-  const [events, setEvents] = useState<EventWithMarkets[]>([])
+  const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
   const [predictions, setPredictions] = useState<Record<string, PredictionResult>>({})
@@ -167,13 +167,13 @@ export function EventTable() {
                 {/* Tags Badges */}
                 <div className="flex items-center gap-1" data-testid="event-tags">
                   {event.tags && Array.isArray(event.tags) && event.tags.length > 0 ? (
-                    event.tags.slice(0, 3).map((tag, index) => (
+                    event.tags.slice(0, 3).map((tag: any, index: number) => (
                       <Badge 
-                        key={tag.id || index} 
+                        key={tag?.id || index} 
                         variant="outline" 
                         className="text-xs md:text-sm shadow-sm"
                       >
-                        {tag.label}
+                        {tag?.label || 'Unknown'}
                       </Badge>
                     ))
                   ) : (
@@ -187,7 +187,7 @@ export function EventTable() {
                 <div className="flex items-center text-sm text-muted-foreground" data-testid="event-volume">
                   <DollarSign className="h-4 w-4 mr-2" />
                   <span className="text-xs md:text-sm">
-                    {formatVolume(event.markets.reduce((sum, market) => sum + (Number(market.volume) || 0), 0))} 24hr Volume
+                    {formatVolume(event.markets.reduce((sum: number, market: any) => sum + (Number(market.volume) || 0), 0))} 24hr Volume
                   </span>
                 </div>
 

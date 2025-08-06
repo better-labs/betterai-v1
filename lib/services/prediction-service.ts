@@ -2,6 +2,7 @@ import { marketQueries, predictionQueries, DEFAULT_MODEL, NewPrediction } from '
 import { validateProbability } from '../utils'
 import { fetchPredictionFromOpenRouter } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
+import { Decimal } from '@prisma/client/runtime/library'
 
 interface PredictionServiceResponse {
   success: boolean
@@ -49,11 +50,11 @@ async function savePrediction(
     probability: validatedProbability,
   }
 
-  const newPrediction: NewPrediction = {
+  const newPrediction = {
     marketId,
     userMessage: marketQuestion,
-    predictionResult: internalPredictionResult,
-    probability: validatedProbability.toString(),
+    predictionResult: internalPredictionResult as any,
+    probability: new Decimal(validatedProbability),
     modelName,
     systemPrompt: systemMessage,
     aiResponse,

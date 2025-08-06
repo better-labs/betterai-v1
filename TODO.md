@@ -3,7 +3,7 @@
 - Question to answer: Does prediction accuracy go up when more models are used? 1, 10, 20, ...?
 
 # Post migration manual testing
-- [] test data downloads and similar ..
+- [x] test data downloads and similar ..
 - [] try adding new tables and columns to existing tables.
 
 
