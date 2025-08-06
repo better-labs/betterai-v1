@@ -14,6 +14,14 @@ interface MarketResearchResponse {
   research?: WebSearchResult;
 }
 
+interface CacheEntry {
+  timestamp: number;
+  result: MarketResearchResponse;
+}
+
+const marketQueryCache = new Map<string, CacheEntry>();
+const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
 /**
  * Performs web research for a given market using OpenRouter AI
  * @param marketId - The unique identifier of the market (required)
@@ -30,6 +38,13 @@ export async function performMarketResearch(
         success: false,
         message: 'Market ID is required',
       };
+    }
+
+    const cacheKey = `${marketId}-${modelName || DEFAULT_MODEL}`;
+    const cachedEntry = marketQueryCache.get(cacheKey);
+
+    if (cachedEntry && (Date.now() - cachedEntry.timestamp < CACHE_DURATION_MS)) {
+      return cachedEntry.result;
     }
 
     // Fetch market data from the database
@@ -103,11 +118,18 @@ Focus on recent news, developments, and any factors that could influence the out
 
     const researchResult: WebSearchResult = parseAIResponse<WebSearchResult>(text);
 
-    return {
+    const result: MarketResearchResponse = {
       success: true,
       message: 'Market research completed successfully.',
       research: researchResult,
     };
+
+    marketQueryCache.set(cacheKey, {
+      timestamp: Date.now(),
+      result,
+    });
+
+    return result;
   } catch (error) {
     console.error('Error performing market research:', error);
     const message = error instanceof Error ? error.message : 'Unexpected error occurred';
