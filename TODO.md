@@ -93,10 +93,6 @@ Add proper error types and messages
 
 5. Break Down Large Components
 
-6. Add Jest Testing Infrastructure
-Need unit tests for hooks and utilities
-Need integration tests for API routes
-Need component tests for UI logic
 
 
 ## E2E User flow
