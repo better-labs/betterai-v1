@@ -1,5 +1,5 @@
-import { upsertAIModels } from '@/lib/data/ai-models'
-import type { NewAIModel } from '@/lib/types'
+import { aiModelQueries, NewAIModel } from '@/lib/db/queries'
+import type { OpenRouterModel } from '@/lib/types'
 
 export interface AIModelsUpdateStats {
   totalFetched: number
@@ -23,7 +23,7 @@ export async function updateAIModels(): Promise<AIModelsUpdateStats> {
       throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`)
     }
 
-    const data = await response.json()
+    const data: { data: OpenRouterModel[] } = await response.json()
     
     if (!data.data || !Array.isArray(data.data)) {
       throw new Error('Invalid response format from OpenRouter API')
@@ -32,7 +32,7 @@ export async function updateAIModels(): Promise<AIModelsUpdateStats> {
     console.log(`Fetched ${data.data.length} models from OpenRouter API`)
 
     // Transform the data to match our schema
-    const modelsToUpsert: NewAIModel[] = data.data.map((model: any) => ({
+    const modelsToUpsert: NewAIModel[] = data.data.map((model) => ({
       id: model.id,
       name: model.name,
       created: model.created,
@@ -49,7 +49,7 @@ export async function updateAIModels(): Promise<AIModelsUpdateStats> {
     }))
 
     console.log(`Upserting ${modelsToUpsert.length} AI models...`)
-    const insertedModels = await upsertAIModels(modelsToUpsert)
+    const insertedModels = await aiModelQueries.upsertAIModels(modelsToUpsert)
     
     console.log(`Successfully updated ${insertedModels.length} AI models`)
     

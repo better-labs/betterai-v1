@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
-import { getTrendingEvents, getEventById, createEvent, updateEvent, deleteEvent } from '@/lib/data/events'
-import type { ApiResponse, NewEvent } from '@/lib/types'
+import { eventQueries, NewEvent } from '@/lib/db/queries'
+import type { ApiResponse } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get('slug')
 
     if (id) {
-      const event = await getEventById(id)
+      const event = await eventQueries.getEventById(id)
       if (!event) {
         return new Response(
           JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (slug) {
-      const event = await getEventById(slug)
+      const event = await eventQueries.getEventBySlug(slug)
       if (!event) {
         return new Response(
           JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Default: get trending events
-    const events = await getTrendingEvents()
+    const events = await eventQueries.getTrendingEvents()
     return new Response(
       JSON.stringify({ success: true, data: events } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const eventData: NewEvent = body
-    const event = await createEvent(eventData)
+    const event = await eventQueries.createEvent(eventData)
     return new Response(
       JSON.stringify({ success: true, data: event } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
@@ -82,7 +82,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const eventData = await request.json()
-    const event = await updateEvent(id, eventData)
+    const event = await eventQueries.updateEvent(id, eventData)
     
     if (!event) {
       return new Response(
@@ -116,7 +116,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const success = await deleteEvent(id)
+    const success = await eventQueries.deleteEvent(id)
     
     if (!success) {
       return new Response(

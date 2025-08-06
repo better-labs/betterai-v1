@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
-import { getMarketsByEventId, getMarketById, createMarket, updateMarket, deleteMarket } from '@/lib/data/markets'
-import type { ApiResponse, NewMarket } from '@/lib/types'
+import { marketQueries, NewMarket } from '@/lib/db/queries'
+import type { ApiResponse } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const eventId = searchParams.get('eventId')
 
     if (id) {
-      const market = await getMarketById(id)
+      const market = await marketQueries.getMarketById(id)
       if (!market) {
         return new Response(
           JSON.stringify({ success: false, error: 'Market not found' } as ApiResponse),
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (eventId) {
-      const markets = await getMarketsByEventId(eventId)
+      const markets = await marketQueries.getMarketsByEventId(eventId)
       return new Response(
         JSON.stringify({ success: true, data: markets } as ApiResponse),
         { headers: { 'Content-Type': 'application/json' } }
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Default: get all markets
-    const markets = await getMarketsByEventId('')
+    const markets = await marketQueries.getMarketsByEventId('')
     return new Response(
       JSON.stringify({ success: true, data: markets } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const marketData: NewMarket = await request.json()
-    const market = await createMarket(marketData)
+    const market = await marketQueries.createMarket(marketData)
     return new Response(
       JSON.stringify({ success: true, data: market } as ApiResponse),
       { status: 201, headers: { 'Content-Type': 'application/json' } }
@@ -75,7 +75,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const marketData = await request.json()
-    const market = await updateMarket(id, marketData)
+    const market = await marketQueries.updateMarket(id, marketData)
     
     if (!market) {
       return new Response(
@@ -109,7 +109,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const success = await deleteMarket(id)
+    const success = await marketQueries.deleteMarket(id)
     
     if (!success) {
       return new Response(

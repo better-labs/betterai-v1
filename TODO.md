@@ -1,16 +1,75 @@
-TODO.md
+# For the week of 8/6
 
-# Prototype
+- Question to answer: Does prediction accuracy go up when more models are used? 1, 10, 20, ...?
+
+# Enhancements
+
+### 1. Consolidate the Redundant Data Access Layer
+- [x] Merge all query logic from `lib/data/*.ts` into `lib/db/queries.ts`.
+- [x] Refactor services and API routes to use the consolidated queries from `lib/db/queries.ts` exclusively.
+- [x] Delete the `lib/data` directory once it's no longer in use.
+- [x] (Performance) Refactor the `upsertEvents` and `upsertMarkets` functions in `lib/db/queries.ts` to perform true bulk upserts instead of looping.
+
+### 2. Refactor Large Service Functions
+- [x] Break down `updatePolymarketEventsAndMarketData` in `lib/services/events.ts` into smaller, single-responsibility functions.
+- [x] Break down `generatePredictionForMarket` in `lib/services/prediction-service.ts` into smaller, single-responsibility functions.
+
+### 3. Improve Type Safety
+- [x] Define strong types for API payloads (e.g., from OpenRouter) and use them to parse the responses safely. Consider using Zod for validation.
+- [x] Fix client-side types for `predictionResult` in `app/market/[marketId]/page.tsx` to avoid `as any` assertions.
+
+### 4. Centralize Configuration and Hardcoded Values
+- [ ] Move hardcoded values like API URLs, default model names, and cache durations into a centralized configuration file (e.g., `lib/config.ts`) or environment variables.
 
 
-## Predictions
+# Migration to Prisma
+- [ ] **Phase 1: Setup & Installation**
+- [ ] Install Prisma CLI (`prisma`) as a dev dependency and Prisma Client (`@prisma/client`) as a dependency.
+- [ ] Run `pnpm dlx prisma init` to create the `prisma` directory and `schema.prisma` file.
+- [ ] Configure the `datasource db` in `schema.prisma` to connect to your database using the `DATABASE_URL`.
+- [ ] **Phase 2: Schema Conversion & Generation**
+- [ ] Run `pnpm dlx prisma db pull` to introspect the existing database and generate the initial Prisma schema.
+- [ ] Manually review and refine the generated `schema.prisma`. Pay close attention to relations (`@relation`), enums, and any custom types. Ensure it matches the Drizzle schema's intent.
+- [ ] Run `pnpm dlx prisma generate` to generate the Prisma Client based on the new schema.
+- [ ] **Phase 3: Code Refactoring**
+- [ ] Create a single Prisma client instance (e.g., in `lib/db/prisma.ts`).
+- [ ] **Rewrite `lib/db/queries.ts`:** Methodically translate all Drizzle queries in `lib/db/queries.ts` to their Prisma Client equivalents. This is the largest task of the migration.
+- [ ] Search the rest of the codebase for any other direct usages of the Drizzle client and replace them.
+- [ ] **Phase 4: Migration & Cleanup**
+- [ ] Create an initial "baseline" migration with Prisma to align its migration history with the current schema: `pnpm dlx prisma migrate dev --name initial-migration`.
+- [ ] Update `package.json` scripts: remove Drizzle commands and add Prisma equivalents (e.g., `prisma:generate`, `prisma:migrate`, `prisma:studio`).
+- [ ] Uninstall Drizzle packages: `pnpm remove drizzle-orm drizzle-kit @neondatabase/serverless`.
+- [ ] Delete old Drizzle files: `drizzle.config.ts` and the contents of `lib/db/migrations`.
+- [ ] **Phase 5: Verification**
+- [ ] Update any database-related tests in the `test/` directory to use the new Prisma setup.
+- [ ] Thoroughly test the application locally to ensure all database interactions work as expected.
+
+
+## Afternoon work 
+
+- [ ] Reflect on learning: both the model and dataset searches are many to many !!
+- [ ] Generate Free predictions for same markets with data from API provider.
+- [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
+
+
+
+
+# UX
+- Add Kalshi market updates
+- Redesign UX - ask AI to help feedback on highest value and how to represent those minimally via UX.
+  - Remove "trending" section on landing page.
+
+
+## Tools to add
+- Auth: maybe Clerk
+- Payments: maybe Stripe
+- Voice: Gemini live
+
+
 - Integrate so that Prediction Engine API uses the prediction service when button is clicked.
 - Add necessary buttons Generate prediction button for all markets.
 
 
-## UX
-- [x] Fix Market amounts to return values from the database.
-- Add Kalshi market updates
 - Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
 
 
@@ -81,4 +140,4 @@ Terms of Service: Have a clear and robust ToS that prohibits users from scraping
 
 ## Notes
 
-- Consider implementing analytics to track usage patterns 
+- Consider implementing analytics to track usage patterns

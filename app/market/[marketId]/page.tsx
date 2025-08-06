@@ -1,13 +1,12 @@
 import { notFound } from 'next/navigation'
-import { getMarketById } from '@/lib/data/markets'
-import { getMostRecentPredictionByMarketId } from '@/lib/data/predictions'
-import { getEventById } from '@/lib/data/events'
+import { marketQueries, predictionQueries, eventQueries } from '@/lib/db/queries'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Calendar, DollarSign, BarChart2, TrendingUp, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { formatVolume } from '@/lib/utils'
+import type { PredictionResult } from '@/lib/types'
 
 interface MarketDetailPageProps {
   params: Promise<{
@@ -19,16 +18,17 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   const { marketId } = await params
 
   // Fetch market data
-  const market = await getMarketById(marketId)
+  const market = await marketQueries.getMarketById(marketId)
   if (!market) {
     notFound()
   }
 
   // Fetch event data if market has an eventId
-  const event = market.eventId ? await getEventById(market.eventId) : null
+  const event = market.eventId ? await eventQueries.getEventById(market.eventId) : null
 
   // Fetch most recent prediction
-  const prediction = await getMostRecentPredictionByMarketId(marketId)
+  const prediction = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
+  const predictionResult = prediction?.predictionResult as PredictionResult | null
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -174,12 +174,12 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {prediction ? (
+              {predictionResult ? (
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-medium mb-2">Prediction</h4>
                     <p className="text-lg font-semibold text-primary">
-                      {(prediction.predictionResult as any).prediction}
+                      {predictionResult.prediction}
                     </p>
                   </div>
 
@@ -187,13 +187,13 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     <h4 className="font-medium mb-2">Probability</h4>
                     <div className="flex items-center gap-3">
                       <span className="text-2xl font-bold">
-                        {((prediction.predictionResult as any).probability * 100).toFixed(1)}%
+                        {(predictionResult.probability * 100).toFixed(1)}%
                       </span>
                       <div className="flex-1 bg-muted rounded-full h-3">
                         <div 
                           className="bg-primary h-3 rounded-full transition-all"
                           style={{ 
-                            width: `${(prediction.predictionResult as any).probability * 100}%` 
+                            width: `${predictionResult.probability * 100}%` 
                           }}
                         />
                       </div>
@@ -202,22 +202,24 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
 
 
 
-                  {(prediction.predictionResult as any).reasoning && (
+                  {predictionResult.reasoning && (
                     <div>
                       <h4 className="font-medium mb-2">Reasoning</h4>
                       <p className="text-sm text-muted-foreground">
-                        {(prediction.predictionResult as any).reasoning}
+                        {predictionResult.reasoning}
                       </p>
                     </div>
                   )}
 
 
 
-                  <div className="pt-4 border-t">
-                    <p className="text-xs text-muted-foreground">
-                      Prediction made on {new Date(prediction.createdAt as Date).toLocaleString()}
-                    </p>
-                  </div>
+                  {prediction && (
+                    <div className="pt-4 border-t">
+                      <p className="text-xs text-muted-foreground">
+                        Prediction made on {new Date(prediction.createdAt as Date).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-8">

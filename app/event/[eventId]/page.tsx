@@ -1,12 +1,12 @@
 import { notFound } from 'next/navigation'
-import { getEventById } from '@/lib/data/events'
-import { getMarketsByEventId } from '@/lib/data/markets'
+import { eventQueries, marketQueries } from '@/lib/db/queries'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EventIcon } from '@/components/event-icon'
-import { ArrowLeft, Calendar, DollarSign, TrendingUp, Tag, BarChart2 } from 'lucide-react'
+import { TrendingUp, BarChart2, ArrowRight, Calendar, ArrowLeft, DollarSign, Tag } from 'lucide-react'
 import Link from 'next/link'
+import type { Market } from '@/lib/types'
 import { formatVolume } from '@/lib/utils'
 
 interface EventDetailPageProps {
@@ -19,13 +19,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const { eventId } = await params
 
   // Fetch event data
-  const event = await getEventById(eventId)
+  const event = await eventQueries.getEventById(eventId)
   if (!event) {
     notFound()
   }
 
-  // Fetch markets for this event
-  const markets = await getMarketsByEventId(eventId)
+  // Fetch markets for the event
+  const markets = await marketQueries.getMarketsByEventId(eventId)
 
   return (
     <div className="container mx-auto px-4 py-8">

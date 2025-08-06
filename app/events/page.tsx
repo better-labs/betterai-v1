@@ -1,5 +1,4 @@
-import { getTrendingEvents } from '@/lib/data/events'
-import { getMarketsByEventId } from '@/lib/data/markets'
+import { eventQueries, marketQueries } from '@/lib/db/queries'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,12 +10,12 @@ import { formatVolume } from '@/lib/utils'
 
 // Server Component - Direct data function usage
 export default async function EventsPage() {
-  const events = await getTrendingEvents()
+  const events = await eventQueries.getTrendingEvents()
   
   // Fetch markets for all events
   const eventsWithMarkets = await Promise.all(
     events.map(async (event) => {
-      const markets = await getMarketsByEventId(event.id)
+      const markets = await marketQueries.getMarketsByEventId(event.id)
       return { event, markets }
     })
   )
