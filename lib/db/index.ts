@@ -4,7 +4,7 @@ import * as schema from "./schema"
 import dotenv from "dotenv"
 
 // Configure dotenv to load environment variables (quietly)
-dotenv.config({ quiet: true })
+dotenv.config({ path: '.env.local', quiet: true })
 
 if (!process.env.DATABASE_URL) {
   throw new Error("Missing env.DATABASE_URL - Please add your Neon database connection string")

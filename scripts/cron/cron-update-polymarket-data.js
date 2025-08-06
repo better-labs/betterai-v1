@@ -12,7 +12,7 @@ const PROTOCOL = process.env.NODE_ENV === 'production' ? 'https' : 'http';
 const options = {
   hostname: DOMAIN.includes(':') ? DOMAIN.split(':')[0] : DOMAIN,
   port: DOMAIN.includes(':') ? parseInt(DOMAIN.split(':')[1]) : (PROTOCOL === 'https' ? 443 : 3000),
-  path: '/api/cron/update-polymarket-all',
+  path: '/api/cron/update-polymarket-data',
   method: 'POST',
   headers: {
     'Authorization': `Bearer ${CRON_SECRET}`,
@@ -20,7 +20,7 @@ const options = {
   }
 };
 
-console.log(`Triggering update-polymarket-all at ${new Date().toISOString()}`);
+console.log(`Triggering update-polymarket-data at ${new Date().toISOString()}`);
 
 const req = (PROTOCOL === 'https' ? https : require('http')).request(options, (res) => {
   let data = '';
@@ -34,17 +34,17 @@ const req = (PROTOCOL === 'https' ? https : require('http')).request(options, (r
     console.log('Response body:', data);
     
     if (res.statusCode >= 200 && res.statusCode < 300) {
-      console.log('✅ Update all Polymarket events job completed successfully');
+      console.log('✅ Update Polymarket events and market data job completed successfully');
       process.exit(0);
     } else {
-      console.log('❌ Update all Polymarket events job failed');
+      console.log('❌ Update Polymarket events and market data job failed');
       process.exit(1);
     }
   });
 });
 
 req.on('error', (error) => {
-  console.error('❌ Error triggering update-polymarket-all:', error.message);
+  console.error('❌ Error triggering update-polymarket-data:', error.message);
   process.exit(1);
 });
 

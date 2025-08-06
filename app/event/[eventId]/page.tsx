@@ -62,12 +62,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 <Badge variant="outline" className="font-mono text-xs">
                   ID: {event.id}
                 </Badge>
-                {event.trendingRank && event.trendingRank > 0 && (
-                  <Badge variant="secondary">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    Trending #{event.trendingRank}
-                  </Badge>
-                )}
+                
               </div>
             </div>
           </div>

@@ -11,7 +11,6 @@ export const eventFixtures: Event[] = [
     tags: [{ id: 'crypto', label: 'Cryptocurrency', slug: 'crypto', forceShow: true, updatedAt: '2024-01-01' }],
     category: 1,
     volume: '5000000',
-    trendingRank: 5,
     startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-12-31T23:59:59Z'),
     marketProvider: 'polymarket',
@@ -26,7 +25,6 @@ export const eventFixtures: Event[] = [
     tags: [{ id: 'politics', label: 'Politics', slug: 'politics', forceShow: true, updatedAt: '2024-01-01' }],
     category: 2,
     volume: '3000000',
-    trendingRank: 4,
     startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-11-05T23:59:59Z'),
     marketProvider: 'polymarket',
@@ -41,7 +39,6 @@ export const eventFixtures: Event[] = [
     tags: [{ id: 'tech', label: 'Technology', slug: 'tech', forceShow: true, updatedAt: '2024-01-01' }],
     category: 3,
     volume: '1000000',
-    trendingRank: 2,
     startDate: new Date('2024-01-01T00:00:00Z'),
     endDate: new Date('2024-09-30T23:59:59Z'),
     marketProvider: 'polymarket',
@@ -135,5 +132,5 @@ export const getEventBySlug = (slug: string): Event | undefined =>
 export const getMarketsByEventId = (eventId: string): Market[] => 
   marketFixtures.filter(market => market.eventId === eventId)
 
-export const getTrendingEvents = (): Event[] => 
-  eventFixtures.filter(event => event.trendingRank && event.trendingRank > 0).sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0)) 
+export const getTopEventsByVolume = (): Event[] => 
+  eventFixtures.sort((a, b) => (Number(b.volume) || 0) - (Number(a.volume) || 0)) 

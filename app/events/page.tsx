@@ -67,12 +67,7 @@ function EventCard({ event, markets }: { event: Event; markets: Market[] }) {
           <span className="text-sm text-muted-foreground">
             Volume: {formatVolume(Number(event.volume) || 0)}
           </span>
-          {event.trendingRank && event.trendingRank > 0 && (
-            <Badge variant="secondary">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              #{event.trendingRank}
-            </Badge>
-          )}
+          
         </div>
         
         {markets.length > 0 && (
