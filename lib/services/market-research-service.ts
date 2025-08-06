@@ -2,6 +2,10 @@
 import { marketQueries } from '../db/queries';
 import { DEFAULT_MODEL } from '../data/ai-models';
 import { parseAIResponse } from '../utils';
+import { db as defaultDb } from '../db';
+import { marketQueryCache } from '../db/schema';
+import { and, eq, gte, desc } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 interface WebSearchResult {
   relevant_information: string;
@@ -14,18 +18,13 @@ interface MarketResearchResponse {
   research?: WebSearchResult;
 }
 
-interface CacheEntry {
-  timestamp: number;
-  result: MarketResearchResponse;
-}
-
-const marketQueryCache = new Map<string, CacheEntry>();
 const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
 /**
  * Performs web research for a given market using OpenRouter AI
  * @param marketId - The unique identifier of the market (required)
  * @param modelName - The AI model to use for the research.
+ * @param db - The database instance to use.
  * @returns Promise<MarketResearchResponse>
  */
 export async function performMarketResearch(
@@ -40,11 +39,20 @@ export async function performMarketResearch(
       };
     }
 
-    const cacheKey = `${marketId}-${modelName || DEFAULT_MODEL}`;
-    const cachedEntry = marketQueryCache.get(cacheKey);
+    const oneHourAgo = new Date(Date.now() - CACHE_DURATION_MS);
+    const model = modelName || DEFAULT_MODEL;
 
-    if (cachedEntry && (Date.now() - cachedEntry.timestamp < CACHE_DURATION_MS)) {
-      return cachedEntry.result;
+    const cachedEntry = await db.query.marketQueryCache.findFirst({
+      where: and(
+        eq(marketQueryCache.marketId, marketId),
+        eq(marketQueryCache.modelName, model),
+        gte(marketQueryCache.createdAt, oneHourAgo)
+      ),
+      orderBy: [desc(marketQueryCache.createdAt)]
+    });
+
+    if (cachedEntry && cachedEntry.response) {
+      return cachedEntry.response as MarketResearchResponse;
     }
 
     // Fetch market data from the database
@@ -94,7 +102,7 @@ Focus on recent news, developments, and any factors that could influence the out
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelName || DEFAULT_MODEL,
+        model: model,
         messages: [
           {
             role: 'system',
@@ -124,9 +132,12 @@ Focus on recent news, developments, and any factors that could influence the out
       research: researchResult,
     };
 
-    marketQueryCache.set(cacheKey, {
-      timestamp: Date.now(),
-      result,
+    await db.insert(marketQueryCache).values({
+      marketId: marketId,
+      modelName: model,
+      systemMessage: systemMessage,
+      userMessage: userMessage,
+      response: result,
     });
 
     return result;
