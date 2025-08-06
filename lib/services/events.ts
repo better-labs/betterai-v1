@@ -1,8 +1,7 @@
-import { eventQueries, marketQueries, type NewMarket } from '@/lib/db/queries'
-import type { Event, NewEvent, Market, PolymarketEvent, PolymarketMarket } from '@/lib/types'
+import { eventQueries, marketQueries, type NewMarket, type NewEvent } from '@/lib/db/queries'
+import type { Event, Market, PolymarketEvent, PolymarketMarket } from '@/lib/types'
 import { mapTagsToCategory } from '@/lib/categorize'
-
-
+import { fetchPolymarketEvents } from './polymarket-client'
 
 /**
  * Updates all Polymarket events and markets with proper throttling and pagination
@@ -23,13 +22,10 @@ export async function updatePolymarketEventsAndMarketData(options: {
   errors: string[]
 }> {
   const {
-    limit = 200,
+    limit = 100,
     delayMs = 1000,
-    maxRetries = 3,
-    retryDelayMs = 2000,
-    timeoutMs = 30000,
-    userAgent = "BetterAI/1.0",
-    daysToFetch = 10
+    daysToFetch = 10,
+    ...fetchOptions
   } = options
 
   console.log("Starting throttled update of all Polymarket events with batch processing...")
@@ -42,174 +38,31 @@ export async function updatePolymarketEventsAndMarketData(options: {
   let hasMoreData = true
   let totalFetched = 0
 
-  console.log(`Starting to fetch and process Polymarket events with limit=${limit}, delay=${delayMs}ms`)
-
-  // Local function to construct the API URL
-  const buildEventsURL = (offset: number, limit: number): string => {
-    const baseEventsURL = 'https://gamma-api.polymarket.com/events'
-    const defaultStartDate = new Date(Date.now() - daysToFetch * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    const defaultEndDate = new Date(Date.now() + daysToFetch * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    const params = `start_date_min=${defaultStartDate}&end_date_max=${defaultEndDate}&ascending=true`
-    return `${baseEventsURL}?${params}&offset=${offset}&limit=${limit}`
-  }
-
   while (hasMoreData) {
     try {
       totalRequests++
-      console.log(`Fetching batch ${totalRequests} with offset=${offset}, limit=${limit}`)
-
-      const url = buildEventsURL(offset, limit)
-      console.log('url:', url)
+      const eventsData = await fetchPolymarketEvents(offset, limit, daysToFetch, fetchOptions)
       
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
-
-      const response = await fetch(url, {
-        headers: {
-          Accept: "application/json",
-          "User-Agent": userAgent,
-        },
-        signal: controller.signal
-      })
-
-      clearTimeout(timeoutId)
-
-      if (!response.ok) {
-        const errorMsg = `HTTP ${response.status}: ${response.statusText}`
-        console.error(`Request failed: ${errorMsg}`)
-        
-        if (response.status === 429) {
-          // Rate limited - wait longer
-          console.log(`Rate limited, waiting ${retryDelayMs * 2}ms before retry...`)
-          await new Promise(resolve => setTimeout(resolve, retryDelayMs * 2))
-          continue
-        }
-        
-        if (response.status >= 500) {
-          // Server error - retry with exponential backoff
-          for (let retry = 1; retry <= maxRetries; retry++) {
-            console.log(`Server error, retrying ${retry}/${maxRetries}...`)
-            await new Promise(resolve => setTimeout(resolve, retryDelayMs * retry))
-            
-            try {
-              const retryResponse = await fetch(url, {
-                headers: {
-                  Accept: "application/json",
-                  "User-Agent": userAgent,
-                },
-                signal: controller.signal
-              })
-              
-              if (retryResponse.ok) {
-                const retryData = await retryResponse.json()
-                if (Array.isArray(retryData)) {
-                  // Process and upsert this batch
-                  const batchResult = await processAndUpsertBatch(retryData)
-                  allInsertedEvents.push(...batchResult.insertedEvents)
-                  allInsertedMarkets.push(...batchResult.insertedMarkets)
-                  totalFetched += batchResult.totalFetched
-                  console.log(`Retry successful, processed ${retryData.length} events`)
-                  break
-                }
-              }
-            } catch (retryError) {
-              console.error(`Retry ${retry} failed:`, retryError)
-              if (retry === maxRetries) {
-                errors.push(`Failed after ${maxRetries} retries: ${errorMsg}`)
-                hasMoreData = false
-                break
-              }
-            }
-          }
-          continue
-        }
-        
-        errors.push(errorMsg)
-        hasMoreData = false
-        break
+      if (eventsData.length > 0) {
+        const batchResult = await processAndUpsertBatch(eventsData)
+        allInsertedEvents.push(...batchResult.insertedEvents)
+        allInsertedMarkets.push(...batchResult.insertedMarkets)
+        totalFetched += batchResult.totalFetched
+        console.log(`Batch ${totalRequests}: Processed ${eventsData.length} events, ${batchResult.insertedEvents.length} events upserted, ${batchResult.insertedMarkets.length} markets upserted`)
       }
 
-      const data = await response.json()
-      
-      if (!Array.isArray(data)) {
-        console.error("Invalid response format - expected array")
-        errors.push("Invalid response format from API")
-        hasMoreData = false
-        break
-      }
-
-      // Process and upsert this batch
-      console.log(`Processing batch ${totalRequests} with ${data.length} events...`)
-      const batchResult = await processAndUpsertBatch(data)
-      allInsertedEvents.push(...batchResult.insertedEvents)
-      allInsertedMarkets.push(...batchResult.insertedMarkets)
-      totalFetched += batchResult.totalFetched
-
-      console.log(`Batch ${totalRequests}: Processed ${data.length} events, ${batchResult.insertedEvents.length} events upserted, ${batchResult.insertedMarkets.length} markets upserted`)
-
-      // Check if we've reached the end
-      if (data.length < limit) {
-        console.log(`Received ${data.length} events (less than limit ${limit}), stopping pagination`)
+      if (eventsData.length < limit) {
         hasMoreData = false
       } else {
         offset += limit
-        console.log(`Moving to next batch, new offset: ${offset}`)
-      }
-
-      // Throttle requests
-      if (hasMoreData) {
-        console.log(`Waiting ${delayMs}ms before next request...`)
         await new Promise(resolve => setTimeout(resolve, delayMs))
       }
-
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
-      console.error(`Request error:`, errorMsg)
+      console.error(`Failed to process batch with offset ${offset}:`, errorMsg)
       errors.push(errorMsg)
-      
-      // If it's an abort error (timeout), try to continue
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.log("Request timed out, continuing to next batch...")
-        offset += limit
-        continue
-      }
-      
-      // For other errors, try retrying
-      for (let retry = 1; retry <= maxRetries; retry++) {
-        console.log(`Retrying ${retry}/${maxRetries} after error...`)
-        await new Promise(resolve => setTimeout(resolve, retryDelayMs * retry))
-        
-        try {
-          const url = buildEventsURL(offset, limit)
-          const response = await fetch(url, {
-            headers: {
-              Accept: "application/json",
-              "User-Agent": userAgent,
-            }
-          })
-          console.log('url:', url)
-
-          if (response.ok) {
-            const data = await response.json()
-            if (Array.isArray(data)) {
-              // Process and upsert this batch
-              const batchResult = await processAndUpsertBatch(data)
-              allInsertedEvents.push(...batchResult.insertedEvents)
-              allInsertedMarkets.push(...batchResult.insertedMarkets)
-              totalFetched += batchResult.totalFetched
-              console.log(`Retry successful, processed ${data.length} events`)
-              break
-            }
-          }
-        } catch (retryError) {
-          console.error(`Retry ${retry} failed:`, retryError)
-          if (retry === maxRetries) {
-            errors.push(`Failed after ${maxRetries} retries: ${errorMsg}`)
-            hasMoreData = false
-            break
-          }
-        }
-      }
+      // Decide if we should stop or continue on error
+      hasMoreData = false // Stop for now
     }
   }
 

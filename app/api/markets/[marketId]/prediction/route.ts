@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getMostRecentPredictionByMarketId } from "@/lib/data/predictions"
+import { predictionQueries } from "@/lib/db/queries"
 
 export async function GET(
   request: NextRequest,
@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ error: "Market ID is required" }, { status: 400 })
     }
 
-    const prediction = await getMostRecentPredictionByMarketId(marketId)
+    const prediction = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
 
     if (!prediction) {
       return NextResponse.json({ prediction: null }, { status: 200 })
