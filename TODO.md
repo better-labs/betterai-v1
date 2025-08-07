@@ -2,11 +2,7 @@
 
 - Question to answer: Does prediction accuracy go up when more models are used? 1, 10, 20, ...?
 - reflect on learning: both the model and dataset searches are many to many !!
-
-
-## Afternoon work 
-- [x] Add image to market table.  
-- [x] Generate Free predictions for same markets with data from API provider.
+- Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
 - [ ] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database to store the raw json response from the respective APIs or one shared table? What is best practice?
