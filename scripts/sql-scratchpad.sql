@@ -34,5 +34,71 @@ WHERE
 ORDER BY
   m.volume DESC NULLS LAST;
 
+-- Top 20 markets by volume with their questions
+SELECT
+  m.id,
+  m.question,
+  m.volume,
+  m.liquidity,
+  e.title AS event_title,
+  e.slug AS event_slug,
+  CONCAT('https://polymarket.com/event/', e.slug) AS event_url
+FROM
+  markets m
+  LEFT JOIN events e ON m.event_id = e.id
+WHERE
+  m.volume IS NOT NULL
+  AND m.volume > 0
+ORDER BY
+  m.volume DESC
+LIMIT 20;
+
+-- DIAGNOSTIC QUERIES BELOW
+
+-- Check if markets table exists and has data
+SELECT 
+  COUNT(*) as total_markets,
+  COUNT(CASE WHEN volume IS NOT NULL THEN 1 END) as markets_with_volume,
+  COUNT(CASE WHEN volume > 0 THEN 1 END) as markets_with_positive_volume,
+  COUNT(CASE WHEN volume IS NULL THEN 1 END) as markets_with_null_volume
+FROM markets;
+
+-- Check volume distribution
+SELECT 
+  CASE 
+    WHEN volume IS NULL THEN 'NULL'
+    WHEN volume = 0 THEN 'ZERO'
+    WHEN volume > 0 AND volume <= 1000 THEN '1-1000'
+    WHEN volume > 1000 AND volume <= 10000 THEN '1001-10000'
+    WHEN volume > 10000 AND volume <= 100000 THEN '10001-100000'
+    ELSE '100000+'
+  END as volume_range,
+  COUNT(*) as count
+FROM markets
+GROUP BY volume_range
+ORDER BY 
+  CASE volume_range
+    WHEN 'NULL' THEN 1
+    WHEN 'ZERO' THEN 2
+    WHEN '1-1000' THEN 3
+    WHEN '1001-10000' THEN 4
+    WHEN '10001-100000' THEN 5
+    ELSE 6
+  END;
+
+-- Check top 10 markets by volume (without filters)
+SELECT
+  m.id,
+  m.question,
+  m.volume,
+  m.liquidity,
+  e.title AS event_title
+FROM
+  markets m
+  LEFT JOIN events e ON m.event_id = e.id
+ORDER BY
+  COALESCE(m.volume, 0) DESC
+LIMIT 10;
+
 
 

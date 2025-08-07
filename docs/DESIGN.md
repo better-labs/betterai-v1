@@ -52,5 +52,21 @@ To maximise early user value while keeping scope tight, the flows are grouped in
 ### Deferred / Experimental
 - **Trust-but-Verify (IPFS/S3 audit trail)** – revisit after paid traction.
 
+## Data Pipeline
+
+When a user chooses to invoke an AI prediction, the following data pipeline is triggered:
+
+1.  **Fetch Market Data**: The system first retrieves all available information about the selected prediction market from the internal database. This includes the market's question, description, rules, and current standing.
+
+2.  **AI-Powered Data Source Identification**: The application then makes an initial call to a powerful AI model (e.g., a leading model on OpenRouter). The purpose of this call is not to predict the outcome, but to ask a meta-question: *"Given this prediction market, what types of data, datasets, and information sources would be most valuable for making an accurate prediction?"* The AI's response guides the next steps of data gathering.
+
+3.  **Targeted Information Retrieval**: Based on the AI's recommendation, the `market-research-service` is invoked. This service performs a targeted search across the web and other specified data sources to gather the latest and most relevant information.
+
+4.  **Optional Real-time Web Crawl (Future)**: An optional step may be added to perform a real-time web crawl of specific, high-value URLs identified in the previous step. This would provide the most up-to-the-minute information possible.
+
+5.  **Final Prediction Synthesis**: Finally, all the gathered information—the initial market data, the AI-identified valuable data types, and the freshly retrieved information from the web—is compiled into a comprehensive context. This entire context is then fed into a final AI call to generate the ultimate prediction for the market's outcome.
+
+This multi-step process ensures that the final prediction is not just based on a single AI model's general knowledge, but is informed by a rich, relevant, and timely set of data specifically tailored to the market in question.
+
 ## Legal
 Consistently describe the app as a way to "enable the user to invoke multiple LLMs with enriched datasets". Emphasize that this is a tool for analysis, not a financial advisor.

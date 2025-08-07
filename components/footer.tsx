@@ -18,7 +18,7 @@ export function Footer() {
             .
           </p>
           <p className="text-xs text-muted-foreground/70">
-            © 2025 BetterAI.fun
+            © 2025 BetterLabs
           </p>
         </div>
       </div>

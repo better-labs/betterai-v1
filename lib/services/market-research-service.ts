@@ -1,7 +1,5 @@
-
 import { marketQueries, DEFAULT_MODEL, marketQueryCacheQueries } from '../db/queries';
 import { parseAIResponse } from '../utils';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 interface WebSearchResult {
   relevant_information: string;
@@ -20,7 +18,6 @@ interface MarketResearchResponse {
  * Performs web research for a given market using OpenRouter AI
  * @param marketId - The unique identifier of the market (required)
  * @param modelName - The AI model to use for the research.
- * @param db - The database instance to use.
  * @returns Promise<MarketResearchResponse>
  */
 export async function performMarketResearch(
@@ -40,7 +37,7 @@ export async function performMarketResearch(
     const cachedEntry = await marketQueryCacheQueries.getCachedMarketQuery(marketId, model);
 
     if (cachedEntry && cachedEntry.response) {
-      return cachedEntry.response as MarketResearchResponse;
+      return cachedEntry.response as unknown as MarketResearchResponse;
     }
 
     // Fetch market data from the database
@@ -75,6 +72,11 @@ ${
 ${
   market.endDate
     ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}`
+    : ''
+}
+${
+  market.resolutionSource
+    ? `Resolution Source: ${market.resolutionSource}`
     : ''
 }
 

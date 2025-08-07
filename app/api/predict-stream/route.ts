@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server"
-import { generatePredictionStream } from "@/lib/services/prediction-service"
+import { generatePredictionStream } from "@/lib/services/generate-single-prediction"
 
 export async function POST(request: NextRequest) {
   const { marketId, userMessage, model, dataSources } = await request.json()

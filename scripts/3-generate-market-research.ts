@@ -4,7 +4,7 @@ import { performMarketResearch } from '../lib/services/market-research-service';
 import { config } from 'dotenv'
 
 // Load environment variables FIRST, before any other imports
-config({ path: '.env.local', quiet: true })
+config({ quiet: true })
 
 // Verify DATABASE_URL is loaded
 if (!process.env.DATABASE_URL) {

@@ -1,398 +1,280 @@
-import { db } from "./index"
-import { events, markets, predictions, aiModels, marketQueryCache } from "./schema"
-import { eq, desc, sql, gt, and, gte } from "drizzle-orm"
-import type { AIModel, NewAIModel, Event, Market, NewEvent, Prediction, NewPrediction, PredictionResult, MarketQueryCache, NewMarketQueryCache } from '@/lib/types'
+import { prisma } from "./prisma"
+import type { AiModel, Event, Market, Prediction, MarketQueryCache } from '../../lib/generated/prisma';
 import { CATEGORIES } from '@/lib/categorize'
 
-export type NewMarket = typeof markets.$inferInsert
-export type { NewAIModel, NewEvent, NewPrediction, NewMarketQueryCache }
+export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, MarketQueryCache as NewMarketQueryCache } from '../../lib/generated/prisma';
 
 export const DEFAULT_MODEL = 'google/gemini-2.5-flash-lite'
 
 // AI Model queries
 export const aiModelQueries = {
-  getAllAIModels: async (): Promise<AIModel[]> => {
-    return await db.query.aiModels.findMany({
-      orderBy: (aiModels, { desc }) => [desc(aiModels.updatedAt)]
+  getAllAIModels: async (): Promise<AiModel[]> => {
+    return await prisma.aiModel.findMany({
+      orderBy: { updatedAt: 'desc' }
     })
   },
-  getAIModelById: async (id: string): Promise<AIModel | null> => {
-    const result = await db.query.aiModels.findFirst({
-      where: (aiModels, { eq }) => eq(aiModels.id, id)
+  getAIModelById: async (id: string): Promise<AiModel | null> => {
+    return await prisma.aiModel.findUnique({
+      where: { id }
     })
-    return result || null
   },
-  getAIModelBySlug: async (slug: string): Promise<AIModel | null> => {
-    const result = await db.query.aiModels.findFirst({
-      where: (aiModels, { eq }) => eq(aiModels.canonicalSlug, slug)
+  getAIModelBySlug: async (slug: string): Promise<AiModel | null> => {
+    return await prisma.aiModel.findFirst({
+      where: { canonicalSlug: slug }
     })
-    return result || null
   },
-  createAIModel: async (modelData: NewAIModel): Promise<AIModel> => {
-    const [result] = await db.insert(aiModels).values(modelData).returning()
-    return result
+  createAIModel: async (modelData: any): Promise<AiModel> => {
+    return await prisma.aiModel.create({ data: modelData })
   },
-  updateAIModel: async (id: string, modelData: Partial<NewAIModel>): Promise<AIModel | null> => {
-    const [result] = await db
-      .update(aiModels)
-      .set({ ...modelData, updatedAt: new Date() })
-      .where(eq(aiModels.id, id))
-      .returning()
-    return result || null
+  updateAIModel: async (id: string, modelData: Partial<any>): Promise<AiModel | null> => {
+    return await prisma.aiModel.update({
+      where: { id },
+      data: { ...modelData, updatedAt: new Date() }
+    })
   },
   deleteAIModel: async (id: string): Promise<boolean> => {
-    const result = await db.delete(aiModels).where(eq(aiModels.id, id))
-    return result.rowCount > 0
+    const result = await prisma.aiModel.delete({ where: { id } })
+    return !!result
   },
-  upsertAIModels: async (models: NewAIModel[]): Promise<AIModel[]> => {
+  upsertAIModels: async (models: any[]): Promise<AiModel[]> => {
     if (models.length === 0) return []
     
-    const results = await db
-      .insert(aiModels)
-      .values(models)
-      .onConflictDoUpdate({
-        target: aiModels.id,
-        set: {
-          name: sql`EXCLUDED.name`,
-          created: sql`EXCLUDED.created`,
-          description: sql`EXCLUDED.description`,
-          architecture: sql`EXCLUDED.architecture`,
-          topProvider: sql`EXCLUDED.top_provider`,
-          pricing: sql`EXCLUDED.pricing`,
-          canonicalSlug: sql`EXCLUDED.canonical_slug`,
-          contextLength: sql`EXCLUDED.context_length`,
-          huggingFaceId: sql`EXCLUDED.hugging_face_id`,
-          perRequestLimits: sql`EXCLUDED.per_request_limits`,
-          supportedParameters: sql`EXCLUDED.supported_parameters`,
-          updatedAt: new Date(),
-        }
+    const transactions = models.map(model => 
+      prisma.aiModel.upsert({
+        where: { id: model.id },
+        update: { ...model, updatedAt: new Date() },
+        create: model
       })
-      .returning()
+    )
     
-    return results
+    return await prisma.$transaction(transactions)
   }
 }
 
 // Event queries
 export const eventQueries = {
   getTrendingEvents: async (): Promise<Event[]> => {
-    return await db.query.events.findMany({
-      orderBy: (events, { desc }) => [desc(events.volume)],
-      limit: 10
+    return await prisma.event.findMany({
+      orderBy: { volume: 'desc' },
+      take: 10
     })
   },
   getTrendingEventsWithMarkets: async (): Promise<(Event & { markets: Market[] })[]> => {
-    // Get trending events first
-    const trendingEvents = await db.query.events.findMany({
-      orderBy: (events, { desc }) => [desc(events.volume)],
-      limit: 10
-    })
-  
-    // Get all markets for these events in a single query
-    const eventIds = trendingEvents.map(event => event.id)
-    const allMarkets = await db.query.markets.findMany({
-      where: (markets, { inArray }) => inArray(markets.eventId, eventIds),
-      orderBy: (markets, { desc }) => [desc(markets.volume)]
-    })
-  
-    // Group markets by eventId
-    const marketsByEventId = allMarkets.reduce((acc, market) => {
-      if (market.eventId) {
-        if (!acc[market.eventId]) {
-          acc[market.eventId] = []
+    return await prisma.event.findMany({
+      orderBy: { volume: 'desc' },
+      take: 10,
+      include: {
+        markets: {
+          orderBy: {
+            volume: 'desc'
+          }
         }
-        acc[market.eventId].push(market)
       }
-      return acc
-    }, {} as Record<string, Market[]>)
-  
-    // Combine events with their markets
-    return trendingEvents.map(event => ({
-      ...event,
-      markets: marketsByEventId[event.id] || []
-    }))
+    })
   },
   getEventById: async (id: string): Promise<Event | null> => {
-    const result = await db.query.events.findFirst({
-      where: (events, { eq }) => eq(events.id, id)
+    return await prisma.event.findUnique({
+      where: { id }
     })
-    return result || null
   },
   getEventBySlug: async (slug: string): Promise<Event | null> => {
-    const result = await db.query.events.findFirst({
-      where: (events, { eq }) => eq(events.slug, slug)
+    return await prisma.event.findFirst({
+      where: { slug }
     })
-    return result || null
   },
-  createEvent: async (eventData: NewEvent): Promise<Event> => {
-    const [result] = await db.insert(events).values(eventData).returning()
-    return result
+  createEvent: async (eventData: any): Promise<Event> => {
+    return await prisma.event.create({ data: eventData })
   },
-  updateEvent: async (id: string, eventData: Partial<NewEvent>): Promise<Event | null> => {
-    const [result] = await db
-      .update(events)
-      .set({ ...eventData, updatedAt: new Date() })
-      .where(eq(events.id, id))
-      .returning()
-    return result || null
+  updateEvent: async (id: string, eventData: Partial<any>): Promise<Event | null> => {
+    return await prisma.event.update({
+      where: { id },
+      data: { ...eventData, updatedAt: new Date() }
+    })
   },
   deleteEvent: async (id: string): Promise<boolean> => {
-    const result = await db.delete(events).where(eq(events.id, id))
-    return result.rowCount > 0
+    const result = await prisma.event.delete({ where: { id } })
+    return !!result
   },
   getEventsByCategory: async (categoryId: number): Promise<Event[]> => {
-    return await db.query.events.findMany({
-      where: (events, { eq }) => eq(events.category, categoryId),
-      orderBy: (events, { desc }) => [desc(events.volume)]
+    return await prisma.event.findMany({
+      where: { category: categoryId },
+      orderBy: { volume: 'desc' }
     })
   },
   getEventsByCategoryWithMarkets: async (categoryId: number): Promise<(Event & { markets: Market[] })[]> => {
-    // Get events by category
-    const categoryEvents = await db.query.events.findMany({
-      where: (events, { eq }) => eq(events.category, categoryId),
-      orderBy: (events, { desc }) => [desc(events.volume)]
-    })
-  
-    // Get all markets for these events in a single query
-    const eventIds = categoryEvents.map(event => event.id)
-    const allMarkets = await db.query.markets.findMany({
-      where: (markets, { inArray }) => inArray(markets.eventId, eventIds),
-      orderBy: (markets, { desc }) => [desc(markets.volume)]
-    })
-  
-    // Group markets by eventId
-    const marketsByEventId = allMarkets.reduce((acc, market) => {
-      if (market.eventId) {
-        if (!acc[market.eventId]) {
-          acc[market.eventId] = []
+    return await prisma.event.findMany({
+      where: { category: categoryId },
+      orderBy: { volume: 'desc' },
+      include: {
+        markets: {
+          orderBy: {
+            volume: 'desc'
+          }
         }
-        acc[market.eventId].push(market)
       }
-      return acc
-    }, {} as Record<string, Market[]>)
-  
-    // Combine events with their markets
-    return categoryEvents.map(event => ({
-      ...event,
-      markets: marketsByEventId[event.id] || []
-    }))
+    })
   },
   getCategoryStats: async (): Promise<Array<{
     categoryId: number;
     categoryName: string;
     eventCount: number;
   }>> => {
-    // Get event counts by category
-    const result = await db
-      .select({
-        category: events.category,
-        count: sql<number>`count(*)::int`
-      })
-      .from(events)
-      .where(sql`${events.category} IS NOT NULL`)
-      .groupBy(events.category)
+    const result = await prisma.event.groupBy({
+      by: ['category'],
+      _count: {
+        category: true
+      },
+      where: {
+        category: {
+          not: null
+        }
+      }
+    })
   
-    // Map to include category names
     return result.map(row => ({
       categoryId: row.category!,
       categoryName: CATEGORIES[row.category as keyof typeof CATEGORIES] || 'Unknown',
-      eventCount: row.count
+      eventCount: row._count.category
     })).sort((a, b) => b.eventCount - a.eventCount)
   },
-  // Get all events ordered by volume
   getTopEvents: async (limit = 10) => {
-    return await db.select().from(events).orderBy(desc(events.volume)).limit(limit)
+    return await prisma.event.findMany({
+        orderBy: { volume: 'desc' },
+        take: limit
+    });
   },
-
-  // Delete all events
   deleteAllEvents: async () => {
-    try {
-      const result = await db.delete(events).returning()
-      return result.length
-    } catch (error) {
-      console.error("Error deleting all events:", error)
-      throw error
-    }
+    const result = await prisma.event.deleteMany({})
+    return result.count
   },
-
-  // Upsert events
-  upsertEvents: async (eventsData: NewEvent[]) => {
+  upsertEvents: async (eventsData: any[]) => {
     if (eventsData.length === 0) {
       return [];
     }
-    try {
-      const result = await db
-        .insert(events)
-        .values(eventsData)
-        .onConflictDoUpdate({
-          target: events.id,
-          set: {
-            title: sql`EXCLUDED.title`,
-            description: sql`EXCLUDED.description`,
-            slug: sql`EXCLUDED.slug`,
-            tags: sql`EXCLUDED.tags`,
-            volume: sql`EXCLUDED.volume`,
-            updatedAt: sql`NOW()`,
-          },
-        })
-        .returning();
-      return result;
-    } catch (error) {
-      console.error("Error upserting events:", error);
-      throw error;
-    }
+    const transactions = eventsData.map(event => 
+      prisma.event.upsert({
+        where: { id: event.id },
+        update: { ...event, updatedAt: new Date() },
+        create: event
+      })
+    )
+    return await prisma.$transaction(transactions)
   },
 }
 
 // Market queries
 export const marketQueries = {
   getMarketsByEventId: async (eventId: string): Promise<Market[]> => {
-    return await db.query.markets.findMany({
-      where: (markets, { eq }) => eq(markets.eventId, eventId),
-      orderBy: (markets, { desc }) => [desc(markets.volume)]
+    return await prisma.market.findMany({
+      where: { eventId },
+      orderBy: { volume: 'desc' }
     })
   },
   getMarketById: async (id: string): Promise<Market | null> => {
-    const result = await db.query.markets.findFirst({
-      where: (markets, { eq }) => eq(markets.id, id)
+    return await prisma.market.findUnique({
+      where: { id }
     })
-    return result || null
   },
   getHighVolumeMarkets: async (limit: number = 20): Promise<Market[]> => {
-    return await db.query.markets.findMany({
-      where: (markets, { gt }) => gt(markets.volume, "10000"),
-      orderBy: (markets, { desc }) => [desc(markets.volume)],
-      limit
+    return await prisma.market.findMany({
+      where: { volume: { gt: 10000 } },
+      orderBy: { volume: 'desc' },
+      take: limit
     })
   },
-  createMarket: async (marketData: NewMarket): Promise<Market> => {
-    // Ensure id is provided for new markets
+  createMarket: async (marketData: any): Promise<Market> => {
     const marketWithId = {
       ...marketData,
       id: marketData.id || crypto.randomUUID()
     }
-    const [result] = await db.insert(markets).values(marketWithId).returning()
-    return result
+    return await prisma.market.create({ data: marketWithId })
   },
-  updateMarket: async (id: string, marketData: Partial<NewMarket>): Promise<Market | null> => {
-    const [result] = await db
-      .update(markets)
-      .set({ ...marketData, updatedAt: new Date() })
-      .where(eq(markets.id, id))
-      .returning()
-    return result || null
+  updateMarket: async (id: string, marketData: Partial<any>): Promise<Market | null> => {
+    return await prisma.market.update({
+      where: { id },
+      data: { ...marketData, updatedAt: new Date() }
+    })
   },
   deleteMarket: async (id: string): Promise<boolean> => {
-    const result = await db.delete(markets).where(eq(markets.id, id))
-    return result.rowCount > 0
+    const result = await prisma.market.delete({ where: { id } })
+    return !!result
   },
   updateMarketVolume: async (id: string, newVolume: number): Promise<Market | null> => {
-    const [result] = await db
-      .update(markets)
-      .set({ volume: newVolume.toString(), updatedAt: new Date() })
-      .where(eq(markets.id, id))
-      .returning()
-    return result || null
+    return await prisma.market.update({
+      where: { id },
+      data: { volume: newVolume, updatedAt: new Date() }
+    })
   },
-
-  // Get top markets by volume
   getTopMarkets: async (limit = 10) => {
-    return await db.select().from(markets).orderBy(desc(markets.volume)).limit(limit)
+    return await prisma.market.findMany({
+        orderBy: { volume: 'desc' },
+        take: limit
+    });
   },
-
-  // Delete all markets
   deleteAllMarkets: async () => {
-    try {
-      const result = await db.delete(markets).returning()
-      return result.length
-    } catch (error) {
-      console.error("Error deleting all markets:", error)
-      throw error
-    }
+    const result = await prisma.market.deleteMany({})
+    return result.count
   },
-
-  // Upsert markets
-  upsertMarkets: async (marketsData: NewMarket[]) => {
+  upsertMarkets: async (marketsData: any[]) => {
     if (marketsData.length === 0) {
       return [];
     }
-    try {
-      const result = await db
-        .insert(markets)
-        .values(marketsData)
-        .onConflictDoUpdate({
-          target: markets.id,
-          set: {
-            question: sql`EXCLUDED.question`,
-            eventId: sql`EXCLUDED.event_id`,
-            outcomePrices: sql`EXCLUDED.outcome_prices`,
-            outcomes: sql`EXCLUDED.outcomes`,
-            volume: sql`EXCLUDED.volume`,
-            liquidity: sql`EXCLUDED.liquidity`,
-            active: sql`EXCLUDED.active`,
-            closed: sql`EXCLUDED.closed`,
-            resolutionSource: sql`EXCLUDED.resolution_source`,
-            updatedAt: sql`NOW()`,
-          },
-        })
-        .returning();
-      return result;
-    } catch (error) {
-      console.error("Error upserting markets:", error);
-      throw error;
-    }
+    const transactions = marketsData.map(market => 
+      prisma.market.upsert({
+        where: { id: market.id },
+        update: { ...market, updatedAt: new Date() },
+        create: market
+      })
+    )
+    return await prisma.$transaction(transactions)
   },
 }
 
 // Prediction queries
 export const predictionQueries = {
   getPredictionsByMarketId: async (marketId: string): Promise<Prediction[]> => {
-    return await db.query.predictions.findMany({
-      where: (predictions, { eq }) => eq(predictions.marketId, marketId),
-      orderBy: (predictions, { desc }) => [desc(predictions.createdAt)]
+    return await prisma.prediction.findMany({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' }
     })
   },
   getPredictionById: async (id: number): Promise<Prediction | null> => {
-    const result = await db.query.predictions.findFirst({
-      where: (predictions, { eq }) => eq(predictions.id, id)
+    return await prisma.prediction.findUnique({
+      where: { id }
     })
-    return result || null
   },
   getRecentPredictions: async (limit: number = 50): Promise<Prediction[]> => {
-    return await db.query.predictions.findMany({
-      orderBy: (predictions, { desc }) => [desc(predictions.createdAt)],
-      limit
+    return await prisma.prediction.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit
     })
   },
-  createPrediction: async (predictionData: NewPrediction): Promise<Prediction> => {
-    const [result] = await db.insert(predictions).values(predictionData).returning()
-    return result
+  createPrediction: async (predictionData: any): Promise<Prediction> => {
+    return await prisma.prediction.create({ data: predictionData })
   },
-  updatePrediction: async (id: number, predictionData: Partial<NewPrediction>): Promise<Prediction | null> => {
-    const [result] = await db
-      .update(predictions)
-      .set(predictionData)
-      .where(eq(predictions.id, id))
-      .returning()
-    return result || null
+  updatePrediction: async (id: number, predictionData: Partial<any>): Promise<Prediction | null> => {
+    return await prisma.prediction.update({
+      where: { id },
+      data: predictionData
+    })
   },
   deletePrediction: async (id: number): Promise<boolean> => {
-    const result = await db.delete(predictions).where(eq(predictions.id, id))
-    return result.rowCount > 0
+    const result = await prisma.prediction.delete({ where: { id } })
+    return !!result
   },
   getPredictionsByUserMessage: async (userMessage: string): Promise<Prediction[]> => {
-    return await db.query.predictions.findMany({
-      where: (predictions, { eq }) => eq(predictions.userMessage, userMessage),
-      orderBy: (predictions, { desc }) => [desc(predictions.createdAt)]
+    return await prisma.prediction.findMany({
+      where: { userMessage },
+      orderBy: { createdAt: 'desc' }
     })
   },
   storePredictionResult: async (
     marketId: string,
     userMessage: string,
-    predictionResult: PredictionResult,
+    predictionResult: any,
     aiResponse?: string
   ): Promise<Prediction> => {
-    const predictionData: NewPrediction = {
+    const predictionData = {
       marketId,
       userMessage,
       predictionResult,
@@ -406,37 +288,31 @@ export const predictionQueries = {
     return result
   },
   getMostRecentPredictionByMarketId: async (marketId: string): Promise<Prediction | null> => {
-    const result = await db.query.predictions.findFirst({
-      where: (predictions, { eq }) => eq(predictions.marketId, marketId),
-      orderBy: (predictions, { desc }) => [desc(predictions.createdAt)]
+    return await prisma.prediction.findFirst({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' }
     })
-    return result || null
   },
-  // Delete all predictions
   deleteAllPredictions: async () => {
-    try {
-      const result = await db.delete(predictions).returning()
-      return result.length
-    } catch (error) {
-      console.error("Error deleting all predictions:", error)
-      throw error
-    }
+    const result = await prisma.prediction.deleteMany({})
+    return result.count
   },
-
-  // Get prediction by market ID
   getPredictionByMarketId: async (marketId: string) => {
-    const result = await db.select().from(predictions).where(eq(predictions.marketId, marketId)).limit(1)
-    return result[0] || null
+    return await prisma.prediction.findFirst({
+        where: { marketId }
+    });
   },
-
-  // Search predictions by userMessage
   searchPredictionsByUserMessage: async (searchTerm: string, limit = 5) => {
-    return await db
-      .select()
-      .from(predictions)
-      .where(sql`${predictions.userMessage} ILIKE ${`%${searchTerm}%`}`)
-      .orderBy(desc(predictions.createdAt))
-      .limit(limit)
+    return await prisma.prediction.findMany({
+      where: {
+        userMessage: {
+          contains: searchTerm,
+          mode: 'insensitive'
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit
+    })
   },
 }
 
@@ -450,21 +326,20 @@ export const marketQueryCacheQueries = {
   ): Promise<MarketQueryCache | null> => {
     const oneHourAgo = new Date(Date.now() - CACHE_DURATION_MS);
     
-    const result = await db.query.marketQueryCache.findFirst({
-      where: and(
-        eq(marketQueryCache.marketId, marketId),
-        eq(marketQueryCache.modelName, modelName),
-        gte(marketQueryCache.createdAt, oneHourAgo)
-      ),
-      orderBy: [desc(marketQueryCache.createdAt)]
+    return await prisma.marketQueryCache.findFirst({
+      where: {
+        marketId,
+        modelName,
+        createdAt: {
+          gte: oneHourAgo
+        }
+      },
+      orderBy: { createdAt: 'desc' }
     });
-  
-    return result || null;
   },
   createMarketQueryCache: async (
-    cacheData: NewMarketQueryCache
+    cacheData: any
   ): Promise<MarketQueryCache> => {
-    const [result] = await db.insert(marketQueryCache).values(cacheData).returning()
-    return result
+    return await prisma.marketQueryCache.create({ data: cacheData })
   }
 }
