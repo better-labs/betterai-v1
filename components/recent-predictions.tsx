@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { format } from "date-fns"
 import type { Prediction, Market, Event } from "@/lib/types"
+import { RecentPredictionRow } from "@/components/recent-prediction-row"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
@@ -17,80 +18,65 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
         {items.map((p) => {
           const market = p.market
           const event = market?.event || null
-          const probability = typeof p.probability === 'object' && p.probability !== null
-            ? Number(p.probability as unknown as number)
-            : Number(p.probability ?? 0)
-          const displayProbability = isFinite(probability) ? Math.round(probability * 100) : 0
-          const created = p.createdAt ? new Date(p.createdAt) : null
-          const marketProbability = market?.outcomePrices?.[0] !== undefined && market?.outcomePrices?.[0] !== null
-            ? Math.round(Number(market.outcomePrices[0]) * 100)
-            : null
+
+          const toNum = (v: any): number | null => {
+            if (v === null || v === undefined) return null
+            if (typeof v === 'number') return v
+            if (typeof v === 'string') {
+              const n = parseFloat(v)
+              return isFinite(n) ? n : null
+            }
+            if (typeof (v as any)?.toNumber === 'function') {
+              try { return (v as any).toNumber() } catch { return null }
+            }
+            try { const n = Number(v as any); return isFinite(n) ? n : null } catch { return null }
+          }
+
+          const baseProb = toNum(p.probability) ?? 0
+          let aiProbability = Math.round(baseProb * 100)
+
+          if (p.aiResponse) {
+            try {
+              const parsed = JSON.parse(p.aiResponse as unknown as string)
+              const probValue = (parsed as any)?.probability
+              const parsedNum = toNum(probValue)
+              if (parsedNum !== null) aiProbability = Math.round(parsedNum * 100)
+            } catch {}
+          }
+
+          // Market probability from outcomePrices[0]
+          let marketProbability: number | null = null
+          const op: any = (market as any)?.outcomePrices
+          let firstPrice: any = null
+          if (Array.isArray(op)) firstPrice = op[0]
+          else if (typeof op === 'string') {
+            try { const arr = JSON.parse(op); if (Array.isArray(arr)) firstPrice = arr[0] } catch {}
+          }
+          const firstPriceNum = toNum(firstPrice)
+          if (firstPriceNum !== null) marketProbability = Math.round(firstPriceNum * 100)
+
+          const createdAtDisplay = p.createdAt ? format(new Date(p.createdAt), 'PP p') : ''
+          const marketQuestion = market ? market.question : p.userMessage
 
           return (
-            <div key={p.id} className="p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-2 min-w-0">
-                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground shrink-0">Event</div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {event?.title ? (
-                        <Link href={`/event/${event.id}`} className="hover:underline">
-                          {event.title}
-                        </Link>
-                      ) : (
-                        '—'
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-2 space-y-1">
-                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market</div>
-                    <div className="font-medium text-foreground truncate">
-                      {market ? (
-                        <Link href={`/market/${market.id}`} className="hover:underline">
-                          {market.question}
-                        </Link>
-                      ) : (
-                        p.userMessage
-                      )}
-                    </div>
-                  </div>
-
-                  {p.aiResponse && (
-                    <div className="mt-2 text-sm text-muted-foreground line-clamp-2">
-                      {(() => {
-                        try {
-                          const parsed = JSON.parse(p.aiResponse)
-                          if (parsed && typeof parsed === 'object' && 'prediction' in parsed) {
-                            return String((parsed as any).prediction)
-                          }
-                        } catch {}
-                        return p.userMessage
-                      })()}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-row items-center gap-6 sm:flex-col sm:items-end sm:gap-2">
-                  <div className="sm:text-right">
-                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market Probability</div>
-                    <div className="text-2xl font-semibold tabular-nums">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
-                  </div>
-                  <div className="sm:text-right">
-                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
-                    <div className="text-2xl font-semibold tabular-nums">{displayProbability}%</div>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {created ? format(created, 'PP p') : ''}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <RecentPredictionRow
+              key={p.id}
+              id={p.id as any}
+              eventTitle={event?.title ?? ''}
+              eventIcon={event?.icon ?? null}
+              eventImage={event?.image ?? null}
+              marketId={market?.id ?? null}
+              marketQuestion={marketQuestion}
+              marketProbability={marketProbability}
+              aiProbability={aiProbability}
+              createdAtDisplay={createdAtDisplay}
+            />
           )
         })}
       </div>
     </section>
   )
 }
+
 
 
