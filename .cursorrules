@@ -63,3 +63,7 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Add JSDoc comments for complex functions
 - Update README.md for new features
 - Document API endpoints and data structures
+
+## Environemnt Variables
+- Always leverage .env instead of .env.local. Do not create a .env.local file.
+- Update .env.example to include new variables.
