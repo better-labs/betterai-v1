@@ -29,3 +29,7 @@ next-env.d.ts
 
 /lib/generated/prisma
 /.idea
+
+# documentation
+GEMINI.md
+*.code-workspace

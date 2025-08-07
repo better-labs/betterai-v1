@@ -1,4 +1,4 @@
-# BetterAI App Design Doc
+# BetterAI WebApp Design Doc
 
 ## Overview
 **Purpose**: enable the user to invoke multiple LLMs with enriched datasets to predict the outcome of a given market (like Polymarket or Kalshi). The AI is a tool for analysis. 
@@ -17,40 +17,49 @@ The average prediction market user does not have the data or ai engineering expe
 To maximise early user value while keeping scope tight, the flows are grouped into phased releases. Each phase ships a complete slice of functionality and sets the stage for the next.
 
 ### Phase 0 – Private Alpha (MVP)
-1. **AI Market Prediction (core loop)**
+1. **Public Benchmark Page**
+   - Display top 10 markets by volume closing within ~7 days (plus/minus 24 hours)
+   - Show markets organized by category (Elections, Geopolitics, Economy, etc.)
+   - Track AI prediction accuracy vs actual outcomes
+   - Provide transparency into model performance across different market types
+   - Serve as proof-of-concept and validation for the AI prediction system
+
+2. **AI Market Prediction (core loop)**
    - User sees the top trending Polymarket events.
-   - Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link).
+   - Clicks "Predict" ➞ receives an AI-generated outcome (confidence + share link).
    - Advanced options (paid model, extra data enrichment) can be deferred.
 
-2. **Account Creation & Authentication**
+3. **Account Creation & Authentication**
    - Lightweight email / social login.
    - Required for persisting predictions and preparing for payments.
 
 *Alpha note*: Provide a free daily credit pool; skip the funding flow for now.
 
 ### Phase 1 – Public Beta
-3. **Funding Balance**
+4. **Funding Balance**
    - Users add funds to access premium models or additional predictions.
    - Simple checkout with minimal amount and stored balance.
 
-4. **Activity Page**
+5. **Activity Page**
    - Displays past predictions, cost, timestamp and deep-link to detail view.
    - Encourages retention and social sharing.
 
 ### Phase 2 – Power-User Suite
-5. **My Portfolio**
+6. **My Portfolio**
    - Connect external prediction-market accounts; show active positions and allow re-running AI predictions.
    - Optionally alert users to meaningful price deltas.
 
-6. **Market Alpha**
+7. **Market Alpha**
    - Surfaces markets with the highest mis-pricing signal based on batch predictions.
    - Acts as discovery feed and upsell path to paid predictions.
 
-7. **Search / Voice / Browser Extension**
+8. **Search / Voice / Browser Extension**
    - Convenience and distribution channels once the core loop and monetisation are validated.
 
 ### Deferred / Experimental
 - **Trust-but-Verify (IPFS/S3 audit trail)** – revisit after paid traction.
+
+
 
 ## Data Pipeline
 
