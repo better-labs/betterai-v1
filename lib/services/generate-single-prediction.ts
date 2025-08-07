@@ -40,7 +40,7 @@ ${additionalUserMessageContext ? `Additional context: ${additionalUserMessageCon
 
 async function savePrediction(
   marketId: string,
-  marketQuestion: string,
+  userMessage: string,
   modelName: string,
   systemMessage: string,
   predictionResult: PredictionResult,
@@ -54,7 +54,7 @@ async function savePrediction(
 
   const newPrediction = {
     marketId,
-    userMessage: marketQuestion,
+    userMessage: userMessage,
     predictionResult: internalPredictionResult as any,
     probability: new Decimal(validatedProbability),
     modelName,
@@ -91,7 +91,7 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
 
     const predictionId = await savePrediction(
       marketId,
-      market.question,
+      userMessage,
       model,
       systemMessage,
       predictionResult,

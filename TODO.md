@@ -6,14 +6,26 @@
 
 ## Afternoon work 
 - [x] Add image to market table.  
-- [ ] Generate Free predictions for same markets with data from API provider.
+- [x] Generate Free predictions for same markets with data from API provider.
 
 
-- [ ] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database? I like that approach. Ask AI's opinions.
+- [ ] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database to store the raw json response from the respective APIs or one shared table? What is best practice?
+  
+  Summary: Best Practice
+   1. Keep the `markets` table. It is your canonical model.
+   2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
+   3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical
+      markets table.
+   4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your
+      app from the specifics of the data sources.
+
+
+## Categories
 - [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
+- [] Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
+
+## Benchmark
 - [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
-
-
 
 
 # UX

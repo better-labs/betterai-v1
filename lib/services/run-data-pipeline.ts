@@ -1,6 +1,6 @@
 
 import { performMarketResearch } from './market-research-service';
-import { getPrediction } from './prediction-service';
+import { generatePredictionForMarket } from './generate-single-prediction';
 
 interface DataPipelineResponse {
   success: boolean;
@@ -29,10 +29,10 @@ export async function runDataPipeline(
       };
     }
 
-    const predictionResult = await getPrediction(
+    const predictionResult = await generatePredictionForMarket(
       marketId,
-      JSON.stringify(researchResult.research),
       modelName,
+      JSON.stringify(researchResult.research),
     );
 
     if (!predictionResult.success) {
