@@ -249,6 +249,25 @@ export const predictionQueries = {
       take: limit
     })
   },
+  /**
+   * Fetches the most recent predictions including their related market and event
+   * to support UI components that need contextual information.
+   */
+  getRecentPredictionsWithRelations: async (
+    limit: number = 20
+  ): Promise<Array<Prediction & { market: (Market & { event: Event | null }) | null }>> => {
+    return await prisma.prediction.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: {
+        market: {
+          include: {
+            event: true,
+          },
+        },
+      },
+    })
+  },
   createPrediction: async (predictionData: any): Promise<Prediction> => {
     return await prisma.prediction.create({ data: predictionData })
   },

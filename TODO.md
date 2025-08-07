@@ -7,6 +7,8 @@
 ## UI
 
 
+- Add Prediction detail page.  ensure the system prompt information is not displayed to the user. however ensure the usermessage and modelname are displayed.
+
 - UX: create a streaming list of lowest cost (flash) predictions, updating in realtime, with a "refresh" button.
 - Create a Prediction detail page. ask AI to design the UX. Detail page should include links to the polymarket page.
 
@@ -14,6 +16,9 @@
 - Draft simplest possible UI that shows predictions from the database.
 - Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 
+- Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that
+
+## CRON
 - Create some cron job that generates simple low quality predictions for new markets ongoing.
 
 
@@ -26,12 +31,16 @@
 ## Benchmark
 - [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
 
+- Add AI leaderboard
 
 
 
 
 
 # Week of 8/15
+
+## UX
+
 
 
 ## Data Sources
