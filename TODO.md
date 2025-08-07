@@ -6,7 +6,7 @@
 
 ## UI
 
-- Add feature flags to the login/signup button area.
+
 - UX: create a streaming list of lowest cost (flash) predictions, updating in realtime, with a "refresh" button.
 - Create a Prediction detail page. ask AI to design the UX. Detail page should include links to the polymarket page.
 
@@ -116,6 +116,7 @@
 - [x] Add Dark mode
 - [x] Add market data pull from Polymarket , pull-polymarket-data
 - [x] Modify UX layout such that each row is an EVENT.
+- [x] Add feature flags to hide login/signup button area in production
 
 ---
 

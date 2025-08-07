@@ -69,6 +69,13 @@ export const showPrivacyPolicy: FeatureFlag = {
   getValue: () => isEnabled('SHOW_PRIVACY', false)
 };
 
+export const showLoginSignup: FeatureFlag = {
+  key: 'show-login-signup',
+  description: 'Show Login/Signup button area',
+  defaultValue: true,
+  getValue: () => isEnabled('SHOW_LOGIN_SIGNUP', true)
+};
+
 // Convenience functions for easy usage
 export const getFeatureFlags = () => ({
   showMarketAlpha: showMarketAlpha.getValue(),
@@ -76,7 +83,8 @@ export const getFeatureFlags = () => ({
   showSearch: showSearch.getValue(),
   showActivity: showActivity.getValue(),
   showTermsOfService: showTermsOfService.getValue(),
-  showPrivacyPolicy: showPrivacyPolicy.getValue()
+  showPrivacyPolicy: showPrivacyPolicy.getValue(),
+  showLoginSignup: showLoginSignup.getValue()
 });
 
 /**
