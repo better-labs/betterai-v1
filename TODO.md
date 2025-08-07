@@ -6,9 +6,17 @@
 
 ## UI
 
-- Draft simplest possible benchmark UI.
-- Now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
-- Display the current list of predictions, ask AI to design the UX.
+- Add feature flags to the login/signup button area.
+- UX: create a streaming list of lowest cost (flash) predictions, updating in realtime, with a "refresh" button.
+- Create a Prediction detail page. ask AI to design the UX. Detail page should include links to the polymarket page.
+
+
+- Draft simplest possible UI that shows predictions from the database.
+- Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
+
+- Create some cron job that generates simple low quality predictions for new markets ongoing.
+
+
 - Add a "What is it" overview page, in lieu of docs that explain the benchmark and future app plans.
 
 ## Categories
