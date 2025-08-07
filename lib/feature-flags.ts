@@ -4,6 +4,8 @@
  * These flags control page visibility across environments:
  * - Development: All pages visible by default
  * - Production: Restricted pages hidden unless explicitly enabled via environment variables
+ * 
+ * Note: The About page (/about) is always visible and doesn't require a feature flag
  */
 
 export type FeatureFlag = {

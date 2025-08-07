@@ -59,6 +59,16 @@ export function Header() {
               >
                 Home
               </Link>
+              <Link 
+                href="/about" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/about") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                About
+              </Link>
               {flags.showMarketAlpha && (
                 <Link 
                   href="/market-alpha" 
@@ -192,6 +202,11 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/" className={`w-full ${isActive("/") ? "bg-accent" : ""}`}>
                     <span>Home</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/about" className={`w-full ${isActive("/about") ? "bg-accent" : ""}`}>
+                    <span>About</span>
                   </Link>
                 </DropdownMenuItem>
                 {flags.showMarketAlpha && (

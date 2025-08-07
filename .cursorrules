@@ -60,10 +60,16 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Validate database operations
 
 ## Documentation
+- Be concise where possible
 - Add JSDoc comments for complex functions
+- Add at least a single line comment to explain each major section of code.
 - Update README.md for new features
 - Document API endpoints and data structures
 
 ## Environemnt Variables
 - Always leverage .env instead of .env.local. Do not create a .env.local file.
 - Update .env.example to include new variables.
+
+## General Guidance
+- Use best practices where possible.
+- Prefer minimal code where possible.

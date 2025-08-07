@@ -59,10 +59,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-
-        <div className="mt-16">
+{/* <div className="mt-16">
           <EventTable />
-        </div>
+        </div> */}
+        
       </main>
     </div>
   )
