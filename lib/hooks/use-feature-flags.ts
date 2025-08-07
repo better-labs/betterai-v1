@@ -6,10 +6,21 @@ import { getFeatureFlags } from '@/lib/feature-flags';
  * Provides a consistent interface for checking feature flag states
  */
 export function useFeatureFlags() {
-  const [flags, setFlags] = useState(() => getFeatureFlags());
+  // Start with default false values to prevent hydration mismatch
+  const [flags, setFlags] = useState({
+    showMarketAlpha: false,
+    showPortfolio: false,
+    showSearch: false,
+    showActivity: false,
+    showTermsOfService: false,
+    showPrivacyPolicy: false
+  });
+
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // Update flags state on mount to ensure consistency
+    // Mark as hydrated and update flags after client-side hydration
+    setIsHydrated(true);
     setFlags(getFeatureFlags());
   }, []);
 

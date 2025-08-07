@@ -17,12 +17,7 @@ export type FeatureFlag = {
 
 // Helper function to check environment variables
 const isEnabled = (envVar: string, defaultValue: boolean): boolean => {
-  if (typeof window !== 'undefined') {
-    // Client-side: use the default value based on environment
-    return process.env.NODE_ENV === 'development' ? true : defaultValue;
-  }
-  
-  // Server-side: check environment variable first, then fallback to default
+  // Check environment variable first, then fallback to default
   const envValue = process.env[envVar];
   if (envValue !== undefined) {
     return envValue === '1' || envValue === 'true';
@@ -83,3 +78,11 @@ export const getFeatureFlags = () => ({
   showTermsOfService: showTermsOfService.getValue(),
   showPrivacyPolicy: showPrivacyPolicy.getValue()
 });
+
+/**
+ * Server-side function to check feature flags
+ * Use this in server components and API routes
+ */
+export function getServerFeatureFlags() {
+  return getFeatureFlags();
+}
