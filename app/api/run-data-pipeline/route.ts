@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { runDataPipeline } from '../../../../lib/services/run-data-pipeline';
+import { runDataPipeline } from '../../../lib/services/run-data-pipeline';
 
 export async function POST(request: Request) {
   try {
