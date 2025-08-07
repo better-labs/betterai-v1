@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "prisma generate && next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
@@ -13,7 +13,8 @@
     "cron:update-ai-models": "node scripts/cron-update-ai-models.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
