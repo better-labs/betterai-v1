@@ -6,8 +6,8 @@
 
 ## UI
 
-- Find a way to hide existing app components.
 - Draft simplest possible benchmark UI.
+- Now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 - Display the current list of predictions, ask AI to design the UX.
 - Add a "What is it" overview page, in lieu of docs that explain the benchmark and future app plans.
 
