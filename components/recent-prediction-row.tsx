@@ -68,27 +68,40 @@ export function RecentPredictionRow(props: RecentPredictionRowProps) {
 
                  {/* Market Probability - 2 columns */}
          <div className="sm:col-span-2">
-           <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
-           <div className="text-2xl font-semibold tabular-nums sm:text-right">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
+           {marketId ? (
+             <Link href={`/market/${marketId}`} className="block hover:bg-muted/50 rounded-sm -m-1 p-1 transition-colors">
+               <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
+               <div className="text-2xl font-semibold tabular-nums sm:text-right">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
+             </Link>
+           ) : (
+             <>
+               <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
+               <div className="text-2xl font-semibold tabular-nums sm:text-right">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
+             </>
+           )}
          </div>
 
-         {/* AI Probability - 2 columns */}
+         {/* AI Probability - 2 columns (link to prediction detail) */}
          <div className="sm:col-span-2">
-           <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
-           <div className="text-2xl font-semibold tabular-nums sm:text-right">{aiProbability}%</div>
+           <Link href={`/prediction/${props.id}`} className="block rounded-sm p-0.5 hover:bg-muted/50 transition-colors">
+             <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
+             <div className="text-2xl font-semibold tabular-nums sm:text-right">{aiProbability}%</div>
+           </Link>
          </div>
 
-                 {/* Reasoning + Timestamp - 5 columns */}
+         {/* Reasoning + Timestamp - 5 columns (link to prediction detail) */}
          <div className="sm:col-span-5 min-w-0">
-           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Reasoning</div>
-           <div className="flex flex-col gap-1">
-             <div className="text-sm text-muted-foreground line-clamp-2">
-               {reasoning || '—'}
+           <Link href={`/prediction/${props.id}`} className="block rounded-sm p-0.5 hover:bg-muted/50 transition-colors">
+             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Reasoning</div>
+             <div className="flex flex-col gap-1">
+               <div className="text-sm text-muted-foreground line-clamp-2">
+                 {reasoning || '—'}
+               </div>
+               <div className="text-[10px] text-muted-foreground/60 sm:text-right">
+                 {createdAtDisplay}
+               </div>
              </div>
-             <div className="text-[10px] text-muted-foreground/60 sm:text-right">
-               {createdAtDisplay}
-             </div>
-           </div>
+           </Link>
          </div>
       </div>
     </div>
