@@ -1,4 +1,4 @@
-import { marketQueries, predictionQueries, DEFAULT_MODEL, NewPrediction } from '../db/queries'
+import { marketQueries, predictionQueries, DEFAULT_MODEL } from '../db/queries'
 import { validateProbability } from '../utils'
 import { fetchPredictionFromOpenRouter } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
@@ -55,7 +55,7 @@ async function savePrediction(
   const newPrediction = {
     marketId,
     userMessage: userMessage,
-    predictionResult: internalPredictionResult as any,
+    predictionResult: internalPredictionResult,
     probability: new Decimal(validatedProbability),
     modelName,
     systemPrompt: systemMessage,
