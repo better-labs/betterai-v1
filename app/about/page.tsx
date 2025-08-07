@@ -1,6 +1,5 @@
-import { TrendingUp, Brain, Target, BarChart3, Zap, Shield, Users, Globe, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { TrendingUp, Brain, Target, BarChart3, Zap, Shield, Users, Globe } from "lucide-react"
+import { CTASection } from "@/components/cta-section"
 
 export default function AboutPage() {
   return (
@@ -13,8 +12,7 @@ export default function AboutPage() {
             About BetterAI
           </h1>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-            BetterAI is an AI-powered prediction platform that combines cutting-edge artificial intelligence 
-            with real-time market data to help you make smarter decisions on trending markets and events.
+            BetterAI is an AI-powered prediction platform that combines cutting-edge AI with real-time market data to help you make Better decisions on trending markets and events.
           </p>
         </div>
 
@@ -23,7 +21,7 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">What is BetterAI?</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              A revolutionary platform that democratizes AI-powered market intelligence
+              A platform that democratizes AI-powered market intelligence
             </p>
           </div>
 
@@ -35,8 +33,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">AI-Powered Analysis</h3>
               <p className="text-muted-foreground">
-                Leverage multiple state-of-the-art AI models to analyze market trends, sentiment, and patterns 
-                that human analysts might miss.
+                Leverage multiple state-of-the-art AI models from OpenAI, Google, xAI, Anthropic, and more to find outcomes that h might miss.
               </p>
             </div>
 
@@ -64,20 +61,10 @@ export default function AboutPage() {
               </p>
             </div>
 
-            {/* Multiple AI Models */}
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Multiple AI Models</h3>
-              <p className="text-muted-foreground">
-                Choose from various AI models including GPT-4, Claude, and others to find the best fit 
-                for your specific analysis needs.
-              </p>
-            </div>
+            
 
-            {/* Market Coverage */}
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
+           
+            {/* <div className="bg-card border rounded-lg p-6 shadow-sm">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                 <Globe className="h-6 w-6 text-primary" />
               </div>
@@ -86,10 +73,10 @@ export default function AboutPage() {
                 Analyze markets across politics, sports, entertainment, technology, and more - 
                 from local events to global phenomena.
               </p>
-            </div>
+            </div> */}
 
-            {/* Secure & Reliable */}
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
+            
+            {/* <div className="bg-card border rounded-lg p-6 shadow-sm">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
@@ -98,12 +85,12 @@ export default function AboutPage() {
                 Built with enterprise-grade security and reliability, ensuring your data and predictions 
                 are protected and accurate.
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
 
         {/* How it Works Section */}
-        <div className="mb-20">
+        {/* <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">How BetterAI Works</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -112,7 +99,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {/* Step 1 */}
+            
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <Target className="h-8 w-8 text-white" />
@@ -124,7 +111,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            {/* Step 2 */}
+            
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <Brain className="h-8 w-8 text-white" />
@@ -136,7 +123,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            {/* Step 3 */}
+            
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <BarChart3 className="h-8 w-8 text-white" />
@@ -148,10 +135,10 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Technology Stack */}
-        <div className="mb-20">
+        {/* <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Our Technology</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -180,28 +167,10 @@ export default function AboutPage() {
               </ul>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* CTA Section */}
-        <div className="text-center bg-card border rounded-lg p-8 max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Ready to Get Started?</h2>
-          <p className="text-muted-foreground mb-6">
-            Join thousands of users who are already making smarter predictions with AI-powered market intelligence.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild className="bg-primary hover:bg-primary/90">
-              <Link href="/">
-                Explore Markets
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/search">
-                Search Markets
-              </Link>
-            </Button>
-          </div>
-        </div>
+        {/* <CTASection /> */}
       </main>
     </div>
   )
