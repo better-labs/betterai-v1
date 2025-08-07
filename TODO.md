@@ -6,7 +6,7 @@
 
 ## UI
 
-
+- add the market outcomeprice[0] just to the left of the prediction price.
 - Add Prediction detail page.  ensure the system prompt information is not displayed to the user. however ensure the usermessage and modelname are displayed.
 
 - UX: create a streaming list of lowest cost (flash) predictions, updating in realtime, with a "refresh" button.

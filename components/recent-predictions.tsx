@@ -22,13 +22,16 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
             : Number(p.probability ?? 0)
           const displayProbability = isFinite(probability) ? Math.round(probability * 100) : 0
           const created = p.createdAt ? new Date(p.createdAt) : null
+          const marketProbability = market?.outcomePrices?.[0] !== undefined && market?.outcomePrices?.[0] !== null
+            ? Math.round(Number(market.outcomePrices[0]) * 100)
+            : null
 
           return (
             <div key={p.id} className="p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <div className="space-y-1">
-                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Event</div>
+                  <div className="flex items-baseline gap-2 min-w-0">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground shrink-0">Event</div>
                     <div className="text-xs text-muted-foreground truncate">
                       {event?.title ? (
                         <Link href={`/event/${event.id}`} className="hover:underline">
@@ -68,8 +71,15 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
                   )}
                 </div>
 
-                <div className="flex flex-row items-center gap-3 sm:flex-col sm:items-end sm:gap-2">
-                  <div className="text-2xl font-semibold tabular-nums">{displayProbability}%</div>
+                <div className="flex flex-row items-center gap-6 sm:flex-col sm:items-end sm:gap-2">
+                  <div className="sm:text-right">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market Probability</div>
+                    <div className="text-2xl font-semibold tabular-nums">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
+                  </div>
+                  <div className="sm:text-right">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
+                    <div className="text-2xl font-semibold tabular-nums">{displayProbability}%</div>
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     {created ? format(created, 'PP p') : ''}
                   </div>
