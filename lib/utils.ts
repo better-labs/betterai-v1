@@ -29,7 +29,7 @@ export function parseAIResponse<T>(text: string): T {
   try {
     // First attempt: direct JSON parsing
     return JSON.parse(text);
-  } catch (parseError) {
+  } catch (_parseError) {
     // Second attempt: handle markdown-wrapped JSON and other non-JSON text
     let cleanedText = text.trim();
 
@@ -53,7 +53,7 @@ export function parseAIResponse<T>(text: string): T {
       const result = JSON.parse(cleanedText);
       console.log('Successfully parsed JSON after cleaning formatting');
       return result;
-    } catch (secondParseError) {
+    } catch (_secondParseError) {
       console.error('AI response was not valid JSON even after cleaning:', text);
       console.error('Cleaned text:', cleanedText);
       throw new Error(`AI model returned invalid JSON response. Raw response: ${text.substring(0, 200)}...`);

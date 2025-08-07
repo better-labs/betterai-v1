@@ -1,5 +1,4 @@
 import { parseAIResponse } from '../utils';
-import type { PredictionResult } from '../types';
 
 const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
 

@@ -16,11 +16,8 @@ export function useFeatureFlags() {
     showPrivacyPolicy: false
   });
 
-  const [isHydrated, setIsHydrated] = useState(false);
-
   useEffect(() => {
-    // Mark as hydrated and update flags after client-side hydration
-    setIsHydrated(true);
+    // Update flags after client-side hydration
     setFlags(getFeatureFlags());
   }, []);
 
