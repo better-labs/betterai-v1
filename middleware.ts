@@ -1,0 +1,52 @@
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  showMarketAlpha,
+  showPortfolio,
+  showSearch,
+  showActivity,
+  showTermsOfService,
+  showPrivacyPolicy
+} from '@/lib/feature-flags';
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Define routes that should be protected by feature flags
+  const protectedRoutes = [
+    { path: '/market-alpha', flag: showMarketAlpha },
+    { path: '/portfolio', flag: showPortfolio },
+    { path: '/search', flag: showSearch },
+    { path: '/activity', flag: showActivity },
+    { path: '/tos', flag: showTermsOfService },
+    { path: '/privacy', flag: showPrivacyPolicy }
+  ];
+
+  // Check if the current path matches any protected route
+  for (const route of protectedRoutes) {
+    if (pathname.startsWith(route.path)) {
+      const isEnabled = route.flag.getValue();
+      
+      if (!isEnabled) {
+        // Redirect to home page if feature is disabled
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+      break;
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (images, etc.)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$).*)',
+  ],
+};

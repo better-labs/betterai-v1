@@ -1,0 +1,75 @@
+# Cursor AI Configuration for BetterAI Project
+
+## Project Overview
+This is a Next.js prediction market application that integrates with Polymarket and Colosseum APIs. The app uses Prisma with PostgreSQL for data management.
+
+## Code Style & Patterns
+- Use TypeScript with strict typing
+- Follow Next.js 14+ App Router patterns
+- Use Prisma for database operations
+- Prefer functional components with hooks
+- Use shadcn/ui components for UI consistency
+- Follow the existing file structure and naming conventions
+
+## Database Guidelines
+- Always use Prisma queries from `lib/db/queries.ts`
+- Add new queries to the appropriate query object
+- Use transactions for multi-step database operations
+- Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
+
+## API Design
+- Use Next.js API routes in `app/api/`
+- Return consistent `ApiResponse` format
+- Include proper error handling and logging
+- Use appropriate HTTP status codes
+
+## Raw Data Storage
+- Store raw API responses in separate `_raw` tables
+- Use JSON columns for raw response data
+- Include metadata: marketId, eventId, apiEndpoint, responseStatus, fetchedAt
+- Keep raw data for historical purposes only
+- Use the canonical `markets` table for application logic
+
+## File Organization
+- Components: `components/` (reusable) and `app/` (page-specific)
+- Services: `lib/services/` for business logic
+- Database: `lib/db/` for queries and schema
+- Types: `lib/types.ts` for shared interfaces
+- Utils: `lib/utils.ts` for helper functions
+
+## Error Handling
+- Use try-catch blocks with proper error logging
+- Return structured error responses
+- Include meaningful error messages for debugging
+
+## Performance Considerations
+- Use database indexes for common query patterns
+- Implement proper caching strategies
+- Optimize API calls with rate limiting
+- Clean up old raw data periodically
+
+## Security
+- Validate all user inputs
+- Use environment variables for sensitive data
+- Implement proper authentication for cron jobs
+- Sanitize data before database operations
+
+## Testing
+- Write unit tests for business logic
+- Test API endpoints with proper error cases
+- Validate database operations
+
+## Documentation
+- Be concise where possible
+- Add JSDoc comments for complex functions
+- Add at least a single line comment to explain each major section of code.
+- Update README.md for new features
+- Document API endpoints and data structures
+
+## Environemnt Variables
+- Always leverage .env instead of .env.local. Do not create a .env.local file.
+- Update .env.example to include new variables.
+
+## General Guidance
+- Use best practices where possible.
+- Prefer minimal code where possible.

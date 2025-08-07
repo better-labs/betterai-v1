@@ -1,31 +1,41 @@
-# For the week of 8/6
+# For the week of 8/8
 
-- Question to answer: Does prediction accuracy go up when more models are used? 1, 10, 20, ...?
-- reflect on learning: both the model and dataset searches are many to many !!
+- Question to enable answering: Does prediction accuracy go up when more models are used? 1, 10, 20, ...? 
 - Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
-- [ ] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database to store the raw json response from the respective APIs or one shared table? What is best practice?
-  
-  Summary: Best Practice
-   1. Keep the `markets` table. It is your canonical model.
-   2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
-   3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical
-      markets table.
-   4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your
-      app from the specifics of the data sources.
+## UI
 
+- Draft simplest possible benchmark UI.
+- Now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
+- Display the current list of predictions, ask AI to design the UX.
+- Add a "What is it" overview page, in lieu of docs that explain the benchmark and future app plans.
 
 ## Categories
 - [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
-- [] Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
+- [ ] Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
 
 ## Benchmark
 - [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
 
 
+
+
+
+
+# Week of 8/15
+
+
+## Data Sources
+- [ ]Add Kalshi market data
+- [ ] Raw responses from Kalshi and Polymarket:
+   1. Keep the `markets` table. It is your canonical model.
+   2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
+   3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical markets table.
+   4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your app from the specifics of the data sources.
+
+
 # UX
-- Add Kalshi market updates
 - Redesign UX - ask AI to help feedback on highest value and how to represent those minimally via UX.
   - Remove "trending" section on landing page.
 
@@ -34,6 +44,7 @@
 - Auth: maybe Clerk
 - Payments: maybe Stripe
 - Voice: Gemini live
+- Operations: Vercel analytics, hotjar, canny product request, sentry or logrocket
 
 
 - Integrate so that Prediction Engine API uses the prediction service when button is clicked.
@@ -52,21 +63,11 @@
 
 ## Maintenance
 
-- Ask AI: are there important enhancements we should make to improve the codebase?
-
-
-3. Standardize Error Handling
-Create a consistent error handling pattern across all API routes
-Implement proper error boundaries in React components
-Add proper error types and messages
-
-
-5. Break Down Large Components
 
 
 
 ## E2E User flow
-
+- Reflect on learning: both the model and dataset searches are many to many !!
 
 ## Authentication & Rate Limiting
 - [ ] Design mechanism to prevent overuse of free prediction
@@ -83,9 +84,17 @@ Add proper error types and messages
 
 ## Operational
 - [ ] Research best practices for rate limiting and user authentication
+- [ ] Implement user tracking analytics (hotjar, vercel analytics, sentry or logrocket)
 
 ## Security
 - [] plan out and end to end 
+
+
+## Docs to author
+- [ ] Basic User Guide
+- [ ] Terms of Service
+- [ ] Privacy Policy
+
 
 
 
@@ -103,5 +112,3 @@ Add proper error types and messages
 ---
 
 ## Notes
-
-- Consider implementing analytics to track usage patterns

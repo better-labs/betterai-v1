@@ -1,11 +1,12 @@
 
 import { performMarketResearch } from './market-research-service';
 import { generatePredictionForMarket } from './generate-single-prediction';
+import type { PredictionResult } from '../types';
 
 interface DataPipelineResponse {
   success: boolean;
   message: string;
-  prediction?: any;
+  prediction?: PredictionResult;
 }
 
 export async function runDataPipeline(
