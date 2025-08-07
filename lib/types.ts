@@ -9,24 +9,6 @@ export interface ThinkingState {
   progress: number
 }
 
-// Raw Polymarket API types (external API responses)
-export interface RawPolymarketMarket {
-  id: string
-  question: string
-  description: string
-  volume: string
-  volumeNum: number
-  liquidity: string
-  liquidityNum: number
-  outcomes: string // JSON string array like "[\"Yes\", \"No\"]"
-  outcomePrices: string // JSON string array like "[\"0.35\", \"0.65\"]"
-  slug: string
-  active: boolean
-  closed: boolean
-  // ... many other fields we don't need
-}
-
-export type RawPolymarketApiResponse = RawPolymarketMarket[] 
 
 // Polymarket API types (before database transformation)
 export interface PolymarketEvent {
@@ -35,6 +17,7 @@ export interface PolymarketEvent {
   description: string;
   slug: string;
   icon: string;
+  image?: string;
   tags: Array<{
     id: string;
     label: string;
@@ -83,6 +66,8 @@ export interface PolymarketMarket {
   question: string;
   description?: string;
   slug?: string;
+  icon?: string;
+  image?: string;
   outcomePrices: string; // JSON string
   outcomes?: string; // JSON string array like "[\"Yes\", \"No\"]"
   volume: string;
@@ -95,26 +80,6 @@ export interface PolymarketMarket {
   eventId?: string; // Added by us during processing
 }
 
-// Extended types for API responses (UI/API specific)
-export interface EventWithMarkets {
-  id: string;
-  title: string;
-  description?: string | null;
-  slug?: string | null;
-  icon?: string | null;
-  tags?: Array<{
-    id: string;
-    label: string;
-    slug: string;
-    forceShow?: boolean;
-    updatedAt?: string;
-  }> | null;
-  volume?: string | null;
-  
-  endDate?: Date | null;
-  updatedAt?: Date | null;
-  markets: import("./db/schema").Market[];
-}
 
 export interface ApiResponse<T = unknown> {
   success: boolean
@@ -138,17 +103,12 @@ export interface DatabaseMetadata {
   requestId: string
 }
 
-// Re-export all database types from schema for convenience
+// Re-export all database types from Prisma for convenience
 export type { 
   Event, 
-  NewEvent, 
   Market, 
-  NewMarket,
   Prediction, 
-  NewPrediction, 
-  AIModel, 
-  NewAIModel,
-  MarketQueryCache,
-  NewMarketQueryCache
-} from "./db/schema" 
+  AiModel, 
+  MarketQueryCache
+} from "../lib/generated/prisma" 
 

@@ -1,1 +1,0 @@
-DROP TABLE "__drizzle_migrations" CASCADE;

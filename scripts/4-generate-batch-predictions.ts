@@ -3,7 +3,7 @@
 import { config } from 'dotenv'
 
 // Load environment variables FIRST, before any other imports
-config({ path: '.env.local' })
+config()
 
 // Verify DATABASE_URL is loaded
 if (!process.env.DATABASE_URL) {
@@ -22,11 +22,12 @@ async function main() {
 
     await runBatchPredictionGeneration(
       {
-        topMarketsCount: 10,
+        topMarketsCount: 3,
         endDateRangeHours: 12,
         targetDaysFromNow: 7
       },
-      'google/gemini-2.5-pro'
+      //'google/gemini-2.5-pro'
+      'google/gemini-2.0-flash-001'
     )
 
     console.log('Batch prediction generation completed successfully!')

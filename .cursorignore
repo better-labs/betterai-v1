@@ -1,0 +1,4 @@
+# Allow .env files to be visible in Cursor
+!.env
+!.env.local
+!.env.example 

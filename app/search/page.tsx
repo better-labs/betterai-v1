@@ -21,11 +21,30 @@ import {
   DollarSign,
   Calendar
 } from "lucide-react"
-import { Market } from "@/lib/types"
 import { formatVolume } from "@/lib/utils"
 
+// Simple interface for mock data (client-side only)
+interface MockMarket {
+  id: string;
+  question: string;
+  description: string | null;
+  eventId: string | null;
+  slug: string | null;
+  outcomePrices: string[];
+  outcomes: string[];
+  volume: string;
+  liquidity: string;
+  category: string | null;
+  active: boolean;
+  closed: boolean;
+  startDate: Date | null;
+  endDate: Date | null;
+  resolutionSource: string | null;
+  updatedAt: Date;
+}
+
 // Mock search results data
-const mockSearchResults: Market[] = [
+const mockSearchResults: MockMarket[] = [
   {
     id: "1",
     question: "Will Trump pardon Ghislaine Maxwell by August 31?",
@@ -140,7 +159,7 @@ function SearchPageContent() {
   const [selectedSort, setSelectedSort] = useState("trending")
   const [selectedStatus, setSelectedStatus] = useState("active")
   const [selectedTag, setSelectedTag] = useState("All")
-  const [results, setResults] = useState<Market[]>([])
+  const [results, setResults] = useState<MockMarket[]>([])
 
   useEffect(() => {
     // Simulate search results based on query

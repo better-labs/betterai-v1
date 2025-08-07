@@ -1,57 +1,27 @@
 # For the week of 8/6
 
 - Question to answer: Does prediction accuracy go up when more models are used? 1, 10, 20, ...?
-
-# Enhancements
-
-### 1. Consolidate the Redundant Data Access Layer
-- [x] Merge all query logic from `lib/data/*.ts` into `lib/db/queries.ts`.
-- [x] Refactor services and API routes to use the consolidated queries from `lib/db/queries.ts` exclusively.
-- [x] Delete the `lib/data` directory once it's no longer in use.
-- [x] (Performance) Refactor the `upsertEvents` and `upsertMarkets` functions in `lib/db/queries.ts` to perform true bulk upserts instead of looping.
-
-### 2. Refactor Large Service Functions
-- [x] Break down `updatePolymarketEventsAndMarketData` in `lib/services/events.ts` into smaller, single-responsibility functions.
-- [x] Break down `generatePredictionForMarket` in `lib/services/prediction-service.ts` into smaller, single-responsibility functions.
-
-### 3. Improve Type Safety
-- [x] Define strong types for API payloads (e.g., from OpenRouter) and use them to parse the responses safely. Consider using Zod for validation.
-- [x] Fix client-side types for `predictionResult` in `app/market/[marketId]/page.tsx` to avoid `as any` assertions.
-
-### 4. Centralize Configuration and Hardcoded Values
-- [ ] Move hardcoded values like API URLs, default model names, and cache durations into a centralized configuration file (e.g., `lib/config.ts`) or environment variables.
+- reflect on learning: both the model and dataset searches are many to many !!
+- Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
-# Migration to Prisma
-- [ ] **Phase 1: Setup & Installation**
-- [ ] Install Prisma CLI (`prisma`) as a dev dependency and Prisma Client (`@prisma/client`) as a dependency.
-- [ ] Run `pnpm dlx prisma init` to create the `prisma` directory and `schema.prisma` file.
-- [ ] Configure the `datasource db` in `schema.prisma` to connect to your database using the `DATABASE_URL`.
-- [ ] **Phase 2: Schema Conversion & Generation**
-- [ ] Run `pnpm dlx prisma db pull` to introspect the existing database and generate the initial Prisma schema.
-- [ ] Manually review and refine the generated `schema.prisma`. Pay close attention to relations (`@relation`), enums, and any custom types. Ensure it matches the Drizzle schema's intent.
-- [ ] Run `pnpm dlx prisma generate` to generate the Prisma Client based on the new schema.
-- [ ] **Phase 3: Code Refactoring**
-- [ ] Create a single Prisma client instance (e.g., in `lib/db/prisma.ts`).
-- [ ] **Rewrite `lib/db/queries.ts`:** Methodically translate all Drizzle queries in `lib/db/queries.ts` to their Prisma Client equivalents. This is the largest task of the migration.
-- [ ] Search the rest of the codebase for any other direct usages of the Drizzle client and replace them.
-- [ ] **Phase 4: Migration & Cleanup**
-- [ ] Create an initial "baseline" migration with Prisma to align its migration history with the current schema: `pnpm dlx prisma migrate dev --name initial-migration`.
-- [ ] Update `package.json` scripts: remove Drizzle commands and add Prisma equivalents (e.g., `prisma:generate`, `prisma:migrate`, `prisma:studio`).
-- [ ] Uninstall Drizzle packages: `pnpm remove drizzle-orm drizzle-kit @neondatabase/serverless`.
-- [ ] Delete old Drizzle files: `drizzle.config.ts` and the contents of `lib/db/migrations`.
-- [ ] **Phase 5: Verification**
-- [ ] Update any database-related tests in the `test/` directory to use the new Prisma setup.
-- [ ] Thoroughly test the application locally to ensure all database interactions work as expected.
+- [ ] Consider whether to create a separate Polymarket_raw and kalshi_raw tables in the database to store the raw json response from the respective APIs or one shared table? What is best practice?
+  
+  Summary: Best Practice
+   1. Keep the `markets` table. It is your canonical model.
+   2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
+   3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical
+      markets table.
+   4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your
+      app from the specifics of the data sources.
 
 
-## Afternoon work 
+## Categories
+- [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
+- [] Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
 
-- [ ] Reflect on learning: both the model and dataset searches are many to many !!
-- [ ] Generate Free predictions for same markets with data from API provider.
+## Benchmark
 - [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
-
-
 
 
 # UX
@@ -96,9 +66,7 @@ Add proper error types and messages
 
 
 ## E2E User flow
-- [x] Allow user to trigger prediction for a given market
-- [x] Add hyperlink to markets
-- [x] Display latest market prediction from database when AI prediction doesn't exist
+
 
 ## Authentication & Rate Limiting
 - [ ] Design mechanism to prevent overuse of free prediction
@@ -116,10 +84,10 @@ Add proper error types and messages
 ## Operational
 - [ ] Research best practices for rate limiting and user authentication
 
-## Legal
-Check Copyright concerns with name?
-Generate Terms of Service & Privacy Policy
-Terms of Service: Have a clear and robust ToS that prohibits users from scraping your results, reverse-engineering the service, or using your output to train a competing AI model. While difficult to enforce perfectly, it provides a legal foundation.
+## Security
+- [] plan out and end to end 
+
+
 
 
 # Post Launch
