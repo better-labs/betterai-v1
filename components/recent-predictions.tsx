@@ -55,6 +55,17 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
           const firstPriceNum = toNum(firstPrice)
           if (firstPriceNum !== null) marketProbability = Math.round(firstPriceNum * 100)
 
+          // Extract reasoning from aiResponse if available
+          let reasoning: string | null = null
+          if (p.aiResponse) {
+            try {
+              const parsed = JSON.parse(p.aiResponse as unknown as string)
+              if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
+                reasoning = String(parsed.reasoning)
+              }
+            } catch {}
+          }
+
           const createdAtDisplay = p.createdAt ? format(new Date(p.createdAt), 'PP p') : ''
           const marketQuestion = market ? market.question : p.userMessage
 
@@ -69,6 +80,7 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
               marketQuestion={marketQuestion}
               marketProbability={marketProbability}
               aiProbability={aiProbability}
+              reasoning={reasoning}
               createdAtDisplay={createdAtDisplay}
             />
           )

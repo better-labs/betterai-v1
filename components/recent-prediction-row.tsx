@@ -11,6 +11,7 @@ interface RecentPredictionRowProps {
   marketQuestion: string
   marketProbability: number | null
   aiProbability: number
+  reasoning?: string | null
   createdAtDisplay: string
 }
 
@@ -23,6 +24,7 @@ export function RecentPredictionRow(props: RecentPredictionRowProps) {
     marketQuestion,
     marketProbability,
     aiProbability,
+    reasoning,
     createdAtDisplay,
   } = props
 
@@ -34,46 +36,60 @@ export function RecentPredictionRow(props: RecentPredictionRowProps) {
           <EventIcon image={eventImage ?? null} icon={eventIcon ?? null} title={eventTitle} size="sm" className="sm:w-10 sm:h-10" />
         </div>
 
-        {/* Event section - 2 columns */}
-        <div className="sm:col-span-2 min-w-0">
-          <div className="flex items-baseline gap-2 min-w-0">
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground shrink-0">Event</div>
-            <div className="text-xs text-muted-foreground truncate">{eventTitle || '—'}</div>
-          </div>
-        </div>
+                 {/* Combined Event + Market section - 2 columns */}
+         <div className="sm:col-span-2 min-w-0">
+           {marketId ? (
+             <Link href={`/market/${marketId}`} className="block hover:bg-muted/50 rounded-sm -m-1 p-1 transition-colors">
+               <div className="space-y-1">
+                 <div className="flex items-baseline gap-2 min-w-0">
+                   <div className="text-[11px] uppercase tracking-wide text-muted-foreground shrink-0">Event</div>
+                   <div className="text-xs text-muted-foreground truncate">{eventTitle || '—'}</div>
+                 </div>
+                 <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market</div>
+                 <div className="font-medium text-foreground line-clamp-1">
+                   {marketQuestion}
+                 </div>
+               </div>
+             </Link>
+           ) : (
+             <div className="space-y-1">
+               <div className="flex items-baseline gap-2 min-w-0">
+                 <div className="text-[11px] uppercase tracking-wide text-muted-foreground shrink-0">Event</div>
+                 <div className="text-xs text-muted-foreground truncate">{eventTitle || '—'}</div>
+               </div>
+               <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market</div>
+               <div className="font-medium text-foreground line-clamp-1">
+                 {marketQuestion}
+               </div>
+             </div>
+           )}
+         </div>
 
-        {/* Market section - 2 columns */}
-        <div className="sm:col-span-2 min-w-0">
-          <div className="space-y-1">
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market</div>
-            <div className="font-medium text-foreground line-clamp-1">
-              {marketId ? (
-                <Link href={`/market/${marketId}`} className="hover:underline">
-                  {marketQuestion}
-                </Link>
-              ) : (
-                marketQuestion
-              )}
-            </div>
-          </div>
-        </div>
 
-        {/* Market Probability - 2 columns */}
-        <div className="sm:col-span-2 sm:text-right">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market Probability</div>
-          <div className="text-2xl font-semibold tabular-nums">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
-        </div>
+                 {/* Market Probability - 2 columns */}
+         <div className="sm:col-span-2">
+           <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
+           <div className="text-2xl font-semibold tabular-nums sm:text-right">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
+         </div>
 
-        {/* AI Probability - 2 columns */}
-        <div className="sm:col-span-2 sm:text-right">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
-          <div className="text-2xl font-semibold tabular-nums">{aiProbability}%</div>
-        </div>
+         {/* AI Probability - 2 columns */}
+         <div className="sm:col-span-2">
+           <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
+           <div className="text-2xl font-semibold tabular-nums sm:text-right">{aiProbability}%</div>
+         </div>
 
-        {/* Timestamp - remaining columns */}
-        <div className="sm:col-span-3">
-          <div className="text-xs text-muted-foreground sm:text-right">{createdAtDisplay}</div>
-        </div>
+                 {/* Reasoning + Timestamp - 5 columns */}
+         <div className="sm:col-span-5 min-w-0">
+           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Reasoning</div>
+           <div className="flex flex-col gap-1">
+             <div className="text-sm text-muted-foreground line-clamp-2">
+               {reasoning || '—'}
+             </div>
+             <div className="text-[10px] text-muted-foreground/60 sm:text-right">
+               {createdAtDisplay}
+             </div>
+           </div>
+         </div>
       </div>
     </div>
   )
