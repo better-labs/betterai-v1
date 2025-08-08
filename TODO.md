@@ -8,7 +8,16 @@
 
 ## Benchmark and Prediction Data Pipeline
 
-
+- [ ] Wire daily “Prediction checking” cron to compute AI vs. market deltas
+  - [ ] Env: `CRON_SECRET`, `PREDICTION_CHECK_*` vars
+  - [ ] Endpoint: `POST /api/cron/prediction-check`
+  - [ ] Script: `pnpm cron:prediction-check`
+- [ ] Schedule batch prediction generation (top 50 by volume ending ~7d)
+  - [ ] Endpoint: `POST /api/cron/generate-batch-predictions`
+  - [ ] Script: `pnpm cron:batch-predictions`
+- [ ] Decide category strategy: exclude crypto vs. mark as less effective
+  - Default: include all; segment metrics per category
+- [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
 
 
 ## DB Ops

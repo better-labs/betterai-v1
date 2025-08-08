@@ -7,12 +7,23 @@ Set up the benchmark initially but do it manually and set the parameters of some
 
 ## ***Benchmark Design***
 
-**Criteria 1: Top Volume closing within 1 week.**
+### Phase 1 — Simple, reproducible baseline (MVP)
+- Source: Polymarket canonical `markets` table (kept current via `/api/cron/update-polymarket-data`).
+- Selection: Top 50 markets by `volume` that end around 7 days from now (±24h). Implemented via `/api/cron/generate-batch-predictions`.
+- Model: Start with low-cost, fast model: `google/gemini-2.5-flash-lite` (configurable). Store output in `predictions` with numeric `probability` and `prediction_result` JSON.
+- Daily check: `/api/cron/prediction-check` computes AI probability vs. current market probability (first `outcomePrices[0]`), persists a lightweight record in `market_query_cache` with `modelName = 'prediction-checker'` and fields `{ aiProbability, marketProbability, delta, absDelta, marketCategory }`.
+- Metrics: Start with simple deltas; once outcomes resolve, compute Brier and calibration offline or as a follow‑up task.
 
-Get top 10 markets by Volume that are closing in approx 7 days (plus or minus 24 hrs)
+Notes on categories: you may either exclude volatile categories (e.g., `cryptocurrency`) via `PREDICTION_CHECK_EXCLUDE_CATEGORIES`, or include all and segment results by category. Recommended: include all, but display category-segmented performance so crypto can be marked as less effective if needed.
 
-**Criteria 2: Top Volume by Category**
+### Phase 2 — Add evaluation quality and breadth
+- Compute Brier score and calibration for resolved markets weekly.
+- Compare multiple models in parallel on the same market set; report relative skill vs. market (Brier Skill Score).
+- Expand selection criteria: per-category top-N, long/short horizon buckets, liquidity filters.
+- Add guardrails: minimum liquidity, exclude ambiguous markets, deduplicate by similar questions.
+- Produce weekly dashboard: overall and per-category metrics, model leaderboard, notable wins/losses.
 
+### Categories Reference
 Prediction Market Categories
 
 1. Elections  
@@ -83,4 +94,12 @@ You can now generate a weekly report or dashboard showing:
 * **Brier Scores by Super-Category** (e.g., Is the AI better at Tech than at Geopolitics?).  
 * **Calibration Plots** for the AI.  
 * **Leaderboard** of the most/least accurate predictions for the week.  
+* **Category filters** to highlight segments (e.g., crypto marked “less effective”).
+
+## ***Operational Jobs (CRON)***
+- Update market data: `POST /api/cron/update-polymarket-data` (existing).
+- Generate batch predictions: `POST /api/cron/generate-batch-predictions` (top 50 by volume ending ~7 days).
+- Daily prediction checking: `POST /api/cron/prediction-check` (stores delta snapshots by category).
+
+All endpoints are protected with `Authorization: Bearer ${CRON_SECRET}` and have matching `scripts/cron/*` trigger scripts.
 * **Qualitative Insight of the Week:** Highlight one instance where the AI's rationale was particularly brilliant or spectacularly wrong, and explain why.

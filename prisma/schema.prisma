@@ -20,6 +20,7 @@ enum Category {
   SPORTS                @map("sports")
   CULTURE_ENTERTAINMENT @map("culture_entertainment")
   CLIMATE_ENVIRONMENT   @map("climate_environment")
+  OTHER                 @map("other")
 }
 
 model AiModel {
