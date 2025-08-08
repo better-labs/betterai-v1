@@ -1,8 +1,8 @@
 import { prisma } from "./prisma"
-import type { AiModel, Event, Market, Prediction, ResearchCache, Category } from '../../lib/generated/prisma';
+import type { AiModel, Event, Market, Prediction, ResearchCache, PredictionCheck, Category } from '../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
-export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, ResearchCache as NewResearchCache } from '../../lib/generated/prisma';
+export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, ResearchCache as NewResearchCache, PredictionCheck as NewPredictionCheck } from '../../lib/generated/prisma';
 
 export const DEFAULT_MODEL = 'google/gemini-2.5-flash-lite'
 
@@ -373,4 +373,39 @@ export const researchCacheQueries = {
   ): Promise<ResearchCache> => {
     return await prisma.researchCache.create({ data: cacheData })
   }
+}
+
+// Prediction Check queries
+export const predictionCheckQueries = {
+  create: async (data: {
+    predictionId?: number | null
+    marketId?: string | null
+    aiProbability?: number | null
+    marketProbability?: number | null
+    delta?: number | null
+    absDelta?: number | null
+    marketClosed?: boolean | null
+    marketCategory?: Category | null
+  }): Promise<PredictionCheck> => {
+    // Convert JS numbers to Prisma Decimal-compatible values implicitly
+    return await prisma.predictionCheck.create({
+      data: {
+        predictionId: data.predictionId ?? null,
+        marketId: data.marketId ?? null,
+        aiProbability: data.aiProbability as any,
+        marketProbability: data.marketProbability as any,
+        delta: data.delta as any,
+        absDelta: data.absDelta as any,
+        marketClosed: data.marketClosed ?? null,
+        marketCategory: data.marketCategory ?? null,
+      },
+    })
+  },
+  getRecentByMarket: async (marketId: string, limit = 50): Promise<PredictionCheck[]> => {
+    return await prisma.predictionCheck.findMany({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+  },
 }

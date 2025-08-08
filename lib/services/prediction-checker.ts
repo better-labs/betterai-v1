@@ -1,4 +1,5 @@
 import { prisma } from '../db/prisma'
+import { predictionCheckQueries } from '../db/queries'
 
 export type CheckerConfig = {
   daysLookback?: number
@@ -31,7 +32,7 @@ function toNumber(value: unknown): number | null {
   }
 }
 
-export async function runDailyPredictionChecks(
+export async function generatePredictionVsMarketDelta(
   config: CheckerConfig = {}
 ): Promise<{
   checkedCount: number
@@ -118,7 +119,8 @@ export async function runDailyPredictionChecks(
     const aiProb = toNumber(p.probability)
     const firstOutcome = Array.isArray(market.outcomePrices) ? (market.outcomePrices as any[])[0] : null
     const marketProb = toNumber(firstOutcome)
-
+    
+    // Calculate deltas
     const delta = aiProb !== null && marketProb !== null ? aiProb - marketProb : null
     const absDelta = delta !== null ? Math.abs(delta) : null
 
@@ -133,57 +135,31 @@ export async function runDailyPredictionChecks(
       absDelta,
       saved: false,
     })
+    // save the results to the database
+    try {
+      await predictionCheckQueries.create({
+        predictionId: p.id,
+        marketId: market.id,
+        aiProbability: aiProb,
+        marketProbability: marketProb,
+        delta,
+        absDelta,
+        marketClosed: !!market.closed,
+        marketCategory: (category as any) ?? null,
+      })
+      savedCount += 1
+      results[results.length - 1] = {
+        ...results[results.length - 1],
+        saved: true,
+      }
+    } catch (error) {
+      results[results.length - 1] = {
+        ...results[results.length - 1],
+        saved: false,
+        message: error instanceof Error ? error.message : 'Failed to save check',
+      }
+    }
   }
-
-    // todo add code to save the results to the database
-  //   try {
-  //     await prisma.marketQueryCache.create({
-  //       data: {
-  //         marketId: market.id,
-  //         modelName: 'prediction-checker',
-  //         userMessage: `daily-prediction-check:predictionId:${p.id}`,
-  //         response: {
-  //           predictionId: p.id,
-  //           asOf: new Date().toISOString(),
-  //           aiProbability: aiProb,
-  //           marketProbability: marketProb,
-  //           delta,
-  //           absDelta,
-  //           marketClosed: !!market.closed,
-  //           marketCategory: category,
-  //         },
-  //       },
-  //     })
-  //     savedCount += 1
-  //     results.push({
-  //       predictionId: p.id,
-  //       marketId: market.id,
-  //       category,
-  //       aiProbability: aiProb,
-  //       marketProbability: marketProb,
-  //       delta,
-  //       absDelta,
-  //       saved: true,
-  //     })
-  //   } catch (error) {
-  //     results.push({
-  //       predictionId: p.id,
-  //       marketId: market.id,
-  //       category,
-  //       aiProbability: aiProb,
-  //       marketProbability: marketProb,
-  //       delta,
-  //       absDelta,
-  //       saved: false,
-  //       message: error instanceof Error ? error.message : 'Failed to save check',
-  //     })
-  //   }
-  // }
-  // return {
-  //   checkedCount: predictions.length,
-  //   savedCount,
-  //   results,
-  // }
   return {
     checkedCount: predictions.length,
     savedCount,
