@@ -1,6 +1,6 @@
-# Cron Job Setup for Update Trending Endpoint
+# Cron Job Setup
 
-This guide shows you how to set up automated cron jobs to trigger the `/api/cron/update-trending` endpoint using your existing environment configuration.
+This guide shows you how to set up automated cron jobs to trigger the benchmark pipeline using your existing environment configuration.
 
 ## Prerequisites
 
@@ -32,8 +32,16 @@ If you're using Vercel, this is the easiest option:
    {
      "crons": [
        {
-         "path": "/api/cron/update-trending",
+         "path": "/api/cron/update-polymarket-data",
          "schedule": "0 */6 * * *"
+       },
+       {
+         "path": "/api/cron/generate-batch-predictions",
+         "schedule": "15 2 * * *"
+       },
+       {
+         "path": "/api/cron/prediction-check",
+         "schedule": "30 2 * * *"
        }
      ]
    }
@@ -48,9 +56,11 @@ If you're using Vercel, this is the easiest option:
 
 ## Option 2: Node.js Script (Local/Server Cron Job)
 
-1. **Install the script** (already created):
+1. **Scripts (already created):**
    ```bash
-   chmod +x scripts/cron-update-trending.js
+   pnpm cron:update-polymarket-data
+   pnpm cron:batch-predictions
+   pnpm cron:prediction-check
    ```
 
 2. **Environment variables** are automatically loaded from `.env.local`:
@@ -62,8 +72,10 @@ If you're using Vercel, this is the easiest option:
    # Edit crontab
    crontab -e
    
-   # Add this line (runs every 6 hours)
-   0 */6 * * * cd /path/to/your/project && npm run cron:update-trending
+   # Sample schedule
+   0 */6 * * * cd /path/to/your/project && pnpm cron:update-polymarket-data
+   15 2 * * * cd /path/to/your/project && pnpm cron:batch-predictions
+   30 2 * * * cd /path/to/your/project && pnpm cron:prediction-check
    ```
 
 ## Testing Your Setup
@@ -71,13 +83,17 @@ If you're using Vercel, this is the easiest option:
 ### Manual Testing
 ```bash
 # Test locally (uses .env.local automatically)
-npm run cron:update-trending
+pnpm cron:update-polymarket-data
+pnpm cron:batch-predictions -- --dry-run
+pnpm cron:prediction-check -- --dry-run
 
 # Test with curl (replace with your actual CRON_SECRET)
 curl -X POST \
   -H "Authorization: Bearer your-secret-token" \
   -H "Content-Type: application/json" \
-  https://your-domain.com/api/cron/update-trending
+  https://your-domain.com/api/cron/update-polymarket-data
+  https://your-domain.com/api/cron/generate-batch-predictions
+  https://your-domain.com/api/cron/prediction-check
 ```
 
 ### Environment Variable Testing
@@ -86,7 +102,7 @@ curl -X POST \
 echo $CRON_SECRET
 
 # Test with environment variable
-CRON_SECRET=your-token npm run cron:update-trending
+CRON_SECRET=your-token pnpm cron:update-polymarket-data
 ```
 
 ## Monitoring

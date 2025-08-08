@@ -1,6 +1,6 @@
 import { prisma } from "./prisma"
-import type { AiModel, Event, Market, Prediction, MarketQueryCache } from '../../lib/generated/prisma';
-import { CATEGORIES } from '@/lib/categorize'
+import type { AiModel, Event, Market, Prediction, MarketQueryCache, Category } from '../../lib/generated/prisma';
+import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
 export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, MarketQueryCache as NewMarketQueryCache } from '../../lib/generated/prisma';
 
@@ -95,15 +95,15 @@ export const eventQueries = {
     const result = await prisma.event.delete({ where: { id } })
     return !!result
   },
-  getEventsByCategory: async (categoryId: number): Promise<Event[]> => {
+  getEventsByCategory: async (category: Category): Promise<Event[]> => {
     return await prisma.event.findMany({
-      where: { category: categoryId },
+      where: { category },
       orderBy: { volume: 'desc' }
     })
   },
-  getEventsByCategoryWithMarkets: async (categoryId: number): Promise<(Event & { markets: Market[] })[]> => {
+  getEventsByCategoryWithMarkets: async (category: Category): Promise<(Event & { markets: Market[] })[]> => {
     return await prisma.event.findMany({
-      where: { category: categoryId },
+      where: { category },
       orderBy: { volume: 'desc' },
       include: {
         markets: {
@@ -115,7 +115,7 @@ export const eventQueries = {
     })
   },
   getCategoryStats: async (): Promise<Array<{
-    categoryId: number;
+    category: Category;
     categoryName: string;
     eventCount: number;
   }>> => {
@@ -132,8 +132,8 @@ export const eventQueries = {
     })
   
     return result.map(row => ({
-      categoryId: row.category!,
-      categoryName: CATEGORIES[row.category as keyof typeof CATEGORIES] || 'Unknown',
+      category: row.category as Category,
+      categoryName: CATEGORY_DISPLAY_NAME[row.category as Category] || 'Unknown',
       eventCount: row._count.category
     })).sort((a, b) => b.eventCount - a.eventCount)
   },

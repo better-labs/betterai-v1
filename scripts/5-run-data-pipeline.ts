@@ -19,6 +19,7 @@ async function main() {
   console.log('Running data pipeline for a random top market...');
 
   try {
+
     const topMarkets = await marketQueries.getTopMarkets(20);
 
     if (topMarkets.length === 0) {

@@ -8,6 +8,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Canonical category enum stored as readable slugs in DB
+enum Category {
+  ELECTIONS             @map("elections")
+  GEOPOLITICS           @map("geopolitics")
+  ECONOMY               @map("economy")
+  FINANCIAL_MARKETS     @map("financial_markets")
+  CRYPTOCURRENCY        @map("cryptocurrency")
+  SCIENCE_TECHNOLOGY    @map("science_technology")
+  BUSINESS              @map("business")
+  SPORTS                @map("sports")
+  CULTURE_ENTERTAINMENT @map("culture_entertainment")
+  CLIMATE_ENVIRONMENT   @map("climate_environment")
+  OTHER                 @map("other")
+}
+
 model AiModel {
   id                  String    @id
   name                String
@@ -37,7 +52,7 @@ model Event {
   icon           String?
   image          String?
   tags           Json?
-  category       Int?
+  category       Category?
   volume         Decimal?  @default(0) @db.Decimal
   endDate        DateTime? @map("end_date") @db.Timestamp(6)
   marketProvider String?   @map("market_provider")
@@ -77,7 +92,7 @@ model Market {
   outcomePrices    Decimal[]          @map("outcome_prices") @db.Decimal
   volume           Decimal?           @default(0) @db.Decimal
   liquidity        Decimal?           @default(0) @db.Decimal
-  category         String?
+  category         Category?
   description      String?
   active           Boolean?
   closed           Boolean?
