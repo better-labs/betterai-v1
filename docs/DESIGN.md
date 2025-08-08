@@ -1,7 +1,7 @@
 # BetterAI App Design Doc
 
 ## Overview
-**Purpose**: enable the user to invoke multiple LLMs with enriched datasets to predict the outcome of a given market (like Polymarket or Kalshi). The AI is a tool for analysis. 
+**Purpose**: enable a non-technical consumer user to invoke multiple AI models with enriched datasets to predict the likely outcome of a given predictionmarket (like Polymarket, Kalshi, PredictIt, etc).
 
 **Thesis**: 
 Everyone, regardless of their technical skill, should be able to invoke the world’s best super intelligences, enriched from the best data (context), from a single mouse click, to enhance a given bet.
@@ -70,3 +70,12 @@ This multi-step process ensures that the final prediction is not just based on a
 
 ## Legal
 Consistently describe the app as a way to "enable the user to invoke multiple LLMs with enriched datasets". Emphasize that this is a tool for analysis, not a financial advisor.
+
+## Future features under consideration
+- UI/UX
+  - Show “Overpriced vs Underpriced” panel with rationale and signal scores.
+  - “Clearance aisle” quick picks when top-two concentration exceeds a threshold.
+  - Allow user to inject "additionalUserMessageContext" to the AI prediction.
+- Backtesting and calibration
+  - Event-class backtests to calibrate noise weights and heuristic coefficients.
+  - Output factors array and signal weights for transparency and future backtesting.

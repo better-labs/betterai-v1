@@ -5,22 +5,14 @@
 
 
 
-## Data
-- [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
 Then update the predictions page to include market image.
-
-
-
-
-
-
 
 # Week of 8/15
 
-
-
 ## UX
 
+- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
+- Add a predictionResults page that shows the final prediction results for a given prediction.
 - Add AI leaderboard
 
 - Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that

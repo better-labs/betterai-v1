@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { format } from "date-fns"
 import { predictionQueries } from "@/lib/db/queries"
 import { EventIcon } from "@/components/event-icon"
+import { generateEventURL, generateMarketURL } from "@/lib/utils"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -58,6 +59,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   if (priceNum !== null) marketProbability = Math.round(priceNum * 100)
 
   const createdAtDisplay = prediction.createdAt ? format(new Date(prediction.createdAt), 'PP p') : ''
+  // const eventExternalUrl = event?.id ? await generateEventURL(event.id) : null
+  // const marketExternalUrl = market?.id ? await generateMarketURL(market.id) : null
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -66,18 +69,20 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           <span className="mr-2">←</span> Back {market?.id ? 'to Market' : 'Home'}
         </Link>
       </div>
-      <div className="mb-6 flex items-center gap-3">
-        <EventIcon image={event?.image ?? null} icon={event?.icon ?? null} title={event?.title ?? ''} size="lg" />
-        <div>
-          <div className="text-sm text-muted-foreground">Event</div>
-          <h1 className="text-2xl font-semibold">{event?.title ?? '—'}</h1>
-        </div>
+      <div className="mb-6" data-testid="event-container">
+        <Link href="/" className="flex items-center gap-3">
+          <EventIcon image={event?.image ?? null} icon={event?.icon ?? null} title={event?.title ?? ''} size="lg" />
+          <div>
+            <div className="text-sm text-muted-foreground">Event</div>
+            <h1 className="text-2xl font-semibold">{event?.title ?? '—'}</h1>
+          </div>
+        </Link>
       </div>
-
-      <div className="mb-8">
+      
+      <Link href={market?.id ? `/market/${market.id}` : '#'} className="block mb-8">
         <div className="text-sm text-muted-foreground">Market</div>
         <p className="text-lg font-medium">{market?.question ?? prediction.userMessage}</p>
-      </div>
+      </Link>
 
       <div className="grid gap-6 sm:grid-cols-12">
         <div className="sm:col-span-3">
