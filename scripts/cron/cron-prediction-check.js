@@ -14,30 +14,32 @@ async function runPredictionCheck(dryRun = false) {
     process.exit(1)
   }
 
-  const url = `${baseUrl}/api/cron/prediction-check`
+  const daysLookback = Number(process.env.PREDICTION_CHECK_LOOKBACK_DAYS || 30)
+  const maxPredictions = Number(process.env.PREDICTION_CHECK_MAX || 200)
+  const includeClosedMarkets = (process.env.PREDICTION_CHECK_INCLUDE_CLOSED === 'true')
+  const excludeCategories = (process.env.PREDICTION_CHECK_EXCLUDE_CATEGORIES || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+
+  const search = new URLSearchParams()
+  search.set('daysLookback', String(daysLookback))
+  search.set('maxPredictions', String(maxPredictions))
+  search.set('includeClosedMarkets', includeClosedMarkets ? 'true' : 'false')
+  for (const cat of excludeCategories) search.append('excludeCategories', cat)
+
+  const url = `${baseUrl}/api/cron/prediction-check?${search.toString()}`
   const options = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       Authorization: `Bearer ${cronSecret}`,
-      'Content-Type': 'application/json',
       'User-Agent': 'BetterAI-Cron/1.0',
     },
   }
 
-  const body = JSON.stringify({
-    daysLookback: Number(process.env.PREDICTION_CHECK_LOOKBACK_DAYS || 30),
-    maxPredictions: Number(process.env.PREDICTION_CHECK_MAX || 200),
-    includeClosedMarkets: process.env.PREDICTION_CHECK_INCLUDE_CLOSED === 'true',
-    excludeCategories: (process.env.PREDICTION_CHECK_EXCLUDE_CATEGORIES || '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-  })
-
   if (dryRun) {
     console.log('🔍 DRY RUN - Would trigger prediction check')
     console.log(`📍 Endpoint: ${url}`)
-    console.log(`📦 Body: ${body}`)
     return
   }
 
@@ -65,7 +67,6 @@ async function runPredictionCheck(dryRun = false) {
       })
     })
     req.on('error', (err) => reject(err))
-    req.write(body)
     req.end()
   })
 }

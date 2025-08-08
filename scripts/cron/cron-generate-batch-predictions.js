@@ -14,27 +14,23 @@ async function runBatchPredictions(dryRun = false) {
     process.exit(1)
   }
 
-  const url = `${baseUrl}/api/cron/generate-batch-predictions`
+  const topMarketsCount = Number(process.env.BATCH_PREDICTIONS_TOP_COUNT || 20)
+  const endDateRangeHours = Number(process.env.BATCH_PREDICTIONS_END_RANGE_HOURS || 24)
+  const targetDaysFromNow = Number(process.env.BATCH_PREDICTIONS_TARGET_DAYS || 7)
+  const modelName = encodeURIComponent(process.env.BATCH_PREDICTIONS_MODEL || 'google/gemini-2.5-flash-lite')
+
+  const url = `${baseUrl}/api/cron/generate-batch-predictions?topMarketsCount=${topMarketsCount}&endDateRangeHours=${endDateRangeHours}&targetDaysFromNow=${targetDaysFromNow}&modelName=${modelName}`
   const options = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       Authorization: `Bearer ${cronSecret}`,
-      'Content-Type': 'application/json',
       'User-Agent': 'BetterAI-Cron/1.0',
     },
   }
 
-  const body = JSON.stringify({
-    topMarketsCount: Number(process.env.BATCH_PREDICTIONS_TOP_COUNT || 50),
-    endDateRangeHours: Number(process.env.BATCH_PREDICTIONS_END_RANGE_HOURS || 24),
-    targetDaysFromNow: Number(process.env.BATCH_PREDICTIONS_TARGET_DAYS || 7),
-    modelName: process.env.BATCH_PREDICTIONS_MODEL || 'google/gemini-2.5-flash-lite',
-  })
-
   if (dryRun) {
     console.log('🔍 DRY RUN - Would trigger batch predictions')
     console.log(`📍 Endpoint: ${url}`)
-    console.log(`📦 Body: ${body}`)
     return
   }
 
@@ -62,7 +58,6 @@ async function runBatchPredictions(dryRun = false) {
       })
     })
     req.on('error', (err) => reject(err))
-    req.write(body)
     req.end()
   })
 }

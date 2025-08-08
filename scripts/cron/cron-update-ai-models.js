@@ -17,10 +17,9 @@ async function updateAIModels(dryRun = false) {
 
   const url = `${baseUrl}/api/cron/update-ai-models`;
   const options = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Authorization': `Bearer ${cronSecret}`,
-      'Content-Type': 'application/json',
       'User-Agent': 'BetterAI-Cron/1.0'
     }
   };

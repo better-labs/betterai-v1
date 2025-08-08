@@ -3,12 +3,7 @@ import type { ApiResponse } from '@/lib/types'
 import { runBatchPredictionGeneration } from '@/lib/services/generate-batch-predictions'
 import { DEFAULT_MODEL } from '@/lib/db/queries'
 
-export async function POST() {
-  return new Response(
-    JSON.stringify({ success: false, error: 'Use GET for this cron endpoint' } as ApiResponse),
-    { status: 405, headers: { 'Content-Type': 'application/json' } }
-  )
-}
+
 
 export async function GET(request: NextRequest) {
   try {
