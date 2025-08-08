@@ -30,7 +30,8 @@ export async function updatePolymarketEventsAndMarketData(options: {
   } = options
 
   console.log("Starting throttled update of all Polymarket events with batch processing...")
-  
+  console.log(`Processing events with batch limit: ${limit}, daysToFetch: ${daysToFetch}`)
+
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
   const errors: string[] = []
@@ -38,6 +39,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   let offset = 0
   let hasMoreData = true
   let totalFetched = 0
+  
 
   while (hasMoreData) {
     try {

@@ -68,7 +68,7 @@ model Event {
   @@map("events")
 }
 
-model MarketQueryCache {
+model ResearchCache {
   id            Int       @id @default(autoincrement())
   marketId      String?   @map("market_id")
   modelName     String    @map("model_name")
@@ -76,11 +76,11 @@ model MarketQueryCache {
   userMessage   String    @map("user_message")
   response      Json?
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
-  market        Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "market_query_cache_market_id_markets_id_fk")
+  market        Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "research_cache_market_id_markets_id_fk")
 
-  @@index([createdAt], map: "idx_market_query_cache_created_at")
-  @@index([marketId], map: "idx_market_query_cache_market_id")
-  @@map("market_query_cache")
+  @@index([createdAt], map: "idx_research_cache_created_at")
+  @@index([marketId], map: "idx_research_cache_market_id")
+  @@map("research_cache")
 }
 
 model Market {
@@ -102,7 +102,8 @@ model Market {
   startDate        DateTime?          @map("start_date") @db.Timestamp(6)
   resolutionSource String?            @map("resolution_source")
   outcomes         String[]
-  marketQueryCache MarketQueryCache[]
+  researchCache    ResearchCache[]
+  predictionChecks PredictionCheck[]
   event            Event?             @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "markets_event_id_events_id_fk")
   predictions      Prediction[]
 
@@ -125,8 +126,29 @@ model Prediction {
   createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   probability      Decimal?  @db.Decimal
   market           Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "predictions_market_id_markets_id_fk")
+  predictionChecks PredictionCheck[]
 
   @@index([createdAt], map: "idx_predictions_created_at")
   @@index([marketId], map: "idx_predictions_market_id")
   @@map("predictions")
+}
+
+model PredictionCheck {
+  id                 Int       @id @default(autoincrement())
+  predictionId       Int?      @map("prediction_id")
+  marketId           String?   @map("market_id")
+  aiProbability      Decimal?  @map("ai_probability") @db.Decimal
+  marketProbability  Decimal?  @map("market_probability") @db.Decimal
+  delta              Decimal?  @db.Decimal
+  absDelta           Decimal?  @map("abs_delta") @db.Decimal
+  marketClosed       Boolean?  @map("market_closed")
+  marketCategory     Category? @map("market_category")
+  createdAt          DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  market             Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "prediction_checks_market_id_markets_id_fk")
+  prediction         Prediction? @relation(fields: [predictionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "prediction_checks_prediction_id_predictions_id_fk")
+
+  @@index([createdAt], map: "idx_prediction_checks_created_at")
+  @@index([marketId], map: "idx_prediction_checks_market_id")
+  @@index([predictionId], map: "idx_prediction_checks_prediction_id")
+  @@map("prediction_checks")
 }

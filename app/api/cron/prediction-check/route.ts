@@ -1,13 +1,7 @@
 import { NextRequest } from 'next/server'
 import type { ApiResponse } from '@/lib/types'
-import { runDailyPredictionChecks } from '@/lib/services/prediction-checker'
+import { generatePredictionVsMarketDelta } from '@/lib/services/prediction-checker'
 
-export async function POST() {
-  return new Response(
-    JSON.stringify({ success: false, error: 'Use GET for this cron endpoint' } as ApiResponse),
-    { status: 405, headers: { 'Content-Type': 'application/json' } }
-  )
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,7 +21,7 @@ export async function GET(request: NextRequest) {
       ? excludeCategoriesParam
       : []
 
-    const result = await runDailyPredictionChecks({
+    const result = await generatePredictionVsMarketDelta({
       daysLookback,
       maxPredictions,
       includeClosedMarkets,

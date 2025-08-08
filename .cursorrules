@@ -16,6 +16,7 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Add new queries to the appropriate query object
 - Use transactions for multi-step database operations
 - Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
+- When running Prisma migrations, use `--force` flag to avoid interactive prompts where possible: `npx prisma migrate dev --force --name migration-name`
 
 ## API Design
 - Use Next.js API routes in `app/api/`

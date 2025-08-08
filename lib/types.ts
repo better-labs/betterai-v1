@@ -98,7 +98,7 @@ export interface PredictionResult {
 
 export interface DatabaseMetadata {
   database: "neon"
-  orm: "drizzle"
+  orm: "prisma"
   timestamp: string
   requestId: string
 }
@@ -109,6 +109,6 @@ export type {
   Market, 
   Prediction, 
   AiModel, 
-  MarketQueryCache
+  ResearchCache
 } from "../lib/generated/prisma" 
 

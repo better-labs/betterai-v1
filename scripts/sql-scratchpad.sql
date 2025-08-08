@@ -101,4 +101,49 @@ ORDER BY
 LIMIT 10;
 
 
+-- Categories distribution for markets with significant volume
+SELECT COALESCE(e.category::text, 'Uncategorized') as category,
+       COUNT(*)                              as market_count,
+       SUM(m.volume)                         as total_volume,
+       ROUND(AVG(m.volume)::numeric, 2)      as avg_volume,
+       COUNT(DISTINCT e.id)                  as unique_events
+FROM markets m
+         LEFT JOIN events e ON m.event_id = e.id
+WHERE m.volume > 0 -- Only consider markets with positive volume
+GROUP BY COALESCE(e.category::text, 'Uncategorized')
+ORDER BY total_volume DESC;
 
+-- Top categories by volume with sample markets
+WITH TopMarkets AS (SELECT e.category,
+                           m.question,
+                           m.volume,
+                           ROW_NUMBER() OVER (PARTITION BY e.category ORDER BY m.volume DESC) as rank_in_category
+                    FROM markets m
+                             JOIN events e ON m.event_id = e.id
+                    WHERE m.volume > 0)
+SELECT category,
+       COUNT(*) as total_markets,
+       STRING_AGG(
+               CASE
+                   WHEN rank_in_category <= 3
+                       THEN question || ' (' || volume || ')'
+                   END,
+               '; '
+       )        as top_3_markets_by_volume
+FROM TopMarkets
+GROUP BY category
+ORDER BY COUNT(*) DESC;
+
+-- Top 20 markets by volume with their questions for cryptocurrency events
+SELECT
+  m.question
+FROM
+  markets AS m
+  JOIN events AS e ON e.id = m.event_id
+WHERE
+  m.volume IS NOT NULL
+  AND m.volume > 0
+  AND e.category::text ILIKE 'cryptocurrency'
+ORDER BY
+  m.volume DESC
+LIMIT 20;

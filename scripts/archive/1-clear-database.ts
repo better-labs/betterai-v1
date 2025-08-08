@@ -21,7 +21,7 @@ async function clearDatabase() {
     
     // Order of deletion matters due to foreign key constraints
     await prisma.prediction.deleteMany({})
-    await prisma.marketQueryCache.deleteMany({})
+    await prisma.researchCache.deleteMany({})
     await prisma.market.deleteMany({})
     await prisma.event.deleteMany({})
     await prisma.aiModel.deleteMany({})
