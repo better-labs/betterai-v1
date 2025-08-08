@@ -4,34 +4,34 @@
 - Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
-## UI
+## Categories
+- Review my current use of categorization and in particular the storage of integers in the database. This current approach is not optimal because I can't query and see the database name in the database. I'd rather be able to query a string value instead of an integer. What is best practice?
 
 
-- Add Prediction detail page.  ensure the system prompt information is not displayed to the user. however ensure the usermessage and modelname are displayed.
+## Prediction Data Pipeline
 
-- UX: create a streaming list of lowest cost (flash) predictions, updating in realtime, with a "refresh" button.
-- Create a Prediction detail page. ask AI to design the UX. Detail page should include links to the polymarket page.
+Goals: create a plan and task list for a data pipeline that allows benchmarking the accuracy of predictions.
+Start with a simplest possible data pipeline and cron jobs that retrieve market data and run predictions against some portion of them, possibly the top 50 markets by volume.
+Initially use an inexpensive but effective model, with low cost, high accuracy.
+Over time, grow the benchmark to include more sophisticated models and compare their performance.
+I'm not sure how to structure a simple effective initial benchmark. Should it be broken down by category?
+Help me design the data pipeline according to best practices.
+Use existing code where possible or recommend structural changes where necessary.
+Create a “Prediction checking” CRON job that runs daily and computes the delta.
+Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
 
-
-- Draft simplest possible UI that shows predictions from the database.
+## DB Ops
 - Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 
-- Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that
-
-## CRON
-- Create some cron job that generates simple low quality predictions for new markets ongoing.
 
 
-- Add a "What is it" overview page, in lieu of docs that explain the benchmark and future app plans.
 
-## Categories
-- [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
-- [ ] Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
+## Data
+- [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
+Then update the predictions page to include market image.
 
-## Benchmark
-- [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
 
-- Add AI leaderboard
+
 
 
 
@@ -40,8 +40,11 @@
 # Week of 8/15
 
 ## UX
-- Add some kind of rotating banner thing to the front page to get attention
 
+- Add AI leaderboard
+
+- Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that
+- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
 
 ## Data Sources
 - [ ]Add Kalshi market data

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from 'next/image'
 import { useState } from 'react'
 
 interface EventIconProps {
@@ -11,11 +12,8 @@ interface EventIconProps {
 }
 
 export function EventIcon({ image, icon, title, size = 'md', className = '' }: EventIconProps) {
-  // Track loading/error states for image and icon separately
-  const [imageError, setImageError] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [iconError, setIconError] = useState(false)
-  const [iconLoaded, setIconLoaded] = useState(false)
+  // Track error to show fallback when remote image fails
+  const [loadError, setLoadError] = useState(false)
 
   const sizeClasses = {
     sm: 'w-6 h-6',
@@ -29,61 +27,28 @@ export function EventIcon({ image, icon, title, size = 'md', className = '' }: E
     lg: 'text-sm'
   }
 
-  const handleImageError = () => {
-    setImageError(true)
-  }
-
-  const handleImageLoad = () => {
-    setImageLoaded(true)
-  }
-
-  const handleIconError = () => {
-    setIconError(true)
-  }
-
-  const handleIconLoad = () => {
-    setIconLoaded(true)
-  }
-
-  const canShowImage = Boolean(image) && !imageError
-  const canShowIcon = !canShowImage && Boolean(icon) && !iconError
-  const isLoaded = (canShowImage && imageLoaded) || (canShowIcon && iconLoaded)
-  const showFallback = !isLoaded
+  const srcCandidate = loadError ? null : (image || icon || null)
+  const showFallback = !srcCandidate
 
   return (
     <div className={`relative overflow-hidden rounded-lg ${sizeClasses[size]} ${className}`}>
-      {canShowImage && (
-        <img
-          src={image as string}
+      {srcCandidate && (
+        <Image
+          src={srcCandidate}
           alt={title}
-          className={`absolute inset-0 w-full h-full object-cover shadow-sm transition-opacity duration-200 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onError={handleImageError}
-          onLoad={handleImageLoad}
+          fill
+          sizes={size === 'lg' ? '40px' : size === 'md' ? '32px' : '24px'}
+          className="object-cover shadow-sm"
+          onError={() => setLoadError(true)}
         />
       )}
-      {!canShowImage && canShowIcon && (
-        <img
-          src={icon as string}
-          alt={title}
-          className={`absolute inset-0 w-full h-full object-cover shadow-sm transition-opacity duration-200 ${
-            iconLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onError={handleIconError}
-          onLoad={handleIconLoad}
-        />
+      {(showFallback || loadError) && (
+        <div className={`absolute inset-0 bg-muted flex items-center justify-center shadow-sm`}>
+          <span className={`${textSizeClasses[size]} font-medium text-muted-foreground`}>
+            {title.charAt(0).toUpperCase()}
+          </span>
+        </div>
       )}
-      <div
-        className={`absolute inset-0 bg-muted flex items-center justify-center shadow-sm transition-opacity duration-200 ${
-          showFallback ? 'opacity-100' : 'opacity-0'
-        }`}
-        aria-hidden={!showFallback}
-      >
-        <span className={`${textSizeClasses[size]} font-medium text-muted-foreground`}>
-          {title.charAt(0).toUpperCase()}
-        </span>
-      </div>
     </div>
   )
 } 
