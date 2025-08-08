@@ -14,7 +14,7 @@ async function runBatchPredictions(dryRun = false) {
     process.exit(1)
   }
 
-  const topMarketsCount = Number(process.env.BATCH_PREDICTIONS_TOP_COUNT || 20)
+  const topMarketsCount = Number(process.env.BATCH_PREDICTIONS_TOP_COUNT || 10)
   const endDateRangeHours = Number(process.env.BATCH_PREDICTIONS_END_RANGE_HOURS || 24)
   const targetDaysFromNow = Number(process.env.BATCH_PREDICTIONS_TARGET_DAYS || 7)
   const modelName = encodeURIComponent(process.env.BATCH_PREDICTIONS_MODEL || 'google/gemini-2.5-flash-lite')

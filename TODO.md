@@ -13,9 +13,7 @@ Test cron jobs directly.
   - [ ] Env: `CRON_SECRET`, `PREDICTION_CHECK_*` vars
   - [ ] Endpoint: `GET /api/cron/prediction-check`
   - [ ] Script: `pnpm cron:prediction-check`
-- [ ] Schedule batch prediction generation (top 50 by volume ending ~7d)
-  - [ ] Endpoint: `GET /api/cron/generate-batch-predictions`
-  - [ ] Script: `pnpm cron:batch-predictions`
+
 - [ ] Decide category strategy: exclude crypto vs. mark as less effective
   - Default: include all; segment metrics per category
 - [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
@@ -23,6 +21,9 @@ Test cron jobs directly.
 
 
 ## Test all the changes so far
+
+- Ask AI: please review my current cron job settings, give me a recap in plain (less technical) language of what actions are occurring daily, weekly, etc. Also review and explain the begin and end date choices to ensure the predictions and market final outcomes and delta calculations are reasonable.
+please advise if you see any glaring issues with the current scheduling setup.
 
 ## Data
 - [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
