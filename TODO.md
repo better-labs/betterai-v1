@@ -20,11 +20,9 @@
 - [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
 
 
-## DB Ops
-- Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 
 
-
+## Test all the changes so far
 
 ## Data
 - [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
@@ -53,6 +51,22 @@ Then update the predictions page to include market image.
    2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
    3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical markets table.
    4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your app from the specifics of the data sources.
+
+
+## DB Ops
+- Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
+- Move from force-dynamic to ISR for events pages
+When to use ISR vs SSR
+  • Use ISR when:
+    • Data can be slightly stale (e.g., 30–300 seconds).
+    • You want static-like speed with periodic freshness.
+  • Use SSR (force-dynamic or cache: 'no-store') when:
+    • Data must be real-time or user/session-specific.
+    • You cannot tolerate staleness.
+  In your app
+  • “Switch to ISR” means replacing force-dynamic with export const revalidate = <seconds> on pages like app/page.tsx, app/events/page.tsx, etc.,
+    and adding revalidateTag(...) in cron/API routes that update markets/predictions, so the cache refreshes right after writes.
+
 
 
 # UX

@@ -25,7 +25,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   const {
     limit = 100,
     delayMs = 1000,
-    daysToFetch = 10,
+    daysToFetch = 8,
     ...fetchOptions
   } = options
 
