@@ -58,7 +58,8 @@ async function runPredictionCheck(dryRun = false) {
         console.log(`⏱️  Duration: ${duration}ms`)
         console.log(`📊 Status: ${res.statusCode}`)
         try {
-          console.log(`📝 Response:`, JSON.parse(data))
+          const response = JSON.parse(data)
+          console.log(`📝 Response:`, JSON.stringify(response, null, 2))
         } catch {
           console.log(`📝 Response:`, data)
         }
