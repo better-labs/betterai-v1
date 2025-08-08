@@ -5,7 +5,7 @@
 
 
 ## Now
-- Fix CRON get vs POST jobs
+
 - Fix generate-batch-predictions so that it does not use       await prisma.marketQueryCache.create({
 - Rename marketQueryCache table to be more descriptive
 
@@ -152,3 +152,46 @@ When to use ISR vs SSR
 ---
 
 ## Notes
+
+---
+
+## Trademark search guidance for "BetterLabs" (site: betterai.tools)
+
+- USPTO (United States) — primary search
+  - Go to the USPTO trademark search: [USPTO Trademark Search](https://www.uspto.gov/trademarks/search)
+  - Search variants (Status: Live; focus on Classes 9, 35, 42 first):
+    - Exact/near-exact: `betterlabs`, `"better labs"`, `betterlab`, `"better lab"`
+    - Wildcards: `better*lab*`, `better*labs*`, plus "laboratory/laboratories" variants
+  - For each hit: check goods/services, owner, mark type (word vs stylized), and likelihood-of-confusion.
+
+- International quick screen
+  - WIPO Global Brand DB: [WIPO Search](https://www3.wipo.int/branddb/en/)
+  - EUIPO (if EU relevant): [EUIPO](https://euipo.europa.eu/)
+  - UKIPO (if UK relevant): [UKIPO](https://trademarks.ipo.gov.uk/ipo-tmtext)
+
+- Common‑law (unregistered) use
+  - Web search: combinations like `"betterlabs" software`, `"better labs" ai`, `"betterlabs" saas`
+  - Social/handles: X/Twitter, LinkedIn, GitHub, YouTube, Product Hunt for `betterlabs` / `better labs`
+  - Domains: `betterlabs.com`, `betterlabs.ai`, `better-labs.com`, etc.
+
+- State business name checks
+  - Check your formation state’s Secretary of State database for corporate name conflicts (not a trademark, but useful).
+
+- Distinctiveness notes
+  - "Better" (laudatory) + "Labs" (descriptive) may be weak; USPTO may require disclaiming "LABS".
+  - A stylized/logo mark can be easier initially; pursue a word mark when feasible.
+
+- If clearance looks okay
+  - File US application (1(b) intent-to-use if not yet in commerce; 1(a) with specimen if already in use).
+  - Classes likely relevant: 42 (SaaS/AI services), 9 (software) and/or 35 (business/data services) depending on scope.
+  - After US filing, consider Madrid Protocol for additional countries.
+
+- If conflicts appear
+  - Options: adjust mark (e.g., to a more distinctive name), file stylized logo first, or keep "BetterLabs" as corporate name and brand products under a distinct trademark (e.g., "BetterAI").
+
+- Quick USPTO query set (copy/paste)
+  - `betterlabs`
+  - `"better labs"`
+  - `better*lab*`
+
+Note: Using `betterai.tools` as the website domain is fine; the trademark clearance focuses on the mark you will register (e.g., "BetterLabs").

@@ -2,18 +2,15 @@
   "crons": [
     {
       "path": "/api/cron/update-polymarket-data",
-      "schedule": "0 */6 * * *",
-      "method": "POST"
+      "schedule": "0 */6 * * *"
     },
     {
       "path": "/api/cron/generate-batch-predictions",
-      "schedule": "15 2 * * *",
-      "method": "POST"
+      "schedule": "15 2 * * *"
     },
     {
       "path": "/api/cron/prediction-check",
-      "schedule": "30 2 * * *",
-      "method": "POST"
+      "schedule": "30 2 * * *"
     }
   ]
 } 
