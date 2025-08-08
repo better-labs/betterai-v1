@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/update-polymarket-data",
-      "schedule": "0 */6 * * *"
+      "path": "/api/cron/update-polymarket-data", 
+      "schedule": "0 1 * * *"
     },
     {
       "path": "/api/cron/generate-batch-predictions",
@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/prediction-check",
-      "schedule": "30 2 * * *"
+      "schedule": "30 3 * * *"
     }
   ]
 } 
