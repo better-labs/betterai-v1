@@ -4,8 +4,6 @@
 - Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
-## Categories
-- Review my current use of categorization and in particular the storage of integers in the database. This current approach is not optimal because I can't query and see the database name in the database. I'd rather be able to query a string value instead of an integer. What is best practice?
 
 
 ## Prediction Data Pipeline
