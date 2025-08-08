@@ -4,19 +4,33 @@
 - Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
-## UI
-
-- Draft simplest possible benchmark UI.
-- Now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
-- Display the current list of predictions, ask AI to design the UX.
-- Add a "What is it" overview page, in lieu of docs that explain the benchmark and future app plans.
-
 ## Categories
-- [ ] Fix categories usage, ask AI how to manage one local project category vs native polymarket categories. 
-- [ ] Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
+- Review my current use of categorization and in particular the storage of integers in the database. This current approach is not optimal because I can't query and see the database name in the database. I'd rather be able to query a string value instead of an integer. What is best practice?
 
-## Benchmark
-- [ ] Create a “Prediction checking” CRON job that runs daily and computes the delta
+
+## Prediction Data Pipeline
+
+Goals: create a plan and task list for a data pipeline that allows benchmarking the accuracy of predictions.
+Start with a simplest possible data pipeline and cron jobs that retrieve market data and run predictions against some portion of them, possibly the top 50 markets by volume.
+Initially use an inexpensive but effective model, with low cost, high accuracy.
+Over time, grow the benchmark to include more sophisticated models and compare their performance.
+I'm not sure how to structure a simple effective initial benchmark. Should it be broken down by category?
+Help me design the data pipeline according to best practices.
+Use existing code where possible or recommend structural changes where necessary.
+Create a “Prediction checking” CRON job that runs daily and computes the delta.
+Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
+
+## DB Ops
+- Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
+
+
+
+
+## Data
+- [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
+Then update the predictions page to include market image.
+
+
 
 
 
@@ -25,6 +39,12 @@
 
 # Week of 8/15
 
+## UX
+
+- Add AI leaderboard
+
+- Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that
+- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
 
 ## Data Sources
 - [ ]Add Kalshi market data
@@ -108,6 +128,7 @@
 - [x] Add Dark mode
 - [x] Add market data pull from Polymarket , pull-polymarket-data
 - [x] Modify UX layout such that each row is an EVENT.
+- [x] Add feature flags to hide login/signup button area in production
 
 ---
 

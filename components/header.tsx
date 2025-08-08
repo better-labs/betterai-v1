@@ -143,7 +143,7 @@ export function Header() {
               </>
             ) : null}
 
-            {!isAuthenticated && (
+            {!isAuthenticated && flags.showLoginSignup && (
               <div className="hidden md:flex items-center space-x-3 bg-muted/20 rounded-lg px-3 py-1 shadow-sm">
                 <span 
                   className="text-sm font-medium text-primary cursor-pointer hover:text-primary/80 transition-colors"
