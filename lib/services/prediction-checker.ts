@@ -1,5 +1,6 @@
 import { prisma } from '../db/prisma'
 import { predictionCheckQueries } from '../db/queries'
+import { Category } from '../generated/prisma'
 
 export type CheckerConfig = {
   daysLookback?: number
@@ -18,18 +19,6 @@ export type PredictionCheckResult = {
   absDelta: number | null
   saved: boolean
   message?: string
-}
-
-function toNumber(value: unknown): number | null {
-  if (value === null || value === undefined) return null
-  try {
-    if (typeof value === 'number') return value
-    if (typeof value === 'string') return value.trim() === '' ? null : Number(value)
-    if (typeof (value as any).toNumber === 'function') return (value as any).toNumber()
-    return Number(value as any)
-  } catch {
-    return null
-  }
 }
 
 export async function generatePredictionVsMarketDelta(
@@ -116,11 +105,16 @@ export async function generatePredictionVsMarketDelta(
       continue
     }
 
-    const aiProb = toNumber(p.probability)
-    const firstOutcome = Array.isArray(market.outcomePrices) ? (market.outcomePrices as any[])[0] : null
-    const marketProb = toNumber(firstOutcome)
-    
-    // Calculate deltas
+    // Pull Decimal values from Prisma and convert to numbers only for the response payload
+    const aiProbDecimal = p.probability ?? null
+    const firstOutcomeDecimal = Array.isArray(market.outcomePrices) && market.outcomePrices.length > 0
+      ? market.outcomePrices[0]
+      : null
+
+    const aiProb = aiProbDecimal ? aiProbDecimal.toNumber() : null
+    const marketProb = firstOutcomeDecimal ? firstOutcomeDecimal.toNumber() : null
+
+    // Calculate deltas in number space for the response
     const delta = aiProb !== null && marketProb !== null ? aiProb - marketProb : null
     const absDelta = delta !== null ? Math.abs(delta) : null
 
@@ -140,12 +134,13 @@ export async function generatePredictionVsMarketDelta(
       await predictionCheckQueries.create({
         predictionId: p.id,
         marketId: market.id,
-        aiProbability: aiProb,
-        marketProbability: marketProb,
+        // Pass values allowing the DB layer to normalize to Decimal
+        aiProbability: aiProbDecimal ?? null,
+        marketProbability: firstOutcomeDecimal ?? null,
         delta,
         absDelta,
         marketClosed: !!market.closed,
-        marketCategory: (category as any) ?? null,
+        marketCategory: category as Category | null,
       })
       savedCount += 1
       results[results.length - 1] = {

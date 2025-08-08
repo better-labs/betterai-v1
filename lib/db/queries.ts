@@ -1,4 +1,5 @@
 import { prisma } from "./prisma"
+import { Prisma } from '../../lib/generated/prisma'
 import type { AiModel, Event, Market, Prediction, ResearchCache, PredictionCheck, Category } from '../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
@@ -380,22 +381,27 @@ export const predictionCheckQueries = {
   create: async (data: {
     predictionId?: number | null
     marketId?: string | null
-    aiProbability?: number | null
-    marketProbability?: number | null
-    delta?: number | null
-    absDelta?: number | null
+    aiProbability?: number | Prisma.Decimal | null
+    marketProbability?: number | Prisma.Decimal | null
+    delta?: number | Prisma.Decimal | null
+    absDelta?: number | Prisma.Decimal | null
     marketClosed?: boolean | null
     marketCategory?: Category | null
   }): Promise<PredictionCheck> => {
-    // Convert JS numbers to Prisma Decimal-compatible values implicitly
+    // Normalize to Prisma.Decimal where provided
+    const toDecimal = (v: number | Prisma.Decimal | null | undefined): Prisma.Decimal | null => {
+      if (v === null || v === undefined) return null
+      return typeof v === 'number' ? new Prisma.Decimal(v) : v
+    }
+
     return await prisma.predictionCheck.create({
       data: {
         predictionId: data.predictionId ?? null,
         marketId: data.marketId ?? null,
-        aiProbability: data.aiProbability as any,
-        marketProbability: data.marketProbability as any,
-        delta: data.delta as any,
-        absDelta: data.absDelta as any,
+        aiProbability: toDecimal(data.aiProbability),
+        marketProbability: toDecimal(data.marketProbability),
+        delta: toDecimal(data.delta),
+        absDelta: toDecimal(data.absDelta),
         marketClosed: data.marketClosed ?? null,
         marketCategory: data.marketCategory ?? null,
       },

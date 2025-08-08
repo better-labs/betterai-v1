@@ -56,11 +56,11 @@ export async function getTopMarketsByVolumeAndEndDate(
       }
     })
 
-    // Convert volume from string to number and filter out null values
+    // Convert volume from Decimal to number and filter out null values
     const processedMarkets: MarketWithEndDate[] = topMarkets
       .map(market => ({
         ...market,
-        volume: market.volume ? parseFloat(market.volume.toString()) : null,
+        volume: market.volume ? market.volume.toNumber() : null,
         endDate: market.endDate
       }))
       .filter(market => market.volume !== null) as MarketWithEndDate[]
