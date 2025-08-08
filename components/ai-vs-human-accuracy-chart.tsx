@@ -78,7 +78,7 @@ export default function AiVsHumanAccuracyChart() {
       } else {
         clearInterval(interval)
       }
-    }, 600)
+    }, 350)
     return () => clearInterval(interval)
   }, [])
 
@@ -133,7 +133,9 @@ export default function AiVsHumanAccuracyChart() {
               strokeWidth={3}
               dot={{ r: 4 }}
               activeDot={{ r: 8 }}
-              isAnimationActive={false}
+               isAnimationActive
+               animationDuration={500}
+               animationEasing="ease-in-out"
             />
 
             {/* AI Model Accuracy */}
@@ -145,7 +147,9 @@ export default function AiVsHumanAccuracyChart() {
               strokeWidth={3}
               activeDot={{ r: 8 }}
               dot={<GlowingDot />}
-              isAnimationActive={false}
+               isAnimationActive
+               animationDuration={500}
+               animationEasing="ease-in-out"
             />
           </LineChart>
         </ResponsiveContainer>
