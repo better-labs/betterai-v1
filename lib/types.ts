@@ -109,6 +109,6 @@ export type {
   Market, 
   Prediction, 
   AiModel, 
-  MarketQueryCache
+  ResearchCache
 } from "../lib/generated/prisma" 
 

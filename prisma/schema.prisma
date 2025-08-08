@@ -68,7 +68,7 @@ model Event {
   @@map("events")
 }
 
-model MarketQueryCache {
+model ResearchCache {
   id            Int       @id @default(autoincrement())
   marketId      String?   @map("market_id")
   modelName     String    @map("model_name")
@@ -76,11 +76,11 @@ model MarketQueryCache {
   userMessage   String    @map("user_message")
   response      Json?
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
-  market        Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "market_query_cache_market_id_markets_id_fk")
+  market        Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "research_cache_market_id_markets_id_fk")
 
-  @@index([createdAt], map: "idx_market_query_cache_created_at")
-  @@index([marketId], map: "idx_market_query_cache_market_id")
-  @@map("market_query_cache")
+  @@index([createdAt], map: "idx_research_cache_created_at")
+  @@index([marketId], map: "idx_research_cache_market_id")
+  @@map("research_cache")
 }
 
 model Market {
@@ -102,7 +102,7 @@ model Market {
   startDate        DateTime?          @map("start_date") @db.Timestamp(6)
   resolutionSource String?            @map("resolution_source")
   outcomes         String[]
-  marketQueryCache MarketQueryCache[]
+  researchCache    ResearchCache[]
   event            Event?             @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "markets_event_id_events_id_fk")
   predictions      Prediction[]
 

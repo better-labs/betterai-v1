@@ -1,8 +1,8 @@
 import { prisma } from "./prisma"
-import type { AiModel, Event, Market, Prediction, MarketQueryCache, Category } from '../../lib/generated/prisma';
+import type { AiModel, Event, Market, Prediction, ResearchCache, Category } from '../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
-export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, MarketQueryCache as NewMarketQueryCache } from '../../lib/generated/prisma';
+export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, ResearchCache as NewResearchCache } from '../../lib/generated/prisma';
 
 export const DEFAULT_MODEL = 'google/gemini-2.5-flash-lite'
 
@@ -347,17 +347,17 @@ export const predictionQueries = {
   },
 }
 
-// Market Query Cache queries
+// Research Cache queries
 const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
-export const marketQueryCacheQueries = {
-  getCachedMarketQuery: async (
+export const researchCacheQueries = {
+  getCachedResearch: async (
     marketId: string,
     modelName: string
-  ): Promise<MarketQueryCache | null> => {
+  ): Promise<ResearchCache | null> => {
     const oneHourAgo = new Date(Date.now() - CACHE_DURATION_MS);
     
-    return await prisma.marketQueryCache.findFirst({
+    return await prisma.researchCache.findFirst({
       where: {
         marketId,
         modelName,
@@ -368,9 +368,9 @@ export const marketQueryCacheQueries = {
       orderBy: { createdAt: 'desc' }
     });
   },
-  createMarketQueryCache: async (
+  createResearchCache: async (
     cacheData: any
-  ): Promise<MarketQueryCache> => {
-    return await prisma.marketQueryCache.create({ data: cacheData })
+  ): Promise<ResearchCache> => {
+    return await prisma.researchCache.create({ data: cacheData })
   }
 }
