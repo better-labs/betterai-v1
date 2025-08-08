@@ -232,6 +232,18 @@ export const marketQueries = {
 
 // Prediction queries
 export const predictionQueries = {
+  getPredictionWithRelationsById: async (id: number): Promise<(Prediction & { market: (Market & { event: Event | null }) | null }) | null> => {
+    return await prisma.prediction.findUnique({
+      where: { id },
+      include: {
+        market: {
+          include: {
+            event: true,
+          },
+        },
+      },
+    })
+  },
   getPredictionsByMarketId: async (marketId: string): Promise<Prediction[]> => {
     return await prisma.prediction.findMany({
       where: { marketId },
@@ -247,6 +259,25 @@ export const predictionQueries = {
     return await prisma.prediction.findMany({
       orderBy: { createdAt: 'desc' },
       take: limit
+    })
+  },
+  /**
+   * Fetches the most recent predictions including their related market and event
+   * to support UI components that need contextual information.
+   */
+  getRecentPredictionsWithRelations: async (
+    limit: number = 20
+  ): Promise<Array<Prediction & { market: (Market & { event: Event | null }) | null }>> => {
+    return await prisma.prediction.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: {
+        market: {
+          include: {
+            event: true,
+          },
+        },
+      },
     })
   },
   createPrediction: async (predictionData: any): Promise<Prediction> => {

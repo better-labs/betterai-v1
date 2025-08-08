@@ -6,10 +6,13 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
+const enableQueryLogging = process.env.PRISMA_LOG_QUERIES === 'true'
+
 export const prisma =
   global.prisma ||
   new PrismaClient({
-    log: ['query'],
+    // Toggle verbose query logging via env. Defaults off.
+    log: enableQueryLogging ? ['query'] : [],
   });
 
 if (process.env.NODE_ENV !== 'production') global.prisma = prisma;

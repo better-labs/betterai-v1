@@ -1,17 +1,19 @@
 "use client"
 
+import Image from 'next/image'
 import { useState } from 'react'
 
 interface EventIconProps {
+  image?: string | null
   icon?: string | null
   title: string
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
 
-export function EventIcon({ icon, title, size = 'md', className = '' }: EventIconProps) {
-  const [imageError, setImageError] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+export function EventIcon({ image, icon, title, size = 'md', className = '' }: EventIconProps) {
+  // Track error to show fallback when remote image fails
+  const [loadError, setLoadError] = useState(false)
 
   const sizeClasses = {
     sm: 'w-6 h-6',
@@ -25,36 +27,28 @@ export function EventIcon({ icon, title, size = 'md', className = '' }: EventIco
     lg: 'text-sm'
   }
 
-  const handleImageError = () => {
-    setImageError(true)
-  }
-
-  const handleImageLoad = () => {
-    setImageLoaded(true)
-  }
-
-  const showFallback = !icon || imageError || !imageLoaded
+  const srcCandidate = loadError ? null : (image || icon || null)
+  const showFallback = !srcCandidate
 
   return (
-    <div className={`relative ${sizeClasses[size]} ${className}`}>
-      {icon && !imageError && (
-        <img 
-          src={icon} 
+    <div className={`relative overflow-hidden rounded-lg ${sizeClasses[size]} ${className}`}>
+      {srcCandidate && (
+        <Image
+          src={srcCandidate}
           alt={title}
-          className={`${sizeClasses[size]} rounded-lg object-cover shadow-sm transition-opacity duration-200 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onError={handleImageError}
-          onLoad={handleImageLoad}
+          fill
+          sizes={size === 'lg' ? '40px' : size === 'md' ? '32px' : '24px'}
+          className="object-cover shadow-sm"
+          onError={() => setLoadError(true)}
         />
       )}
-      <div className={`${sizeClasses[size]} bg-muted rounded-lg flex items-center justify-center shadow-sm ${
-        showFallback ? 'opacity-100' : 'opacity-0'
-      } transition-opacity duration-200`}>
-        <span className={`${textSizeClasses[size]} font-medium text-muted-foreground`}>
-          {title.charAt(0).toUpperCase()}
-        </span>
-      </div>
+      {(showFallback || loadError) && (
+        <div className={`absolute inset-0 bg-muted flex items-center justify-center shadow-sm`}>
+          <span className={`${textSizeClasses[size]} font-medium text-muted-foreground`}>
+            {title.charAt(0).toUpperCase()}
+          </span>
+        </div>
+      )}
     </div>
   )
 } 

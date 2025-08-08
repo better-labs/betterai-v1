@@ -13,7 +13,8 @@ export function useFeatureFlags() {
     showSearch: false,
     showActivity: false,
     showTermsOfService: false,
-    showPrivacyPolicy: false
+    showPrivacyPolicy: false,
+    showLoginSignup: true
   });
 
   useEffect(() => {
