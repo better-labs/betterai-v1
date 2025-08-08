@@ -1,4 +1,5 @@
 // Define your categories
+import { Category } from '@/lib/generated/prisma'
 export const CATEGORIES = {
   1: 'Elections',
   2: 'Geopolitics & World Affairs',
@@ -13,6 +14,34 @@ export const CATEGORIES = {
 };
 
 type CategoryId = keyof typeof CATEGORIES;
+
+// Human-readable display names keyed by enum
+export const CATEGORY_DISPLAY_NAME: Record<Category, string> = {
+  [Category.ELECTIONS]: 'Elections',
+  [Category.GEOPOLITICS]: 'Geopolitics & World Affairs',
+  [Category.ECONOMY]: 'Economy & Economic Indicators',
+  [Category.FINANCIAL_MARKETS]: 'Financial Markets',
+  [Category.CRYPTOCURRENCY]: 'Cryptocurrency',
+  [Category.SCIENCE_TECHNOLOGY]: 'Science & Technology',
+  [Category.BUSINESS]: 'Business & Corporate',
+  [Category.SPORTS]: 'Sports',
+  [Category.CULTURE_ENTERTAINMENT]: 'Culture & Entertainment',
+  [Category.CLIMATE_ENVIRONMENT]: 'Climate & Environment',
+};
+
+// Bridge map from legacy numeric ids to enum values
+const CATEGORY_BY_ID: Record<number, Category> = {
+  1: Category.ELECTIONS,
+  2: Category.GEOPOLITICS,
+  3: Category.ECONOMY,
+  4: Category.FINANCIAL_MARKETS,
+  5: Category.CRYPTOCURRENCY,
+  6: Category.SCIENCE_TECHNOLOGY,
+  7: Category.BUSINESS,
+  8: Category.SPORTS,
+  9: Category.CULTURE_ENTERTAINMENT,
+  10: Category.CLIMATE_ENVIRONMENT,
+}
 
 // Keyword mapping with priorities (higher number = more important)
 const keywordMap: Map<string, { categoryId: CategoryId; priority: number }> = new Map([
@@ -139,7 +168,7 @@ const keywordMap: Map<string, { categoryId: CategoryId; priority: number }> = ne
   // Noisy tags like 'all' are omitted
 ]);
 
-export function mapTagsToCategory(tags: string[]): CategoryId {
+export function mapTagsToCategory(tags: string[]): Category {
   let bestMatch: { categoryId: CategoryId; priority: number } = { categoryId: 2, priority: 0 }; // Default to Geopolitics
 
   for (const tag of tags) {
@@ -151,5 +180,5 @@ export function mapTagsToCategory(tags: string[]): CategoryId {
     }
   }
 
-  return bestMatch.categoryId;
+  return CATEGORY_BY_ID[Number(bestMatch.categoryId)] ?? Category.GEOPOLITICS;
 } 

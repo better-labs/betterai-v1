@@ -6,17 +6,10 @@
 
 
 
-## Prediction Data Pipeline
+## Benchmark and Prediction Data Pipeline
 
-Goals: create a plan and task list for a data pipeline that allows benchmarking the accuracy of predictions.
-Start with a simplest possible data pipeline and cron jobs that retrieve market data and run predictions against some portion of them, possibly the top 50 markets by volume.
-Initially use an inexpensive but effective model, with low cost, high accuracy.
-Over time, grow the benchmark to include more sophisticated models and compare their performance.
-I'm not sure how to structure a simple effective initial benchmark. Should it be broken down by category?
-Help me design the data pipeline according to best practices.
-Use existing code where possible or recommend structural changes where necessary.
-Create a “Prediction checking” CRON job that runs daily and computes the delta.
-Decide whether to exclude certain categories like Bitcoin/Crypto price or simply mark them as less effective.
+
+
 
 ## DB Ops
 - Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
