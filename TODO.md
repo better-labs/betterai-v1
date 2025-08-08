@@ -12,6 +12,7 @@
 
 ## Monday: UX enhancements
 - Redesign UX - ask AI to help feedback on highest value and how to represent those minimally via UX.
+- Add shadcdn styles and/or or framer motion animation: https://motion.dev/
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
 - Add a predictionResults page that shows the final prediction results for a given prediction.
 - Add AI leaderboard
@@ -109,6 +110,8 @@ No markets found matching the criteria
 - []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket and Kalshi channels. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
 ## Potential tasks
+- Add shadcdn styles and/or or framer motion animation: https://motion.dev/
+
 - [ ] Raw responses from Kalshi and Polymarket:
    1. Keep the `markets` table. It is your canonical model.
    2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).

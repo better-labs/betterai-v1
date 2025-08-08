@@ -29,41 +29,41 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-            {/* AI-Powered Analysis */}
-            <div className="bg-card border rounded-md p-4 shadow-sm">
-              <div className="w-10 h-10 bg-primary/10 rounded-md flex items-center justify-center mb-3">
-                <Brain className="h-5 w-5 text-primary" />
+            {[
+              {
+                key: "analysis",
+                Icon: Brain,
+                title: "AI-Powered Analysis",
+                body:
+                  "Leverage multiple state-of-the-art AI models from OpenAI, Google, xAI, Anthropic, and more to find outcomes that h might miss.",
+              },
+              {
+                key: "realtime",
+                Icon: Zap,
+                title: "Real-Time Data",
+                body:
+                  "Access live market data from multiple sources including Polymarket, ensuring your predictions are based on the most current information available.",
+              },
+              {
+                key: "confidence",
+                Icon: BarChart3,
+                title: "Confidence Scoring",
+                body:
+                  "Get detailed confidence scores and reasoning for every prediction, helping you understand the AI's decision-making process.",
+              },
+            ].map(({ key, Icon, title, body }, index) => (
+              <div
+                key={key}
+                className="bg-card border rounded-md p-4 shadow-sm opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${index * 120}ms` }}
+              >
+                <div className="w-10 h-10 bg-primary/10 rounded-md flex items-center justify-center mb-3">
+                  <Icon className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-1.5">{title}</h3>
+                <p className="text-sm text-muted-foreground">{body}</p>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1.5">AI-Powered Analysis</h3>
-              <p className="text-sm text-muted-foreground">
-                Leverage multiple state-of-the-art AI models from OpenAI, Google, xAI, Anthropic, and more to find outcomes that h might miss.
-              </p>
-            </div>
-
-            {/* Real-Time Data */}
-            <div className="bg-card border rounded-md p-4 shadow-sm">
-              <div className="w-10 h-10 bg-primary/10 rounded-md flex items-center justify-center mb-3">
-                <Zap className="h-5 w-5 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1.5">Real-Time Data</h3>
-              <p className="text-sm text-muted-foreground">
-                Access live market data from multiple sources including Polymarket, ensuring your predictions 
-                are based on the most current information available.
-              </p>
-            </div>
-
-            {/* Confidence Scoring */}
-            <div className="bg-card border rounded-md p-4 shadow-sm">
-              <div className="w-10 h-10 bg-primary/10 rounded-md flex items-center justify-center mb-3">
-                <BarChart3 className="h-5 w-5 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1.5">Confidence Scoring</h3>
-              <p className="text-sm text-muted-foreground">
-                Get detailed confidence scores and reasoning for every prediction, helping you understand 
-                the AI's decision-making process.
-              </p>
-            </div>
-
+            ))}
           </div>
         </div>
           <div className="border-t border-border/40 my-12 max-w-4xl mx-auto" />
