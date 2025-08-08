@@ -1,53 +1,36 @@
-# For the week of 8/8
 
-- Question to enable answering: Does prediction accuracy go up when more models are used? 1, 10, 20, ...? 
-- Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
+# Week of 8/11
 
+## Sunday Finalize Beta App User Flows
+- Pull from todo list of features, organize Design, then ask AI to give feedback on flows in Design.md.
+- Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that.
+- Define Your Key Hypotheses: examples:
+  - Value Prop Hypothesis: "Users will find value in our AI's predictions to make more informed decisions in the market."
+  - Usability Hypothesis: "A first-time user can successfully create a market and place a trade within 3 minutes."
+  - AI Trust Hypothesis: "Users will trust the AI's confidence score (C-score) and explanations when making a trade."
+  - Engagement Hypothesis: "Providing users with a starting balance of virtual currency will lead to them making at least 5 trades in their first week."
 
-
-## Data
-- [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
-Then update the predictions page to include market image.
-
-
-
-
-
-
-
-# Week of 8/15
-
-
-
-## UX
-
+## Monday: UX enhancements
+- Redesign UX - ask AI to help feedback on highest value and how to represent those minimally via UX.
+- Add shadcdn styles and/or or framer motion animation: https://motion.dev/
+- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
+- Add a predictionResults page that shows the final prediction results for a given prediction.
 - Add AI leaderboard
-
-- Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that
 - Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
+
+## Tuesday: Benchmark enhancements
+- Add AI prediction leaderboard?
+
 
 ## Data Modeling
 - [ ]Add Kalshi market data
 - Consider enhancing my categories to match Polymarket's
 
-## Revisit CRON default settings
 
-pnpm cron:generate-batch-predictions && pnpm cron:prediction-check
-..
-Starting batch prediction generation...
-Config: 10 markets, ±48h around 14 days from now
-Searching for markets ending between 2025-08-20T15:14:29.515Z and 2025-08-24T15:14:29.515Z
-Found 0 markets meeting criteria:
-No markets found matching the criteria
 
 
 ## DB Ops
 - Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
-
-
-# UX
-- Redesign UX - ask AI to help feedback on highest value and how to represent those minimally via UX.
-  - Remove "trending" section on landing page.
 
 
 ## Tools to add
@@ -80,10 +63,17 @@ No markets found matching the criteria
 - [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
 
 
+## Revisit CRON default settings
+
+pnpm cron:generate-batch-predictions && pnpm cron:prediction-check
+..
+Starting batch prediction generation...
+Config: 10 markets, ±48h around 14 days from now
+Searching for markets ending between 2025-08-20T15:14:29.515Z and 2025-08-24T15:14:29.515Z
+Found 0 markets meeting criteria:
+No markets found matching the criteria
 
 
-## E2E User flow
-- Reflect on learning: both the model and dataset searches are many to many !!
 
 ## Authentication & Rate Limiting
 - [ ] Design mechanism to prevent overuse of free prediction
@@ -120,6 +110,8 @@ No markets found matching the criteria
 - []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket and Kalshi channels. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
 ## Potential tasks
+- Add shadcdn styles and/or or framer motion animation: https://motion.dev/
+
 - [ ] Raw responses from Kalshi and Polymarket:
    1. Keep the `markets` table. It is your canonical model.
    2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).

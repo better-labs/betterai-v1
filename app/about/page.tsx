@@ -1,5 +1,6 @@
 import { TrendingUp, Brain, Target, BarChart3, Zap, Shield, Users, Globe } from "lucide-react"
 import { CTASection } from "@/components/cta-section"
+import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
 
 export default function AboutPage() {
   return (
@@ -9,85 +10,80 @@ export default function AboutPage() {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
             <TrendingUp className="text-primary" />
-            About BetterAI
+            What is BetterAI?
           </h1>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-            BetterAI is an AI-powered prediction platform that combines cutting-edge AI with real-time market data to help you make Better decisions on trending markets and events.
+            
           </p>
         </div>
 
-        {/* What is BetterAI Section */}
-        <div className="mb-20">
+        {/* Better Definition 1 */}
+        <div className="mb-20" data-testid="better-definition-1">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">What is BetterAI?</h2>
+            <h2 className="mb-4 flex items-baseline justify-center text-foreground">
+              <span className="text-sm sm:text-base font-medium mr-2">[bet-er]¹ (noun)</span>
+              <span className="text-3xl sm:text-4xl font-bold">a person who bets on an outcome</span>
+            </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              A platform that democratizes AI-powered market intelligence
-            </p>
+              A platform that democratizes access to the best in class AI powered predictions. BetterAI combines cutting-edge AI with real-time market data to help users make more informed decisions on prediction market outcomes.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* AI-Powered Analysis */}
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Brain className="h-6 w-6 text-primary" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+            {[
+              {
+                key: "analysis",
+                Icon: Brain,
+                title: "AI-Powered Analysis",
+                body:
+                  "Leverage multiple state-of-the-art AI models from OpenAI, Google, xAI, Anthropic, and more to find outcomes that h might miss.",
+              },
+              {
+                key: "realtime",
+                Icon: Zap,
+                title: "Real-Time Data",
+                body:
+                  "Access live market data from multiple sources including Polymarket, ensuring your predictions are based on the most current information available.",
+              },
+              {
+                key: "confidence",
+                Icon: BarChart3,
+                title: "Confidence Scoring",
+                body:
+                  "Get detailed confidence scores and reasoning for every prediction, helping you understand the AI's decision-making process.",
+              },
+            ].map(({ key, Icon, title, body }, index) => (
+              <div
+                key={key}
+                className="bg-card border rounded-md p-4 shadow-sm opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${index * 120}ms` }}
+              >
+                <div className="w-10 h-10 bg-primary/10 rounded-md flex items-center justify-center mb-3">
+                  <Icon className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-1.5">{title}</h3>
+                <p className="text-sm text-muted-foreground">{body}</p>
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">AI-Powered Analysis</h3>
-              <p className="text-muted-foreground">
-                Leverage multiple state-of-the-art AI models from OpenAI, Google, xAI, Anthropic, and more to find outcomes that h might miss.
-              </p>
-            </div>
-
-            {/* Real-Time Data */}
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Zap className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Real-Time Data</h3>
-              <p className="text-muted-foreground">
-                Access live market data from multiple sources including Polymarket, ensuring your predictions 
-                are based on the most current information available.
-              </p>
-            </div>
-
-            {/* Confidence Scoring */}
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <BarChart3 className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Confidence Scoring</h3>
-              <p className="text-muted-foreground">
-                Get detailed confidence scores and reasoning for every prediction, helping you understand 
-                the AI's decision-making process.
-              </p>
-            </div>
-
-            
-
-           
-            {/* <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Globe className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Comprehensive Coverage</h3>
-              <p className="text-muted-foreground">
-                Analyze markets across politics, sports, entertainment, technology, and more - 
-                from local events to global phenomena.
-              </p>
-            </div> */}
-
-            
-            {/* <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Secure & Reliable</h3>
-              <p className="text-muted-foreground">
-                Built with enterprise-grade security and reliability, ensuring your data and predictions 
-                are protected and accurate.
-              </p>
-            </div> */}
+            ))}
           </div>
         </div>
+          <div className="border-t border-border/40 my-12 max-w-4xl mx-auto" />
+
+
+        <div className="mb-20" data-testid="better-definition-2">
+          <div className="text-center mb-12">
+            <h2 className="mb-4 flex items-baseline justify-center text-foreground">
+              <span className="text-sm sm:text-base font-medium mr-2">[bet-er]<sup>2</sup> (adjective)</span>
+              <span className="text-3xl sm:text-4xl font-bold">improved in accuracy or performance</span>
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              <a href="https://hai.stanford.edu/ai-index/2025-ai-index-report" className="hover:underline">Leading AI models are close to beating our most difficult benchmarks. The world needs better, infinitely difficult benchmarks, to properly measure the AI model's intelligence growth beyond super intelligence.</a>
+            </p>
+          </div>
+          <div className="max-w-5xl mx-auto rounded-lg border bg-card p-4 shadow-sm">
+            <AiVsHumanAccuracyChart />
+          </div>
+        </div>
+
 
         {/* How it Works Section */}
         {/* <div className="mb-20">
@@ -172,6 +168,7 @@ export default function AboutPage() {
         {/* CTA Section */}
         {/* <CTASection /> */}
       </main>
+      
     </div>
   )
 }

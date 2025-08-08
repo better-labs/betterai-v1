@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { eventQueries, marketQueries } from "./db/queries"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -76,4 +77,57 @@ export function validateProbability(probability: unknown): number {
 
   // Ensure probability is between 0 and 1
   return Math.max(0, Math.min(1, probability))
+}
+
+/**
+ * Builds a canonical external URL for an event on its source market provider
+ * using the stored `slug` and `marketProvider`.
+ *
+ * Example: polymarket → https://polymarket.com/event/<slug>
+ */
+export async function generateEventURL(eventId: string): Promise<string | null> {
+  if (!eventId) return null
+
+  // Fetch event to get slug and provider
+  const event = await eventQueries.getEventById(eventId)
+  if (!event || !event.slug) return null
+
+  const providerRaw = (event.marketProvider || 'polymarket').trim().toLowerCase()
+
+  // Map known providers to their domains; default to <provider>.com
+  let domain: string
+  switch (providerRaw) {
+    case 'polymarket':
+      domain = 'polymarket.com'
+      break
+    case 'kalshi':
+      domain = 'kalshi.com'
+      break
+    default:
+      domain = `${providerRaw}.com`
+  }
+
+  return `https://${domain}/event/${encodeURIComponent(event.slug)}`
+}
+
+// Alias helper matching requested name in other parts of the app/spec
+export async function getEventURL(eventId: string): Promise<string | null> {
+  return generateEventURL(eventId)
+}
+
+/**
+ * Builds a canonical external URL for a market by composing the event URL
+ * with the market slug: <event-url>/<market-slug>
+ */
+export async function generateMarketURL(marketId: string): Promise<string | null> {
+  if (!marketId) return null
+
+  const market = await marketQueries.getMarketById(marketId)
+  if (!market) return null
+
+  const baseEventUrl = market.eventId ? await getEventURL(market.eventId) : null
+  if (!baseEventUrl) return null
+
+  const marketSlug = market.slug ? `/${encodeURIComponent(market.slug)}` : ''
+  return `${baseEventUrl}${marketSlug}`
 }
