@@ -8,6 +8,17 @@ interface DataPipelineResponse {
   message: string;
   prediction?: PredictionResult;
 }
+/**
+ * Runs the complete data pipeline for a given market ID
+ * 
+ * The pipeline consists of two main steps:
+ * 1. Performs market research using AI to gather relevant information
+ * 2. Generates a prediction based on the research results
+ * 
+ * @param marketId - The unique identifier of the market to analyze
+ * @param modelName - Optional AI model name to use for research and predictions
+ * @returns Promise<DataPipelineResponse> containing success status, message and prediction result
+ */
 
 export async function runDataPipeline(
   marketId: string,
