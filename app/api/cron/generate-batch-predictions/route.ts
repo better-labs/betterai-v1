@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const {
-      topMarketsCount = 50,
+      topMarketsCount = 20,
       endDateRangeHours = 24,
       targetDaysFromNow = 7,
       modelName = DEFAULT_MODEL,

@@ -4,6 +4,10 @@
 - Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
+## Now
+- Fix CRON get vs POST jobs
+- Fix generate-batch-predictions so that it does not use       await prisma.marketQueryCache.create({
+- Rename marketQueryCache table to be more descriptive
 
 
 ## Benchmark and Prediction Data Pipeline
@@ -78,7 +82,8 @@ When to use ISR vs SSR
 - Auth: maybe Clerk
 - Payments: maybe Stripe
 - Voice: Gemini live
-- Operations: Vercel analytics, hotjar, canny product request, sentry or logrocket
+- Operations: Vercel analytics, Vercel "Observability" features currently paid for
+- Evaluate: hotjar, canny product request, sentry or logrocket
 
 
 - Integrate so that Prediction Engine API uses the prediction service when button is clicked.

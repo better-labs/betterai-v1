@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       console.log('No request body or invalid JSON, using defaults')
     }
 
-    const daysToFetch = requestBody.daysToFetch || 10
+    const daysToFetch = requestBody.daysToFetch || 8
     const startTime = Date.now()
     
     console.log(`Starting throttled Polymarket events data sync with daysToFetch=${daysToFetch}...`)
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       totalRequests, 
       errors 
     } = await updatePolymarketEventsAndMarketData({
-      limit: 100,           // Fetch 100 events per request
+      limit: 200,           // Fetch 200 events per request
       delayMs: 1000,        // Wait 1 second between requests
       maxRetries: 3,        // Retry failed requests up to 3 times
       retryDelayMs: 2000,   // Wait 2 seconds before retry

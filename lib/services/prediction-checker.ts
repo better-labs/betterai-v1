@@ -122,50 +122,68 @@ export async function runDailyPredictionChecks(
     const delta = aiProb !== null && marketProb !== null ? aiProb - marketProb : null
     const absDelta = delta !== null ? Math.abs(delta) : null
 
-    try {
-      await prisma.marketQueryCache.create({
-        data: {
-          marketId: market.id,
-          modelName: 'prediction-checker',
-          userMessage: `daily-prediction-check:predictionId:${p.id}`,
-          response: {
-            predictionId: p.id,
-            asOf: new Date().toISOString(),
-            aiProbability: aiProb,
-            marketProbability: marketProb,
-            delta,
-            absDelta,
-            marketClosed: !!market.closed,
-            marketCategory: category,
-          },
-        },
-      })
-      savedCount += 1
-      results.push({
-        predictionId: p.id,
-        marketId: market.id,
-        category,
-        aiProbability: aiProb,
-        marketProbability: marketProb,
-        delta,
-        absDelta,
-        saved: true,
-      })
-    } catch (error) {
-      results.push({
-        predictionId: p.id,
-        marketId: market.id,
-        category,
-        aiProbability: aiProb,
-        marketProbability: marketProb,
-        delta,
-        absDelta,
-        saved: false,
-        message: error instanceof Error ? error.message : 'Failed to save check',
-      })
-    }
+    // Record the check result (not persisted yet)
+    results.push({
+      predictionId: p.id,
+      marketId: market.id,
+      category,
+      aiProbability: aiProb,
+      marketProbability: marketProb,
+      delta,
+      absDelta,
+      saved: false,
+    })
   }
 
+    // todo add code to save the results to the database
+  //   try {
+  //     await prisma.marketQueryCache.create({
+  //       data: {
+  //         marketId: market.id,
+  //         modelName: 'prediction-checker',
+  //         userMessage: `daily-prediction-check:predictionId:${p.id}`,
+  //         response: {
+  //           predictionId: p.id,
+  //           asOf: new Date().toISOString(),
+  //           aiProbability: aiProb,
+  //           marketProbability: marketProb,
+  //           delta,
+  //           absDelta,
+  //           marketClosed: !!market.closed,
+  //           marketCategory: category,
+  //         },
+  //       },
+  //     })
+  //     savedCount += 1
+  //     results.push({
+  //       predictionId: p.id,
+  //       marketId: market.id,
+  //       category,
+  //       aiProbability: aiProb,
+  //       marketProbability: marketProb,
+  //       delta,
+  //       absDelta,
+  //       saved: true,
+  //     })
+  //   } catch (error) {
+  //     results.push({
+  //       predictionId: p.id,
+  //       marketId: market.id,
+  //       category,
+  //       aiProbability: aiProb,
+  //       marketProbability: marketProb,
+  //       delta,
+  //       absDelta,
+  //       saved: false,
+  //       message: error instanceof Error ? error.message : 'Failed to save check',
+  //     })
+  //   }
+  // }
+  // return {
+  //   checkedCount: predictions.length,
+  //   savedCount,
+  //   results,
+  // }
   return {
     checkedCount: predictions.length,
     savedCount,
