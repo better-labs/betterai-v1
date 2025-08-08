@@ -5,30 +5,9 @@
 
 
 
-## Benchmark and Prediction Data Pipeline
-
-Test cron jobs directly.
-
-- [ ] Wire daily “Prediction checking” cron to compute AI vs. market deltas
-  - [ ] Env: `CRON_SECRET`, `PREDICTION_CHECK_*` vars
-  - [ ] Endpoint: `GET /api/cron/prediction-check`
-  - [ ] Script: `pnpm cron:prediction-check`
-
-- [ ] Decide category strategy: exclude crypto vs. mark as less effective
-  - Default: include all; segment metrics per category
-- [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
-
-
-
-## Test all the changes so far
-
-- Ask AI: please review my current cron job settings, give me a recap in plain (less technical) language of what actions are occurring daily, weekly, etc. Also review and explain the begin and end date choices to ensure the predictions and market final outcomes and delta calculations are reasonable.
-please advise if you see any glaring issues with the current scheduling setup.
-
 ## Data
 - [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
 Then update the predictions page to include market image.
-
 
 
 
@@ -56,8 +35,6 @@ Then update the predictions page to include market image.
 - Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 
 
-
-
 # UX
 - Redesign UX - ask AI to help feedback on highest value and how to represent those minimally via UX.
   - Remove "trending" section on landing page.
@@ -83,9 +60,14 @@ Then update the predictions page to include market image.
 - Implement user authentication system
 
 ## Scale
-- Add caching to data service layer calls.
+- Add caching to data service layer calls? Ask the AI
 
-## Maintenance
+
+## Benchmark and Prediction Data Pipeline
+
+- [ ] Decide category strategy: exclude crypto vs. mark as less effective
+  - Default: include all; segment metrics per category
+- [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
 
 
 
