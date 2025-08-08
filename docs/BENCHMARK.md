@@ -1,6 +1,6 @@
 # Benchmark
 
-Thesis: leading LLMs are beating our close to beating most difficult q&a benchmarks, the world needs better, infinitely difficult benchmarks, to properly measure the LLMs intelligence growth to and past super intelligence.
+Thesis: leading AI models are close to beating our most difficult benchmarks (humanity's last exam, ARC-AGI, etc). The world needs better, infinitely difficult benchmarks, to properly measure the AI model's intelligence growth beyond super intelligence. Prediction markets are a good candidate for this.
 
 Set up the benchmark initially but do it manually and set the parameters of something that can be re-created among the top model competition like a category of 10 different areas and run the same manually each week
 
