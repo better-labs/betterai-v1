@@ -1,4 +1,4 @@
-import { marketQueries, DEFAULT_MODEL, marketQueryCacheQueries } from '../db/queries';
+import { marketQueries, DEFAULT_MODEL, researchCacheQueries } from '../db/queries';
 import { parseAIResponse } from '../utils';
 
 interface WebSearchResult {
@@ -34,7 +34,7 @@ export async function performMarketResearch(
 
     const model = modelName || DEFAULT_MODEL;
 
-    const cachedEntry = await marketQueryCacheQueries.getCachedMarketQuery(marketId, model);
+    const cachedEntry = await researchCacheQueries.getCachedResearch(marketId, model);
 
     if (cachedEntry && cachedEntry.response) {
       return cachedEntry.response as unknown as MarketResearchResponse;
@@ -122,7 +122,7 @@ Focus on recent news, developments, and any factors that could influence the out
       research: researchResult,
     };
 
-    await marketQueryCacheQueries.createMarketQueryCache({
+    await researchCacheQueries.createResearchCache({
       marketId: marketId,
       modelName: model,
       systemMessage: systemMessage,

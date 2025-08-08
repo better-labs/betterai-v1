@@ -11,7 +11,7 @@ Set up the benchmark initially but do it manually and set the parameters of some
 - Source: Polymarket canonical `markets` table (kept current via `/api/cron/update-polymarket-data`).
 - Selection: Top 50 markets by `volume` that end around 7 days from now (±24h). Implemented via `/api/cron/generate-batch-predictions`.
 - Model: Start with low-cost, fast model: `google/gemini-2.5-flash-lite` (configurable). Store output in `predictions` with numeric `probability` and `prediction_result` JSON.
-- Daily check: `/api/cron/prediction-check` computes AI probability vs. current market probability (first `outcomePrices[0]`), persists a lightweight record in `market_query_cache` with `modelName = 'prediction-checker'` and fields `{ aiProbability, marketProbability, delta, absDelta, marketCategory }`.
+- Daily check: `/api/cron/prediction-check` computes AI probability vs. current market probability (first `outcomePrices[0]`), persists a lightweight record in (tbd)
 - Metrics: Start with simple deltas; once outcomes resolve, compute Brier and calibration offline or as a follow‑up task.
 
 Notes on categories: you may either exclude volatile categories (e.g., `cryptocurrency`) via `PREDICTION_CHECK_EXCLUDE_CATEGORIES`, or include all and segment results by category. Recommended: include all, but display category-segmented performance so crypto can be marked as less effective if needed.

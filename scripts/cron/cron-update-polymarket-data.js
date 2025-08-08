@@ -13,12 +13,17 @@ const options = {
   hostname: DOMAIN.includes(':') ? DOMAIN.split(':')[0] : DOMAIN,
   port: DOMAIN.includes(':') ? parseInt(DOMAIN.split(':')[1]) : (PROTOCOL === 'https' ? 443 : 3000),
   path: '/api/cron/update-polymarket-data',
-  method: 'POST',
+  method: 'GET',
   headers: {
     'Authorization': `Bearer ${CRON_SECRET}`,
     'Content-Type': 'application/json'
   }
 };
+
+// Friendly startup logs mirroring other cron scripts
+const url = `${PROTOCOL}://${options.hostname}:${options.port}${options.path}`;
+console.log('🔄 Triggering Polymarket data update...');
+console.log(`📍 Endpoint: ${url}`);
 
 console.log(`Triggering update-polymarket-data at ${new Date().toISOString()}`);
 

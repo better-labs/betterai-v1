@@ -1,8 +1,9 @@
 import { prisma } from "./prisma"
-import type { AiModel, Event, Market, Prediction, MarketQueryCache, Category } from '../../lib/generated/prisma';
+import { Prisma } from '../../lib/generated/prisma'
+import type { AiModel, Event, Market, Prediction, ResearchCache, PredictionCheck, Category } from '../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
-export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, MarketQueryCache as NewMarketQueryCache } from '../../lib/generated/prisma';
+export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, ResearchCache as NewResearchCache, PredictionCheck as NewPredictionCheck } from '../../lib/generated/prisma';
 
 export const DEFAULT_MODEL = 'google/gemini-2.5-flash-lite'
 
@@ -347,17 +348,17 @@ export const predictionQueries = {
   },
 }
 
-// Market Query Cache queries
+// Research Cache queries
 const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
-export const marketQueryCacheQueries = {
-  getCachedMarketQuery: async (
+export const researchCacheQueries = {
+  getCachedResearch: async (
     marketId: string,
     modelName: string
-  ): Promise<MarketQueryCache | null> => {
+  ): Promise<ResearchCache | null> => {
     const oneHourAgo = new Date(Date.now() - CACHE_DURATION_MS);
     
-    return await prisma.marketQueryCache.findFirst({
+    return await prisma.researchCache.findFirst({
       where: {
         marketId,
         modelName,
@@ -368,9 +369,49 @@ export const marketQueryCacheQueries = {
       orderBy: { createdAt: 'desc' }
     });
   },
-  createMarketQueryCache: async (
+  createResearchCache: async (
     cacheData: any
-  ): Promise<MarketQueryCache> => {
-    return await prisma.marketQueryCache.create({ data: cacheData })
+  ): Promise<ResearchCache> => {
+    return await prisma.researchCache.create({ data: cacheData })
   }
+}
+
+// Prediction Check queries
+export const predictionCheckQueries = {
+  create: async (data: {
+    predictionId?: number | null
+    marketId?: string | null
+    aiProbability?: number | Prisma.Decimal | null
+    marketProbability?: number | Prisma.Decimal | null
+    delta?: number | Prisma.Decimal | null
+    absDelta?: number | Prisma.Decimal | null
+    marketClosed?: boolean | null
+    marketCategory?: Category | null
+  }): Promise<PredictionCheck> => {
+    // Normalize to Prisma.Decimal where provided
+    const toDecimal = (v: number | Prisma.Decimal | null | undefined): Prisma.Decimal | null => {
+      if (v === null || v === undefined) return null
+      return typeof v === 'number' ? new Prisma.Decimal(v) : v
+    }
+
+    return await prisma.predictionCheck.create({
+      data: {
+        predictionId: data.predictionId ?? null,
+        marketId: data.marketId ?? null,
+        aiProbability: toDecimal(data.aiProbability),
+        marketProbability: toDecimal(data.marketProbability),
+        delta: toDecimal(data.delta),
+        absDelta: toDecimal(data.absDelta),
+        marketClosed: data.marketClosed ?? null,
+        marketCategory: data.marketCategory ?? null,
+      },
+    })
+  },
+  getRecentByMarket: async (marketId: string, limit = 50): Promise<PredictionCheck[]> => {
+    return await prisma.predictionCheck.findMany({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+  },
 }

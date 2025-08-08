@@ -4,29 +4,6 @@
 - Scope cut for the UI for Friday to only show basic information. Such as individual predictions and AI prediction leaderboard?
 
 
-## Now
-
-- Fix generate-batch-predictions so that it does not use       await prisma.marketQueryCache.create({
-- Rename marketQueryCache table to be more descriptive
-
-
-## Benchmark and Prediction Data Pipeline
-
-- [ ] Wire daily “Prediction checking” cron to compute AI vs. market deltas
-  - [ ] Env: `CRON_SECRET`, `PREDICTION_CHECK_*` vars
-  - [ ] Endpoint: `POST /api/cron/prediction-check`
-  - [ ] Script: `pnpm cron:prediction-check`
-- [ ] Schedule batch prediction generation (top 50 by volume ending ~7d)
-  - [ ] Endpoint: `POST /api/cron/generate-batch-predictions`
-  - [ ] Script: `pnpm cron:batch-predictions`
-- [ ] Decide category strategy: exclude crypto vs. mark as less effective
-  - Default: include all; segment metrics per category
-- [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
-
-
-
-
-## Test all the changes so far
 
 ## Data
 - [ ] Fix market data from polymarket API so that it properly saves the "image" and "icon" urls, similar to how the event image and icon urls are saved to database.
@@ -38,8 +15,9 @@ Then update the predictions page to include market image.
 
 
 
-
 # Week of 8/15
+
+
 
 ## UX
 
@@ -48,29 +26,23 @@ Then update the predictions page to include market image.
 - Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that
 - Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
 
-## Data Sources
+## Data Modeling
 - [ ]Add Kalshi market data
-- [ ] Raw responses from Kalshi and Polymarket:
-   1. Keep the `markets` table. It is your canonical model.
-   2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
-   3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical markets table.
-   4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your app from the specifics of the data sources.
+- Consider enhancing my categories to match Polymarket's
+
+## Revisit CRON default settings
+
+pnpm cron:generate-batch-predictions && pnpm cron:prediction-check
+..
+Starting batch prediction generation...
+Config: 10 markets, ±48h around 14 days from now
+Searching for markets ending between 2025-08-20T15:14:29.515Z and 2025-08-24T15:14:29.515Z
+Found 0 markets meeting criteria:
+No markets found matching the criteria
 
 
 ## DB Ops
 - Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
-- Move from force-dynamic to ISR for events pages
-When to use ISR vs SSR
-  • Use ISR when:
-    • Data can be slightly stale (e.g., 30–300 seconds).
-    • You want static-like speed with periodic freshness.
-  • Use SSR (force-dynamic or cache: 'no-store') when:
-    • Data must be real-time or user/session-specific.
-    • You cannot tolerate staleness.
-  In your app
-  • “Switch to ISR” means replacing force-dynamic with export const revalidate = <seconds> on pages like app/page.tsx, app/events/page.tsx, etc.,
-    and adding revalidateTag(...) in cron/API routes that update markets/predictions, so the cache refreshes right after writes.
-
 
 
 # UX
@@ -98,9 +70,14 @@ When to use ISR vs SSR
 - Implement user authentication system
 
 ## Scale
-- Add caching to data service layer calls.
+- Add caching to data service layer calls? Ask the AI
 
-## Maintenance
+
+## Benchmark and Prediction Data Pipeline
+
+- [ ] Decide category strategy: exclude crypto vs. mark as less effective
+  - Default: include all; segment metrics per category
+- [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
 
 
 
@@ -142,12 +119,12 @@ When to use ISR vs SSR
 - [ ] Submit to Polymarket Docs for Feature: https://docs.polymarket.com/quickstart/introduction/showcase#%F0%9F%A4%9D-want-to-be-featured%3F
 - []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket and Kalshi channels. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
-
-## Completed
-- [x] Add Dark mode
-- [x] Add market data pull from Polymarket , pull-polymarket-data
-- [x] Modify UX layout such that each row is an EVENT.
-- [x] Add feature flags to hide login/signup button area in production
+## Potential tasks
+- [ ] Raw responses from Kalshi and Polymarket:
+   1. Keep the `markets` table. It is your canonical model.
+   2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
+   3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical markets table.
+   4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your app from the specifics of the data sources.
 
 ---
 
