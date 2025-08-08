@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { format } from "date-fns"
 import type { Prediction, Market, Event } from "@/lib/types"
 import { RecentPredictionRow } from "@/components/recent-prediction-row"
@@ -8,7 +7,16 @@ type PredictionWithRelations = Prediction & { market: (Market & { event: Event |
 // Minimal presentational component for a list of recent predictions with market and event context
 export function RecentPredictions({ items }: { items: PredictionWithRelations[] }) {
   if (!items || items.length === 0) {
-    return null
+    return (
+      <section aria-labelledby="recent-predictions-heading" className="mt-8">
+        <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+        <div className="border rounded-lg p-8 text-center bg-card">
+          <div className="space-y-2">
+            <p className="text-muted-foreground">No predictions yet</p>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
