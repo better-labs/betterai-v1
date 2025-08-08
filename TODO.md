@@ -30,6 +30,16 @@ Then update the predictions page to include market image.
 - [ ]Add Kalshi market data
 - Consider enhancing my categories to match Polymarket's
 
+## Revisit CRON default settings
+
+pnpm cron:generate-batch-predictions && pnpm cron:prediction-check
+..
+Starting batch prediction generation...
+Config: 10 markets, ±48h around 14 days from now
+Searching for markets ending between 2025-08-20T15:14:29.515Z and 2025-08-24T15:14:29.515Z
+Found 0 markets meeting criteria:
+No markets found matching the criteria
+
 
 ## DB Ops
 - Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
