@@ -3,9 +3,14 @@
 ## Overview
 **Purpose**: enable a non-technical consumer user to invoke multiple AI models with enriched datasets to predict the likely outcome of a given predictionmarket (like Polymarket, Kalshi, PredictIt, etc).
 
-**Thesis**: 
-Everyone, regardless of their technical skill, should be able to invoke the world’s best super intelligences, enriched from the best data (context), from a single mouse click, to enhance a given bet.
-Each ai platform will improve its ease of use and capability over time, but those improvements will be limited to their own models. AI aggregators like Perplexity have brought the power of multiple AIs to non-technical consumers, yet those user experience are not optimized for specific use cases.
+**Key Hypotheses**: 
+- Value Prop Hypothesis:
+   - Everyone, regardless of their technical skill, should be able to invoke the world’s best super intelligences, enriched from the best data (context), from a single mouse click, to enhance a given bet.
+   - Each ai platform will improve its ease of use and capability over time, but those improvements will be limited to their own models. AI aggregators like Perplexity have brought the power of multiple AIs to non-technical consumers, yet those user experience are not optimized for specific use cases.
+- Usability Hypothesis: A first-time user can get at least a small initial value immediately when landing on the page. User then gets unique, bespoke value for their interests within the first 30-45 seconds of using the app.
+- AI Trust Hypothesis: TBD: need to research further how much trust the users want in the AI's predictions.
+- Engagement Hypothesis: (work in progress) Providing users with a starting balance will lead to triggering at least 10 predictions in their first week.
+
 
 **Problem**:
 The average prediction market user does not have the data or ai engineering expertise or time to maximize the use of the latest AI models. 
@@ -13,46 +18,79 @@ The average prediction market user does not have the data or ai engineering expe
 **Solution**: Leverage world-class AI models with world class enriched data to make smarter predictions on trending markets for consumer users.
 
 
-## User Flows & Roadmap
-To maximise early user value while keeping scope tight, the flows are grouped into phased releases. Each phase ships a complete slice of functionality and sets the stage for the next.
+## Phased Design Features
 
-### Phase 0 – Private Alpha (MVP)
-1. **AI Market Prediction (core loop)**
-   - User sees the top trending Polymarket events.
-   - Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link).
-   - Advanced options (paid model, extra data enrichment) can be deferred.
+### Phase 0 – Trust & Core Loop (Private Beta)
 
-2. **Account Creation & Authentication**
-   - Lightweight email / social login.
-   - Required for persisting predictions and preparing for payments.
 
-*Alpha note*: Provide a free daily credit pool; skip the funding flow for now.
+- Landing page: "Today's Top Market Insights" (curated quality over quantity). Track record:  "AI predicted X correctly this week".
+- Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude).
+  - Launch to Prediction Market: user can click through to the prediction market page ( Polymarket, Kalshi, etc).
+  - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
+  - "Compare to Market" — Show how AI prediction differs from current market prices.
+  - Verified Prediction: share exact prompt and dataset used. Valuable for trust in financial context; enables reproducibility and competitive advantage.
 
-### Phase 1 – Public Beta
-3. **Funding Balance**
-   - Users add funds to access premium models or additional predictions.
-   - Simple checkout with minimal amount and stored balance.
 
-4. **Activity Page**
-   - Displays past predictions, cost, timestamp and deep-link to detail view.
-   - Encourages retention and social sharing.
+- Account Creation & Authentication: Lightweight email / social login. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now.
 
-### Phase 2 – Power-User Suite
-5. **My Portfolio**
-   - Connect external prediction-market accounts; show active positions and allow re-running AI predictions.
-   - Optionally alert users to meaningful price deltas.
 
-6. **Market Alpha**
-   - Surfaces markets with the highest mis-pricing signal based on batch predictions.
-   - Acts as discovery feed and upsell path to paid predictions.
+- Portfolio Watcher v1: import your active portfolio from Polymarket and Kalshi. Enable users to manually select markets and trigger predictions.
 
-7. **Search / Voice / Browser Extension**
-   - Convenience and distribution channels once the core loop and monetisation are validated.
 
-### Deferred / Experimental
-- **Trust-but-Verify (IPFS/S3 audit trail)** – revisit after paid traction.
+### Phase 1 – Retention & Discovery (Public Beta Free to use)
+- Funding Balance: Users add funds to access premium models or additional predictions. Simple checkout with minimal amount and stored balance.
 
-## Data Pipeline
+- Activity Page: Displays past predictions, cost, timestamp and deep-link to detail view. Encourages retention and social sharing.
+
+- Prediction detail page: "Update Prediction" — Re-run predictionwith latest data
+
+- "Track This Prediction":
+    Simple bookmark/follow feature
+   - "Notify me when market resolves" creates return reason for users to come back.
+
+- Market and Prediction Detail view: "Similar Markets" — Show related predictions user might be interested in. Benefit: user retention.
+
+### Phase 2 – Portfolio + Power-User Suite (Paid)
+
+- Portfolio Watcher v2 "Active Agent": import your active portfolio from Polymarket and Kalshi. Prediction engine runs daily for each market in your portfolio. Get alerted when the AI prediction price difference exceeds a configurable threshold.
+
+- My Portfolio: Connect external prediction-market accounts; show active positions and allow re-running AI predictions. Optionally alert users to meaningful price deltas.
+
+- Market Alpha: Surfaces markets with the highest mis-pricing signal based on batch predictions. Acts as discovery feed and upsell path to paid predictions.
+
+- Prediction detail page: "Set Alert" — Notify when market moves significantly vs AI prediction.
+
+### Future Features Not Yet Scheduled
+
+High Value
+
+- "What Could Change This?" — Show key events/factors that could flip the prediction
+- "Prediction Performance" — Show simple AI accuracy stats
+
+Medium Value
+- "Prediction Performance" — Show simple AI accuracy stats
+
+- Portfolio Watcher Daily News: import your active portfolio from Polymarket and Kalshi. Get daily news on key events that impact your active bets.
+
+- Conversational prediction analysis: chat with your prediction. Strong engagement; helps users understand reasoning; extends session value. 
+- Allow power users to inject additionalUserMessageContext. Valuable for advanced users; consider guided prompts vs freeform.
+- Mobile App, Browser Extension: additional distribution channels once the core loop and monetisation are validated.
+- Confidence score: add a confidence score to the prediction where the AI defines their level of confidence in the prediction.
+
+Low Value
+- Trust-but-Verify: each prediction includes a public link to the prompt and dataset used (IPFS/S3 audit trail).
+- A/B/C testing of prompts/datasets — Critical internally but indirect user value; foundation for other features  
+- Harvest learnings from betters — Indirect benefit; significant privacy/legal complexity
+- Release predictions DB as open dataset — Community/marketing value; low direct user impact
+
+
+### Open Questions for User Value
+- Do users want to see the AI's confidence score?
+- Do users care about AI model selection?
+- Do users care about dataset used?
+
+
+## Data Pipeline Overview
 
 When a user chooses to invoke an AI prediction, the following data pipeline is triggered:
 
@@ -71,11 +109,3 @@ This multi-step process ensures that the final prediction is not just based on a
 ## Legal
 Consistently describe the app as a way to "enable the user to invoke multiple LLMs with enriched datasets". Emphasize that this is a tool for analysis, not a financial advisor.
 
-## Future features under consideration
-- UI/UX
-  - Show “Overpriced vs Underpriced” panel with rationale and signal scores.
-  - “Clearance aisle” quick picks when top-two concentration exceeds a threshold.
-  - Allow user to inject "additionalUserMessageContext" to the AI prediction.
-- Backtesting and calibration
-  - Event-class backtests to calibrate noise weights and heuristic coefficients.
-  - Output factors array and signal weights for transparency and future backtesting.
