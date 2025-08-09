@@ -1,17 +1,10 @@
 
 # Week of 8/11
 
-## Sunday Finalize Beta App User Flows
-- Pull from todo list of features, organize Design, then ask AI to give feedback on flows in Design.md.
-- Take my top user flows and ask AI which is flow is most valuable and then ask how I can build and design on that.
-- Define Your Key Hypotheses: examples:
-  - Value Prop Hypothesis: "Users will find value in our AI's predictions to make more informed decisions in the market."
-  - Usability Hypothesis: "A first-time user can successfully create a market and place a trade within 3 minutes."
-  - AI Trust Hypothesis: "Users will trust the AI's confidence score (C-score) and explanations when making a trade."
-  - Engagement Hypothesis: "Providing users with a starting balance of virtual currency will lead to them making at least 5 trades in their first week."
+Sunday: merge this todo list with my Design phases doc and overall project plan. 
 
 ## Monday: UX enhancements
-- Redesign UX - ask AI to help feedback on highest value and how to represent those minimally via UX.
+- Redesign UX - ask AI to help feedback on best represent the planned use cases minimally via UX.
 - Add shadcdn styles and/or or framer motion animation: https://motion.dev/
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
 - Add a predictionResults page that shows the final prediction results for a given prediction.
@@ -24,7 +17,7 @@
 
 ## Data Modeling
 - [ ]Add Kalshi market data
-- Consider enhancing my categories to match Polymarket's
+- Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
 
 
 
