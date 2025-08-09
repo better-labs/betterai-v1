@@ -1,8 +1,7 @@
 
 # Week of 8/11
 
-
-  
+Sunday: merge this todo list with my Design phases doc and overall project plan. 
 
 ## Monday: UX enhancements
 - Redesign UX - ask AI to help feedback on best represent the planned use cases minimally via UX.

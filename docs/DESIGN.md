@@ -24,7 +24,7 @@ The average prediction market user does not have the data or ai engineering expe
 
 
 - Landing page: "Today's Top Market Insights" (curated quality over quantity). Track record:  "AI predicted X correctly this week".
-- Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude).
+- Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
   - Launch to Prediction Market: user can click through to the prediction market page ( Polymarket, Kalshi, etc).
   - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
   - "Compare to Market" — Show how AI prediction differs from current market prices.
