@@ -23,18 +23,18 @@ The average prediction market user does not have the data or ai engineering expe
 ### Phase 0 – Trust & Core Loop (Private Beta)
 
 
-- Landing page: "Today's Top Market Insights" (curated quality over quantity). Track record:  "AI predicted X correctly this week".
+- Landing page: "Today's Top Market Insights" (curated quality over quantity), "last updated timestamp". Track record:  "AI predicted X correctly this week".
+
 - Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
-  - Launch to Prediction Market: user can click through to the prediction market page ( Polymarket, Kalshi, etc).
+  - Go to Prediction Market: user can click through to the prediction market page on Polymarket.
   - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
   - "Compare to Market" — Show how AI prediction differs from current market prices.
-  - Verified Prediction: share exact prompt and dataset used. Valuable for trust in financial context; enables reproducibility and competitive advantage.
+  - Verifiable Prediction: share exact prompt and dataset used. Valuable for trust in financial context; enables reproducibility and competitive advantage.
+
+- Portfolio Watcher v1: import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
 
 
-- Account Creation & Authentication: Lightweight email / social login. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now.
-
-
-- Portfolio Watcher v1: import your active portfolio from Polymarket and Kalshi. Enable users to manually select markets and trigger predictions.
+- Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
 
 
 ### Phase 1 – Retention & Discovery (Public Beta Free to use)
@@ -50,15 +50,19 @@ The average prediction market user does not have the data or ai engineering expe
 
 - Market and Prediction Detail view: "Similar Markets" — Show related predictions user might be interested in. Benefit: user retention.
 
-### Phase 2 – Portfolio + Power-User Suite (Paid)
+### Phase 2 – Portfolio + Power-User Suite
 
-- Portfolio Watcher v2 "Active Agent": import your active portfolio from Polymarket and Kalshi. Prediction engine runs daily for each market in your portfolio. Get alerted when the AI prediction price difference exceeds a configurable threshold.
+- Portfolio Watcher v2 "Active Agent": import your active portfolio from Polymarket. Prediction engine runs daily for each market in your portfolio. Get alerted when the AI prediction price difference exceeds a configurable threshold.
 
 - My Portfolio: Connect external prediction-market accounts; show active positions and allow re-running AI predictions. Optionally alert users to meaningful price deltas.
 
 - Market Alpha: Surfaces markets with the highest mis-pricing signal based on batch predictions. Acts as discovery feed and upsell path to paid predictions.
 
 - Prediction detail page: "Set Alert" — Notify when market moves significantly vs AI prediction.
+
+- Enable payments via Stripe, Coinbase, etc. to purchase more credits or a subscription.
+
+
 
 ### Future Features Not Yet Scheduled
 
@@ -70,7 +74,7 @@ High Value
 Medium Value
 - "Prediction Performance" — Show simple AI accuracy stats
 
-- Portfolio Watcher Daily News: import your active portfolio from Polymarket and Kalshi. Get daily news on key events that impact your active bets.
+- Portfolio Watcher Daily News: import your active portfolio from Polymarket. Get daily news on key events that impact your active bets.
 
 - Conversational prediction analysis: chat with your prediction. Strong engagement; helps users understand reasoning; extends session value. 
 - Allow power users to inject additionalUserMessageContext. Valuable for advanced users; consider guided prompts vs freeform.
@@ -82,12 +86,14 @@ Low Value
 - A/B/C testing of prompts/datasets — Critical internally but indirect user value; foundation for other features  
 - Harvest learnings from betters — Indirect benefit; significant privacy/legal complexity
 - Release predictions DB as open dataset — Community/marketing value; low direct user impact
-
+- Voice: Gemini live conversation with the AI on its prediction.
 
 ### Open Questions for User Value
 - Do users want to see the AI's confidence score?
 - Do users care about AI model selection?
 - Do users care about dataset used?
+
+
 
 
 ## Data Pipeline Overview
@@ -106,6 +112,6 @@ When a user chooses to invoke an AI prediction, the following data pipeline is t
 
 This multi-step process ensures that the final prediction is not just based on a single AI model's general knowledge, but is informed by a rich, relevant, and timely set of data specifically tailored to the market in question.
 
-## Legal
+## Legal Reminder
 Consistently describe the app as a way to "enable the user to invoke multiple LLMs with enriched datasets". Emphasize that this is a tool for analysis, not a financial advisor.
 
