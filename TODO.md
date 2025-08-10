@@ -1,98 +1,108 @@
 
 # Week of 8/11
 
-Sunday: merge this todo list with my Design phases doc and overall project plan. 
-
 ## Monday: UX enhancements
-- Redesign UX - ask AI to help feedback on best represent the planned use cases minimally via UX.
-- Add shadcdn styles and/or or framer motion animation: https://motion.dev/
-- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
-- Add a predictionResults page that shows the final prediction results for a given prediction.
-- Add AI leaderboard
-- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
+- Redesign UX - ask AI to help feedback on how to best represent the planned use cases minimally via UX.
+- Landing page: "Today's Top Market Insights" (curated quality over quantity), "last updated timestamp". Track record:  "AI predicted X correctly this week".
 
-## Tuesday: Benchmark enhancements
-- Add AI prediction leaderboard?
+## Tuesday: Core Loop: Prediction Engine
 
-
-## Data Modeling
-- [ ]Add Kalshi market data
-- Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
+- Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
+  - Go to Prediction Market: user can click through to the prediction market page on Polymarket.
+  - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
+  - "Compare to Market" — Show how AI prediction differs from current market prices.
+  - Verifiable Prediction: share exact prompt and dataset used. Valuable for trust in financial context; enables reproducibility and competitive advantage.
 
 
+## Wednesday
+- Portfolio Watcher v1: import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
 
 
-## DB Ops
-- Production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
+## Thursday
+- Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
+
+- DB Ops Planning: production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 
 
-## Tools to add
-- Auth: maybe Clerk
-- Payments: maybe Stripe
-- Voice: Gemini live
+
+
+
+### Operations
 - Operations: Vercel analytics, Vercel "Observability" features currently paid for
 - Evaluate: hotjar, canny product request, sentry or logrocket
 
-
-- Integrate so that Prediction Engine API uses the prediction service when button is clicked.
-- Add necessary buttons Generate prediction button for all markets.
-
-
-- Add "Alpha Signal" section after "Trending" section. Similar table, but organized by top alpha (free prediction) vs market prediction.
+### User Signup
+- Share URL for users to signup for private beta and get 100 free daily credits for AI predictions.
 
 
-## User Authentication
-- Review best options for user authentication
-- Implement user authentication system
+
+### Category Fixes?
+- Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
+- Decide category strategy: exclude crypto vs. mark as less effective
+  - Default: include all; segment metrics per category
+
+## Nice to have
+- Add shadcdn styles and/or or framer motion animation: https://motion.dev/
+- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
+- Add AI leaderboard?
+- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Later (Date TBD)
 
 ## Scale
 - Add caching to data service layer calls? Ask the AI
 
 
-## Benchmark and Prediction Data Pipeline
-
-- [ ] Decide category strategy: exclude crypto vs. mark as less effective
-  - Default: include all; segment metrics per category
-- [ ] Add weekly evaluator to compute Brier/calibration for resolved markets (Phase 2)
-
-
 ## Revisit CRON default settings
-
-pnpm cron:generate-batch-predictions && pnpm cron:prediction-check
-..
-Starting batch prediction generation...
-Config: 10 markets, ±48h around 14 days from now
-Searching for markets ending between 2025-08-20T15:14:29.515Z and 2025-08-24T15:14:29.515Z
-Found 0 markets meeting criteria:
-No markets found matching the criteria
-
+- Consider finding a more full featured cron provider.
+- Redesign CRON timings to make sense for use case.Eg
+  pnpm cron:generate-batch-predictions && pnpm cron:prediction-check
+  ..
+  Starting batch prediction generation...
+  Config: 10 markets, ±48h around 14 days from now
+  Searching for markets ending between 2025-08-20T15:14:29.515Z and 2025-08-24T15:14:29.515Z
+  Found 0 markets meeting criteria:
+  No markets found matching the criteria
 
 
 ## Authentication & Rate Limiting
-- [ ] Design mechanism to prevent overuse of free prediction
-  - [ ] Research Google user login integration
-  - [ ] Ask AI to help design rate limiting strategy
-  - [ ] Implement user authentication system
+- Design mechanism to prevent overuse of free prediction
+  - Research Google user login integration
+  - Ask AI to help design rate limiting strategy
+  - Implement user authentication system
 
 ## Free Prediction Features
-- [ ] Enable free button inference for market prediction
-  - [ ] Add temporary output to result modal window
-- [ ] Enable caching for free prediction
+- Enable free button inference for market prediction
+  - Add temporary output to result modal window
+- Enable caching for free prediction
 
 # Public Launch Prep
 
 ## Operational
-- [ ] Research best practices for rate limiting and user authentication
-- [ ] Implement user tracking analytics (hotjar, vercel analytics, sentry or logrocket)
+- Research best practices for rate limiting and user authentication
 
 ## Security
-- [] plan out and end to end 
+- Ask AI on best practices for end to end security review prior to public launch.
 
 
 ## Docs to author
-- [ ] Basic User Guide
-- [ ] Terms of Service
-- [ ] Privacy Policy
+- Basic User Guide
+- Terms of Service
+- Privacy Policy
 
 
 
@@ -100,16 +110,11 @@ No markets found matching the criteria
 
 # Post Launch
 - [ ] Submit to Polymarket Docs for Feature: https://docs.polymarket.com/quickstart/introduction/showcase#%F0%9F%A4%9D-want-to-be-featured%3F
-- []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket and Kalshi channels. Real traders will jump at a chance to test new tooling in a competitive environment. 
+- []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
 ## Potential tasks
 - Add shadcdn styles and/or or framer motion animation: https://motion.dev/
 
-- [ ] Raw responses from Kalshi and Polymarket:
-   1. Keep the `markets` table. It is your canonical model.
-   2. Create `_raw` tables for each data source (polymarket_raw, kalshi_raw).
-   3. Build a processing pipeline (can be a simple cron job/script) that moves and transforms data from the _raw tables into the canonical markets table.
-   4. Your application should only ever interact with the `markets` table. This creates a powerful abstraction layer that decouples your app from the specifics of the data sources.
 
 ---
 
