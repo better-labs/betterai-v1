@@ -6,8 +6,9 @@ export function Footer() {
       <div className="container mx-auto px-4 py-6">
         <div className="text-center text-sm text-muted-foreground">
           <p className="mb-2">
-            All content is for informational and educational purposes only and is not financial advice. 
-            You are solely responsible for your own decisions. By using this site, you agree to our{" "}
+            All content is for informational and educational purposes only and is not financial advice. You are solely responsible for your own decisions. 
+            <br></br> 
+            By using this site, you agree to our{" "}
             <Link href="/tos" className="underline hover:text-foreground transition-colors">
               Terms of Service
             </Link>{" "}

@@ -49,6 +49,36 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
           const eventTitle = event?.title ?? ''
           const eventIcon = event?.icon ?? null
           const eventImage = event?.image ?? null
+          const marketOutcome0 = market?.outcomes?.[0] 
+          const marketOutcome1 = market?.outcomes?.[1] 
+          const price0 = market?.outcomePrices?.[0]
+          const price1 = market?.outcomePrices?.[1]
+          const aiProb0 = p?.outcomesProbabilities?.[0]
+          const aiProb1 = p?.outcomesProbabilities?.[1]
+          const aiOutcome0 = p?.outcomes?.[0] 
+          const aiOutcome1 = p?.outcomes?.[1] 
+
+          const formatPercent = (value: unknown): string => {
+            if (value == null) return '—'
+            let num: number | null = null
+            if (typeof value === 'number') {
+              num = value
+            } else if (typeof value === 'string') {
+              const parsed = parseFloat(value)
+              num = Number.isFinite(parsed) ? parsed : null
+            } else if (typeof value === 'object') {
+              const anyVal = value as any
+              if (typeof anyVal?.toNumber === 'function') {
+                try { num = anyVal.toNumber() } catch { num = null }
+              } else if (typeof anyVal?.toString === 'function') {
+                const parsed = parseFloat(anyVal.toString())
+                num = Number.isFinite(parsed) ? parsed : null
+              }
+            }
+            if (num == null || !Number.isFinite(num)) return '—'
+            const percent = num <= 1 ? num * 100 : num
+            return `${Math.round(percent)}%`
+          }
 
           return (
             <div key={p.id as any} className="p-4 sm:p-5">
@@ -84,12 +114,12 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
                     <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
                     <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
                       <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
-                        <div className="text-muted-foreground">Yes</div>
-                        <div className="text-right font-semibold tabular-nums">33%</div>
+                        <div className="text-muted-foreground">{marketOutcome0}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(price0)}</div>
                       </div>
                       <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
-                        <div className="text-muted-foreground">No</div>
-                        <div className="text-right font-semibold tabular-nums">66%</div>
+                        <div className="text-muted-foreground">{marketOutcome1}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(price1)}</div>
                       </div>
                     </div>
                   </Link>
@@ -101,12 +131,12 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
                   <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
                     <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
                       <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
-                        <div className="text-muted-foreground">Yes</div>
-                        <div className="text-right font-semibold tabular-nums">22%</div>
+                        <div className="text-muted-foreground">{aiOutcome0}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(aiProb0)}</div>
                       </div>
                       <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
-                        <div className="text-muted-foreground">No</div>
-                        <div className="text-right font-semibold tabular-nums">78%</div>
+                        <div className="text-muted-foreground">{aiOutcome1}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(aiProb1)}</div>
                       </div>
                     </div>
                   </Link>
