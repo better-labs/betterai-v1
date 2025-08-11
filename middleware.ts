@@ -1,32 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  showMarketAlpha,
-  showPortfolio,
-  showSearch,
-  showActivity,
-  showTermsOfService,
-  showPrivacyPolicy
-} from '@/lib/feature-flags';
+import { getServerFeatureFlags } from '@/lib/feature-flags';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Read feature flags per-request to avoid stale values in edge runtime
+  const flags = getServerFeatureFlags();
+
   // Define routes that should be protected by feature flags
   const protectedRoutes = [
-    { path: '/market-alpha', flag: showMarketAlpha },
-    { path: '/portfolio', flag: showPortfolio },
-    { path: '/search', flag: showSearch },
-    { path: '/activity', flag: showActivity },
-    { path: '/tos', flag: showTermsOfService },
-    { path: '/privacy', flag: showPrivacyPolicy }
+    { path: '/market-alpha', enabled: flags.showMarketAlpha },
+    { path: '/portfolio', enabled: flags.showPortfolio },
+    { path: '/search', enabled: flags.showSearch },
+    { path: '/activity', enabled: flags.showActivity },
+    { path: '/tos', enabled: flags.showTermsOfService },
+    { path: '/privacy', enabled: flags.showPrivacyPolicy }
   ];
 
   // Check if the current path matches any protected route
   for (const route of protectedRoutes) {
     if (pathname.startsWith(route.path)) {
-      const isEnabled = route.flag.getValue();
-      
-      if (!isEnabled) {
+      if (!route.enabled) {
         // Redirect to home page if feature is disabled
         return NextResponse.redirect(new URL('/', request.url));
       }

@@ -147,3 +147,29 @@ WHERE
 ORDER BY
   m.volume DESC
 LIMIT 20;
+
+
+
+
+-- Find market with "freakier friday" and related predictions and checks
+WITH target_market AS (SELECT m.id, m.question
+                       FROM markets m
+                       WHERE LOWER(m.question) LIKE '%freakier friday%'
+                          OR LOWER(m.description) LIKE '%freakier friday%')
+SELECT m.id          AS market_id,
+       m.question    AS market_question,
+       m.outcome_prices[1],
+       p.probability AS predicted_probability,
+       pc.delta    AS prediction_check_delta,
+       p.id          AS prediction_id,
+       p.created_at  AS prediction_created_at,
+       pc.id         AS prediction_check_id,
+       pc.market_closed,
+       pc.market_category,
+       pc.created_at AS check_created_at
+FROM target_market tm
+         JOIN markets m ON m.id = tm.id
+         LEFT JOIN predictions p ON p.market_id = m.id
+         LEFT JOIN prediction_checks pc ON pc.prediction_id = p.id
+ORDER BY pc.created_at
+
