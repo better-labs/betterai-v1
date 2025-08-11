@@ -153,17 +153,21 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                   <div>
                     <h4 className="font-medium mb-2">Probability</h4>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold">
-                        {(predictionResult.probability * 100).toFixed(1)}%
-                      </span>
-                      <div className="flex-1 bg-muted rounded-full h-3">
-                        <div 
-                          className="bg-primary h-3 rounded-full transition-all"
-                          style={{ 
-                            width: `${predictionResult.probability * 100}%` 
-                          }}
-                        />
-                      </div>
+                      {(() => {
+                        const p0 = Array.isArray(predictionResult.outcomesProbabilities) ? predictionResult.outcomesProbabilities[0] : null
+                        const pct = typeof p0 === 'number' ? Math.round(p0 * 100) : null
+                        return (
+                          <>
+                            <span className="text-2xl font-bold">{pct !== null ? `${pct}%` : '--'}</span>
+                            <div className="flex-1 bg-muted rounded-full h-3">
+                              <div
+                                className="bg-primary h-3 rounded-full transition-all"
+                                style={{ width: pct !== null ? `${pct}%` : '0%' }}
+                              />
+                            </div>
+                          </>
+                        )
+                      })()}
                     </div>
                   </div>
 

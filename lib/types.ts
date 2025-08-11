@@ -91,7 +91,8 @@ export interface ApiResponse<T = unknown> {
 
 export interface PredictionResult {
   prediction: string
-  probability: number
+  outcomes: string[]
+  outcomesProbabilities: number[]
   reasoning: string
   confidence_level: "High" | "Medium" | "Low"
 }

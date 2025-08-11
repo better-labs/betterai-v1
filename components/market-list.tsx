@@ -116,15 +116,17 @@ export function MarketList({
                     <div className="text-2xl md:text-3xl font-bold text-foreground">
                       {(() => {
                         // First check if there's a current AI prediction
-                        if (predictions[market.id]) {
+                         if (predictions[market.id]) {
                           const prediction = predictions[market.id]
-                          return `${(prediction.probability * 100).toFixed(0)}%`
+                          const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
+                          return p0 != null ? `${Math.round(Number(p0) * 100)}%` : '--'
                         }
                         
                         // Then check if there's a stored market prediction
                         if (marketPredictions[market.id]) {
                           const prediction = marketPredictions[market.id]
-                          return `${(prediction.probability * 100).toFixed(0)}%`
+                          const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
+                          return p0 != null ? `${Math.round(Number(p0) * 100)}%` : '--'
                         }
                         
                         // Show loading state
@@ -138,14 +140,15 @@ export function MarketList({
                     </div>
                     {(() => {
                       // Check if there's a current AI prediction
-                      if (predictions[market.id]) {
+                       if (predictions[market.id]) {
                         const prediction = predictions[market.id]
+                        const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
                         return (
                           <div className="flex flex-col items-center space-y-1 md:space-y-2">
                             <span className="text-xs text-muted-foreground">Chance</span>
                             <div className="w-10 md:w-12 h-2 bg-muted rounded-full">
                               <div 
-                                className={`h-2 rounded-full w-${Math.min(12, Math.max(1, Math.round(prediction.probability * 12)))} bg-green-500`}
+                                className={`h-2 rounded-full w-${p0 != null ? Math.min(12, Math.max(1, Math.round(Number(p0) * 12))) : 1} bg-green-500`}
                               ></div>
                             </div>
                           </div>
@@ -153,14 +156,15 @@ export function MarketList({
                       }
                       
                       // Then check if there's a stored market prediction
-                      if (marketPredictions[market.id]) {
+                       if (marketPredictions[market.id]) {
                         const prediction = marketPredictions[market.id]
+                        const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
                         return (
                           <div className="flex flex-col items-center space-y-1 md:space-y-2">
                             <span className="text-xs text-muted-foreground">Chance</span>
                             <div className="w-10 md:w-12 h-2 bg-muted rounded-full">
                               <div 
-                                className={`h-2 rounded-full w-${Math.min(12, Math.max(1, Math.round(prediction.probability * 12)))} bg-green-500`}
+                                className={`h-2 rounded-full w-${p0 != null ? Math.min(12, Math.max(1, Math.round(Number(p0) * 12))) : 1} bg-green-500`}
                               ></div>
                             </div>
                           </div>

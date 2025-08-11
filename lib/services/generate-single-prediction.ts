@@ -1,5 +1,4 @@
 import { marketQueries, predictionQueries, DEFAULT_MODEL } from '../db/queries'
-import { validateProbability } from '../utils'
 import { fetchPredictionFromOpenRouter } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
 import { Decimal } from '@prisma/client/runtime/library'
@@ -12,20 +11,21 @@ interface PredictionServiceResponse {
 }
 
 function constructPredictionPrompt(market: Market, additionalUserMessageContext?: string): { systemMessage: string; userMessage: string } {
+  
   const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and confidence level.
 
 Format your response as a JSON object with the following structure:
 {
-  "outcomes": {
-    "outcome1": "probability",
-    "outcome2": "probability",
-  },
+  "outcomes": ["Yes", "No"],
+  "outcomesProbabilities": [0.75, 0.25],
   "reasoning": "detailed explanation of your reasoning",
   "confidence_level": "High/Medium/Low"
 }
 
 IMPORTANT: Return ONLY a valid JSON object. Do NOT wrap your response in markdown code blocks, backticks, or any other formatting. Return pure JSON.
-IMPORTANT: The probability field must be a numeric value between 0 and 1. Do not use percentages, text, or any other format.`
+IMPORTANT: The outcomesProbabilities values must be decimal values between 0 and 1. Do not use percentages, text, or any other format.
+IMPORTANT: the sum total of the two outcomesProbabilities must equal 1
+`
 
   const userMessage = `Analyze this market and provide a comprehensive prediction for the outcome:"${market.outcomes?.[0]}":
 
@@ -41,25 +41,74 @@ ${additionalUserMessageContext ? `Additional context: ${additionalUserMessageCon
   return { systemMessage, userMessage }
 }
 
+function isValidProbArray(values: number[]): boolean {
+  if (!Array.isArray(values) || values.length === 0) return false
+  let sum = 0
+  for (const v of values) {
+    if (typeof v !== 'number' || !isFinite(v) || v < 0 || v > 1) return false
+    sum += v
+  }
+  return Math.abs(sum - 1) < 1e-6
+}
+
+function alignToMarketOrder(predOutcomes: string[], predProbs: number[], marketOutcomes: string[] | null | undefined) {
+  if (!marketOutcomes || marketOutcomes.length !== predOutcomes.length) {
+    return { outcomes: predOutcomes, probs: predProbs }
+  }
+  const indexByLabel = new Map(marketOutcomes.map((o, i) => [o, i]))
+  const alignedOutcomes = Array(predOutcomes.length).fill('')
+  const alignedProbs = Array(predProbs.length).fill(0)
+  predOutcomes.forEach((label, i) => {
+    const j = indexByLabel.get(label)
+    if (j !== undefined) {
+      alignedOutcomes[j] = label
+      alignedProbs[j] = predProbs[i]
+    }
+  })
+  // Fallback: if alignment failed (some blanks), return original
+  if (alignedOutcomes.some(o => !o)) return { outcomes: predOutcomes, probs: predProbs }
+  return { outcomes: alignedOutcomes, probs: alignedProbs }
+}
+
 async function savePrediction(
   marketId: string,
   userMessage: string,
   modelName: string,
   systemMessage: string,
   predictionResult: PredictionResult,
-  aiResponse: string
+  aiResponse: string,
+  market: Market
 ): Promise<number> {
-  const validatedProbability = validateProbability(predictionResult.probability)
+  // Validate arrays
+  if (!Array.isArray(predictionResult.outcomes) || !Array.isArray(predictionResult.outcomesProbabilities)) {
+    throw new Error('Prediction result missing outcomes or outcomesProbabilities array')
+  }
+  if (predictionResult.outcomes.length !== predictionResult.outcomesProbabilities.length) {
+    throw new Error('outcomes and outcomesProbabilities must have the same length')
+  }
+  if (!isValidProbArray(predictionResult.outcomesProbabilities)) {
+    throw new Error('outcomesProbabilities must be numbers in [0,1] and sum to 1')
+  }
+
+  // Align to market order when labels match
+  const { outcomes, probs } = alignToMarketOrder(
+    predictionResult.outcomes,
+    predictionResult.outcomesProbabilities,
+    market.outcomes
+  )
+
   const internalPredictionResult: PredictionResult = {
     ...predictionResult,
-    probability: validatedProbability,
+    outcomes,
+    outcomesProbabilities: probs,
   }
 
   const newPrediction = {
     marketId,
     userMessage: userMessage,
     predictionResult: internalPredictionResult,
-    probability: new Decimal(validatedProbability),
+    outcomes,
+    outcomesProbabilities: probs.map((p) => new Decimal(p)),
     modelName,
     systemPrompt: systemMessage,
     aiResponse,
@@ -98,7 +147,8 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
       model,
       systemMessage,
       predictionResult,
-      JSON.stringify(predictionResult)
+      JSON.stringify(predictionResult),
+      market
     )
 
     console.log(`New prediction created and stored with ID: ${predictionId}`)
