@@ -16,8 +16,10 @@ function constructPredictionPrompt(market: Market, additionalUserMessageContext?
 
 Format your response as a JSON object with the following structure:
 {
-  "prediction": "your prediction outcome",
-  "probability": 0.XX (must be a number between 0 and 1, e.g., 0.75 for 75%),
+  "outcomes": {
+    "outcome1": "probability",
+    "outcome2": "probability",
+  },
   "reasoning": "detailed explanation of your reasoning",
   "confidence_level": "High/Medium/Low"
 }
@@ -25,13 +27,14 @@ Format your response as a JSON object with the following structure:
 IMPORTANT: Return ONLY a valid JSON object. Do NOT wrap your response in markdown code blocks, backticks, or any other formatting. Return pure JSON.
 IMPORTANT: The probability field must be a numeric value between 0 and 1. Do not use percentages, text, or any other format.`
 
-  const userMessage = `Analyze this market and provide a comprehensive prediction:
+  const userMessage = `Analyze this market and provide a comprehensive prediction for the outcome:"${market.outcomes?.[0]}":
 
 Market: "${market.question}"
-${market.description ? `Market Description: ${market.description}` : ''}
-${market.endDate ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` : ''}
+
 
 Please consider the market context, timing, and any relevant factors when making your prediction.
+${market.description ? `Market Description: ${market.description}` : ''}
+${market.endDate ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` : ''}
 
 ${additionalUserMessageContext ? `Additional context: ${additionalUserMessageContext}` : ''}`
 
