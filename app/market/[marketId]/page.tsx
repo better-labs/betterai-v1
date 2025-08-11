@@ -33,16 +33,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        {/* Back Button */}
-        <div className="mb-6">
-          <Link href="/">
-            <Button variant="ghost" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-
+        
         {/* Event Information */}
         {event && (
           <Link href={`/event/${event.id}`}>
@@ -60,11 +51,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     <h3 className="text-xl font-semibold text-foreground mb-2">
                       {event.title}
                     </h3>
-                    {event.description && (
-                      <p className="text-muted-foreground mb-4">
-                        {event.description}
-                      </p>
-                    )}
+                   
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       {event.endDate && (
                         <div className="flex items-center gap-1">
@@ -87,11 +74,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               <h1 className="text-3xl font-bold text-foreground mb-2">
                 {market.question}
               </h1>
-              {market.description && (
-                <p className="text-muted-foreground mb-4">
-                  {market.description}
-                </p>
-              )}
+
             </div>
             <Badge variant={market.active ? "default" : "secondary"}>
               {market.active ? "Active" : "Closed"}
@@ -237,8 +220,20 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           </Card>
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-8 flex gap-4">
+       
+
+        {/* Market Description */}
+        {market.description && (
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-3">Market Description</h3>
+            <p className="text-muted-foreground">
+              {market.description}
+            </p>
+          </div>
+        )}
+
+         {/* Action Buttons */}
+         <div className="mt-8 flex gap-4">
           <Button asChild>
             <Link href="/">
               Back to Markets

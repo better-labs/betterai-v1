@@ -1,10 +1,6 @@
 
 # Week of 8/11
 
-## Monday: UX enhancements
-- Redesign UX - ask AI to help feedback on how to best represent the planned use cases minimally via UX.
-- Landing page: "Today's Top Market Insights" (curated quality over quantity), "last updated timestamp". Track record:  "AI predicted X correctly this week".
-
 ## Tuesday: Core Loop: Prediction Engine
 
 - Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
@@ -12,6 +8,15 @@
   - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
   - "Compare to Market" — Show how AI prediction differs from current market prices.
   - Verifiable Prediction: share exact prompt and dataset used. Valuable for trust in financial context; enables reproducibility and competitive advantage.
+
+- Fix this URL? http://localhost:3000/market/[marketId]/predictions ? Or remove this page and make an expand section to show all predictions?
+
+## Monday: UX enhancements
+- Landing page: "Today's Top Market Insights" (curated quality over quantity), "last updated timestamp". Track record:  "AI predicted X correctly this week".
+- Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
+- Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
+
+
 
 
 ## Wednesday
