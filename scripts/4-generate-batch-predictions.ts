@@ -22,7 +22,7 @@ async function main() {
 
     await runBatchPredictionGeneration(
       {
-        topMarketsCount: 3,
+        topMarketsCount: 5,
         endDateRangeHours: 12,
         targetDaysFromNow: 7
       },

@@ -1,20 +1,35 @@
 
 # Week of 8/11
 
-## Tuesday: Core Loop: Prediction Engine
+## Monday: Core Loop: Prediction Engine
 
-- Modify prediction pipeline to generate a prediction for each outcome instead of just one Prediction. The sum total of each outcome's probability should total 100%.
+DB changes:
+markets.id and events.id need to be an integer.
+predictions: remove probability column. Add column outcomes String[]. Add column outcomesProbabilities Decimal[].
 
-- Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
+
+
+
+- Test new Prediction prompt and pipeline.
+Prediction detail page:
+- Update Prediction card to be used on landing page "Recent AI Predictions" and Prediction detail page.
+
+
+
+- User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
   - Go to Prediction Market: user can click through to the prediction market page on Polymarket.
   - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
   - "Compare to Market" — Show how AI prediction differs from current market prices.
   - Verifiable Prediction: share exact prompt and dataset used. Valuable for trust in financial context; enables reproducibility and competitive advantage.
 
+- Event detail page.
+
 - Fix this URL? http://localhost:3000/market/[marketId]/predictions ? Or remove this page and make an expand section to show all predictions?
 
-## Monday: UX enhancements
-- Landing page: "Today's Top Market Insights" (curated quality over quantity), "last updated timestamp". Track record:  "AI predicted X correctly this week".
+## Tuesday: UX enhancements
+- Landing page:
+  Trending events (bring it back)
+  Track record:  "AI predicted X correctly this week".
 - Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
 - Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
 
@@ -50,6 +65,7 @@
 
 ## Nice to have
 - Add shadcdn styles and/or or framer motion animation: https://motion.dev/
+- Landing page: "Today's Top Market Insights" (curated quality over quantity),
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
 - Add AI leaderboard?
 - Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime

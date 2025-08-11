@@ -9,7 +9,7 @@ import { EventIcon } from "@/components/event-icon"
 import { Market, PredictionResult } from "@/lib/types"
 import { formatVolume } from "@/lib/utils"
 
-export function EventTable() {
+export function TrendingEventsTable() {
   const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
@@ -62,10 +62,7 @@ export function EventTable() {
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-black">Trending Events</h2>
-          <Badge variant="secondary" className="bg-[#4B9CD3]/10 text-[#4B9CD3]">
-            <TrendingUp className="h-3 w-3 mr-1" />
-            Top Events
-          </Badge>
+          
         </div>
         <div className="border rounded-lg">
           {[...Array(3)].map((_, i) => (
@@ -90,10 +87,7 @@ export function EventTable() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-foreground">Trending Events</h2>
-          <Badge variant="secondary" className="bg-primary/10 text-primary shadow-sm">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Top Events
-          </Badge>
+          
         </div>
 
         <div className="border rounded-lg p-8 text-center">
@@ -117,15 +111,13 @@ export function EventTable() {
       </div>
     )
   }
-
+  
+  // Handle normal state
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-foreground">Trending Events</h2>
-        <Badge variant="secondary" className="bg-primary/10 text-primary shadow-sm">
-          <TrendingUp className="h-4 w-4 mr-2" />
-          Top Events
-        </Badge>
+      
       </div>
 
       <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -148,11 +140,7 @@ export function EventTable() {
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div data-testid="event-icon" className="flex items-center">
-                    <EventIcon 
-                      icon={event.icon} 
-                      title={event.title} 
-                      size="md"
-                    />
+                    
                     {event.image && (
                       <img src={event.image} alt={event.title} className="h-10 w-10 ml-2 rounded-md object-cover" />
                     )}

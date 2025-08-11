@@ -1,0 +1,23 @@
+
+> my-v0-project@0.1.0 dev /Users/wesfloyd/github/betterai
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.86.42:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1282ms
+ ✓ Compiled /middleware in 200ms (147 modules)
+ ○ Compiling / ...
+ GET / 500 in 2956ms
+ GET /_next/static/webpack/e07317e829a4a3a3.webpack.hot-update.json 500 in 301ms
+ GET / 500 in 5ms
+ GET /_next/static/webpack/e07317e829a4a3a3.webpack.hot-update.json 500 in 544ms
+ GET / 200 in 274ms
+ GET / 500 in 936ms
+ ✓ Compiled /_error in 168ms (1522 modules)
+ GET / 200 in 330ms
+ ✓ Compiled /api/markets/trending in 218ms (1527 modules)
+ GET /api/markets/trending 200 in 604ms
