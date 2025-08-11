@@ -118,7 +118,7 @@ model Market {
 model Prediction {
   id               Int       @id @default(autoincrement())
   userMessage      String    @map("user_message")
-  marketId         String?   @map("market_id")
+  marketId         String    @map("market_id")
   predictionResult Json      @map("prediction_result")
   modelName        String?   @map("model_name")
   systemPrompt     String?   @map("system_prompt")
@@ -126,7 +126,7 @@ model Prediction {
   createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   outcomes         String[]
   outcomesProbabilities Decimal[] @map("outcomes_probabilities") @db.Decimal
-  market           Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "predictions_market_id_markets_id_fk")
+  market           Market    @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "predictions_market_id_markets_id_fk")
   predictionChecks PredictionCheck[]
 
   @@index([createdAt], map: "idx_predictions_created_at")

@@ -11,7 +11,7 @@ export default async function HomePage() {
       <main className="container mx-auto px-4 py-8">
         {/* Recent predictions */}
         <RecentPredictions items={items} />
-        <TrendingEventsTable />
+        {/* <TrendingEventsTable /> */}
       </main>
     </div>
   )
