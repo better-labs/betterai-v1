@@ -4,7 +4,8 @@ const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
 
 interface OpenRouterPredictionResult {
   prediction: string;
-  probability: number;
+  outcomes: string[];
+  outcomesProbabilities: number[];
   reasoning: string;
   confidence_level: "High" | "Medium" | "Low";
 }

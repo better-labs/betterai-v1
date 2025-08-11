@@ -37,6 +37,13 @@ export async function generatePredictionVsMarketDelta(
 
   const sinceDate = new Date(Date.now() - daysLookback * 24 * 60 * 60 * 1000)
 
+  // Startup params
+  console.log(
+    `prediction-check:start lookbackDays=${daysLookback} maxPredictions=${maxPredictions} includeClosedMarkets=${includeClosedMarkets} excludeCategories=[${excludeCategories.join(
+      ', '
+    )}] since=${sinceDate.toISOString()}`
+  )
+
   const predictions = await prisma.prediction.findMany({
     where: {
       createdAt: { gte: sinceDate },
@@ -48,14 +55,25 @@ export async function generatePredictionVsMarketDelta(
     },
   })
 
+  console.log(
+    `prediction-check:found ${predictions.length} predictions since ${sinceDate.toISOString()}`
+  )
+
   const lowerExclusions = new Set(excludeCategories.map((c) => c.toLowerCase()))
 
   const results: PredictionCheckResult[] = []
   let savedCount = 0
+  let processedCount = 0
+  let skipNoMarketCount = 0
+  let skipExcludedCount = 0
+  let skipClosedCount = 0
+  let saveErrorCount = 0
 
   for (const p of predictions) {
+    processedCount += 1
     const market = p.market
     if (!market) {
+      skipNoMarketCount += 1
       results.push({
         predictionId: p.id,
         marketId: null,
@@ -76,6 +94,7 @@ export async function generatePredictionVsMarketDelta(
       lowerExclusions.size > 0 &&
       lowerExclusions.has(category.toLowerCase())
     ) {
+      skipExcludedCount += 1
       results.push({
         predictionId: p.id,
         marketId: market.id,
@@ -91,6 +110,7 @@ export async function generatePredictionVsMarketDelta(
     }
 
     if (!includeClosedMarkets && market.closed) {
+      skipClosedCount += 1
       results.push({
         predictionId: p.id,
         marketId: market.id,
@@ -105,8 +125,10 @@ export async function generatePredictionVsMarketDelta(
       continue
     }
 
-    // Pull Decimal values from Prisma and convert to numbers only for the response payload
-    const aiProbDecimal = p.probability ?? null
+    // Pull AI probability from stored arrays (index 0)
+    const aiProbDecimal = Array.isArray((p as any).outcomesProbabilities) && (p as any).outcomesProbabilities.length > 0
+      ? (p as any).outcomesProbabilities[0]
+      : null
     const firstOutcomeDecimal = Array.isArray(market.outcomePrices) && market.outcomePrices.length > 0
       ? market.outcomePrices[0]
       : null
@@ -148,13 +170,24 @@ export async function generatePredictionVsMarketDelta(
         saved: true,
       }
     } catch (error) {
+      saveErrorCount += 1
       results[results.length - 1] = {
         ...results[results.length - 1],
         saved: false,
         message: error instanceof Error ? error.message : 'Failed to save check',
       }
     }
+
+    // Minimal progress output (every 25 items)
+    if (processedCount % 25 === 0 || processedCount === predictions.length) {
+      console.log(
+        `prediction-check:progress ${processedCount}/${predictions.length} saved=${savedCount} skips(noMarket=${skipNoMarketCount}, excluded=${skipExcludedCount}, closed=${skipClosedCount}) errors=${saveErrorCount}`
+      )
+    }
   }
+  console.log(
+    `prediction-check:done processed=${processedCount} saved=${savedCount} skips(noMarket=${skipNoMarketCount}, excluded=${skipExcludedCount}, closed=${skipClosedCount}) errors=${saveErrorCount}`
+  )
   return {
     checkedCount: predictions.length,
     savedCount,

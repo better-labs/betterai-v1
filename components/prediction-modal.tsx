@@ -87,6 +87,25 @@ export function PredictionModal({
                 <p className="text-foreground leading-relaxed">{prediction.reasoning}</p>
               </div>
 
+              {/* Outcomes and Probabilities */}
+              {Array.isArray(prediction.outcomes) && Array.isArray(prediction.outcomesProbabilities) && (
+                <div>
+                  <h4 className="font-semibold mb-3 text-foreground">AI Probabilities</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {prediction.outcomes.map((label, i) => {
+                      const p = prediction.outcomesProbabilities[i]
+                      const pct = typeof p === 'number' ? Math.round(p * 100) : null
+                      return (
+                        <div key={i} className="flex items-center justify-between border rounded-md p-2">
+                          <span className="font-medium">{label}</span>
+                          <span className="tabular-nums">{pct !== null ? `${pct}%` : '--'}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
 
 
 
