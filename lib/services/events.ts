@@ -137,7 +137,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       endDate: event.endDate ? new Date(event.endDate) : null,
       volume: new Decimal(event.volume),
       
-      marketProvider: "polymarket",
+      marketProvider: "Polymarket",
       updatedAt: new Date(),
     }
   })

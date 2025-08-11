@@ -174,7 +174,7 @@ FROM target_market tm
 ORDER BY pc.created_at
 
 
--- Get market outcomes and prices for top 20 markets by volume
+-- Ge-- market outcomes and prices for top 20 markets by volume
 SELECT m.id,
        m.question,
        m.outcomes,
@@ -188,4 +188,13 @@ FROM markets m
 WHERE m.volume IS NOT NULL
   AND m.volume > 0
 ORDER BY m.volume DESC
-LIMIT 20;
+LIMIT 200;
+
+--
+-- Count frequency of different outcome array lengths
+SELECT ARRAY_LENGTH(outcomes, 1) as outcomes_count,
+       COUNT(*)                  as frequency
+FROM markets
+WHERE outcomes IS NOT NULL
+GROUP BY ARRAY_LENGTH(outcomes, 1)
+ORDER BY outcomes_count;

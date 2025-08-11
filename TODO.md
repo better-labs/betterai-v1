@@ -3,6 +3,8 @@
 
 ## Tuesday: Core Loop: Prediction Engine
 
+- Modify prediction pipeline to generate a prediction for each outcome instead of just one Prediction. The sum total of each outcome's probability should total 100%.
+
 - Prediction detail page: user navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
   - Go to Prediction Market: user can click through to the prediction market page on Polymarket.
   - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
@@ -51,7 +53,7 @@
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
 - Add AI leaderboard?
 - Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
-
+- Modify Market detail page to show visualization of prediction outcomes.
 
 
 

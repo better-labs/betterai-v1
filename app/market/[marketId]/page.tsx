@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Calendar, DollarSign, BarChart2, TrendingUp, Tag } from 'lucide-react'
 import Link from 'next/link'
-import { formatVolume } from '@/lib/utils'
+import { formatVolume, generateMarketURL } from '@/lib/utils'
 import type { PredictionResult } from '@/lib/types'
 
 interface MarketDetailPageProps {
@@ -29,6 +29,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   // Fetch most recent prediction
   const prediction = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
   const predictionResult = prediction?.predictionResult as PredictionResult | null
+  const externalMarketUrl = await generateMarketURL(marketId)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -66,71 +67,68 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           </Link>
         )}
 
-        {/* Market Header */}
-        <div className="mb-8">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                Market: {market.question}
-              </h1>
-
-            </div>
-            <Badge variant={market.active ? "default" : "secondary"}>
-              {market.active ? "Active" : "Closed"}
-            </Badge>
-          </div>
-
-          {/* Market Stats */}
-          <div className="flex items-center gap-6 mb-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Volume {formatVolume(Number(market.volume) || 0)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BarChart2 className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Liquidity {formatVolume(Number(market.liquidity) || 0)}</span>
-            </div>
-            {market.endDate && (
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">End Date {new Date(market.endDate).toLocaleDateString()}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Prediction Section */}
         <div className="space-y-6">
           {/* Market Details */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Market Details
+                Market: {market.question}
+                <Badge variant={market.active ? "default" : "secondary"}>
+              {market.active ? "Active" : "Closed"}
+            </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {market.outcomePrices && market.outcomePrices.length > 0 && (
-                  <div>
-                    <h4 className="font-medium mb-3 text-base">% Chance</h4>
-                    <div className="space-y-3">
-                      {market.outcomePrices.map((price, index) => (
-                        <div key={index} className="flex justify-between items-center">
-                          <span className="text-lg font-medium">{market.outcomes?.[index] || `Outcome ${index + 1}`}:</span>
-                          <span className="text-xl font-bold text-primary">${Number(price).toFixed(2)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                <div className="text-right">
+              
+               {/* Market Metadata */}
+                <div className="mb-4">
                   <p className="text-xs text-muted-foreground">
-                    Last updated: {market.updatedAt ? new Date(market.updatedAt).toLocaleString() : 'Unknown'}
+                    {`Last updated: ${market.updatedAt ? new Date(market.updatedAt).toLocaleString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Unknown'}`}
                   </p>
                 </div>
-              </div>
+                
+                {/* Market Outcomes */}
+                <div className="grid grid-cols-1 gap-6">
+                  {market.outcomePrices && market.outcomePrices.length > 0 && (
+                    
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <h4 className="font-semibold text-lg">Outcomes</h4>
+                          {market.outcomePrices.map((price, index) => (
+                            <div key={index} className="flex justify-between items-center py-1.5">
+                              <span className="text-2xl font-semibold leading-tight">{market.outcomes?.[index] || `Outcome ${index + 1}`}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="space-y-4">
+                          <h4 className="font-semibold text-lg text-right">Market Probability</h4>
+                          {market.outcomePrices.map((price, index) => (
+                            <div key={index} className="flex justify-end py-1.5">
+                              <span className="text-4xl font-extrabold text-primary tabular-nums">{(Number(price) * 100).toFixed(0)}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                  )}
+                </div>
+
+                {/* External Provider Link */}
+                {externalMarketUrl && (
+                  <div className="mt-6">
+                    <p className="text-xs text-muted-foreground">
+                      <a
+                        className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
+                        href={externalMarketUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Open Market on {event?.marketProvider ?? 'provider'}
+                      </a>
+                    </p>
+                  </div>
+                )}
             </CardContent>
           </Card>
 
@@ -210,12 +208,33 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
 
         {/* Market Description */}
         {market.description && (
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-3">Market Description</h3>
-            <p className="text-muted-foreground">
-              {market.description}
-            </p>
-          </div>
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Market Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Key Stats moved from Market Details */}
+              <div className="flex items-center gap-6 mb-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Volume {formatVolume(Number(market.volume) || 0)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BarChart2 className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Liquidity {formatVolume(Number(market.liquidity) || 0)}</span>
+                </div>
+                {market.endDate && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Market Close Date {new Date(market.endDate).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-muted-foreground">
+                {market.description}
+              </p>
+            </CardContent>
+          </Card>
         )}
 
          {/* Action Buttons */}
