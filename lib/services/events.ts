@@ -122,7 +122,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
     // Calculate category based on tags
     const tags = event.tags || []
     const tagLabels = tags.map(tag => tag.label)
-    const category = mapTagsToCategory(tagLabels)
+    //const category = mapTagsToCategory(tagLabels)
     
     return {
       id: event.id,
@@ -132,11 +132,10 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       icon: event.icon || null,
       image: event.image || null,
       tags: event.tags || null,
-      category: category,
       startDate: event.startDate ? new Date(event.startDate) : null,
       endDate: event.endDate ? new Date(event.endDate) : null,
       volume: new Decimal(event.volume),
-      
+      category: event.category,
       marketProvider: "Polymarket",
       updatedAt: new Date(),
     }
@@ -168,7 +167,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       return {
         id: market.id,
         question: market.question,
-        eventId: market.eventId || null,
+        eventId: market.eventId!,
         slug: market.slug || null,
         icon: market.icon || null,
         image: market.image || null,
@@ -177,7 +176,6 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
         volume: new Decimal(market.volume),
         liquidity: new Decimal(market.liquidity),
         description: market.description || null,
-        category: null, // Markets don't have categories, they inherit from events
         active: market.active ?? null,
         closed: market.closed ?? null,
         startDate: market.startDate ? new Date(market.startDate) : null,

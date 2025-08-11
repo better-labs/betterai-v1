@@ -5,6 +5,7 @@ interface BatchPredictionConfig {
   topMarketsCount: number
   endDateRangeHours: number // Default 12 hours
   targetDaysFromNow: number // Default 7 days
+  categoryMix: boolean // Default false
 }
 
 interface MarketWithEndDate {
@@ -23,7 +24,8 @@ export async function getTopMarketsByVolumeAndEndDate(
   config: BatchPredictionConfig = {
     topMarketsCount: 1,
     endDateRangeHours: 12,
-    targetDaysFromNow: 7
+    targetDaysFromNow: 7,
+    categoryMix: false
   }
 ): Promise<MarketWithEndDate[]> {
   try {
@@ -35,6 +37,8 @@ export async function getTopMarketsByVolumeAndEndDate(
     const rangeEnd = new Date(targetDate.getTime() + config.endDateRangeHours * 60 * 60 * 1000)
 
     console.log(`Searching for markets ending between ${rangeStart.toISOString()} and ${rangeEnd.toISOString()}`)
+
+  // todo: add logic to ensure a mix of categories. categoryMix is true
 
     // Query markets with end dates in the specified range, ordered by volume
     const topMarkets = await prisma.market.findMany({
@@ -67,13 +71,7 @@ export async function getTopMarketsByVolumeAndEndDate(
 
     // Log the results
     console.log(`Found ${processedMarkets.length} markets meeting criteria:`)
-    processedMarkets.forEach((market, index) => {
-      console.log(`${index + 1}. Market ID: ${market.id}`)
-      console.log(`   Question: ${market.question}`)
-      console.log(`   Volume: ${market.volume}`)
-      console.log(`   End Date: ${market.endDate?.toISOString()}`)
-      console.log('---')
-    })
+    
 
     return processedMarkets
   } catch (error) {
@@ -133,7 +131,8 @@ export async function runBatchPredictionGeneration(
   config: BatchPredictionConfig = {
     topMarketsCount: 3,
     endDateRangeHours: 12,
-    targetDaysFromNow: 7
+    targetDaysFromNow: 7, 
+    categoryMix: false
   },
   modelName?: string
 ): Promise<void> {

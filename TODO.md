@@ -2,6 +2,15 @@
 # Week of 8/11
 
 ## Monday: Core Loop: Prediction Engine
+
+getTopMarketsByVolumeAndEndDate
+// todo: add logic to ensure a mix of categories. categoryMix is true
+
+!!!Test new Prediction results per prompt changes, zod stuff
+Finalize landing page content. Make the whole row a clickable link to Prediction!
+
+Then Prediction detail page!
+
 Prediction detail page:
 - Update Prediction card to be used on landing page "Recent AI Predictions" and Prediction detail page.
 

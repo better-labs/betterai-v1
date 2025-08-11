@@ -188,6 +188,9 @@ export const marketQueries = {
       ...marketData,
       id: marketData.id || crypto.randomUUID()
     }
+    if (!marketWithId.eventId) {
+      throw new Error('eventId is required when creating a market')
+    }
     return await prisma.market.create({ data: marketWithId })
   },
   updateMarket: async (id: string, marketData: Partial<any>): Promise<Market | null> => {
@@ -386,7 +389,6 @@ export const predictionCheckQueries = {
     delta?: number | Prisma.Decimal | null
     absDelta?: number | Prisma.Decimal | null
     marketClosed?: boolean | null
-    marketCategory?: Category | null
   }): Promise<PredictionCheck> => {
     // Normalize to Prisma.Decimal where provided
     const toDecimal = (v: number | Prisma.Decimal | null | undefined): Prisma.Decimal | null => {
@@ -403,7 +405,6 @@ export const predictionCheckQueries = {
         delta: toDecimal(data.delta),
         absDelta: toDecimal(data.absDelta),
         marketClosed: data.marketClosed ?? null,
-        marketCategory: data.marketCategory ?? null,
       },
     })
   },

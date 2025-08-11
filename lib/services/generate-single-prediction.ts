@@ -12,22 +12,58 @@ interface PredictionServiceResponse {
 
 function constructPredictionPrompt(market: Market, additionalUserMessageContext?: string): { systemMessage: string; userMessage: string } {
   
-  const systemMessage = `You are a prediction analysis expert. Analyze the given market and provide a structured prediction with probability, reasoning, and confidence level.
+  const systemMessage = `You are a prediction analysis expert. Analyze the given market and return ONLY valid JSON.
 
-Format your response as a JSON object with the following structure:
+Constraints:
+- outcomes: an array of exactly two unique strings describing the two possible outcomes. If the market provides outcome labels, use those exact labels; otherwise infer clear labels from the question.
+- outcomesProbabilities: an array of exactly two numbers in [0,1] that sum to 1. The order must correspond 1:1 with outcomes. Use decimals, not percentages.
+- prediction: one concise sentence that states the predicted outcome or stance.
+- reasoning: concise justification.
+- confidence_level: one of "High", "Medium", or "Low".
+
+Output JSON shape (no example values):
 {
-  "outcomes": ["Yes", "No"],
-  "outcomesProbabilities": [0.75, 0.25],
-  "reasoning": "detailed explanation of your reasoning",
-  "confidence_level": "High/Medium/Low"
+  "prediction": string,
+  "outcomes": string[2],
+  "outcomesProbabilities": number[2],
+  "reasoning": string,
+  "confidence_level": "High" | "Medium" | "Low"
 }
 
-IMPORTANT: Return ONLY a valid JSON object. Do NOT wrap your response in markdown code blocks, backticks, or any other formatting. Return pure JSON.
-IMPORTANT: The outcomesProbabilities values must be decimal values between 0 and 1. Do not use percentages, text, or any other format.
-IMPORTANT: the sum total of the two outcomesProbabilities must equal 1
-`
+JSON Schema (for reference):
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["prediction", "outcomes", "outcomesProbabilities", "reasoning", "confidence_level"],
+  "properties": {
+    "prediction": { "type": "string", "minLength": 1 },
+    "outcomes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "outcomesProbabilities": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0, "maximum": 1 },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Two numbers that sum to 1 and align with outcomes order"
+    },
+    "reasoning": { "type": "string", "minLength": 10 },
+    "confidence_level": { "type": "string", "enum": ["High", "Medium", "Low"] }
+  }
+}
 
-  const userMessage = `Analyze this market and provide a comprehensive prediction for the outcome:"${market.outcomes?.[0]}":
+IMPORTANT: Return pure JSON only. No markdown, no code fences, no commentary.`
+
+  const userMessage = `Analyze this market and provide a comprehensive prediction for both outcomes.
+  
+  Market Outcome 1: "${market.outcomes?.[0]}"
+  Market Outcome 2: "${market.outcomes?.[1]}"
+  Market Outcome Probability 1: "${market.outcomePrices?.[0]}"
+  Market Outcome Probability 2: "${market.outcomePrices?.[1]}"
 
 Market: "${market.question}"
 
@@ -51,22 +87,32 @@ function isValidProbArray(values: number[]): boolean {
   return Math.abs(sum - 1) < 1e-6
 }
 
-function alignToMarketOrder(predOutcomes: string[], predProbs: number[], marketOutcomes: string[] | null | undefined) {
+function alignToMarketOrder(
+  predOutcomes: string[],
+  predProbs: number[],
+  marketOutcomes: string[] | null | undefined
+) {
   if (!marketOutcomes || marketOutcomes.length !== predOutcomes.length) {
     return { outcomes: predOutcomes, probs: predProbs }
   }
-  const indexByLabel = new Map(marketOutcomes.map((o, i) => [o, i]))
-  const alignedOutcomes = Array(predOutcomes.length).fill('')
-  const alignedProbs = Array(predProbs.length).fill(0)
+
+  const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ')
+  const indexByLabel = new Map(marketOutcomes.map((o, i) => [normalize(o), i]))
+
+  const alignedOutcomes = Array(predOutcomes.length).fill('') as string[]
+  const alignedProbs = Array(predProbs.length).fill(0) as number[]
+
   predOutcomes.forEach((label, i) => {
-    const j = indexByLabel.get(label)
+    const j = indexByLabel.get(normalize(label))
     if (j !== undefined) {
-      alignedOutcomes[j] = label
+      // Preserve canonical market label
+      alignedOutcomes[j] = marketOutcomes[j]
       alignedProbs[j] = predProbs[i]
     }
   })
+
   // Fallback: if alignment failed (some blanks), return original
-  if (alignedOutcomes.some(o => !o)) return { outcomes: predOutcomes, probs: predProbs }
+  if (alignedOutcomes.some((o) => !o)) return { outcomes: predOutcomes, probs: predProbs }
   return { outcomes: alignedOutcomes, probs: alignedProbs }
 }
 
