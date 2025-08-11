@@ -1,5 +1,6 @@
-import { EventTable } from "@/components/event-table"
+import { TrendingEventsTable } from "@/components/trending-events-table"
 import { RecentPredictions } from "@/components/recent-predictions"
+
 import { TrendingUp, Menu, Target, Brain, BarChart3 } from "lucide-react"
 import { predictionQueries } from "@/lib/db/queries"
 
@@ -10,6 +11,7 @@ export default async function HomePage() {
       <main className="container mx-auto px-4 py-8">
         {/* Recent predictions */}
         <RecentPredictions items={items} />
+        <TrendingEventsTable />
       </main>
     </div>
   )
