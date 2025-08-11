@@ -2,17 +2,10 @@
 # Week of 8/11
 
 ## Monday: Core Loop: Prediction Engine
-
-DB changes:
-markets.id and events.id need to be an integer.
-predictions: remove probability column. Add column outcomes String[]. Add column outcomesProbabilities Decimal[].
-
-
-
-
-- Test new Prediction prompt and pipeline.
 Prediction detail page:
 - Update Prediction card to be used on landing page "Recent AI Predictions" and Prediction detail page.
+
+Ask AI if the card view could be used to display in both grid card view (like polymarket) and list/table view such as landing page?
 
 
 
@@ -28,7 +21,8 @@ Prediction detail page:
 
 ## Tuesday: UX enhancements
 - Landing page:
-  Trending events (bring it back)
+  Combine Trending Events and "Trending Predictions". Show Trending Events that also have predictions generated.
+
   Track record:  "AI predicted X correctly this week".
 - Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
 - Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
@@ -38,6 +32,7 @@ Prediction detail page:
 
 ## Wednesday
 - Portfolio Watcher v1: import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
+- DB Updates: consider removing market_closed and market_category from prediction_checks table.
 
 
 ## Thursday
@@ -85,6 +80,9 @@ Prediction detail page:
 
 
 # Later (Date TBD)
+
+## Enhanced Predictions Across Markets
+- Trigger multiple predictions for all markets in an event at once.
 
 ## Scale
 - Add caching to data service layer calls? Ask the AI

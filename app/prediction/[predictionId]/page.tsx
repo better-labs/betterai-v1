@@ -27,18 +27,18 @@ export default async function PredictionDetailPage({ params }: PageProps) {
     try { const n = Number(v as any); return Number.isFinite(n) ? n : null } catch { return null }
   }
 
-  // AI probability from aiResponse or probability field
+  // AI probability from stored arrays or aiResponse fallback
   let aiProbability = 0
-  if (prediction.aiResponse) {
+  const arr0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
+  const arr0Num = toNum(arr0)
+  if (arr0Num !== null) aiProbability = Math.round(arr0Num * 100)
+  else if (prediction.aiResponse) {
     try {
       const parsed = JSON.parse(prediction.aiResponse as unknown as string)
-      const p = toNum((parsed as any)?.probability)
-      if (p !== null) aiProbability = Math.round(p * 100)
+      const arr = (parsed as any)?.outcomesProbabilities
+      const first = Array.isArray(arr) ? toNum(arr[0]) : null
+      if (first !== null) aiProbability = Math.round(first * 100)
     } catch {}
-  }
-  if (!aiProbability) {
-    const base = toNum(prediction.probability)
-    if (base !== null) aiProbability = Math.round(base * 100)
   }
 
   // Reasoning

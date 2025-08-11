@@ -17,6 +17,7 @@
     "cron:generate-batch-predictions": "node scripts/cron/cron-generate-batch-predictions.js",
     "cron:prediction-check": "node scripts/cron/cron-prediction-check.js",
     "cron:update-ai-models": "node scripts/cron/cron-update-ai-models.js",
+    "test:crons": "pnpm cron:update-polymarket-data && pnpm cron:generate-batch-predictions && pnpm cron:prediction-check",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",

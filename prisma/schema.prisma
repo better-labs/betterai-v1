@@ -124,7 +124,8 @@ model Prediction {
   systemPrompt     String?   @map("system_prompt")
   aiResponse       String?   @map("ai_response")
   createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
-  probability      Decimal?  @db.Decimal
+  outcomes         String[]
+  outcomesProbabilities Decimal[] @map("outcomes_probabilities") @db.Decimal
   market           Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "predictions_market_id_markets_id_fk")
   predictionChecks PredictionCheck[]
 
