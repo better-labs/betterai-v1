@@ -48,13 +48,12 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     />
                   )}
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                      {event.title}
-                    </h3>
-                   
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        Event: {event.title}
+                      </h3>
                       {event.endDate && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Calendar className="h-4 w-4" />
                           <span>End Date: {new Date(event.endDate as Date).toLocaleDateString()}</span>
                         </div>
@@ -72,7 +71,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-foreground mb-2">
-                {market.question}
+                Market: {market.question}
               </h1>
 
             </div>
@@ -82,37 +81,26 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           </div>
 
           {/* Market Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-lg">
-              <DollarSign className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-sm text-muted-foreground">Volume</p>
-                <p className="font-semibold">{formatVolume(Number(market.volume) || 0)}</p>
-              </div>
+          <div className="flex items-center gap-6 mb-4">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Volume {formatVolume(Number(market.volume) || 0)}</span>
             </div>
-            <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-lg">
-              <BarChart2 className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-sm text-muted-foreground">Liquidity</p>
-                <p className="font-semibold">{formatVolume(Number(market.liquidity) || 0)}</p>
-              </div>
+            <div className="flex items-center gap-2">
+              <BarChart2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Liquidity {formatVolume(Number(market.liquidity) || 0)}</span>
             </div>
             {market.endDate && (
-              <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-lg">
-                <Calendar className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">End Date</p>
-                  <p className="font-semibold">
-                    {new Date(market.endDate).toLocaleDateString()}
-                  </p>
-                </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">End Date {new Date(market.endDate).toLocaleDateString()}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Prediction Section */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-6">
           {/* Market Details */}
           <Card>
             <CardHeader>
@@ -120,30 +108,28 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                 <TrendingUp className="h-5 w-5" />
                 Market Details
               </CardTitle>
-              <CardDescription>
-                Current market information and statistics
-              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {market.outcomePrices && market.outcomePrices.length > 0 && (
-                <div>
-                  <h4 className="font-medium mb-2">Outcome Prices</h4>
-                  <div className="space-y-1">
-                    {market.outcomePrices.map((price, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span>Outcome {index + 1}:</span>
-                        <span className="font-medium">${Number(price).toFixed(2)}</span>
-                      </div>
-                    ))}
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {market.outcomePrices && market.outcomePrices.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-3 text-base">% Chance</h4>
+                    <div className="space-y-3">
+                      {market.outcomePrices.map((price, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-lg font-medium">{market.outcomes?.[index] || `Outcome ${index + 1}`}:</span>
+                          <span className="text-xl font-bold text-primary">${Number(price).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div>
-                <h4 className="font-medium mb-2">Last Updated</h4>
-                <p className="text-sm text-muted-foreground">
-                  {market.updatedAt ? new Date(market.updatedAt).toLocaleString() : 'Unknown'}
-                </p>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">
+                    Last updated: {market.updatedAt ? new Date(market.updatedAt).toLocaleString() : 'Unknown'}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

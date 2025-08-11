@@ -173,3 +173,19 @@ FROM target_market tm
          LEFT JOIN prediction_checks pc ON pc.prediction_id = p.id
 ORDER BY pc.created_at
 
+
+-- Get market outcomes and prices for top 20 markets by volume
+SELECT m.id,
+       m.question,
+       m.outcomes,
+       m.outcome_prices,
+       e.title AS event_title,
+       e.slug  AS event_slug,
+       m.volume,
+       m.liquidity
+FROM markets m
+         LEFT JOIN events e ON m.event_id = e.id
+WHERE m.volume IS NOT NULL
+  AND m.volume > 0
+ORDER BY m.volume DESC
+LIMIT 20;
