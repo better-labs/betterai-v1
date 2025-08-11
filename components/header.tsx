@@ -69,7 +69,7 @@ export function Header() {
               >
                 About
               </Link>
-              {flags.showMarketAlpha && (
+              {/* {flags.showMarketAlpha && (
                 <Link 
                   href="/market-alpha" 
                   className={`text-sm font-medium transition-colors ${
@@ -80,8 +80,8 @@ export function Header() {
                 >
                   Market Alpha
                 </Link>
-              )}
-              {flags.showPortfolio && (
+              )} */}
+              {/* {flags.showPortfolio && (
                 <Link 
                   href="/portfolio" 
                   className={`text-sm font-medium transition-colors ${
@@ -92,7 +92,7 @@ export function Header() {
                 >
                   My Portfolio
                 </Link>
-              )}
+              )} */}
             </nav>
           </div>
 
@@ -209,20 +209,20 @@ export function Header() {
                     <span>About</span>
                   </Link>
                 </DropdownMenuItem>
-                {flags.showMarketAlpha && (
+                {/* {flags.showMarketAlpha && (
                   <DropdownMenuItem asChild>
                     <Link href="/market-alpha" className={`w-full ${isActive("/market-alpha") ? "bg-accent" : ""}`}>
                       <span>Market Alpha</span>
                     </Link>
                   </DropdownMenuItem>
-                )}
-                {flags.showPortfolio && (
+                )} */}
+                {/* {flags.showPortfolio && (
                   <DropdownMenuItem asChild>
                     <Link href="/portfolio" className={`w-full ${isActive("/portfolio") ? "bg-accent" : ""}`}>
                       <span>My Portfolio</span>
                     </Link>
                   </DropdownMenuItem>
-                )}
+                )} */}
                 
                 <DropdownMenuSeparator />
                 {flags.showActivity && (

@@ -147,3 +147,54 @@ WHERE
 ORDER BY
   m.volume DESC
 LIMIT 20;
+
+
+
+
+-- Find market with "freakier friday" and related predictions and checks
+WITH target_market AS (SELECT m.id, m.question
+                       FROM markets m
+                       WHERE LOWER(m.question) LIKE '%freakier friday%'
+                          OR LOWER(m.description) LIKE '%freakier friday%')
+SELECT m.id          AS market_id,
+       m.question    AS market_question,
+       m.outcome_prices[1],
+       p.probability AS predicted_probability,
+       pc.delta    AS prediction_check_delta,
+       p.id          AS prediction_id,
+       p.created_at  AS prediction_created_at,
+       pc.id         AS prediction_check_id,
+       pc.market_closed,
+       pc.market_category,
+       pc.created_at AS check_created_at
+FROM target_market tm
+         JOIN markets m ON m.id = tm.id
+         LEFT JOIN predictions p ON p.market_id = m.id
+         LEFT JOIN prediction_checks pc ON pc.prediction_id = p.id
+ORDER BY pc.created_at
+
+
+-- Ge-- market outcomes and prices for top 20 markets by volume
+SELECT m.id,
+       m.question,
+       m.outcomes,
+       m.outcome_prices,
+       e.title AS event_title,
+       e.slug  AS event_slug,
+       m.volume,
+       m.liquidity
+FROM markets m
+         LEFT JOIN events e ON m.event_id = e.id
+WHERE m.volume IS NOT NULL
+  AND m.volume > 0
+ORDER BY m.volume DESC
+LIMIT 200;
+
+--
+-- Count frequency of different outcome array lengths
+SELECT ARRAY_LENGTH(outcomes, 1) as outcomes_count,
+       COUNT(*)                  as frequency
+FROM markets
+WHERE outcomes IS NOT NULL
+GROUP BY ARRAY_LENGTH(outcomes, 1)
+ORDER BY outcomes_count;
