@@ -48,6 +48,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 event={market.event}
                 externalMarketUrl={url}
                 latestPrediction={market.predictions?.[0] ?? null}
+                className="hover:bg-muted/30 transition-colors"
+                href={`/market/${market.id}`}
               />
             ))}
             {nextCursor && (
