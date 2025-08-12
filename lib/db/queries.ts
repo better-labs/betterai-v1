@@ -327,11 +327,13 @@ export const marketQueries = {
       limit?: number
       onlyActive?: boolean
       orderBy?: 'volume' | 'liquidity' | 'updatedAt'
+      cursorId?: string | null
     }
-  ): Promise<Array<Market & { event: Event | null }>> => {
-    const limit = options?.limit ?? 50
+  ): Promise<{ items: Array<Market & { event: Event | null }>; nextCursor: string | null }> => {
+    const limit = Math.max(1, Math.min(options?.limit ?? 50, 100))
     const onlyActive = options?.onlyActive ?? true
     const orderKey = options?.orderBy ?? 'volume'
+    const cursorId = options?.cursorId ?? null
 
     const where: Prisma.MarketWhereInput = {
       ...(onlyActive ? { active: true } : {}),
@@ -358,12 +360,24 @@ export const marketQueries = {
       ],
     }
 
-    return await prisma.market.findMany({
+    const orderBy: Prisma.MarketOrderByWithRelationInput[] = [
+      { [orderKey]: 'desc' } as any,
+      { id: 'desc' },
+    ]
+
+    const rows = await prisma.market.findMany({
       where,
       include: { event: true },
-      orderBy: { [orderKey]: 'desc' },
-      take: limit,
+      orderBy,
+      take: limit + 1,
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
     })
+
+    const hasMore = rows.length > limit
+    const items = hasMore ? rows.slice(0, limit) : rows
+    const nextCursor = hasMore ? items[items.length - 1]?.id ?? null : null
+
+    return { items, nextCursor }
   },
 }
 

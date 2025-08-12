@@ -10,18 +10,23 @@ import MarketDetailsCard from "@/components/market-details-card"
 import { generateMarketURL } from "@/lib/utils"
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; cursor?: string }>
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q } = await searchParams
+  const { q, cursor } = await searchParams
   const query = (q || "").trim()
-  const results = query
-    ? await marketQueries.searchMarkets(query, { limit: 50, onlyActive: true, orderBy: "volume" })
-    : []
+  const { items, nextCursor } = query
+    ? await marketQueries.searchMarkets(query, {
+        limit: 20,
+        onlyActive: true,
+        orderBy: "volume",
+        cursorId: cursor ?? null,
+      })
+    : { items: [], nextCursor: null }
 
   const marketsWithUrl = await Promise.all(
-    results.map(async (m) => ({ market: m, url: await generateMarketURL(m.id) }))
+    items.map(async (m) => ({ market: m, url: await generateMarketURL(m.id) }))
   )
 
   return (
@@ -29,7 +34,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="container mx-auto px-4 py-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground mb-2">
-            {results.length} results{query ? ` for ${query}` : ""}
+            {`Showing ${marketsWithUrl.length} result${marketsWithUrl.length === 1 ? "" : "s"}${query ? ` for ${query}` : ""}`}
           </h1>
         </div>
 
@@ -43,6 +48,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 externalMarketUrl={url}
               />
             ))}
+            {nextCursor && (
+              <div className="pt-2">
+                <Button variant="outline" asChild className="w-full">
+                  <Link href={`/search?q=${encodeURIComponent(query)}&cursor=${encodeURIComponent(nextCursor)}`}>
+                    Load more
+                  </Link>
+                </Button>
+              </div>
+            )}
             {!query && (
               <Card>
                 <CardContent className="p-6 text-muted-foreground">
