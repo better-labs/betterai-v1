@@ -1,4 +1,4 @@
-import { eventQueries, marketQueries, type NewMarket, type NewEvent } from '@/lib/db/queries'
+import { eventQueries, marketQueries, tagQueries, type NewMarket, type NewEvent } from '@/lib/db/queries'
 import type { Event, Market, PolymarketEvent, PolymarketMarket } from '@/lib/types'
 import { mapTagsToCategory } from '@/lib/categorize'
 import { fetchPolymarketEvents } from './polymarket-client'
@@ -122,7 +122,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
     // Calculate category based on tags
     const tags = event.tags || []
     const tagLabels = tags.map(tag => tag.label)
-    //const category = mapTagsToCategory(tagLabels)
+    const category = mapTagsToCategory(tagLabels)
     
     return {
       id: event.id,
@@ -132,10 +132,11 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       icon: event.icon || null,
       image: event.image || null,
       tags: event.tags || null,
+      category: category,
+      providerCategory: event.category,
       startDate: event.startDate ? new Date(event.startDate) : null,
       endDate: event.endDate ? new Date(event.endDate) : null,
       volume: new Decimal(event.volume),
-      category: event.category,
       marketProvider: "Polymarket",
       updatedAt: new Date(),
     }
@@ -189,6 +190,48 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
   console.log(`Upserting batch: ${eventsToInsert.length} events, ${marketsToInsert.length} markets...`)
   const insertedEvents = await eventQueries.upsertEvents(eventsToInsert)
   const insertedMarkets = await marketQueries.upsertMarkets(marketsToInsert)
+
+  // Normalize and upsert tags, then link to events
+  try {
+    const uniqueTagsMap = new Map<string, { id: string; label: string; slug?: string | null; forceShow?: boolean | null; providerUpdatedAt?: Date | null; provider?: string | null }>()
+    for (const ev of sortedEvents) {
+      const tags = (ev.tags || [])
+      for (const t of tags) {
+        if (!uniqueTagsMap.has(t.id)) {
+          uniqueTagsMap.set(t.id, {
+            id: t.id,
+            label: t.label,
+            slug: t.slug ?? null,
+            forceShow: t.forceShow ?? null,
+            providerUpdatedAt: t.updatedAt ? new Date(t.updatedAt) : null,
+            provider: 'Polymarket',
+          })
+        }
+      }
+    }
+    const tagsToUpsert = Array.from(uniqueTagsMap.values())
+    if (tagsToUpsert.length > 0) {
+      await tagQueries.upsertTags(tagsToUpsert)
+    }
+
+    // Refresh event-tag links to reflect current provider tags
+    const eventIdsInBatch = sortedEvents.map(e => e.id)
+    for (const eventId of eventIdsInBatch) {
+      await tagQueries.unlinkAllTagsFromEvent(eventId)
+    }
+    const links: Array<{ eventId: string; tagId: string }> = []
+    for (const ev of sortedEvents) {
+      const tags = ev.tags || []
+      for (const t of tags) {
+        links.push({ eventId: ev.id, tagId: t.id })
+      }
+    }
+    if (links.length > 0) {
+      await tagQueries.linkTagsToEvents(links)
+    }
+  } catch (err) {
+    console.error('Failed to upsert/link tags for batch:', err)
+  }
 
   return {
     insertedEvents: insertedEvents.filter(Boolean) as Event[],

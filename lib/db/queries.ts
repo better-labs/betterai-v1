@@ -1,6 +1,6 @@
 import { prisma } from "./prisma"
 import { Prisma } from '../../lib/generated/prisma'
-import type { AiModel, Event, Market, Prediction, ResearchCache, PredictionCheck, Category } from '../../lib/generated/prisma';
+import type { AiModel, Event, Market, Prediction, ResearchCache, PredictionCheck, Category, Tag, EventTag } from '../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
 export type { AiModel as NewAIModel, Event as NewEvent, Prediction as NewPrediction, Market as NewMarket, ResearchCache as NewResearchCache, PredictionCheck as NewPredictionCheck } from '../../lib/generated/prisma';
@@ -161,6 +161,63 @@ export const eventQueries = {
     )
     return await prisma.$transaction(transactions)
   },
+}
+
+// Tag queries
+export const tagQueries = {
+  getAllTags: async (): Promise<Tag[]> => {
+    return await prisma.tag.findMany({
+      orderBy: { label: 'asc' }
+    })
+  },
+  getTagsByEventId: async (eventId: string): Promise<Tag[]> => {
+    const rows = await prisma.eventTag.findMany({
+      where: { eventId },
+      include: { tag: true }
+    })
+    return rows.map(r => r.tag)
+  },
+  upsertTags: async (tags: Array<{
+    id: string
+    label: string
+    slug?: string | null
+    forceShow?: boolean | null
+    providerUpdatedAt?: Date | null
+    provider?: string | null
+  }>): Promise<Tag[]> => {
+    if (!tags || tags.length === 0) return []
+    const transactions = tags.map(t => prisma.tag.upsert({
+      where: { id: t.id },
+      update: {
+        label: t.label,
+        slug: t.slug ?? null,
+        forceShow: t.forceShow ?? null,
+        providerUpdatedAt: t.providerUpdatedAt ?? null,
+        provider: t.provider ?? null,
+      },
+      create: {
+        id: t.id,
+        label: t.label,
+        slug: t.slug ?? null,
+        forceShow: t.forceShow ?? null,
+        providerUpdatedAt: t.providerUpdatedAt ?? null,
+        provider: t.provider ?? null,
+      }
+    }))
+    return await prisma.$transaction(transactions)
+  },
+  linkTagsToEvents: async (links: Array<{ eventId: string; tagId: string }>): Promise<number> => {
+    if (!links || links.length === 0) return 0
+    const result = await prisma.eventTag.createMany({
+      data: links,
+      skipDuplicates: true,
+    })
+    return result.count
+  },
+  unlinkAllTagsFromEvent: async (eventId: string): Promise<number> => {
+    const res = await prisma.eventTag.deleteMany({ where: { eventId } })
+    return res.count
+  }
 }
 
 // Market queries

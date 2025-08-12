@@ -1,13 +1,14 @@
 
 # Week of 8/11
 
-## Monday: Core Loop: Prediction Engine
+## Tuesday: Core Loop: Prediction Engine
 
-getTopMarketsByVolumeAndEndDate
-// todo: add logic to ensure a mix of categories. categoryMix is true
 
-!!!Test new Prediction results per prompt changes, zod stuff
+Testing new Prediction results per prompt changes, zod stuff
+-Finding: resulting outcome simply mirror the market prices. They do not represent the AI's prediction.
+
 Finalize landing page content. Make the whole row a clickable link to Prediction!
+
 
 Then Prediction detail page!
 
