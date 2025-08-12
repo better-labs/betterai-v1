@@ -152,14 +152,22 @@ export const eventQueries = {
     if (eventsData.length === 0) {
       return [];
     }
-    const transactions = eventsData.map(event => 
-      prisma.event.upsert({
-        where: { id: event.id },
-        update: { ...event, updatedAt: new Date() },
-        create: event
-      })
-    )
-    return await prisma.$transaction(transactions)
+    // Process in chunks to avoid very large transactions that hurt latency on serverless Postgres
+    const results: Event[] = [] as unknown as Event[]
+    const CHUNK_SIZE = 100
+    for (let i = 0; i < eventsData.length; i += CHUNK_SIZE) {
+      const chunk = eventsData.slice(i, i + CHUNK_SIZE)
+      const transactions = chunk.map(event =>
+        prisma.event.upsert({
+          where: { id: event.id },
+          update: { ...event, updatedAt: new Date() },
+          create: event,
+        })
+      )
+      const res = await prisma.$transaction(transactions)
+      results.push(...(res as unknown as Event[]))
+    }
+    return results
   },
 }
 
@@ -217,7 +225,13 @@ export const tagQueries = {
   unlinkAllTagsFromEvent: async (eventId: string): Promise<number> => {
     const res = await prisma.eventTag.deleteMany({ where: { eventId } })
     return res.count
-  }
+  },
+  // Delete all event-tag links for a set of events with a single statement
+  unlinkAllTagsFromEvents: async (eventIds: string[]): Promise<number> => {
+    if (!eventIds || eventIds.length === 0) return 0
+    const res = await prisma.eventTag.deleteMany({ where: { eventId: { in: eventIds } } })
+    return res.count
+  },
 }
 
 // Market queries
@@ -280,14 +294,22 @@ export const marketQueries = {
     if (marketsData.length === 0) {
       return [];
     }
-    const transactions = marketsData.map(market => 
-      prisma.market.upsert({
-        where: { id: market.id },
-        update: { ...market, updatedAt: new Date() },
-        create: market
-      })
-    )
-    return await prisma.$transaction(transactions)
+    // Process in chunks to reduce lock time and round trips
+    const results: Market[] = [] as unknown as Market[]
+    const CHUNK_SIZE = 100
+    for (let i = 0; i < marketsData.length; i += CHUNK_SIZE) {
+      const chunk = marketsData.slice(i, i + CHUNK_SIZE)
+      const transactions = chunk.map(market =>
+        prisma.market.upsert({
+          where: { id: market.id },
+          update: { ...market, updatedAt: new Date() },
+          create: market,
+        })
+      )
+      const res = await prisma.$transaction(transactions)
+      results.push(...(res as unknown as Market[]))
+    }
+    return results
   },
 }
 
