@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     const { insertedEvents, insertedMarkets, totalFetched, totalRequests, errors } =
       await updatePolymarketEventsAndMarketData({
-        limit: 200,
+        limit: 250,
         delayMs: 1000,
         maxRetries: 3,
         retryDelayMs: 2000,

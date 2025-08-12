@@ -96,7 +96,7 @@ Ask AI if the card view could be used to display in both grid card view (like po
 
 ## Scale
 - Add caching to data service layer calls? Ask the AI
-
+- Add some lightweight test case coverage?
 
 ## Revisit CRON default settings
 - Consider finding a more full featured cron provider.

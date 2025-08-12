@@ -14,6 +14,9 @@ function constructPredictionPrompt(market: Market, additionalUserMessageContext?
   
   const systemMessage = `You are a prediction analysis expert. Analyze the given market and return ONLY valid JSON.
 
+  Assign your prediction to the values in the outcomeProbabilities array.
+  Use your best judgement to determine the most likely probabilities for each outcome.
+
 Constraints:
 - outcomes: an array of exactly two unique strings describing the two possible outcomes. If the market provides outcome labels, use those exact labels; otherwise infer clear labels from the question.
 - outcomesProbabilities: an array of exactly two numbers in [0,1] that sum to 1. The order must correspond 1:1 with outcomes. Use decimals, not percentages.
@@ -58,17 +61,15 @@ JSON Schema (for reference):
 
 IMPORTANT: Return pure JSON only. No markdown, no code fences, no commentary.`
 
-  const userMessage = `Analyze this market and provide a comprehensive prediction for both outcomes.
+  const userMessage = `Please consider the additional information below on market context, timing, and any relevant factors when making your prediction.
   
   Market Outcome 1: "${market.outcomes?.[0]}"
   Market Outcome 2: "${market.outcomes?.[1]}"
-  Market Outcome Probability 1: "${market.outcomePrices?.[0]}"
-  Market Outcome Probability 2: "${market.outcomePrices?.[1]}"
+  Current Market Probability (Price) for Outcome 1: "${market.outcomePrices?.[0]}"
+  Current Market Probability (Price) for Outcome 2: "${market.outcomePrices?.[1]}"
 
 Market: "${market.question}"
 
-
-Please consider the market context, timing, and any relevant factors when making your prediction.
 ${market.description ? `Market Description: ${market.description}` : ''}
 ${market.endDate ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` : ''}
 
