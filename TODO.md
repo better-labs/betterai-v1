@@ -4,32 +4,10 @@
 ## Tuesday: Core Loop: Prediction Engine
 
 
-!!!Then Prediction detail page!
-
-Prediction detail page:
-- Update Prediction card to be used on landing page "Recent AI Predictions" and Prediction detail page.
-
-Ask AI if the card view could be used to display in both grid card view (like polymarket) and list/table view such as landing page?
-
--- Send to Kurt and Blake for sniff test.
-
-
-- User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
-  - Go to Prediction Market: user can click through to the prediction market page on Polymarket.
-  - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
-  - "Compare to Market" — Show how AI prediction differs from current market prices.
-  - Verifiable Prediction: share exact prompt and dataset used. Valuable for trust in financial context; enables reproducibility and competitive advantage.
-
-- Event detail page.
-
-
 - Get basic "Search" functionality working.
 
-- Landing page:
-  Track record:  "AI predicted X correctly this week".
 - Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
 - Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
-
 
 
 
@@ -44,8 +22,12 @@ Ask AI if the card view could be used to display in both grid card view (like po
 - DB Ops Planning: production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 
 
+### Gating and egress control
+- Auth-only access to full context; per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
+
+
 ## Friday
-- Data Pipeline: significantly overhaul and improve research component.
+
 
 - Legal todos.
 
@@ -58,12 +40,16 @@ Ask AI if the card view could be used to display in both grid card view (like po
 
 
 
+- Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
+
 ### Category Fixes?
 - Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
 - Decide category strategy: exclude crypto vs. mark as less effective
   - Default: include all; segment metrics per category
 
 ## Nice to have
+- Data Pipeline: significantly overhaul and improve research component.
+- Landing page:Track record:  "AI predicted X correctly this week".
 - Add shadcdn styles and/or or framer motion animation: https://motion.dev/
 - Landing page: "Today's Top Market Insights" (curated quality over quantity),
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
@@ -88,6 +74,9 @@ Ask AI if the card view could be used to display in both grid card view (like po
 
 ## Enhanced Predictions Across Markets
 - Trigger multiple predictions for all markets in an event at once.
+
+## Premium Features
+- "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
 
 ## Scale
 - Add caching to data service layer calls? Ask the AI
@@ -188,3 +177,49 @@ Ask AI if the card view could be used to display in both grid card view (like po
   - `better*lab*`
 
 Note: Using `betterai.tools` as the website domain is fine; the trademark clearance focuses on the mark you will register (e.g., "BetterLabs").
+
+
+
+# Appendix
+
+### How urgent is timing?
+- **Window is open but not wide**: General-purpose AI aggregators can add “prediction-market” modes quickly. You likely have a 6–12 month window to establish data/UX moats before fast followers.
+- **Ship early to compound moats**: Your strongest defenses (historical prediction lifecycle data, calibration, alpha scoring, personalization) only accrue with usage and time. Delays erode this.
+- **Prioritize distribution now**: Secure traffic loops (SEO market pages, “AI vs market” leaderboards, shareable artifacts) and at least one partner integration. Distribution is harder to copy than code.
+
+Actionable pace:
+- Next 2–4 weeks: narrow v0 that proves “AI vs Market” value on a subset of categories; log full prediction lifecycle data.
+- Next 6–8 weeks: ship basic calibration + “Market Alpha” score; add alerts and an Activity page to drive retention.
+- Next 3–6 months: portfolio watcher “Active Agent” + factor library (“What Could Change This?”) to deepen moats.
+
+### How easily can it be copied once public?
+- **Easy to copy (weeks)**: UI, prompt scaffolding, basic multi-model calls, single-shot reasoning, public market ingestion.
+- **Harder to copy (months, compounding)**:
+  - End-to-end prediction dataset tied to outcomes
+  - Calibration and ensembling tuned on your history
+  - Proprietary “Market Alpha” signal using microstructure + external signals
+  - Curated factor/event library and entity linking
+  - Personalization/alerts from portfolio history
+  - Cost/latency routing and caching at scale
+
+### Defenses to implement now
+- **Legal and policy**
+  - ToS forbidding resale/training on outputs; API terms with quotas; DMCA-ready process.
+- **Gating and egress control**
+  - Auth-only access to full context; per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
+- **Hold-back strategy**
+  - Public: headline probability + short rationale. Logged-in: more detail. Paid: alpha score, alerts, full source bundles.
+- **Artifact protection**
+  - Signed expiring links, watermark shared PDFs/images, `noai,nosnippet` robots meta, share minimal reproducible seeds.
+- **Keep crown jewels server-side**
+  - Never expose prompts/retrieval sets/weights; only return calibrated probabilities and short explanations.
+- **Moat compounding ops**
+  - Nightly evaluation (Brier/log loss) + drift alerts; periodic feature rotation in alpha scoring to resist cloning.
+- **Partnerships and data**
+  - Secure exclusive or time-advantaged feeds where possible (curation partners, niche data sources).
+
+If you move quickly on data capture, calibration, and distribution, you’ll be meaningfully ahead before general AI tools pivot into this niche.
+
+- Shipped concise guidance on timing: move fast in 2–4 weeks to start compounding data moats; 6–12 month opportunity window.
+- Clarified copyability: surface UI is easy to clone; lifecycle data, calibration, alpha scoring, and personalization are harder.
+- Listed concrete defenses across legal, gating, hold-back, artifact protection, server-side secrecy, ops, and partnerships.

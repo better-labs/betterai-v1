@@ -43,12 +43,12 @@ export function PredictionSummaryCard({
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
-            <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(ap0)}</div>
-          </div>
-          <div>
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market Probability</div>
             <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(mp0)}</div>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
+            <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(ap0)}</div>
           </div>
           <div>
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Difference</div>
