@@ -8,6 +8,7 @@ import { Search } from "lucide-react"
 import { marketQueries } from "@/lib/db/queries"
 import MarketDetailsCard from "@/components/market-details-card"
 import { generateMarketURL } from "@/lib/utils"
+import { SearchBox } from "@/components/search-box"
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; cursor?: string; sort?: string; status?: string }>
@@ -46,6 +47,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 market={market}
                 event={market.event}
                 externalMarketUrl={url}
+                latestPrediction={market.predictions?.[0] ?? null}
               />
             ))}
             {nextCursor && (
@@ -69,22 +71,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="w-80 flex-shrink-0">
             <Card>
               <CardContent className="p-4 space-y-4">
-                <form className="space-y-3" action="/search" method="get">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      name="q"
-                      type="text"
-                      placeholder="Search markets"
-                      defaultValue={query}
-                      className="pl-10"
-                    />
-                  </div>
-                  {/* Preserve current sort/status on search */}
-                  <input type="hidden" name="sort" value={String(sort)} />
-                  <input type="hidden" name="status" value={String(status)} />
-                  <Button type="submit" className="w-full">Search</Button>
-                </form>
+                <SearchBox defaultQuery={query} sort={String(sort)} status={String(status)} />
                 <Separator />
                 {/* Sort options */}
                 <div className="space-y-2">

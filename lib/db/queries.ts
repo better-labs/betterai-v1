@@ -331,7 +331,7 @@ export const marketQueries = {
       status?: 'active' | 'resolved' | 'all'
       cursorId?: string | null
     }
-  ): Promise<{ items: Array<Market & { event: Event | null }>; nextCursor: string | null }> => {
+  ): Promise<{ items: Array<Market & { event: Event | null, predictions: Prediction[] }>; nextCursor: string | null }> => {
     const limit = Math.max(1, Math.min(options?.limit ?? 50, 100))
     const sort = options?.sort ?? 'trending'
     const status = options?.status ?? (options?.onlyActive ? 'active' : 'all')
@@ -383,7 +383,10 @@ export const marketQueries = {
       // Best-effort: fetch a larger slice, compute closeness to 0.5, then slice
       const baseRows = await prisma.market.findMany({
         where,
-        include: { event: true },
+        include: { 
+          event: true,
+          predictions: { orderBy: { createdAt: 'desc' }, take: 1 },
+        },
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: Math.min(limit * 5, 200),
       })
@@ -404,14 +407,20 @@ export const marketQueries = {
     }
 
     const direction = orderKey === 'endDate' ? 'asc' : 'desc'
-    const orderBy: Prisma.MarketOrderByWithRelationInput[] = [
-      { [orderKey]: direction } as any,
-      { id: 'desc' },
-    ]
+    const orderBy: Prisma.MarketOrderByWithRelationInput[] = []
+    // By default ("trending"), prioritize markets with predictions first
+    if (sort === 'trending' || sort === undefined) {
+      orderBy.push({ predictions: { _count: 'desc' } } as any)
+    }
+    orderBy.push({ [orderKey]: direction } as any)
+    orderBy.push({ id: 'desc' })
 
     const rows = await prisma.market.findMany({
       where,
-      include: { event: true },
+      include: { 
+        event: true,
+        predictions: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
       orderBy,
       take: limit + 1,
       ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),

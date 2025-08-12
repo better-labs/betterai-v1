@@ -4,8 +4,6 @@
 ## Tuesday: Core Loop: Prediction Engine
 
 
-- Get basic "Search" functionality working.
-
 - Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
 - Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
 
