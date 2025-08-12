@@ -4,8 +4,7 @@
 ## Tuesday: Core Loop: Prediction Engine
 
 
-Finalize landing page content. Make the whole row a clickable link to Prediction!
-Then Prediction detail page!
+!!!Then Prediction detail page!
 
 Prediction detail page:
 - Update Prediction card to be used on landing page "Recent AI Predictions" and Prediction detail page.
@@ -50,6 +49,7 @@ Ask AI if the card view could be used to display in both grid card view (like po
 ## Friday
 - Data Pipeline: significantly overhaul and improve research component.
 
+- Legal todos.
 
 ### Operations
 - Operations: Vercel analytics, Vercel "Observability" features currently paid for

@@ -29,11 +29,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <div className="mb-6">
-        <Link href={market?.id ? `/market/${market.id}` : '/'} className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-          <span className="mr-2">←</span> Back {market?.id ? 'to Market' : 'Home'}
-        </Link>
-      </div>
+     
       <div className="mb-6" data-testid="event-container">
         <Link href="/" className="flex items-center gap-3">
           <EventIcon image={event?.image ?? null} icon={event?.icon ?? null} title={event?.title ?? ''} size="lg" />

@@ -109,6 +109,58 @@ export function validateProbability(probability: unknown): number {
 }
 
 /**
+ * Formats a value as a percentage string, accepting 0..1 or 0..100 inputs.
+ * Returns '—' for null/invalid values.
+ */
+export function formatPercent(value: unknown): string {
+  if (value == null) return '—'
+  let num: number | null = null
+  if (typeof value === 'number') {
+    num = value
+  } else if (typeof value === 'string') {
+    const parsed = parseFloat(value)
+    num = Number.isFinite(parsed) ? parsed : null
+  } else if (typeof value === 'object') {
+    const anyVal = value as any
+    if (typeof anyVal?.toNumber === 'function') {
+      try { num = anyVal.toNumber() } catch { num = null }
+    } else if (typeof anyVal?.toString === 'function') {
+      const parsed = parseFloat(anyVal.toString())
+      num = Number.isFinite(parsed) ? parsed : null
+    }
+  }
+  if (num == null || !Number.isFinite(num)) return '—'
+  const percent = num <= 1 ? num * 100 : num
+  return `${Math.round(percent)}%`
+}
+
+/**
+ * Normalizes probabilities to 0..1 range from 0..1 or 0..100 inputs.
+ */
+export function toUnitProbability(value: unknown): number | null {
+  if (value == null) return null
+  let num: number | null = null
+  if (typeof value === 'number') {
+    num = value
+  } else if (typeof value === 'string') {
+    const parsed = parseFloat(value)
+    num = Number.isFinite(parsed) ? parsed : null
+  } else if (typeof value === 'object') {
+    const anyVal = value as any
+    if (typeof anyVal?.toNumber === 'function') {
+      try { num = anyVal.toNumber() } catch { num = null }
+    } else if (typeof anyVal?.toString === 'function') {
+      const parsed = parseFloat(anyVal.toString())
+      num = Number.isFinite(parsed) ? parsed : null
+    }
+  }
+  if (num == null || !Number.isFinite(num)) return null
+  if (num > 1) return num / 100
+  if (num >= 0) return num
+  return null
+}
+
+/**
  * Converts various possible numeric-like values to a number or null.
  */
 export function toNumberOrNull(value: unknown): number | null {
