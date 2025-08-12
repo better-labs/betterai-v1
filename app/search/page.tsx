@@ -10,17 +10,17 @@ import MarketDetailsCard from "@/components/market-details-card"
 import { generateMarketURL } from "@/lib/utils"
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string; cursor?: string }>
+  searchParams: Promise<{ q?: string; cursor?: string; sort?: string; status?: string }>
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q, cursor } = await searchParams
+  const { q, cursor, sort = 'trending', status = 'active' } = await searchParams
   const query = (q || "").trim()
   const { items, nextCursor } = query
     ? await marketQueries.searchMarkets(query, {
         limit: 20,
-        onlyActive: true,
-        orderBy: "volume",
+        sort: (sort as any) ?? 'trending',
+        status: (status as any) ?? 'active',
         cursorId: cursor ?? null,
       })
     : { items: [], nextCursor: null }
@@ -51,7 +51,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             {nextCursor && (
               <div className="pt-2">
                 <Button variant="outline" asChild className="w-full">
-                  <Link href={`/search?q=${encodeURIComponent(query)}&cursor=${encodeURIComponent(nextCursor)}`}>
+                  <Link href={`/search?${new URLSearchParams({ q: query, sort: String(sort), status: String(status), cursor: nextCursor }).toString()}`}>
                     Load more
                   </Link>
                 </Button>
@@ -80,9 +80,54 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       className="pl-10"
                     />
                   </div>
+                  {/* Preserve current sort/status on search */}
+                  <input type="hidden" name="sort" value={String(sort)} />
+                  <input type="hidden" name="status" value={String(status)} />
                   <Button type="submit" className="w-full">Search</Button>
                 </form>
                 <Separator />
+                {/* Sort options */}
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {[
+                      { id: 'trending', label: 'Trending' },
+                      { id: 'liquidity', label: 'Liquidity' },
+                      { id: 'volume', label: 'Volume' },
+                      { id: 'newest', label: 'Newest' },
+                      { id: 'ending', label: 'Ending soon' },
+                      { id: 'competitive', label: 'Competitive' },
+                    ].map((opt) => {
+                      const params = new URLSearchParams({ q: query, sort: opt.id, status: String(status) })
+                      const href = `/search?${params.toString()}`
+                      const isActive = String(sort) === opt.id
+                      return (
+                        <Button key={opt.id} asChild size="sm" variant={isActive ? 'default' : 'outline'}>
+                          <Link href={href}>{opt.label}</Link>
+                        </Button>
+                      )
+                    })}
+                  </div>
+                </div>
+                <Separator />
+                {/* Status filters */}
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    {[
+                      { id: 'active', label: 'Active' },
+                      { id: 'resolved', label: 'Closed' },
+                      { id: 'all', label: 'All' },
+                    ].map((opt) => {
+                      const params = new URLSearchParams({ q: query, sort: String(sort), status: opt.id })
+                      const href = `/search?${params.toString()}`
+                      const isActive = String(status) === opt.id
+                      return (
+                        <Button key={opt.id} asChild size="sm" variant={isActive ? 'default' : 'outline'}>
+                          <Link href={href}>{opt.label}</Link>
+                        </Button>
+                      )
+                    })}
+                  </div>
+                </div>
                 <Button variant="ghost" asChild className="w-full justify-center">
                   <Link href="/search">Clear Filters</Link>
                 </Button>

@@ -326,17 +326,24 @@ export const marketQueries = {
     options?: {
       limit?: number
       onlyActive?: boolean
-      orderBy?: 'volume' | 'liquidity' | 'updatedAt'
+      orderBy?: 'volume' | 'liquidity' | 'updatedAt' // legacy param (mapped from sort)
+      sort?: 'trending' | 'liquidity' | 'volume' | 'newest' | 'ending' | 'competitive'
+      status?: 'active' | 'resolved' | 'all'
       cursorId?: string | null
     }
   ): Promise<{ items: Array<Market & { event: Event | null }>; nextCursor: string | null }> => {
     const limit = Math.max(1, Math.min(options?.limit ?? 50, 100))
-    const onlyActive = options?.onlyActive ?? true
-    const orderKey = options?.orderBy ?? 'volume'
+    const sort = options?.sort ?? 'trending'
+    const status = options?.status ?? (options?.onlyActive ? 'active' : 'all')
+    const orderKeyFromSort: 'volume' | 'liquidity' | 'updatedAt' | 'endDate' =
+      sort === 'liquidity' ? 'liquidity'
+      : sort === 'newest' ? 'updatedAt'
+      : sort === 'ending' ? 'endDate'
+      : 'volume' // trending and volume both map to volume for now
+    const orderKey = options?.orderBy ?? orderKeyFromSort
     const cursorId = options?.cursorId ?? null
 
     const where: Prisma.MarketWhereInput = {
-      ...(onlyActive ? { active: true } : {}),
       OR: [
         { question: { contains: searchTerm, mode: 'insensitive' } },
         { description: { contains: searchTerm, mode: 'insensitive' } },
@@ -360,8 +367,45 @@ export const marketQueries = {
       ],
     }
 
+    // Status filter
+    if (status === 'active') {
+      where.active = true
+    } else if (status === 'resolved') {
+      // Prefer explicit closed flag if available
+      where.closed = true
+    }
+    // For "ending" sort it is sensible to constrain to active
+    if (sort === 'ending') {
+      where.active = true
+    }
+
+    if (sort === 'competitive') {
+      // Best-effort: fetch a larger slice, compute closeness to 0.5, then slice
+      const baseRows = await prisma.market.findMany({
+        where,
+        include: { event: true },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: Math.min(limit * 5, 200),
+      })
+
+      const scored = baseRows
+        .map((m) => {
+          const p0Raw = Array.isArray((m as any).outcomePrices) ? (m as any).outcomePrices[0] : null
+          const p0 = typeof p0Raw === 'number' ? p0Raw : (p0Raw && typeof (p0Raw as any).toNumber === 'function' ? Number((p0Raw as any).toNumber()) : Number(p0Raw))
+          const prob = Number.isFinite(p0) ? (p0 as number) : null
+          const distance = prob != null ? Math.abs(0.5 - (prob > 1 ? prob / 100 : prob)) : Number.POSITIVE_INFINITY
+          return { m, distance }
+        })
+        .sort((a, b) => a.distance - b.distance)
+        .map(({ m }) => m)
+        .slice(0, limit)
+
+      return { items: scored, nextCursor: null }
+    }
+
+    const direction = orderKey === 'endDate' ? 'asc' : 'desc'
     const orderBy: Prisma.MarketOrderByWithRelationInput[] = [
-      { [orderKey]: 'desc' } as any,
+      { [orderKey]: direction } as any,
       { id: 'desc' },
     ]
 
