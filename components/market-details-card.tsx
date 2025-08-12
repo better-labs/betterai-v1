@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { Event, Market, Prediction } from '@/lib/types'
@@ -9,6 +10,7 @@ interface MarketDetailsCardProps {
   externalMarketUrl?: string | null
   className?: string
   latestPrediction?: Prediction | null
+  href?: string | null
 }
 
 export default function MarketDetailsCard({
@@ -17,6 +19,7 @@ export default function MarketDetailsCard({
   externalMarketUrl,
   className,
   latestPrediction,
+  href = null,
 }: MarketDetailsCardProps) {
   const lastUpdatedLabel = `Last updated: ${market.updatedAt ? new Date(market.updatedAt).toLocaleString(undefined, {
     year: 'numeric',
@@ -26,7 +29,7 @@ export default function MarketDetailsCard({
     minute: '2-digit',
   }) : 'Unknown'}`
 
-  return (
+  const card = (
     <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -68,6 +71,20 @@ export default function MarketDetailsCard({
         )}
       </CardContent>
     </Card>
+  )
+
+  // Make the entire card clickable when href is provided without nesting anchors
+  return href ? (
+    <div className="relative">
+      {card}
+      <Link
+        href={href}
+        aria-label={`View market: ${market.question}`}
+        className="absolute inset-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
+      />
+    </div>
+  ) : (
+    card
   )
 }
 
