@@ -7,6 +7,8 @@ import { getPredictionDisplayData } from "@/lib/utils"
 import { PredictionSummaryCard } from "@/components/prediction-summary-card"
 import { PredictionReasoningCard } from "@/components/prediction-reasoning-card"
 import type { PredictionResult } from "@/lib/types"
+import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/queries"
+import { PredictionHistoryList } from "@/components/prediction-history-list"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -35,6 +37,13 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const aiOutcomesProbabilities = (prediction as any).outcomesProbabilities ?? null
   const predictionResult = (prediction as any).predictionResult as PredictionResult | null
   const confidenceLevel = predictionResult?.confidence_level ?? null
+
+  // Optional history: recent checks and past predictions for this market
+  const marketId = market?.id
+  const [checks, pastPredictions] = await Promise.all([
+    marketId ? predictionCheckQueries.getRecentByMarket(marketId, 25) : Promise.resolve([]),
+    marketId ? pq.getPredictionsByMarketId(marketId) : Promise.resolve([]),
+  ])
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -67,18 +76,23 @@ export default async function PredictionDetailPage({ params }: PageProps) {
 
         <PredictionReasoningCard reasoning={reasoning} />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">Created</div>
-            <div className="text-sm text-muted-foreground">{createdAtDisplay}</div>
-          </div>
-          {prediction.modelName && (
-            <div>
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Model</div>
-              <div className="text-sm text-muted-foreground">{prediction.modelName}</div>
-            </div>
-          )}
-        </div>
+
+        <PredictionHistoryList
+          className="mt-2"
+          checks={checks?.map((c) => ({
+            createdAt: c.createdAt as any,
+            aiProbability: (c as any).aiProbability,
+            marketProbability: (c as any).marketProbability,
+            delta: (c as any).absDelta ?? (c as any).delta,
+            marketClosed: c.marketClosed ?? null,
+          }))}
+          predictions={pastPredictions?.map((p) => ({
+            createdAt: p.createdAt as any,
+            modelName: p.modelName ?? null,
+            outcomesProbabilities: (p as any).outcomesProbabilities ?? null,
+          }))}
+          marketId={marketId ?? null}
+        />
       </div>
     </div>
   )

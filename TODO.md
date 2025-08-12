@@ -22,12 +22,10 @@ Ask AI if the card view could be used to display in both grid card view (like po
 
 - Event detail page.
 
-- Fix this URL? http://localhost:3000/market/[marketId]/predictions ? Or remove this page and make an expand section to show all predictions?
 
-## Tuesday: UX enhancements
+- Get basic "Search" functionality working.
+
 - Landing page:
-  Combine Trending Events and "Trending Predictions". Show Trending Events that also have predictions generated.
-
   Track record:  "AI predicted X correctly this week".
 - Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
 - Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
