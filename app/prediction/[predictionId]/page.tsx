@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { format } from "date-fns"
 import { predictionQueries } from "@/lib/db/queries"
 import { EventIcon } from "@/components/event-icon"
-import { generateEventURL, generateMarketURL } from "@/lib/utils"
+import { getPredictionDisplayData } from "@/lib/utils"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -19,44 +19,9 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const market = prediction.market
   const event = market?.event || null
 
-  const toNum = (v: any): number | null => {
-    if (v === null || v === undefined) return null
-    if (typeof v === 'number') return v
-    if (typeof v === 'string') { const n = parseFloat(v); return Number.isFinite(n) ? n : null }
-    if (typeof (v as any)?.toNumber === 'function') { try { return (v as any).toNumber() } catch { return null } }
-    try { const n = Number(v as any); return Number.isFinite(n) ? n : null } catch { return null }
-  }
-
-  // AI probability from stored arrays or aiResponse fallback
-  let aiProbability = 0
-  const arr0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
-  const arr0Num = toNum(arr0)
-  if (arr0Num !== null) aiProbability = Math.round(arr0Num * 100)
-  else if (prediction.aiResponse) {
-    try {
-      const parsed = JSON.parse(prediction.aiResponse as unknown as string)
-      const arr = (parsed as any)?.outcomesProbabilities
-      const first = Array.isArray(arr) ? toNum(arr[0]) : null
-      if (first !== null) aiProbability = Math.round(first * 100)
-    } catch {}
-  }
-
-  // Reasoning
-  let reasoning: string | null = null
-  if (prediction.aiResponse) {
-    try {
-      const parsed = JSON.parse(prediction.aiResponse as unknown as string)
-      if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
-        reasoning = String((parsed as any).reasoning)
-      }
-    } catch {}
-  }
-
-  // Market probability
-  let marketProbability: number | null = null
-  const firstPrice = Array.isArray(market?.outcomePrices) ? market?.outcomePrices[0] : null
-  const priceNum = toNum(firstPrice)
-  if (priceNum !== null) marketProbability = Math.round(priceNum * 100)
+  const { aiProbability, reasoning, marketProbability } = getPredictionDisplayData(
+    prediction as any
+  )
 
   const createdAtDisplay = prediction.createdAt ? format(new Date(prediction.createdAt), 'PP p') : ''
   // const eventExternalUrl = event?.id ? await generateEventURL(event.id) : null

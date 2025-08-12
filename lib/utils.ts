@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { eventQueries, marketQueries } from "./db/queries"
+import type { Prediction, Market } from "./types"
 import { z } from "zod"
 import type { PredictionResult } from "./types"
 
@@ -105,6 +106,77 @@ export function validateProbability(probability: unknown): number {
 
   // Ensure probability is between 0 and 1
   return Math.max(0, Math.min(1, probability))
+}
+
+/**
+ * Converts various possible numeric-like values to a number or null.
+ */
+export function toNumberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined) return null
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null
+  if (typeof value === 'string') {
+    const n = parseFloat(value)
+    return Number.isFinite(n) ? n : null
+  }
+  try {
+    const n = Number(value as any)
+    return Number.isFinite(n) ? n : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Derives display-friendly fields from a prediction record.
+ * - aiProbability from `outcomesProbabilities[0]` or by parsing `aiResponse`
+ * - reasoning from `aiResponse`
+ * - marketProbability from the related market's `outcomePrices[0]`
+ */
+export function getPredictionDisplayData(
+  prediction: Prediction & { market: (Market & { event?: any }) | null }
+): { aiProbability: number; reasoning: string | null; marketProbability: number | null } {
+  let aiProbability = 0
+  let reasoning: string | null = null
+  let marketProbability: number | null = null
+
+  // AI probability from stored array
+  const p0 = Array.isArray((prediction as any).outcomesProbabilities)
+    ? (prediction as any).outcomesProbabilities[0]
+    : null
+  const p0Num = toNumberOrNull(p0)
+  if (p0Num !== null) {
+    aiProbability = Math.round(p0Num * 100)
+  } else if (prediction.aiResponse) {
+    // Fallback: parse aiResponse
+    try {
+      const parsed = JSON.parse(prediction.aiResponse as unknown as string)
+      const arr = (parsed as any)?.outcomesProbabilities
+      const first = Array.isArray(arr) ? toNumberOrNull(arr[0]) : null
+      if (first !== null) aiProbability = Math.round(first * 100)
+      if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
+        reasoning = String((parsed as any).reasoning)
+      }
+    } catch {}
+  }
+
+  // Reasoning if not already set
+  if (!reasoning && prediction.aiResponse) {
+    try {
+      const parsed = JSON.parse(prediction.aiResponse as unknown as string)
+      if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
+        reasoning = String((parsed as any).reasoning)
+      }
+    } catch {}
+  }
+
+  // Market probability
+  const firstPrice = Array.isArray(prediction.market?.outcomePrices)
+    ? (prediction.market as any).outcomePrices[0]
+    : (prediction.market as any)?.outcomePrices?.[0]
+  const priceNum = toNumberOrNull(firstPrice)
+  if (priceNum !== null) marketProbability = Math.round(priceNum * 100)
+
+  return { aiProbability, reasoning, marketProbability }
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, ChevronRight, DollarSign, Calendar, BarChart2 } from "lucide-react"
@@ -13,51 +13,11 @@ interface MarketListProps {
   predictions: Record<string, PredictionResult>
 }
 
-export function MarketList({
-  markets,
-  predictions,
-}: MarketListProps) {
-  const [marketPredictions, setMarketPredictions] = useState<Record<string, PredictionResult>>({})
-  const [loadingMarketPredictions, setLoadingMarketPredictions] = useState<Set<string>>(new Set())
-  const processedMarkets = useRef<Set<string>>(new Set())
-
-  const fetchMarketPrediction = useCallback(async (marketId: string) => {
-    if (loadingMarketPredictions.has(marketId) || marketPredictions[marketId]) {
-      return
-    }
-
-    setLoadingMarketPredictions(prev => new Set(prev).add(marketId))
-    
-    try {
-      const response = await fetch(`/api/markets/${marketId}/prediction`)
-      if (response.ok) {
-        const data = await response.json()
-        if (data.prediction) {
-          setMarketPredictions(prev => ({
-            ...prev,
-            [marketId]: data.prediction
-          }))
-        }
-      }
-    } catch (error) {
-      console.error(`Failed to fetch market prediction for ${marketId}:`, error)
-    } finally {
-      setLoadingMarketPredictions(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(marketId)
-        return newSet
-      })
-    }
-  }, [loadingMarketPredictions, marketPredictions])
-
-  // Fetch market predictions for markets that don't have AI predictions
+export function MarketList({ markets, predictions }: MarketListProps) {
+  // Client component now receives all available predictions from the server (RSC).
+  // No client-side fetching; simply renders.
   useEffect(() => {
-    markets.forEach(market => {
-      if (!predictions[market.id] && !marketPredictions[market.id] && !loadingMarketPredictions.has(market.id) && !processedMarkets.current.has(market.id)) {
-        processedMarkets.current.add(market.id)
-        fetchMarketPrediction(market.id)
-      }
-    })
+    // no-op: retained to avoid accidental behavior changes; safe to remove later
   }, [markets, predictions])
 
   return (
@@ -115,23 +75,11 @@ export function MarketList({
                   <div className="flex items-center justify-center space-x-2 md:space-x-3">
                     <div className="text-2xl md:text-3xl font-bold text-foreground">
                       {(() => {
-                        // First check if there's a current AI prediction
-                         if (predictions[market.id]) {
+                        // First check if there's a current AI prediction (server-provided)
+                        if (predictions[market.id]) {
                           const prediction = predictions[market.id]
                           const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
                           return p0 != null ? `${Math.round(Number(p0) * 100)}%` : '--'
-                        }
-                        
-                        // Then check if there's a stored market prediction
-                        if (marketPredictions[market.id]) {
-                          const prediction = marketPredictions[market.id]
-                          const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
-                          return p0 != null ? `${Math.round(Number(p0) * 100)}%` : '--'
-                        }
-                        
-                        // Show loading state
-                        if (loadingMarketPredictions.has(market.id)) {
-                          return '...'
                         }
                         
                         // Default fallback
@@ -139,8 +87,8 @@ export function MarketList({
                       })()}
                     </div>
                     {(() => {
-                      // Check if there's a current AI prediction
-                       if (predictions[market.id]) {
+                      // Check if there's a current AI prediction (server-provided)
+                      if (predictions[market.id]) {
                         const prediction = predictions[market.id]
                         const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
                         return (
@@ -154,35 +102,7 @@ export function MarketList({
                           </div>
                         )
                       }
-                      
-                      // Then check if there's a stored market prediction
-                       if (marketPredictions[market.id]) {
-                        const prediction = marketPredictions[market.id]
-                        const p0 = Array.isArray((prediction as any).outcomesProbabilities) ? (prediction as any).outcomesProbabilities[0] : null
-                        return (
-                          <div className="flex flex-col items-center space-y-1 md:space-y-2">
-                            <span className="text-xs text-muted-foreground">Chance</span>
-                            <div className="w-10 md:w-12 h-2 bg-muted rounded-full">
-                              <div 
-                                className={`h-2 rounded-full w-${p0 != null ? Math.min(12, Math.max(1, Math.round(Number(p0) * 12))) : 1} bg-green-500`}
-                              ></div>
-                            </div>
-                          </div>
-                        )
-                      }
-                      
-                      // Show loading state
-                      if (loadingMarketPredictions.has(market.id)) {
-                        return (
-                          <div className="flex flex-col items-center space-y-1 md:space-y-2">
-                            <span className="text-xs text-muted-foreground">Chance</span>
-                            <div className="w-10 md:w-12 h-2 bg-muted rounded-full">
-                              <div className="w-6 bg-muted-foreground animate-pulse h-2 rounded-full"></div>
-                            </div>
-                          </div>
-                        )
-                      }
-                      
+
                       // Show "Go" when no prediction is available
                       return (
                         <div className="flex flex-col items-center space-y-1 md:space-y-2">
