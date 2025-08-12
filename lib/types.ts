@@ -29,6 +29,7 @@ export interface PolymarketEvent {
   startDate?: Date | null;
   endDate?: Date | null;
   markets: PolymarketMarket[];
+  category: string;
 }
 
 export interface OpenRouterModel {

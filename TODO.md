@@ -1,7 +1,17 @@
 
 # Week of 8/11
 
-## Monday: Core Loop: Prediction Engine
+## Tuesday: Core Loop: Prediction Engine
+
+
+Testing new Prediction results per prompt changes, zod stuff
+-Finding: resulting outcome simply mirror the market prices. They do not represent the AI's prediction.
+
+Finalize landing page content. Make the whole row a clickable link to Prediction!
+
+
+Then Prediction detail page!
+
 Prediction detail page:
 - Update Prediction card to be used on landing page "Recent AI Predictions" and Prediction detail page.
 

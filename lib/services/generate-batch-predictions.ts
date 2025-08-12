@@ -5,6 +5,7 @@ interface BatchPredictionConfig {
   topMarketsCount: number
   endDateRangeHours: number // Default 12 hours
   targetDaysFromNow: number // Default 7 days
+  categoryMix: boolean // Default false
 }
 
 interface MarketWithEndDate {
@@ -23,7 +24,8 @@ export async function getTopMarketsByVolumeAndEndDate(
   config: BatchPredictionConfig = {
     topMarketsCount: 1,
     endDateRangeHours: 12,
-    targetDaysFromNow: 7
+    targetDaysFromNow: 7,
+    categoryMix: false
   }
 ): Promise<MarketWithEndDate[]> {
   try {
@@ -36,44 +38,73 @@ export async function getTopMarketsByVolumeAndEndDate(
 
     console.log(`Searching for markets ending between ${rangeStart.toISOString()} and ${rangeEnd.toISOString()}`)
 
-    // Query markets with end dates in the specified range, ordered by volume
+    // If categoryMix is true, pick the top market by volume for each category (via related event.category)
+    if (config.categoryMix) {
+      const marketsInRange = await prisma.market.findMany({
+        where: {
+          endDate: {
+            gte: rangeStart,
+            lte: rangeEnd,
+          },
+        },
+        orderBy: { volume: 'desc' },
+        include: {
+          event: {
+            select: { category: true },
+          },
+        },
+      })
+
+      const seenCategories = new Set<string>()
+      const selected: MarketWithEndDate[] = []
+
+      for (const m of marketsInRange) {
+        const category = (m.event?.category as unknown as string) || null
+        if (!category) continue
+        if (seenCategories.has(category)) continue
+        seenCategories.add(category)
+        selected.push({
+          id: m.id,
+          question: m.question,
+          volume: m.volume ? m.volume.toNumber() : null,
+          endDate: m.endDate ?? null,
+        })
+        if (selected.length >= config.topMarketsCount) break
+      }
+
+      return selected
+    }
+
+    // Otherwise: Query the top markets by volume in the range
     const topMarkets = await prisma.market.findMany({
       where: {
         endDate: {
           gte: rangeStart,
-          lte: rangeEnd
-        }
+          lte: rangeEnd,
+        },
       },
-      orderBy: {
-        volume: 'desc'
-      },
+      orderBy: { volume: 'desc' },
       take: config.topMarketsCount,
       select: {
         id: true,
         question: true,
         volume: true,
-        endDate: true
-      }
+        endDate: true,
+      },
     })
 
     // Convert volume from Decimal to number and filter out null values
     const processedMarkets: MarketWithEndDate[] = topMarkets
-      .map(market => ({
+      .map((market) => ({
         ...market,
         volume: market.volume ? market.volume.toNumber() : null,
-        endDate: market.endDate
+        endDate: market.endDate,
       }))
-      .filter(market => market.volume !== null) as MarketWithEndDate[]
+      .filter((market) => market.volume !== null) as MarketWithEndDate[]
 
     // Log the results
     console.log(`Found ${processedMarkets.length} markets meeting criteria:`)
-    processedMarkets.forEach((market, index) => {
-      console.log(`${index + 1}. Market ID: ${market.id}`)
-      console.log(`   Question: ${market.question}`)
-      console.log(`   Volume: ${market.volume}`)
-      console.log(`   End Date: ${market.endDate?.toISOString()}`)
-      console.log('---')
-    })
+    
 
     return processedMarkets
   } catch (error) {
@@ -133,7 +164,8 @@ export async function runBatchPredictionGeneration(
   config: BatchPredictionConfig = {
     topMarketsCount: 3,
     endDateRangeHours: 12,
-    targetDaysFromNow: 7
+    targetDaysFromNow: 7, 
+    categoryMix: false
   },
   modelName?: string
 ): Promise<void> {

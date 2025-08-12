@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { eventQueries, marketQueries } from "./db/queries"
+import { z } from "zod"
+import type { PredictionResult } from "./types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -60,6 +62,32 @@ export function parseAIResponse<T>(text: string): T {
       throw new Error(`AI model returned invalid JSON response. Raw response: ${text.substring(0, 200)}...`);
     }
   }
+}
+
+// Runtime schema validation for AI prediction result
+const PredictionResultSchema = z
+  .object({
+    prediction: z.string().min(1),
+    outcomes: z
+      .array(z.string().min(1))
+      .length(2)
+      .refine((arr) => new Set(arr).size === 2, {
+        message: "outcomes must contain two unique labels",
+      }),
+    outcomesProbabilities: z
+      .array(z.number().min(0).max(1))
+      .length(2)
+      .refine((arr) => Math.abs(arr[0] + arr[1] - 1) < 1e-6, {
+        message: "outcomesProbabilities must sum to 1",
+      }),
+    reasoning: z.string().min(10),
+    confidence_level: z.enum(["High", "Medium", "Low"]),
+  })
+  .strict()
+
+export function validatePredictionResult(result: unknown): PredictionResult {
+  const parsed = PredictionResultSchema.parse(result)
+  return parsed as PredictionResult
 }
 
 /**

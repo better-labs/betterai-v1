@@ -51,7 +51,11 @@ export async function generatePredictionVsMarketDelta(
     orderBy: { createdAt: 'desc' },
     take: maxPredictions,
     include: {
-      market: true,
+      market: {
+        include: {
+          event: true,
+        },
+      },
     },
   })
 
@@ -88,7 +92,7 @@ export async function generatePredictionVsMarketDelta(
       continue
     }
 
-    const category = (market.category as unknown as string) ?? null
+    const category = (market.event?.category as unknown as string) ?? null
     if (
       category &&
       lowerExclusions.size > 0 &&
@@ -162,7 +166,6 @@ export async function generatePredictionVsMarketDelta(
         delta,
         absDelta,
         marketClosed: !!market.closed,
-        marketCategory: category as Category | null,
       })
       savedCount += 1
       results[results.length - 1] = {

@@ -24,7 +24,8 @@ async function main() {
       {
         topMarketsCount: 5,
         endDateRangeHours: 12,
-        targetDaysFromNow: 7
+        targetDaysFromNow: 7,
+        categoryMix: true
       },
       //'google/gemini-2.5-pro'
       'google/gemini-2.0-flash-001'

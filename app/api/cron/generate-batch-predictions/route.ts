@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const modelName = request.nextUrl.searchParams.get('modelName') ?? DEFAULT_MODEL
 
     await runBatchPredictionGeneration(
-      { topMarketsCount, endDateRangeHours, targetDaysFromNow },
+      { topMarketsCount, endDateRangeHours, targetDaysFromNow, categoryMix: false },
       modelName
     )
 

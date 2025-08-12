@@ -29,43 +29,8 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
           const market = p.market
           const event = market?.event || null
 
-          const toNum = (v: any): number | null => {
-            if (v === null || v === undefined) return null
-            if (typeof v === 'number') return v
-            if (typeof v === 'string') {
-              const n = parseFloat(v)
-              return isFinite(n) ? n : null
-            }
-            if (typeof (v as any)?.toNumber === 'function') {
-              try { return (v as any).toNumber() } catch { return null }
-            }
-            try { const n = Number(v as any); return isFinite(n) ? n : null } catch { return null }
-          }
+          
 
-          // AI probability from stored arrays or aiResponse fallback
-          let aiProbability = 0
-          const arr0 = Array.isArray((p as any).outcomesProbabilities) ? (p as any).outcomesProbabilities[0] : null
-          const arr0Num = toNum(arr0)
-          if (arr0Num !== null) aiProbability = Math.round(arr0Num * 100)
-          else if (p.aiResponse) {
-            try {
-              const parsed = JSON.parse(p.aiResponse as unknown as string)
-              const arr = (parsed as any)?.outcomesProbabilities
-              const first = Array.isArray(arr) ? toNum(arr[0]) : null
-              if (first !== null) aiProbability = Math.round(first * 100)
-            } catch {}
-          }
-
-          // Market probability from outcomePrices[0]
-          let marketProbability: number | null = null
-          const op: any = (market as any)?.outcomePrices
-          let firstPrice: any = null
-          if (Array.isArray(op)) firstPrice = op[0]
-          else if (typeof op === 'string') {
-            try { const arr = JSON.parse(op); if (Array.isArray(arr)) firstPrice = arr[0] } catch {}
-          }
-          const firstPriceNum = toNum(firstPrice)
-          if (firstPriceNum !== null) marketProbability = Math.round(firstPriceNum * 100)
 
           // Extract reasoning from aiResponse if available
           let reasoning: string | null = null
@@ -84,6 +49,36 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
           const eventTitle = event?.title ?? ''
           const eventIcon = event?.icon ?? null
           const eventImage = event?.image ?? null
+          const marketOutcome0 = market?.outcomes?.[0] 
+          const marketOutcome1 = market?.outcomes?.[1] 
+          const price0 = market?.outcomePrices?.[0]
+          const price1 = market?.outcomePrices?.[1]
+          const aiProb0 = p?.outcomesProbabilities?.[0]
+          const aiProb1 = p?.outcomesProbabilities?.[1]
+          const aiOutcome0 = p?.outcomes?.[0] 
+          const aiOutcome1 = p?.outcomes?.[1] 
+
+          const formatPercent = (value: unknown): string => {
+            if (value == null) return '—'
+            let num: number | null = null
+            if (typeof value === 'number') {
+              num = value
+            } else if (typeof value === 'string') {
+              const parsed = parseFloat(value)
+              num = Number.isFinite(parsed) ? parsed : null
+            } else if (typeof value === 'object') {
+              const anyVal = value as any
+              if (typeof anyVal?.toNumber === 'function') {
+                try { num = anyVal.toNumber() } catch { num = null }
+              } else if (typeof anyVal?.toString === 'function') {
+                const parsed = parseFloat(anyVal.toString())
+                num = Number.isFinite(parsed) ? parsed : null
+              }
+            }
+            if (num == null || !Number.isFinite(num)) return '—'
+            const percent = num <= 1 ? num * 100 : num
+            return `${Math.round(percent)}%`
+          }
 
           return (
             <div key={p.id as any} className="p-4 sm:p-5">
@@ -93,7 +88,7 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
                   <EventIcon image={eventImage} icon={eventIcon} title={eventTitle} size="sm" className="sm:w-10 sm:h-10" />
                 </div>
 
-                {/* Combined Event + Market section - 2 columns */}
+                {/* Market question/title - 2 columns */}
                 <div className="sm:col-span-2 min-w-0">
                   {marketId ? (
                     <Link href={`/market/${marketId}`} className="block hover:bg-muted/50 rounded-sm -m-1 p-1 transition-colors">
@@ -115,29 +110,56 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
 
                 {/* Market Probability - 2 columns */}
                 <div className="sm:col-span-2">
-                  {marketId ? (
-                    <Link href={`/market/${marketId}`} className="block hover:bg-muted/50 rounded-sm -m-1 p-1 transition-colors">
-                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
-                      <div className="text-2xl font-semibold tabular-nums sm:text-right">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
-                    </Link>
-                  ) : (
-                    <>
-                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
-                      <div className="text-2xl font-semibold tabular-nums sm:text-right">{marketProbability !== null ? `${marketProbability}%` : '--'}</div>
-                    </>
-                  )}
-                </div>
-
-                {/* AI Probability - 2 columns (link to prediction detail) */}
-                <div className="sm:col-span-2">
-                  <Link href={`/prediction/${p.id as any}`} className="block rounded-sm p-0.5 hover:bg-muted/50 transition-colors">
-                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
-                    <div className="text-2xl font-semibold tabular-nums sm:text-right">{aiProbability}%</div>
+                  <Link href={`/market/${marketId}`} className="block hover:bg-muted/50 rounded-sm -m-1 p-1 transition-colors">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
+                    <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
+                      <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
+                        <div className="text-muted-foreground">{marketOutcome0}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(price0)}</div>
+                      </div>
+                      <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
+                        <div className="text-muted-foreground">{marketOutcome1}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(price1)}</div>
+                      </div>
+                    </div>
                   </Link>
                 </div>
 
+                {/* AI Probability (link to prediction detail) */}
+                <div className="sm:col-span-2">
+                  <Link href={`/prediction/${p.id as any}`} className="block rounded-sm p-0.5 hover:bg-muted/50 transition-colors">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
+                    <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
+                      <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
+                        <div className="text-muted-foreground">{aiOutcome0}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(aiProb0)}</div>
+                      </div>
+                      <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
+                        <div className="text-muted-foreground">{aiOutcome1}</div>
+                        <div className="text-right font-semibold tabular-nums">{formatPercent(aiProb1)}</div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+                
+                {/* Difference/Delta */}
+                
+                <div className="sm:col-span-2">
+                  <Link href={`/prediction/${p.id as any}`} className="block rounded-sm p-0.5 hover:bg-muted/50 transition-colors">
+                  
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">
+                      Difference
+                    </div>
+                  <div className="mt-1 text-sm font-semibold text-right">
+                    25%
+                  </div>
+                  </Link>
+                </div>
+                  
+                 
+
                 {/* Reasoning + Timestamp -  (link to prediction detail) */}
-                <div className="sm:col-span-4 min-w-0">
+                <div className="sm:col-span-2 min-w-0">
                   <Link href={`/prediction/${p.id as any}`} className="block rounded-sm p-0.5 hover:bg-muted/50 transition-colors">
                     <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Reasoning</div>
                     <div className="flex flex-col gap-1">
