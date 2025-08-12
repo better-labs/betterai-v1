@@ -311,6 +311,60 @@ export const marketQueries = {
     }
     return results
   },
+  /**
+   * Full‑text style search across markets and their related event/tag data.
+   * Matches on:
+   * - market.question
+   * - market.description
+   * - event.title
+   * - event.description
+   * - event → tags.label
+   * Returns markets with the related event included for UI context.
+   */
+  searchMarkets: async (
+    searchTerm: string,
+    options?: {
+      limit?: number
+      onlyActive?: boolean
+      orderBy?: 'volume' | 'liquidity' | 'updatedAt'
+    }
+  ): Promise<Array<Market & { event: Event | null }>> => {
+    const limit = options?.limit ?? 50
+    const onlyActive = options?.onlyActive ?? true
+    const orderKey = options?.orderBy ?? 'volume'
+
+    const where: Prisma.MarketWhereInput = {
+      ...(onlyActive ? { active: true } : {}),
+      OR: [
+        { question: { contains: searchTerm, mode: 'insensitive' } },
+        { description: { contains: searchTerm, mode: 'insensitive' } },
+        {
+          event: {
+            is: {
+              OR: [
+                { title: { contains: searchTerm, mode: 'insensitive' } },
+                { description: { contains: searchTerm, mode: 'insensitive' } },
+                {
+                  eventTags: {
+                    some: {
+                      tag: { label: { contains: searchTerm, mode: 'insensitive' } },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    }
+
+    return await prisma.market.findMany({
+      where,
+      include: { event: true },
+      orderBy: { [orderKey]: 'desc' },
+      take: limit,
+    })
+  },
 }
 
 // Prediction queries
