@@ -2,6 +2,7 @@ import { marketQueries, predictionQueries, DEFAULT_MODEL } from '../db/queries'
 import { fetchPredictionFromOpenRouter } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
 import { Decimal } from '@prisma/client/runtime/library'
+import { USER_MESSAGE_PREFIX } from '@/lib/utils'
 
 interface PredictionServiceResponse {
   success: boolean
@@ -61,7 +62,7 @@ JSON Schema (for reference):
 
 IMPORTANT: Return pure JSON only. No markdown, no code fences, no commentary.`
 
-  const userMessage = `Please consider the additional information below on market context, timing, and any relevant factors when making your prediction.
+  const userMessage = `${USER_MESSAGE_PREFIX}
   
   Market Outcome 1: "${market.outcomes?.[0]}"
   Market Outcome 2: "${market.outcomes?.[1]}"
@@ -73,7 +74,7 @@ Market: "${market.question}"
 ${market.description ? `Market Description: ${market.description}` : ''}
 ${market.endDate ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` : ''}
 
-${additionalUserMessageContext ? `Additional context: ${additionalUserMessageContext}` : ''}`
+ ${additionalUserMessageContext ? `Additional context: ${additionalUserMessageContext}` : ''}`
 
   return { systemMessage, userMessage }
 }

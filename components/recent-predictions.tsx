@@ -2,55 +2,11 @@ import { format } from "date-fns"
 import Link from "next/link"
 import type { Prediction, Market, Event } from "@/lib/types"
 import { EventIcon } from "@/components/event-icon"
+import { PredictionProbabilityGrid } from "@/components/prediction-probability-grid"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
-// Format a value as a percentage string, accepting 0..1 or 0..100 inputs
-const formatPercent = (value: unknown): string => {
-  if (value == null) return '—'
-  let num: number | null = null
-  if (typeof value === 'number') {
-    num = value
-  } else if (typeof value === 'string') {
-    const parsed = parseFloat(value)
-    num = Number.isFinite(parsed) ? parsed : null
-  } else if (typeof value === 'object') {
-    const anyVal = value as any
-    if (typeof anyVal?.toNumber === 'function') {
-      try { num = anyVal.toNumber() } catch { num = null }
-    } else if (typeof anyVal?.toString === 'function') {
-      const parsed = parseFloat(anyVal.toString())
-      num = Number.isFinite(parsed) ? parsed : null
-    }
-  }
-  if (num == null || !Number.isFinite(num)) return '—'
-  const percent = num <= 1 ? num * 100 : num
-  return `${Math.round(percent)}%`
-}
-
-// Normalize probabilities to 0..1 range from 0..1 or 0..100 inputs
-const toUnitProbability = (value: unknown): number | null => {
-  if (value == null) return null
-  let num: number | null = null
-  if (typeof value === 'number') {
-    num = value
-  } else if (typeof value === 'string') {
-    const parsed = parseFloat(value)
-    num = Number.isFinite(parsed) ? parsed : null
-  } else if (typeof value === 'object') {
-    const anyVal = value as any
-    if (typeof anyVal?.toNumber === 'function') {
-      try { num = anyVal.toNumber() } catch { num = null }
-    } else if (typeof anyVal?.toString === 'function') {
-      const parsed = parseFloat(anyVal.toString())
-      num = Number.isFinite(parsed) ? parsed : null
-    }
-  }
-  if (num == null || !Number.isFinite(num)) return null
-  if (num > 1) return num / 100
-  if (num >= 0) return num
-  return null
-}
+// Using shared helpers from utils
 
 // Minimal presentational component for a list of recent predictions with market and event context
 export function RecentPredictions({ items }: { items: PredictionWithRelations[] }) {
@@ -96,21 +52,6 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
           const eventTitle = event?.title ?? ''
           const eventIcon = event?.icon ?? null
           const eventImage = event?.image ?? null
-          const marketOutcome0 = market?.outcomes?.[0] 
-          const marketOutcome1 = market?.outcomes?.[1] 
-          const price0 = market?.outcomePrices?.[0]
-          const price1 = market?.outcomePrices?.[1]
-          const aiProb0 = p?.outcomesProbabilities?.[0]
-          const aiProb1 = p?.outcomesProbabilities?.[1]
-          const aiOutcome0 = p?.outcomes?.[0] 
-          const aiOutcome1 = p?.outcomes?.[1] 
-
-           const difference0 = (() => {
-             const marketP0 = toUnitProbability(price0)
-             const aiP0 = toUnitProbability(aiProb0)
-             if (marketP0 == null || aiP0 == null) return null
-             return Math.abs(marketP0 - aiP0)
-           })()
 
           return (
             <Link
@@ -142,46 +83,14 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
                   )}
                 </div>
 
-                {/* Market Probability - 2 columns */}
-                <div className="sm:col-span-2">
-                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
-                  <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
-                    <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
-                      <div className="text-muted-foreground">{marketOutcome0}</div>
-                      <div className="text-right font-semibold tabular-nums">{formatPercent(price0)}</div>
-                    </div>
-                    <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
-                      <div className="text-muted-foreground">{marketOutcome1}</div>
-                      <div className="text-right font-semibold tabular-nums">{formatPercent(price1)}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* AI Probability (link to prediction detail) */}
-                <div className="sm:col-span-2">
-                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
-                  <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
-                    <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
-                      <div className="text-muted-foreground">{aiOutcome0}</div>
-                      <div className="text-right font-semibold tabular-nums">{formatPercent(aiProb0)}</div>
-                    </div>
-                    <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
-                      <div className="text-muted-foreground">{aiOutcome1}</div>
-                      <div className="text-right font-semibold tabular-nums">{formatPercent(aiProb1)}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Difference/Delta */}
-                
-                <div className="sm:col-span-2">
-                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">
-                    Difference
-                  </div>
-                  <div className="mt-1 text-xl  text-right">
-                    {difference0 == null ? '—' : formatPercent(difference0)}
-                  </div>
-                </div>
+                {/* Probability Grid (Market, AI, Difference) - spans 6 columns */}
+                <PredictionProbabilityGrid
+                  className="sm:col-span-6"
+                  marketOutcomes={market?.outcomes ?? null}
+                  marketOutcomePrices={market?.outcomePrices ?? null}
+                  aiOutcomes={p?.outcomes ?? null}
+                  aiOutcomesProbabilities={p?.outcomesProbabilities ?? null}
+                />
                   
                  
 

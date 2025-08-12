@@ -4,8 +4,7 @@
 ## Tuesday: Core Loop: Prediction Engine
 
 
-Finalize landing page content. Make the whole row a clickable link to Prediction!
-Then Prediction detail page!
+!!!Then Prediction detail page!
 
 Prediction detail page:
 - Update Prediction card to be used on landing page "Recent AI Predictions" and Prediction detail page.
@@ -23,12 +22,10 @@ Ask AI if the card view could be used to display in both grid card view (like po
 
 - Event detail page.
 
-- Fix this URL? http://localhost:3000/market/[marketId]/predictions ? Or remove this page and make an expand section to show all predictions?
 
-## Tuesday: UX enhancements
+- Get basic "Search" functionality working.
+
 - Landing page:
-  Combine Trending Events and "Trending Predictions". Show Trending Events that also have predictions generated.
-
   Track record:  "AI predicted X correctly this week".
 - Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
 - Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
@@ -50,6 +47,7 @@ Ask AI if the card view could be used to display in both grid card view (like po
 ## Friday
 - Data Pipeline: significantly overhaul and improve research component.
 
+- Legal todos.
 
 ### Operations
 - Operations: Vercel analytics, Vercel "Observability" features currently paid for
