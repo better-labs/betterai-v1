@@ -7,6 +7,7 @@ import type { PredictionResult } from "@/lib/types"
 import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/queries"
 import { PredictionHistoryList } from "@/components/prediction-history-list"
 import { MarketEventHeader } from "@/components/market-event-header"
+import { PredictionUserMessageCard } from "@/components/prediction-user-message-card"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -44,7 +45,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto px-4 py-10">
-     
+      <div className="max-w-4xl mx-auto">
+
       <MarketEventHeader
         className="mb-6"
         size="lg"
@@ -86,6 +88,9 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           }))}
           marketId={marketId ?? null}
         />
+
+        <PredictionUserMessageCard userMessage={prediction.userMessage} />
+      </div>
       </div>
     </div>
   )
