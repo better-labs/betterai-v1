@@ -46,7 +46,7 @@ export function PredictionReasoningCard({ reasoning, className, collapsedLines =
               {expanded ? 'Show less' : 'Show more'}
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={handleCopy}>Copy</Button>
+          
         </div>
       </CardContent>
     </Card>

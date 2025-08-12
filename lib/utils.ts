@@ -9,6 +9,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Global shared text prefix used in prompt construction and UI display parsing
+export const USER_MESSAGE_PREFIX = 'Please consider the additional information below on market context, timing, and any relevant factors when making your prediction.'
+
 /**
  * Formats a volume number to display as $##k or $##m format
  * Examples: 34410 -> "$34k", 1996731 -> "$2m", 110017 -> "$110k"

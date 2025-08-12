@@ -72,6 +72,10 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         <PredictionReasoningCard reasoning={reasoning} />
 
 
+        {/* First: Prompt message */}
+        <PredictionUserMessageCard userMessage={prediction.userMessage} />
+
+        {/* Then: Past predictions only */}
         <PredictionHistoryList
           className="mt-2"
           checks={checks?.map((c) => ({
@@ -87,9 +91,9 @@ export default async function PredictionDetailPage({ params }: PageProps) {
             outcomesProbabilities: (p as any).outcomesProbabilities ?? null,
           }))}
           marketId={marketId ?? null}
+          showChecks={false}
+          showPredictions={true}
         />
-
-        <PredictionUserMessageCard userMessage={prediction.userMessage} />
       </div>
       </div>
     </div>

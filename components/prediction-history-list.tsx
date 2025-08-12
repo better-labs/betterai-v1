@@ -23,16 +23,20 @@ interface PredictionHistoryListProps {
   predictions?: PredictionItem[] | null
   className?: string
   marketId?: string | null
+  showChecks?: boolean
+  showPredictions?: boolean
 }
 
-export function PredictionHistoryList({ checks, predictions, className, marketId }: PredictionHistoryListProps) {
+export function PredictionHistoryList({ checks, predictions, className, marketId, showChecks = true, showPredictions = true }: PredictionHistoryListProps) {
   const hasChecks = !!checks && checks.length > 0
   const hasPredictions = !!predictions && predictions.length > 0
-  if (!hasChecks && !hasPredictions) return null
+  const renderChecks = showChecks && hasChecks
+  const renderPredictions = showPredictions && hasPredictions
+  if (!renderChecks && !renderPredictions) return null
 
   return (
     <div className={className}>
-      {hasChecks && (
+      {renderChecks && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Recent Checks</CardTitle>
@@ -76,7 +80,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
         </Card>
       )}
 
-      {hasPredictions && (
+      {renderPredictions && (
         <Card>
           <CardHeader>
             <CardTitle>Past Predictions</CardTitle>

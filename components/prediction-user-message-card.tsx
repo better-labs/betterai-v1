@@ -2,6 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { ClipboardCopyIcon, CheckIcon } from 'lucide-react'
+import { USER_MESSAGE_PREFIX } from '@/lib/utils'
 
 interface PredictionUserMessageCardProps {
   userMessage?: string | null
@@ -11,12 +14,11 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
   const text = userMessage || '—'
 
   // Extract the static guidance sentence from the prompt, if present
-  const USER_MESSAGE_PREFIX = 'Please consider the additional information below on market context, timing, and any relevant factors when making your prediction.'
-  let guidance: string | null = null
+  
   let content = text
   const idx = text.indexOf(USER_MESSAGE_PREFIX)
   if (idx !== -1) {
-    guidance = USER_MESSAGE_PREFIX
+    
     content = text.slice(idx + USER_MESSAGE_PREFIX.length).trimStart()
   }
 
@@ -30,19 +32,31 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-2">
         <div>
-          <CardTitle>Prediction Prompt Message</CardTitle>
-          <CardDescription>
-            You can copy this message and try it with your preferred AI provider.
-          </CardDescription>
+          <CardTitle>Verifiable Prediction Prompt</CardTitle>
         </div>
-        <Button variant="outline" size="sm" onClick={handleCopy}>Copy</Button>
       </CardHeader>
-      <CardContent>
-        
-          <div className="mb-4 rounded-md border bg-muted/20 p-3 text-xs text-muted-foreground whitespace-pre-wrap">
-            {content}
-          </div>
-        
+      <CardContent className="pt-0 space-y-4">
+        <div className="whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground">
+          The text below was sent to the AI model to generate this prediction. To verify the prediction you can copy and paste the prompt exactly as shown below into your AI provider of choice.
+        </div>
+        <div className="relative rounded-md border bg-muted/20 p-3 text-xs text-muted-foreground whitespace-pre-wrap">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleCopy}
+                  className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-foreground shadow-sm hover:bg-muted/50"
+                  aria-label="Copy prompt"
+                >
+                  <ClipboardCopyIcon className="h-3 w-3" />
+                  Copy
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Copy to clipboard</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {content}
+        </div>
       </CardContent>
     </Card>
   )
