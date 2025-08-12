@@ -1,14 +1,12 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
-import { format } from "date-fns"
 import { predictionQueries } from "@/lib/db/queries"
-import { EventIcon } from "@/components/event-icon"
 import { getPredictionDisplayData } from "@/lib/utils"
 import { PredictionSummaryCard } from "@/components/prediction-summary-card"
 import { PredictionReasoningCard } from "@/components/prediction-reasoning-card"
 import type { PredictionResult } from "@/lib/types"
 import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/queries"
 import { PredictionHistoryList } from "@/components/prediction-history-list"
+import { MarketEventHeader } from "@/components/market-event-header"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -28,7 +26,6 @@ export default async function PredictionDetailPage({ params }: PageProps) {
     prediction as any
   )
 
-  const createdAtDisplay = prediction.createdAt ? format(new Date(prediction.createdAt), 'PP p') : ''
   // const eventExternalUrl = event?.id ? await generateEventURL(event.id) : null
   // const marketExternalUrl = market?.id ? await generateMarketURL(market.id) : null
 
@@ -48,20 +45,16 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   return (
     <div className="container mx-auto px-4 py-10">
      
-      <div className="mb-6" data-testid="event-container">
-        <Link href="/" className="flex items-center gap-3">
-          <EventIcon image={event?.image ?? null} icon={event?.icon ?? null} title={event?.title ?? ''} size="lg" />
-          <div>
-            <div className="text-sm text-muted-foreground">Event</div>
-            <h1 className="text-2xl font-semibold">{event?.title ?? '—'}</h1>
-          </div>
-        </Link>
-      </div>
-      
-      <Link href={market?.id ? `/market/${market.id}` : '#'} className="block mb-6">
-        <div className="text-sm text-muted-foreground">Market</div>
-        <p className="text-lg font-medium">{market?.question ?? prediction.userMessage}</p>
-      </Link>
+      <MarketEventHeader
+        className="mb-6"
+        size="lg"
+        eventId={event?.id ?? null}
+        eventTitle={event?.title ?? null}
+        eventImage={event?.image ?? null}
+        eventIcon={event?.icon ?? null}
+        marketId={market?.id ?? null}
+        marketQuestion={market?.question ?? prediction.userMessage}
+      />
 
       <div className="space-y-6">
         <PredictionSummaryCard

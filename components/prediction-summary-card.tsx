@@ -34,25 +34,25 @@ export function PredictionSummaryCard({
         <CardTitle>Prediction Summary</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <PredictionProbabilityGrid
+        {/* <PredictionProbabilityGrid
           marketOutcomes={marketOutcomes}
           marketOutcomePrices={marketOutcomePrices}
           aiOutcomes={aiOutcomes}
           aiOutcomesProbabilities={aiOutcomesProbabilities}
-        />
+        /> */}
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
           <div>
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
-            <div className="mt-1 text-xl font-semibold tabular-nums">{formatPercent(ap0)}</div>
+            <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(ap0)}</div>
           </div>
           <div>
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Market Probability</div>
-            <div className="mt-1 text-xl font-semibold tabular-nums">{formatPercent(mp0)}</div>
+            <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(mp0)}</div>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Delta</div>
-            <div className="mt-1 text-xl font-semibold tabular-nums">{formatPercent(delta)}</div>
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Difference</div>
+            <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(delta)}</div>
           </div>
           <div className="flex items-end justify-start sm:justify-end">
             <PredictionMeta

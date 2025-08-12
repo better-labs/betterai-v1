@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { formatVolume, generateMarketURL } from '@/lib/utils'
 import type { PredictionResult } from '@/lib/types'
 import MarketDetailsCard from '@/components/market-details-card'
+import { MarketEventHeader } from '@/components/market-event-header'
 
 interface MarketDetailPageProps {
   params: Promise<{
@@ -35,37 +36,17 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         
-        {/* Event Information */}
-        {event && (
-          <Link href={`/event/${event.id}`}>
-            <Card className="mb-6 hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  {event.icon && (
-                    <img 
-                      src={event.icon} 
-                      alt={event.title}
-                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-foreground">
-                        Event: {event.title}
-                      </h3>
-                      {event.endDate && (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span>End Date: {new Date(event.endDate as Date).toLocaleDateString()}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        )}
+        {/* Event/Market Header */}
+        <MarketEventHeader
+          className="mb-6"
+          size="lg"
+          eventId={event?.id ?? null}
+          eventTitle={event?.title ?? null}
+          eventImage={event?.image ?? null}
+          eventIcon={event?.icon ?? null}
+          marketId={market.id}
+          marketQuestion={market.question}
+        />
 
         {/* Prediction Section */}
         <div className="space-y-6">
