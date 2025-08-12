@@ -58,7 +58,7 @@ export async function getTopMarketsByVolumeAndEndDate(
           },
         },
       })
-
+      console.log(`Found ${marketsInRange.length} markets in range`)
       const seenCategories = new Set<Category>()
       const selected: MarketWithEndDate[] = []
 
@@ -76,7 +76,8 @@ export async function getTopMarketsByVolumeAndEndDate(
         })
         if (selected.length >= config.topMarketsCount) break
       }
-
+      console.log(`Selected ${selected.length} markets`)
+      
       return selected
     }
 

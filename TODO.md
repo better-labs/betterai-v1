@@ -47,7 +47,8 @@ Ask AI if the card view could be used to display in both grid card view (like po
 - DB Ops Planning: production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
 
 
-
+## Friday
+- Data Pipeline: significantly overhaul and improve research component.
 
 
 ### Operations

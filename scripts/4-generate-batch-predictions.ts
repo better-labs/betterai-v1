@@ -23,12 +23,12 @@ async function main() {
     await runBatchPredictionGeneration(
       {
         topMarketsCount: 10,
-        endDateRangeHours: 12,
+        endDateRangeHours: 48,
         targetDaysFromNow: 7,
         categoryMix: true
       },
-      //'google/gemini-2.5-pro'
-      'google/gemini-2.0-flash-001'
+      'google/gemini-2.5-flash'
+      //'google/gemini-2.0-flash-001'
     )
 
     console.log('Batch prediction generation completed successfully!')

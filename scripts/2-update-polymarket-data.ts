@@ -38,21 +38,21 @@ async function main() {
       console.log('Errors encountered:', result.errors)
     }
 
-    // console.log('Starting AI models update...')
-    // const { updateAIModels } = await import('../lib/services/ai-models')
-    // const aiModelsResult = await updateAIModels()
+    console.log('Starting AI models update...')
+    const { updateAIModels } = await import('../lib/services/ai-models')
+    const aiModelsResult = await updateAIModels()
 
-    // console.log('AI models update completed successfully!')
-    // console.log('Results:', {
-    //   totalFetched: aiModelsResult.totalFetched,
-    //   totalUpserted: aiModelsResult.totalUpserted,
-    //   success: aiModelsResult.success,
-    //   error: aiModelsResult.error
-    // })
+    console.log('AI models update completed successfully!')
+    console.log('Results:', {
+      totalFetched: aiModelsResult.totalFetched,
+      totalUpserted: aiModelsResult.totalUpserted,
+      success: aiModelsResult.success,
+      error: aiModelsResult.error
+    })
 
-    // if (aiModelsResult.error) {
-    //   console.log('Error encountered:', aiModelsResult.error)
-    // }
+    if (aiModelsResult.error) {
+      console.log('Error encountered:', aiModelsResult.error)
+    }
 
 
   } catch (error) {
