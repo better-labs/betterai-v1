@@ -4,8 +4,6 @@
 ## Tuesday: Core Loop: Prediction Engine
 
 
-
-
 Finalize landing page content. Make the whole row a clickable link to Prediction!
 Then Prediction detail page!
 
