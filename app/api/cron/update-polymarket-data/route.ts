@@ -14,8 +14,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const daysToFetchParam = request.nextUrl.searchParams.get('daysToFetch')
-    const daysToFetch = daysToFetchParam ? Number(daysToFetchParam) : 8
+    const daysToFetchPastParam = request.nextUrl.searchParams.get('daysToFetchPast')
+    const daysToFetchFutureParam = request.nextUrl.searchParams.get('daysToFetchFuture')
+    const daysToFetchPast = daysToFetchPastParam ? Number(daysToFetchPastParam) : 8
+    const daysToFetchFuture = daysToFetchFutureParam ? Number(daysToFetchFutureParam) : 21
 
     const startTime = Date.now()
 
@@ -27,7 +29,8 @@ export async function GET(request: NextRequest) {
         retryDelayMs: 2000,
         timeoutMs: 30000,
         userAgent: 'BetterAI/1.0',
-        daysToFetch,
+        daysToFetchPast,
+        daysToFetchFuture,
       })
 
     const duration = Date.now() - startTime
@@ -42,7 +45,7 @@ export async function GET(request: NextRequest) {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Successfully synced ${insertedEvents.length} events and ${insertedMarkets.length} markets from Polymarket (${daysToFetch} days range)`,
+        message: `Successfully synced ${insertedEvents.length} events and ${insertedMarkets.length} markets from Polymarket (past ${daysToFetchPast} days to future ${daysToFetchFuture} days)`,
         data: {
           duration: `${duration}ms`,
           events_count: insertedEvents.length,
@@ -51,7 +54,8 @@ export async function GET(request: NextRequest) {
           total_requests: totalRequests,
           errors_count: errors.length,
           errors: errors.length > 0 ? errors : undefined,
-          days_to_fetch: daysToFetch,
+          days_to_fetch_past: daysToFetchPast,
+          days_to_fetch_future: daysToFetchFuture,
           metadata,
         },
       } as ApiResponse),
