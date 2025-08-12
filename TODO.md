@@ -4,12 +4,9 @@
 ## Tuesday: Core Loop: Prediction Engine
 
 
-Testing new Prediction results per prompt changes, zod stuff
--Finding: resulting outcome simply mirror the market prices. They do not represent the AI's prediction.
+
 
 Finalize landing page content. Make the whole row a clickable link to Prediction!
-
-
 Then Prediction detail page!
 
 Prediction detail page:
@@ -17,6 +14,7 @@ Prediction detail page:
 
 Ask AI if the card view could be used to display in both grid card view (like polymarket) and list/table view such as landing page?
 
+-- Send to Kurt and Blake for sniff test.
 
 
 - User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.

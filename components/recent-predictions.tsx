@@ -5,6 +5,53 @@ import { EventIcon } from "@/components/event-icon"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
+// Format a value as a percentage string, accepting 0..1 or 0..100 inputs
+const formatPercent = (value: unknown): string => {
+  if (value == null) return '—'
+  let num: number | null = null
+  if (typeof value === 'number') {
+    num = value
+  } else if (typeof value === 'string') {
+    const parsed = parseFloat(value)
+    num = Number.isFinite(parsed) ? parsed : null
+  } else if (typeof value === 'object') {
+    const anyVal = value as any
+    if (typeof anyVal?.toNumber === 'function') {
+      try { num = anyVal.toNumber() } catch { num = null }
+    } else if (typeof anyVal?.toString === 'function') {
+      const parsed = parseFloat(anyVal.toString())
+      num = Number.isFinite(parsed) ? parsed : null
+    }
+  }
+  if (num == null || !Number.isFinite(num)) return '—'
+  const percent = num <= 1 ? num * 100 : num
+  return `${Math.round(percent)}%`
+}
+
+// Normalize probabilities to 0..1 range from 0..1 or 0..100 inputs
+const toUnitProbability = (value: unknown): number | null => {
+  if (value == null) return null
+  let num: number | null = null
+  if (typeof value === 'number') {
+    num = value
+  } else if (typeof value === 'string') {
+    const parsed = parseFloat(value)
+    num = Number.isFinite(parsed) ? parsed : null
+  } else if (typeof value === 'object') {
+    const anyVal = value as any
+    if (typeof anyVal?.toNumber === 'function') {
+      try { num = anyVal.toNumber() } catch { num = null }
+    } else if (typeof anyVal?.toString === 'function') {
+      const parsed = parseFloat(anyVal.toString())
+      num = Number.isFinite(parsed) ? parsed : null
+    }
+  }
+  if (num == null || !Number.isFinite(num)) return null
+  if (num > 1) return num / 100
+  if (num >= 0) return num
+  return null
+}
+
 // Minimal presentational component for a list of recent predictions with market and event context
 export function RecentPredictions({ items }: { items: PredictionWithRelations[] }) {
   if (!items || items.length === 0) {
@@ -58,27 +105,12 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
           const aiOutcome0 = p?.outcomes?.[0] 
           const aiOutcome1 = p?.outcomes?.[1] 
 
-          const formatPercent = (value: unknown): string => {
-            if (value == null) return '—'
-            let num: number | null = null
-            if (typeof value === 'number') {
-              num = value
-            } else if (typeof value === 'string') {
-              const parsed = parseFloat(value)
-              num = Number.isFinite(parsed) ? parsed : null
-            } else if (typeof value === 'object') {
-              const anyVal = value as any
-              if (typeof anyVal?.toNumber === 'function') {
-                try { num = anyVal.toNumber() } catch { num = null }
-              } else if (typeof anyVal?.toString === 'function') {
-                const parsed = parseFloat(anyVal.toString())
-                num = Number.isFinite(parsed) ? parsed : null
-              }
-            }
-            if (num == null || !Number.isFinite(num)) return '—'
-            const percent = num <= 1 ? num * 100 : num
-            return `${Math.round(percent)}%`
-          }
+           const difference0 = (() => {
+             const marketP0 = toUnitProbability(price0)
+             const aiP0 = toUnitProbability(aiProb0)
+             if (marketP0 == null || aiP0 == null) return null
+             return Math.abs(marketP0 - aiP0)
+           })()
 
           return (
             <div key={p.id as any} className="p-4 sm:p-5">
@@ -150,8 +182,8 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
                     <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">
                       Difference
                     </div>
-                  <div className="mt-1 text-sm font-semibold text-right">
-                    25%
+                  <div className="mt-1 text-xl  text-right">
+                    {difference0 == null ? '—' : formatPercent(difference0)}
                   </div>
                   </Link>
                 </div>
