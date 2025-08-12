@@ -14,7 +14,8 @@ export async function updatePolymarketEventsAndMarketData(options: {
   retryDelayMs?: number,
   timeoutMs?: number,
   userAgent?: string,
-  daysToFetch?: number,
+  daysToFetchPast?: number,
+  daysToFetchFuture?: number,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -25,12 +26,13 @@ export async function updatePolymarketEventsAndMarketData(options: {
   const {
     limit = 100,
     delayMs = 1000,
-    daysToFetch = 8,
+    daysToFetchPast = 8,
+    daysToFetchFuture = 21,
     ...fetchOptions
   } = options
 
   console.log("Starting throttled update of all Polymarket events with batch processing...")
-  console.log(`Processing events with batch limit: ${limit}, daysToFetch: ${daysToFetch}`)
+  console.log(`Processing events with batch limit: ${limit}, daysToFetchPast: ${daysToFetchPast}, daysToFetchFuture: ${daysToFetchFuture}`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
@@ -44,7 +46,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   while (hasMoreData) {
     try {
       totalRequests++
-      const eventsData = await fetchPolymarketEvents(offset, limit, daysToFetch, fetchOptions)
+      const eventsData = await fetchPolymarketEvents(offset, limit, daysToFetchPast, daysToFetchFuture, fetchOptions)
       
       if (eventsData.length > 0) {
         const batchResult = await processAndUpsertBatch(eventsData)
@@ -186,10 +188,14 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       }
     })
 
-  // Upsert events and markets for this batch
+  // Upsert events and markets for this batch with timings for visibility
   console.log(`Upserting batch: ${eventsToInsert.length} events, ${marketsToInsert.length} markets...`)
+  console.time('events-upsert')
   const insertedEvents = await eventQueries.upsertEvents(eventsToInsert)
+  console.timeEnd('events-upsert')
+  console.time('markets-upsert')
   const insertedMarkets = await marketQueries.upsertMarkets(marketsToInsert)
+  console.timeEnd('markets-upsert')
 
   // Normalize and upsert tags, then link to events
   try {
@@ -216,9 +222,10 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
 
     // Refresh event-tag links to reflect current provider tags
     const eventIdsInBatch = sortedEvents.map(e => e.id)
-    for (const eventId of eventIdsInBatch) {
-      await tagQueries.unlinkAllTagsFromEvent(eventId)
-    }
+    // Set-based delete: remove all existing links for this batch of events using a single SQL statement
+    console.time('tags-unlink')
+    await tagQueries.unlinkAllTagsFromEvents(eventIdsInBatch)
+    console.timeEnd('tags-unlink')
     const links: Array<{ eventId: string; tagId: string }> = []
     for (const ev of sortedEvents) {
       const tags = ev.tags || []
@@ -227,7 +234,9 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       }
     }
     if (links.length > 0) {
+      console.time('tags-link')
       await tagQueries.linkTagsToEvents(links)
+      console.timeEnd('tags-link')
     }
   } catch (err) {
     console.error('Failed to upsert/link tags for batch:', err)

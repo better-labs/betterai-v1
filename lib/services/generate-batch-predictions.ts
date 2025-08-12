@@ -1,11 +1,14 @@
 import { generatePredictionForMarket } from './generate-single-prediction';
 import { prisma } from '../db/prisma'
+import { CATEGORIES } from '../categorize';
+import { Category } from '../generated/prisma';
 
-interface BatchPredictionConfig {
+export interface BatchPredictionConfig {
   topMarketsCount: number
   endDateRangeHours: number // Default 12 hours
   targetDaysFromNow: number // Default 7 days
   categoryMix: boolean // Default false
+  excludeCategories?: Category[] // Default [Category.CRYPTOCURRENCY]
 }
 
 interface MarketWithEndDate {
@@ -25,7 +28,8 @@ export async function getTopMarketsByVolumeAndEndDate(
     topMarketsCount: 1,
     endDateRangeHours: 12,
     targetDaysFromNow: 7,
-    categoryMix: false
+    categoryMix: false,
+    excludeCategories: [Category.CRYPTOCURRENCY]
   }
 ): Promise<MarketWithEndDate[]> {
   try {
@@ -54,13 +58,14 @@ export async function getTopMarketsByVolumeAndEndDate(
           },
         },
       })
-
-      const seenCategories = new Set<string>()
+      console.log(`Found ${marketsInRange.length} markets in range`)
+      const seenCategories = new Set<Category>()
       const selected: MarketWithEndDate[] = []
 
       for (const m of marketsInRange) {
-        const category = (m.event?.category as unknown as string) || null
+        const category = (m.event?.category as unknown as Category) || null
         if (!category) continue
+        if (config.excludeCategories && config.excludeCategories.includes(category)) continue
         if (seenCategories.has(category)) continue
         seenCategories.add(category)
         selected.push({
@@ -71,18 +76,29 @@ export async function getTopMarketsByVolumeAndEndDate(
         })
         if (selected.length >= config.topMarketsCount) break
       }
-
+      console.log(`Selected ${selected.length} markets`)
+      
       return selected
     }
 
     // Otherwise: Query the top markets by volume in the range
-    const topMarkets = await prisma.market.findMany({
-      where: {
-        endDate: {
-          gte: rangeStart,
-          lte: rangeEnd,
-        },
+    const whereClause: any = {
+      endDate: {
+        gte: rangeStart,
+        lte: rangeEnd,
       },
+    }
+
+    if (config.excludeCategories && config.excludeCategories.length > 0) {
+      whereClause.event = {
+        is: {
+          category: { notIn: config.excludeCategories },
+        },
+      }
+    }
+
+    const topMarkets = await prisma.market.findMany({
+      where: whereClause,
       orderBy: { volume: 'desc' },
       take: config.topMarketsCount,
       select: {
@@ -165,7 +181,8 @@ export async function runBatchPredictionGeneration(
     topMarketsCount: 3,
     endDateRangeHours: 12,
     targetDaysFromNow: 7, 
-    categoryMix: false
+    categoryMix: false,
+    excludeCategories: [Category.CRYPTOCURRENCY]
   },
   modelName?: string
 ): Promise<void> {

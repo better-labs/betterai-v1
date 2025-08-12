@@ -1,7 +1,7 @@
 
 import { marketQueries } from '../lib/db/queries';
 import { runDataPipeline } from '../lib/services/run-data-pipeline';
-
+import { getTopMarketsByVolumeAndEndDate } from '../lib/services/generate-batch-predictions';
 
 import { config } from 'dotenv'
 
@@ -20,7 +20,14 @@ async function main() {
 
   try {
 
-    const topMarkets = await marketQueries.getTopMarkets(20);
+    //const topMarkets = await marketQueries.getTopMarkets(10);
+    const config = {
+      topMarketsCount: 15,
+      endDateRangeHours: 24,
+      targetDaysFromNow: 7,
+      categoryMix: true
+    }
+    const topMarkets = await getTopMarketsByVolumeAndEndDate(config);
 
     if (topMarkets.length === 0) {
       console.log('No markets found.');
@@ -28,13 +35,17 @@ async function main() {
     }
 
     const randomMarket = topMarkets[Math.floor(Math.random() * topMarkets.length)];
-
     console.log(`Selected market: ${randomMarket.question} (ID: ${randomMarket.id})`);
-
     const result = await runDataPipeline(randomMarket.id);
 
-    console.log('Data pipeline result:');
-    console.log(JSON.stringify(result, null, 2));
+    // run data pipeline for each market
+    for (const market of topMarkets) {
+      //const result = await runDataPipeline(market.id);
+      const result = await runDataPipeline(market.id, 'google/gemini-2.5-pro');
+      console.log(`Data pipeline result for market ${market.question}:`);
+      console.log(JSON.stringify(result, null, 2));
+    }
+
   } catch (error) {
     console.error('Error running data pipeline script:', error);
   }

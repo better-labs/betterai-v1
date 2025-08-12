@@ -6,7 +6,7 @@
     "build": "prisma generate && next build",
     "dev": "next dev",
     "db:reset": "prisma migrate reset --force --skip-seed --skip-generate",
-    "db:seed": "tsx scripts/2-generate-db-datasets.ts && tsx scripts/3-generate-market-research.ts && tsx scripts/4-generate-batch-predictions.ts",
+    "db:seed": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/3-generate-market-research.ts && tsx scripts/4-generate-batch-predictions.ts",
     "db:bootstrap": "pnpm db:reset && pnpm db:seed",
     "data:pipeline": "tsx scripts/5-run-data-pipeline.ts",
     
