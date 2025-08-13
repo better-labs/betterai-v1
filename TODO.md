@@ -4,12 +4,15 @@
 
 
 ## Wednesday
-- Enable Search on Production.
 
-- DB Ops Planning: production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
-- Set DATABASE_URL (pooled) and DATABASE_URL_UNPOOLED in Vercel Project Settings (Production scope).
-- Neon daily backups and a read-only role for ad hoc analytics
+- Seed dev, then prod.
+- Test a database migration from Dev to Prod.
+- Setup Neon daily backups 
 - Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
+
+
+- rename to .env.development (and .env.prod → .env.production).
+
 
 
 

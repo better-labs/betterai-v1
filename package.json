@@ -5,11 +5,17 @@
   "scripts": {
     "build": "prisma generate && next build",
     "dev": "next dev",
-    "db:reset": "bash -c 'if [ \"$NODE_ENV\" = \"production\" ]; then echo \"Refusing to run db:reset in production.\" >&2; exit 1; fi; prisma migrate reset --force --skip-seed --skip-generate'",
-    "db:seed": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/3-generate-market-research.ts && tsx scripts/4-generate-batch-predictions.ts",
-    "db:bootstrap": "pnpm db:reset && pnpm db:seed",
-    "data:pipeline": "tsx scripts/5-run-data-pipeline.ts",
-    
+    "db:reset:dev": "bash -c 'if [ \"$NODE_ENV\" = \"production\" ]; then echo \"Refusing to run db:reset in production.\" >&2; exit 1; fi; prisma migrate reset --force --skip-seed --skip-generate'",
+    "db:reset:prod": "echo \"Refusing to run db:reset in production.\" >&2; exit 1",
+    "db:seed:base": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/3-generate-market-research.ts && tsx scripts/4-generate-batch-predictions.ts && tsx scripts/5-run-data-pipeline.ts",
+    "db:seed:dev": "dotenv -e .env -- bash -c 'DATABASE_URL=\"$POSTGRES_URL_NON_POOLING\" pnpm db:seed:base'",
+    "db:seed:prod": "dotenv -e .env.prod -- bash -c 'DATABASE_URL=\"$POSTGRES_URL_NON_POOLING\" pnpm db:seed:base'",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev", 
+    "migrate:deploy:base": "bash -c 'DATABASE_URL=\"$POSTGRES_URL_NON_POOLING\" prisma migrate deploy'",
+    "migrate:deploy:dev": "dotenv -e .env -- pnpm migrate:deploy:base",
+    "migrate:deploy:prod": "dotenv -e .env.prod -- pnpm migrate:deploy:base",
+    "prisma:studio": "prisma studio",
     "lint": "next lint", 
     "start": "next start",
     "test": "vitest",
@@ -18,14 +24,7 @@
     "cron:generate-batch-predictions": "node scripts/cron/cron-generate-batch-predictions.js",
     "cron:prediction-check": "node scripts/cron/cron-prediction-check.js",
     "cron:update-ai-models": "node scripts/cron/cron-update-ai-models.js",
-    "test:crons": "pnpm cron:update-polymarket-data && pnpm cron:generate-batch-predictions && pnpm cron:prediction-check",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:migrate:deploy": "bash -c 'DATABASE_URL=\"$DATABASE_URL_UNPOOLED\" prisma migrate deploy'",
-    "migrate:deploy:dev": "bash -lc 'set -a; source .env; set +a; pnpm prisma:migrate:deploy'",
-    "migrate:deploy:prod": "bash -lc 'set -a; source .env.prod; set +a; pnpm prisma:migrate:deploy'",
-    "prisma:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "test:crons": "pnpm cron:update-polymarket-data && pnpm cron:generate-batch-predictions && pnpm cron:prediction-check"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
@@ -103,6 +102,7 @@
     "tsx": "^4.20.3",
     "typescript": "^5",
     "vitest": "^3.2.4",
-    "whatwg-fetch": "^3.6.20"
+    "whatwg-fetch": "^3.6.20",
+    "dotenv-cli": "^7.4.1"
   }
 }
