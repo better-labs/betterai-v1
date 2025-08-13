@@ -30,11 +30,11 @@ If you're using Vercel, this is the easiest option:
 1. **Deploy with vercel.json** (already created):
    ```json
    {
-     "crons": [
-       {
-         "path": "/api/cron/generate-batch-predictions",
-         "schedule": "15 2 * * *"
-       },
+      "crons": [
+        {
+          "path": "/api/cron/daily-generate-batch-predictions",
+          "schedule": "15 2 * * *"
+        },
        {
          "path": "/api/cron/prediction-check",
          "schedule": "30 3 * * *"
@@ -91,7 +91,7 @@ pnpm cron:daily-update-polymarket-data -- --dry-run
 curl -v -X GET \
   -H "Authorization: Bearer your-secret-token" \
   -H "Content-Type: application/json" \
-  https://your-domain.com/api/cron/generate-batch-predictions
+  https://your-domain.com/api/cron/daily-generate-batch-predictions
 curl -v -X GET \
   -H "Authorization: Bearer your-secret-token" \
   -H "Content-Type: application/json" \

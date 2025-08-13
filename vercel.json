@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/generate-batch-predictions",
+      "path": "/api/cron/daily-generate-batch-predictions",
       "schedule": "15 2 * * *"
     },
     {
