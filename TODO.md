@@ -89,6 +89,7 @@
 ## Operations & Database Recovery
 - Decide whether or when to upgrade Neon's PITR to 7 days?
 - Rename to .env.development (and .env.prod → .env.production).
+- Add CI/CD integration Tests (tests/integration/) to auto run my existing scripts. First rename and better organize the current scripts.
 
 ## Revisit CRON default settings
 - Consider finding a more full featured cron provider.
