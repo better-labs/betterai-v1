@@ -5,6 +5,24 @@
 
 ## Wednesday
 
+- Enable PR Previews on `betterai-dev`. 
+- Automate Neon preview branches per PR.
+- Protect `main` in GitHub; require CI checks before merging to production.
+- Upgrade to teams here: https://github.com/better-labs/betterai/settings/rules/6857424
+
+
+
+
+
+
+
+- Seed dev, then prod.
+- Test a database migration from Dev to Prod.
+- Setup Neon daily backups 
+- Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
+
+
+
 - Seed dev, then prod.
 - Test a database migration from Dev to Prod.
 - Setup Neon daily backups 
