@@ -42,11 +42,16 @@ export async function updatePolymarketEventsAndMarketData(options: {
   let hasMoreData = true
   let totalFetched = 0
   
+  // Compute a fixed date window for this run
+  const MS_IN_DAY = 24 * 60 * 60 * 1000
+  const startDateMin = new Date(Date.now() - daysToFetchPast * MS_IN_DAY)
+  const endDateMax = new Date(Date.now() + daysToFetchFuture * MS_IN_DAY)
+  
 
   while (hasMoreData) {
     try {
       totalRequests++
-      const eventsData = await fetchPolymarketEvents(offset, limit, daysToFetchPast, daysToFetchFuture, fetchOptions)
+      const eventsData = await fetchPolymarketEvents(offset, limit, startDateMin, endDateMax, fetchOptions)
       
       if (eventsData.length > 0) {
         const batchResult = await processAndUpsertBatch(eventsData)

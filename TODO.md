@@ -4,15 +4,26 @@
 
 ## Wednesday
 - CRON improvements:
-  - Remove cron-update-polymarket-data.js to seed-polymarket-data.js, get rid of the api routes.
-  - Generate a new cron job named daily-update-polymarket-data.js that runs every day at 12:00 AM UTC.
 
-  Note: the /events endpoint doesn't have a parameter to filter by recent updates or modifications. The available date filters are start_date_min/max and end_date_min/max, which filter by event start/end dates, not when the event data was last updated.
+    Design a new cron job named daily-update-polymarket-data that runs every day at 12:00 AM UTC. Don't build it yet
 
-  - Move knobs like topMarketsCount, endDateRangeHours, daysLookback to env vars, or encode query params in the cron path if you want per-environment differences.
-  - Build a new cron job named daily-update-polymarket-data.js that runs every day at 12:00 AM UTC.
-  - Same for generate-batch-predictions.js: remove then get another one.
+    Note: the /events endpoint doesn't have a parameter to filter by recent updates or modifications. The available date filters are start_date_min/max and end_date_min/max, which filter by event start/end dates, not when the event data was last updated.
+
+    have it call updatePolymarketEventsAndMarketData
+
+    give me feedback if we need to change the design of updatePolymarketEventsAndMarketData
+
+    what is the best way to use start_date_min/max and end_date_min/max to ensure coverage of new data from polymarket getEvents, without overloading with too many requests to the api endpoint?
+
+    Move configuration knobs to env vars or encode query params in the cron path, whichever is best practice 
+
+  - Test changes
+  - Rename cron job api/cron/generate-batch-predictions/route.ts to api/cron/daily-generate-batch-predictions/route.ts and update all references to it.
+  
+
+
   - Not sure yet for update-ai-models.js
+  - Ask AI to review the current cron jobs and give feedback.
 
 
 
