@@ -33,37 +33,84 @@ export function formatVolume(volume: number): string {
  * @throws Error if JSON cannot be parsed even after cleaning
  */
 export function parseAIResponse<T>(text: string): T {
+  // Helper: scan for the first valid JSON object or array within arbitrary text
+  function extractFirstValidJsonFragment(raw: string): string | null {
+    const s = raw;
+    const candidates: Array<{ open: string; close: string }> = [
+      { open: '{', close: '}' },
+      { open: '[', close: ']' },
+    ];
+    for (const { open, close } of candidates) {
+      let depth = 0;
+      let inString = false;
+      let escape = false;
+      let startIndex: number | null = null;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (inString) {
+          if (escape) {
+            escape = false;
+          } else if (ch === '\\') {
+            escape = true;
+          } else if (ch === '"') {
+            inString = false;
+          }
+        } else {
+          if (ch === '"') inString = true;
+          else if (ch === open) {
+            if (depth === 0) startIndex = i;
+            depth++;
+          } else if (ch === close && depth > 0) {
+            depth--;
+            if (depth === 0 && startIndex != null) {
+              const fragment = s.slice(startIndex, i + 1);
+              try {
+                JSON.parse(fragment);
+                return fragment;
+              } catch {
+                // keep scanning for the next balanced fragment
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   try {
     // First attempt: direct JSON parsing
-    return JSON.parse(text);
+    return JSON.parse(text) as T;
   } catch {
-    // Second attempt: handle markdown-wrapped JSON and other non-JSON text
-    let cleanedText = text.trim();
+    // Clean common wrappers and tags without discarding inner content
+    let cleanedText = (text ?? '').trim();
 
-    // Remove <think>...</think> blocks
-    const thinkTagEnd = cleanedText.lastIndexOf('</think>');
-    if (thinkTagEnd !== -1) {
-      cleanedText = cleanedText.substring(thinkTagEnd + '</think>'.length).trim();
+    // Strip <think> tags but preserve their inner content in case JSON is inside
+    cleanedText = cleanedText.replace(/<\/?think[^>]*>/gi, '').trim();
+
+    // Remove markdown code fences (```json ... ``` or ``` ... ```), preserving inner content
+    if (cleanedText.startsWith('```') && cleanedText.endsWith('```')) {
+      cleanedText = cleanedText.replace(/^```(?:json)?\n?([\s\S]*?)\n?```$/i, '$1').trim();
     }
 
-    // Remove markdown code blocks (```json ... ```)
-    if (cleanedText.startsWith('```json') && cleanedText.endsWith('```')) {
-      cleanedText = cleanedText.slice(7, -3).trim();
-    } else if (cleanedText.startsWith('```') && cleanedText.endsWith('```')) {
-      cleanedText = cleanedText.slice(3, -3).trim();
-    }
-
-    // Remove any remaining backticks
+    // Remove stray leading/trailing backticks
     cleanedText = cleanedText.replace(/^`+|`+$/g, '').trim();
 
+    // Attempt parse of cleaned text
     try {
-      const result = JSON.parse(cleanedText);
-      console.log('Successfully parsed JSON after cleaning formatting');
-      return result;
+      return JSON.parse(cleanedText) as T;
     } catch {
+      // As a final fallback, extract the first valid JSON object/array from anywhere in the text
+      const fragment = extractFirstValidJsonFragment(cleanedText);
+      if (fragment) {
+        try {
+          return JSON.parse(fragment) as T;
+        } catch {}
+      }
+
       console.error('AI response was not valid JSON even after cleaning:', text);
       console.error('Cleaned text:', cleanedText);
-      throw new Error(`AI model returned invalid JSON response. Raw response: ${text.substring(0, 200)}...`);
+      throw new Error(`AI model returned invalid JSON response. Raw response: ${String(text).substring(0, 200)}...`);
     }
   }
 }

@@ -1,5 +1,6 @@
 import { marketQueries, DEFAULT_MODEL, researchCacheQueries } from '../db/queries';
-import { parseAIResponse } from '../utils';
+import { z } from 'zod';
+import { fetchStructuredFromOpenRouter } from './openrouter-client';
 
 interface WebSearchResult {
   relevant_information: string;
@@ -82,39 +83,33 @@ ${
 
 Focus on recent news, developments, and any factors that could influence the outcome.`;
 
-    // Make the request to OpenRouter
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://betterai.com',
-        'X-Title': 'BetterAI Market Research',
-        'Content-Type': 'application/json',
+    // Enforce structured output with schema + zod validation
+    const webResearchSchemaJson = {
+      type: 'object',
+      additionalProperties: false,
+      required: ['relevant_information', 'links'],
+      properties: {
+        relevant_information: { type: 'string', minLength: 10 },
+        links: {
+          type: 'array',
+          items: { type: 'string', minLength: 1 },
+          minItems: 1,
+        },
       },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: 'system',
-            content: systemMessage,
-          },
-          {
-            role: 'user',
-            content: userMessage,
-          },
-        ],
-        
-      }),
+    } as const;
+
+    const webResearchZod = z.object({
+      relevant_information: z.string().min(10),
+      links: z.array(z.string().min(1)).min(1),
     });
 
-    if (!response.ok) {
-      throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const text = data.choices[0].message.content;
-
-    const researchResult: WebSearchResult = parseAIResponse<WebSearchResult>(text);
+    const researchResult = await fetchStructuredFromOpenRouter<WebSearchResult>(
+      model,
+      systemMessage,
+      userMessage,
+      webResearchSchemaJson as unknown as Record<string, unknown>,
+      webResearchZod,
+    );
 
     const result: MarketResearchResponse = {
       success: true,
