@@ -11,7 +11,6 @@
     "db:seed:dev": "dotenv -e .env -- bash -c 'DATABASE_URL=\"$POSTGRES_URL_NON_POOLING\" pnpm db:seed:base'",
     "db:seed:prod": "dotenv -e .env.prod -- bash -c 'DATABASE_URL=\"$POSTGRES_URL_NON_POOLING\" pnpm db:seed:base'",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev", 
     "migrate:deploy:base": "bash -c 'DATABASE_URL=\"$POSTGRES_URL_NON_POOLING\" prisma migrate deploy'",
     "migrate:deploy:dev": "dotenv -e .env -- pnpm migrate:deploy:base",
     "migrate:deploy:prod": "dotenv -e .env.prod -- pnpm migrate:deploy:base",
@@ -20,11 +19,11 @@
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "cron:update-polymarket-data": "node scripts/cron/cron-update-polymarket-data.js",
-    "cron:generate-batch-predictions": "node scripts/cron/cron-generate-batch-predictions.js",
+    "cron:daily-generate-batch-predictions": "node scripts/cron/cron-daily-generate-batch-predictions.js",
     "cron:prediction-check": "node scripts/cron/cron-prediction-check.js",
     "cron:update-ai-models": "node scripts/cron/cron-update-ai-models.js",
-    "test:crons": "pnpm cron:update-polymarket-data && pnpm cron:generate-batch-predictions && pnpm cron:prediction-check"
+    "cron:daily-update-polymarket-data": "node scripts/cron/cron-daily-update-polymarket-data.js"
+    
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",

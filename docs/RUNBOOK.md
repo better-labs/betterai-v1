@@ -29,33 +29,7 @@ Note: This project standardizes on `.env` (not `.env.local`). Update `.env.examp
   - Both projects define `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` (direct) with their respective Neon project credentials.
   - In `betterai-prod`, set variables only in the Production scope.
   - In `betterai-dev`, set variables in both Development and Preview scopes.
-- **Alternative (simpler, lower isolation)**
-  - NOTE: NOT USING THIS PATH FOR NOW.
-  - 1 Vercel project + 1 Neon project with branches (`prod`, `dev`, optional `staging`).
-  
 
-
-### Commands and Scripts
-- Development
-  - Create/modify schema and generate a migration:
-    ```bash
-    pnpm prisma:migrate # or: npx prisma migrate dev --force --name <change>
-    ```
-  - Reset and seed local DB:
-    ```bash
-    pnpm db:bootstrap
-    ```
-
-- Production / Staging (apply committed migrations only)
-  - Non-interactive, using the unpooled URL:
-    ```bash
-    pnpm migrate:deploy:base
-    # Equivalent:
-    DATABASE_URL="$DATABASE_URL_UNPOOLED" npx prisma migrate deploy --force
-    ```
-
-- Safety guard already in place:
-  - `pnpm db:reset` refuses to run when `NODE_ENV=production`.
 
 
 ### Migration Workflow

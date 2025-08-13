@@ -46,15 +46,22 @@ async function fetchWithRetry(url: string, options: FetchOptions, attempt: numbe
   }
 }
 
+function formatDateYYYYMMDD(input: Date | string): string {
+  if (input instanceof Date) {
+    return input.toISOString().split('T')[0];
+  }
+  return input;
+}
+
 export async function fetchPolymarketEvents(
   offset: number,
   limit: number,
-  daysToFetchPast: number,
-  daysToFetchFuture: number,
+  startDateMin: Date | string,
+  endDateMax: Date | string,
   options: FetchOptions
 ): Promise<PolymarketEvent[]> {
-  const startDate = new Date(Date.now() - daysToFetchPast * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  const endDate = new Date(Date.now() + daysToFetchFuture * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const startDate = formatDateYYYYMMDD(startDateMin);
+  const endDate = formatDateYYYYMMDD(endDateMax);
   const params = `start_date_min=${startDate}&end_date_max=${endDate}&ascending=true&offset=${offset}&limit=${limit}`;
   const url = `${POLYMARKET_API_BASE_URL}/events?${params}`;
 

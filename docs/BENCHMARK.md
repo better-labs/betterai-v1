@@ -8,8 +8,8 @@ Set up the benchmark initially but do it manually and set the parameters of some
 ## ***Benchmark Design***
 
 ### Phase 1 — Simple, reproducible baseline (MVP)
-- Source: Polymarket canonical `markets` table (kept current via `/api/cron/update-polymarket-data`).
-- Selection: Top 50 markets by `volume` that end around 7 days from now (±24h). Implemented via `/api/cron/generate-batch-predictions`.
+– Source: Polymarket canonical `markets` table (kept current via background update tasks).
+- Selection: Top 50 markets by `volume` that end around 7 days from now (±24h). Implemented via `/api/cron/daily-generate-batch-predictions`.
 - Model: Start with low-cost, fast model: `google/gemini-2.5-flash-lite` (configurable). Store output in `predictions` with numeric `probability` and `prediction_result` JSON.
 - Daily check: `/api/cron/prediction-check` computes AI probability vs. current market probability (first `outcomePrices[0]`), persists a lightweight record in (tbd)
 - Metrics: Start with simple deltas; once outcomes resolve, compute Brier and calibration offline or as a follow‑up task.
@@ -97,8 +97,8 @@ You can now generate a weekly report or dashboard showing:
 * **Category filters** to highlight segments (e.g., crypto marked “less effective”).
 
 ## ***Operational Jobs (CRON)***
-- Update market data: `POST /api/cron/update-polymarket-data` (existing).
-- Generate batch predictions: `POST /api/cron/generate-batch-predictions` (top 50 by volume ending ~7 days).
+– Update market data: handled by background update tasks.
+- Generate batch predictions: `POST /api/cron/daily-generate-batch-predictions` (top 50 by volume ending ~7 days).
 - Daily prediction checking: `POST /api/cron/prediction-check` (stores delta snapshots by category).
 
 All endpoints are protected with `Authorization: Bearer ${CRON_SECRET}` and have matching `scripts/cron/*` trigger scripts.
