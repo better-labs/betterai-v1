@@ -5,17 +5,6 @@
 ## Wednesday
 - CRON improvements:
 
-    Design a new cron job named daily-update-polymarket-data that runs every day at 12:00 AM UTC. Don't build it yet
-
-    Note: the /events endpoint doesn't have a parameter to filter by recent updates or modifications. The available date filters are start_date_min/max and end_date_min/max, which filter by event start/end dates, not when the event data was last updated.
-
-    have it call updatePolymarketEventsAndMarketData
-
-    give me feedback if we need to change the design of updatePolymarketEventsAndMarketData
-
-    what is the best way to use start_date_min/max and end_date_min/max to ensure coverage of new data from polymarket getEvents, without overloading with too many requests to the api endpoint?
-
-    Move configuration knobs to env vars or encode query params in the cron path, whichever is best practice 
 
   - Test changes
   - Rename cron job api/cron/generate-batch-predictions/route.ts to api/cron/daily-generate-batch-predictions/route.ts and update all references to it.
@@ -113,6 +102,9 @@ generate-batch-predictions: keep daily (quiet hours) unless you need more freque
 ## Scale
 - Add caching to data service layer calls? Ask the AI
 - Add some lightweight test case coverage?
+- CRON Enhancmenets:
+  - job that downloads event and market data for top events by volume (to overlap with the other existing one)
+  -  rotate weekly segments (e.g., day-of-week partitions across the future horizon) to distribute the wider coverage.
 
 ## Operations & Database Recovery
 - Decide whether or when to upgrade Neon's PITR to 7 days?

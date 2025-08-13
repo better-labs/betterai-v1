@@ -22,7 +22,8 @@
     "cron:generate-batch-predictions": "node scripts/cron/cron-generate-batch-predictions.js",
     "cron:prediction-check": "node scripts/cron/cron-prediction-check.js",
     "cron:update-ai-models": "node scripts/cron/cron-update-ai-models.js",
-    "test:crons": "pnpm cron:generate-batch-predictions && pnpm cron:prediction-check"
+    "cron:daily-update-polymarket-data": "node scripts/cron/cron-daily-update-polymarket-data.js"
+    
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",

@@ -16,6 +16,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   userAgent?: string,
   daysToFetchPast?: number,
   daysToFetchFuture?: number,
+  maxBatchFailuresBeforeAbort?: number,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -28,6 +29,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
     delayMs = 1000,
     daysToFetchPast = 8,
     daysToFetchFuture = 21,
+    maxBatchFailuresBeforeAbort = 3,
     ...fetchOptions
   } = options
 
@@ -41,6 +43,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   let offset = 0
   let hasMoreData = true
   let totalFetched = 0
+  let consecutiveErrors = 0
   
   // Compute a fixed date window for this run
   const MS_IN_DAY = 24 * 60 * 60 * 1000
@@ -67,12 +70,22 @@ export async function updatePolymarketEventsAndMarketData(options: {
         offset += limit
         await new Promise(resolve => setTimeout(resolve, delayMs))
       }
+      // success resets error counter
+      consecutiveErrors = 0
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
       console.error(`Failed to process batch with offset ${offset}:`, errorMsg)
       errors.push(errorMsg)
-      // Decide if we should stop or continue on error
-      hasMoreData = false // Stop for now
+      consecutiveErrors += 1
+      if (consecutiveErrors >= maxBatchFailuresBeforeAbort) {
+        console.error(`Aborting run after ${consecutiveErrors} consecutive failures (threshold: ${maxBatchFailuresBeforeAbort}).`)
+        hasMoreData = false
+      } else {
+        const backoffMs = (fetchOptions.retryDelayMs ?? 2000) * consecutiveErrors
+        console.warn(`Continuing after error. Backing off for ${backoffMs}ms then retrying same offset (${offset}). Consecutive errors: ${consecutiveErrors}.`)
+        await new Promise(resolve => setTimeout(resolve, backoffMs))
+        // Do not change offset; retry the same page
+      }
     }
   }
 
