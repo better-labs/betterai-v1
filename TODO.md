@@ -2,28 +2,8 @@
 # Week of 8/11
 
 
-
 ## Wednesday
 
-- Enable PR Previews on `betterai-dev`. 
-- Automate Neon preview branches per PR.
-- Protect `main` in GitHub; require CI checks before merging to production.
-- Upgrade to teams here: https://github.com/better-labs/betterai/settings/rules/6857424
-
-
-
-
-
-
-
-- Seed dev, then prod.
-- Test a database migration from Dev to Prod.
-- Setup Neon daily backups 
-- Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
-
-
-
-- Seed dev, then prod.
 - Test a database migration from Dev to Prod.
 - Setup Neon daily backups 
 - Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
@@ -31,6 +11,7 @@
 
 - rename to .env.development (and .env.prod → .env.production).
 
+- build a cron job that creates a Traditional Daily Dumps (pg_dump) of the production database to vercel blob storage using vercel cron job. build the PR to have specific instructions on how I should set this up in Vercel including env vars
 
 
 
@@ -99,6 +80,10 @@
 ## Scale
 - Add caching to data service layer calls? Ask the AI
 - Add some lightweight test case coverage?
+
+## Operations & Database Recovery
+- Decide whether or when to upgrade Neon's PITR to 7 days?
+
 
 ## Revisit CRON default settings
 - Consider finding a more full featured cron provider.
