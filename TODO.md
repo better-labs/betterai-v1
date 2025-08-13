@@ -5,6 +5,7 @@
 
 ## Thursday
 - Check last night's CRON jobs for success. Automate - what is the best way to keep track of this? Something native to Vercel or a separate solution? Something that will notify me in case of failure ..
+(testchange)
 
 - Add a beta program signup landing page with very little additional information.
 
