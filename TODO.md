@@ -2,23 +2,17 @@
 # Week of 8/11
 
 
-## Wednesday
-
-
-- Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
-
-
-- rename to .env.development (and .env.prod → .env.production).
-
-- build a cron job that creates a Traditional Daily Dumps (pg_dump) of the production database to vercel blob storage using vercel cron job. build the PR to have specific instructions on how I should set this up in Vercel including env vars
-
-
 
 ## Thursday
 - Check last night's CRON jobs for success. Automate - what is the best way to keep track of this? Something native to Vercel or a separate solution? Something that will notify me in case of failure ..
+
+- Portfolio Watcher v1: add markets to your watchlist. Import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
+  - Maybe setup email based auto notification for market changes.
+  - Maybe setup cron jobs to re-run customer watchlist markets daily?
+
+
 - Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
 
-- Portfolio Watcher v1: import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
 
 
 ### Gating and egress control
@@ -89,7 +83,7 @@
   
 ## Operations & Database Recovery
 - Decide whether or when to upgrade Neon's PITR to 7 days?
-
+- Rename to .env.development (and .env.prod → .env.production).
 
 ## Revisit CRON default settings
 - Consider finding a more full featured cron provider.
