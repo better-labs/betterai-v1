@@ -3,23 +3,6 @@
 
 
 ## Wednesday
-- CRON improvements:
-  
-  
-  - Ask AI to review the current cron jobs and give feedback.
-
-
-
-
-
-
-update-polymarket-data: every 4–6 hours for better market coverage.
-prediction-check: hourly (or every 30 min) to track drift and outcomes sooner.
-generate-batch-predictions: keep daily (quiet hours) unless you need more frequency.
-
-
-
-
 
 
 - Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
@@ -100,7 +83,10 @@ generate-batch-predictions: keep daily (quiet hours) unless you need more freque
 - CRON Enhancmenets:
   - job that downloads event and market data for top events by volume (to overlap with the other existing one)
   -  rotate weekly segments (e.g., day-of-week partitions across the future horizon) to distribute the wider coverage.
+  - prediction-check: hourly to track drift and outcomes sooner.
+  - update-polymarket-data: every 6 hours for better market coverage.
 
+  
 ## Operations & Database Recovery
 - Decide whether or when to upgrade Neon's PITR to 7 days?
 
