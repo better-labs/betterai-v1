@@ -3,9 +3,31 @@
 
 
 ## Wednesday
+- CRON improvements:
+  - Remove cron-update-polymarket-data.js to seed-polymarket-data.js, get rid of the api routes.
+  - Generate a new cron job named daily-update-polymarket-data.js that runs every day at 12:00 AM UTC.
 
-- Test a database migration from Dev to Prod.
-- Setup Neon daily backups 
+  Note: the /events endpoint doesn't have a parameter to filter by recent updates or modifications. The available date filters are start_date_min/max and end_date_min/max, which filter by event start/end dates, not when the event data was last updated.
+
+  - Move knobs like topMarketsCount, endDateRangeHours, daysLookback to env vars, or encode query params in the cron path if you want per-environment differences.
+  - Build a new cron job named daily-update-polymarket-data.js that runs every day at 12:00 AM UTC.
+  - Same for generate-batch-predictions.js: remove then get another one.
+  - Not sure yet for update-ai-models.js
+
+
+
+
+
+
+update-polymarket-data: every 4–6 hours for better market coverage.
+prediction-check: hourly (or every 30 min) to track drift and outcomes sooner.
+generate-batch-predictions: keep daily (quiet hours) unless you need more frequency.
+
+
+
+
+
+
 - Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
 
 
@@ -112,6 +134,7 @@
 
 ## Operational
 - Research best practices for rate limiting and user authentication
+- Setup Database backups to Vercel Blob via GitHub actions
 
 ## Security
 - Ask AI on best practices for end to end security review prior to public launch.

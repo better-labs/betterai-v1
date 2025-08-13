@@ -32,10 +32,6 @@ If you're using Vercel, this is the easiest option:
    {
      "crons": [
        {
-         "path": "/api/cron/update-polymarket-data",
-         "schedule": "0 */6 * * *"
-       },
-       {
          "path": "/api/cron/generate-batch-predictions",
          "schedule": "15 2 * * *"
        },
@@ -58,7 +54,6 @@ If you're using Vercel, this is the easiest option:
 
 1. **Scripts (already created):**
    ```bash
-   pnpm cron:update-polymarket-data
    pnpm cron:batch-predictions
    pnpm cron:prediction-check
    ```
@@ -73,7 +68,6 @@ If you're using Vercel, this is the easiest option:
    crontab -e
    
    # Sample schedule
-   0 */6 * * * cd /path/to/your/project && pnpm cron:update-polymarket-data
    15 2 * * * cd /path/to/your/project && pnpm cron:batch-predictions
    30 2 * * * cd /path/to/your/project && pnpm cron:prediction-check
    ```
@@ -83,7 +77,6 @@ If you're using Vercel, this is the easiest option:
 ### Manual Testing
 ```bash
 # Test locally (uses .env.local automatically)
-pnpm cron:update-polymarket-data
 pnpm cron:batch-predictions -- --dry-run
 pnpm cron:prediction-check -- --dry-run
 
@@ -91,7 +84,6 @@ pnpm cron:prediction-check -- --dry-run
 curl -X POST \
   -H "Authorization: Bearer your-secret-token" \
   -H "Content-Type: application/json" \
-  https://your-domain.com/api/cron/update-polymarket-data
   https://your-domain.com/api/cron/generate-batch-predictions
   https://your-domain.com/api/cron/prediction-check
 ```
@@ -102,7 +94,6 @@ curl -X POST \
 echo $CRON_SECRET
 
 # Test with environment variable
-CRON_SECRET=your-token pnpm cron:update-polymarket-data
 ```
 
 ## Monitoring
