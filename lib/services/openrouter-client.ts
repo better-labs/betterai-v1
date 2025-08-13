@@ -95,9 +95,11 @@ export async function fetchPredictionFromOpenRouter(
   const toolArgs = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ?? null;
   const text = toolArgs ?? (data.choices?.[0]?.message?.content ?? '');
 
-  const parsed = parseAIResponse<OpenRouterPredictionResult>(text);
+  const parsed = parseAIResponse<unknown>(text);
+  // Normalize common non-conforming shapes from providers (e.g., array wrappers)
+  const normalized = normalizePredictionShape(parsed);
   // Enforce runtime schema validation
-  const validated = validatePredictionResult(parsed);
+  const validated = validatePredictionResult(normalized);
   return validated as OpenRouterPredictionResult;
 }
 
@@ -170,8 +172,35 @@ export async function fetchStructuredFromOpenRouter<T>(
   const text = toolArgs ?? (data.choices?.[0]?.message?.content ?? '');
 
   const parsed = parseAIResponse<T>(text);
+  const normalized = normalizePredictionShape(parsed) as unknown as T;
   if (zodValidator) {
-    return zodValidator.parse(parsed) as T;
+    return zodValidator.parse(normalized) as T;
   }
-  return parsed as T;
+  return normalized as T;
+}
+
+// Best-effort normalization to coerce common malformed responses into the expected object shape
+function normalizePredictionShape(value: unknown): unknown {
+  // If it's an array, prefer the first object-like element
+  if (Array.isArray(value)) {
+    const firstObject = value.find((v) => v && typeof v === 'object') ?? value[0];
+    return normalizePredictionShape(firstObject);
+  }
+  if (value && typeof value === 'object') {
+    const v: any = value as any;
+    // Unwrap common wrappers
+    if (Array.isArray(v.result) || (v.result && typeof v.result === 'object')) {
+      return normalizePredictionShape(v.result);
+    }
+    if (Array.isArray(v.data) || (v.data && typeof v.data === 'object')) {
+      return normalizePredictionShape(v.data);
+    }
+    // Normalize key naming variants
+    if ('confidenceLevel' in v && !('confidence_level' in v)) {
+      v.confidence_level = v.confidenceLevel;
+      delete v.confidenceLevel;
+    }
+    return v;
+  }
+  return value;
 }
