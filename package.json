@@ -5,7 +5,7 @@
   "scripts": {
     "build": "prisma generate && next build",
     "dev": "next dev",
-    "db:reset": "prisma migrate reset --force --skip-seed --skip-generate",
+    "db:reset": "bash -c 'if [ \"$NODE_ENV\" = \"production\" ]; then echo \"Refusing to run db:reset in production.\" >&2; exit 1; fi; prisma migrate reset --force --skip-seed --skip-generate'",
     "db:seed": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/3-generate-market-research.ts && tsx scripts/4-generate-batch-predictions.ts",
     "db:bootstrap": "pnpm db:reset && pnpm db:seed",
     "data:pipeline": "tsx scripts/5-run-data-pipeline.ts",
@@ -21,6 +21,7 @@
     "test:crons": "pnpm cron:update-polymarket-data && pnpm cron:generate-batch-predictions && pnpm cron:prediction-check",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "bash -c 'DATABASE_URL=\"$DATABASE_URL_UNPOOLED\" prisma migrate deploy'",
     "prisma:studio": "prisma studio",
     "postinstall": "prisma generate"
   },

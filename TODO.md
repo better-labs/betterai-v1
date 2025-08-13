@@ -1,23 +1,22 @@
 
 # Week of 8/11
 
-## Tuesday: Core Loop: Prediction Engine
-
-
-- Core v0.2 data pipeline working, including: daily predictions, increase the number and quality of models used (add a few pro ones). Make a reminder to check cost each day an increment again.
-- Fix @cron:prediction-check to add logs via console.log with metrics and success/failure.
-
 
 
 ## Wednesday
-- Portfolio Watcher v1: import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
-- DB Updates: consider removing market_closed and market_category from prediction_checks table.
+- Enable Search on Production.
+
+- DB Ops Planning: production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
+- Set DATABASE_URL (pooled) and DATABASE_URL_UNPOOLED in Vercel Project Settings (Production scope).
+- Neon daily backups and a read-only role for ad hoc analytics
+- Ask AI to convert my existing scripts to test or environment smoke tests that can be ran against new builds in Prod. What is a simple best practice?
+
 
 
 ## Thursday
 - Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
 
-- DB Ops Planning: production database separation: now that I'm going to have a version of the app deployed to production and also do local development, should I create separate the database environments?
+- Portfolio Watcher v1: import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
 
 
 ### Gating and egress control
