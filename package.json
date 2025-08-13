@@ -19,7 +19,7 @@
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "cron:generate-batch-predictions": "node scripts/cron/cron-generate-batch-predictions.js",
+    "cron:daily-generate-batch-predictions": "node scripts/cron/cron-daily-generate-batch-predictions.js",
     "cron:prediction-check": "node scripts/cron/cron-prediction-check.js",
     "cron:update-ai-models": "node scripts/cron/cron-update-ai-models.js",
     "cron:daily-update-polymarket-data": "node scripts/cron/cron-daily-update-polymarket-data.js"

@@ -4,14 +4,8 @@
 
 ## Wednesday
 - CRON improvements:
-
-
-  - Test changes
-  - Rename cron job api/cron/generate-batch-predictions/route.ts to api/cron/daily-generate-batch-predictions/route.ts and update all references to it.
   
-
-
-  - Not sure yet for update-ai-models.js
+  
   - Ask AI to review the current cron jobs and give feedback.
 
 
