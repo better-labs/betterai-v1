@@ -16,7 +16,7 @@ async function main() {
   
   try {
     // Dynamically import the function after environment variables are loaded
-    const { updatePolymarketEventsAndMarketData } = await import('../lib/services/events')
+    const { updatePolymarketEventsAndMarketData } = await import('../lib/services/updatePolymarketEventsAndMarketData')
     
     const result = await updatePolymarketEventsAndMarketData({
       limit: 100, // Small limit for testing

@@ -2,11 +2,14 @@ import { NextRequest } from 'next/server'
 import type { ApiResponse } from '@/lib/types'
 import { generatePredictionVsMarketDelta } from '@/lib/services/prediction-checker'
 
+export const maxDuration = 300
 
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const isVercelCron = request.headers.get('x-vercel-cron') !== null
+    const isTrustedVercelCron = isVercelCron && !!process.env.VERCEL
+    if (!(authHeader === `Bearer ${process.env.CRON_SECRET}` || isTrustedVercelCron)) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' } as ApiResponse),
         { status: 401, headers: { 'Content-Type': 'application/json' } }

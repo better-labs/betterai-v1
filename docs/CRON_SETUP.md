@@ -30,18 +30,18 @@ If you're using Vercel, this is the easiest option:
 1. **Deploy with vercel.json** (already created):
    ```json
    {
-     "crons": [
-       {
-         "path": "/api/cron/update-polymarket-data",
-         "schedule": "0 */6 * * *"
-       },
-       {
-         "path": "/api/cron/generate-batch-predictions",
-         "schedule": "15 2 * * *"
-       },
+      "crons": [
+        {
+          "path": "/api/cron/daily-generate-batch-predictions",
+          "schedule": "15 2 * * *"
+        },
        {
          "path": "/api/cron/prediction-check",
-         "schedule": "30 2 * * *"
+         "schedule": "30 3 * * *"
+       },
+       {
+         "path": "/api/cron/daily-update-polymarket-data",
+         "schedule": "0 0 * * *"
        }
      ]
    }
@@ -52,20 +52,20 @@ If you're using Vercel, this is the easiest option:
    - Add `CRON_SECRET` with your secure token value
    - Deploy
 
-3. **Schedule**: Runs every 6 hours (adjust as needed)
+3. **Schedule**: Adjust to your needs. The Polymarket daily update runs at 00:00 UTC.
 
 ## Option 2: Node.js Script (Local/Server Cron Job)
 
 1. **Scripts (already created):**
    ```bash
-   pnpm cron:update-polymarket-data
    pnpm cron:batch-predictions
    pnpm cron:prediction-check
+   pnpm cron:daily-update-polymarket-data
    ```
 
 2. **Environment variables** are automatically loaded from `.env.local`:
    - The script uses `process.env.CRON_SECRET`
-   - The script uses `process.env.DOMAIN` (defaults to localhost:3000)
+   - The script uses `process.env.NEXT_PUBLIC_APP_URL` (defaults to localhost:3000)
 
 3. **Add to system cron**:
    ```bash
@@ -73,9 +73,9 @@ If you're using Vercel, this is the easiest option:
    crontab -e
    
    # Sample schedule
-   0 */6 * * * cd /path/to/your/project && pnpm cron:update-polymarket-data
    15 2 * * * cd /path/to/your/project && pnpm cron:batch-predictions
-   30 2 * * * cd /path/to/your/project && pnpm cron:prediction-check
+   30 3 * * * cd /path/to/your/project && pnpm cron:prediction-check
+   0 0 * * * cd /path/to/your/project && pnpm cron:daily-update-polymarket-data
    ```
 
 ## Testing Your Setup
@@ -83,17 +83,23 @@ If you're using Vercel, this is the easiest option:
 ### Manual Testing
 ```bash
 # Test locally (uses .env.local automatically)
-pnpm cron:update-polymarket-data
 pnpm cron:batch-predictions -- --dry-run
 pnpm cron:prediction-check -- --dry-run
+pnpm cron:daily-update-polymarket-data -- --dry-run
 
 # Test with curl (replace with your actual CRON_SECRET)
-curl -X POST \
+curl -v -X GET \
   -H "Authorization: Bearer your-secret-token" \
   -H "Content-Type: application/json" \
-  https://your-domain.com/api/cron/update-polymarket-data
-  https://your-domain.com/api/cron/generate-batch-predictions
+  https://your-domain.com/api/cron/daily-generate-batch-predictions
+curl -v -X GET \
+  -H "Authorization: Bearer your-secret-token" \
+  -H "Content-Type: application/json" \
   https://your-domain.com/api/cron/prediction-check
+curl -v -X GET \
+  -H "Authorization: Bearer your-secret-token" \
+  -H "Content-Type: application/json" \
+  https://your-domain.com/api/cron/daily-update-polymarket-data
 ```
 
 ### Environment Variable Testing
@@ -102,7 +108,6 @@ curl -X POST \
 echo $CRON_SECRET
 
 # Test with environment variable
-CRON_SECRET=your-token pnpm cron:update-polymarket-data
 ```
 
 ## Monitoring
@@ -138,15 +143,15 @@ Common cron schedules:
 ### Debug Commands:
 ```bash
 # Test endpoint directly
-curl -v -X POST \
+curl -v -X GET \
   -H "Authorization: Bearer your-secret-token" \
-  https://your-domain.com/api/cron/update-trending
+  https://your-domain.com/api/cron/daily-update-polymarket-data
 
 # Check environment variables
 node -e "console.log('CRON_SECRET:', process.env.CRON_SECRET)"
 
 # Test script with explicit environment
-NODE_ENV=development DOMAIN=localhost:3000 npm run cron:update-trending
+NODE_ENV=development NEXT_PUBLIC_APP_URL=localhost:3000 pnpm cron:daily-update-polymarket-data -- --dry-run
 ```
 
 ## Environment File Management

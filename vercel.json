@@ -1,16 +1,20 @@
 {
   "crons": [
     {
-      "path": "/api/cron/update-polymarket-data", 
-      "schedule": "0 1 * * *"
-    },
-    {
-      "path": "/api/cron/generate-batch-predictions",
+      "path": "/api/cron/daily-generate-batch-predictions",
       "schedule": "15 2 * * *"
     },
     {
       "path": "/api/cron/prediction-check",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/daily-update-polymarket-data",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/update-ai-models",
+      "schedule": "0 4 * * 0"
     }
   ]
 } 

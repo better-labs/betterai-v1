@@ -19,7 +19,7 @@ async function runBatchPredictions(dryRun = false) {
   const targetDaysFromNow = Number(process.env.BATCH_PREDICTIONS_TARGET_DAYS || 7)
   const modelName = encodeURIComponent(process.env.BATCH_PREDICTIONS_MODEL || 'google/gemini-2.5-flash-lite')
 
-  const url = `${baseUrl}/api/cron/generate-batch-predictions?topMarketsCount=${topMarketsCount}&endDateRangeHours=${endDateRangeHours}&targetDaysFromNow=${targetDaysFromNow}&modelName=${modelName}`
+  const url = `${baseUrl}/api/cron/daily-generate-batch-predictions?topMarketsCount=${topMarketsCount}&endDateRangeHours=${endDateRangeHours}&targetDaysFromNow=${targetDaysFromNow}&modelName=${modelName}`
   const options = {
     method: 'GET',
     headers: {
@@ -76,3 +76,5 @@ if (require.main === module) {
 }
 
 module.exports = { runBatchPredictions }
+
+
