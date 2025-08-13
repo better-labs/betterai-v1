@@ -30,12 +30,10 @@ Note: This project standardizes on `.env` (not `.env.local`). Update `.env.examp
   - In `betterai-prod`, set variables only in the Production scope.
   - In `betterai-dev`, set variables in both Development and Preview scopes.
 - **Alternative (simpler, lower isolation)**
-  - 1 Vercel project + 1 Neon project with branches (`prod`, `dev`, optional `staging`). Map Production to `prod` branch, Preview/Development to `dev` branch. This shares quotas and blast radius, so the two-project model above is preferred for stability.
+  - NOTE: NOT USING THIS PATH FOR NOW.
+  - 1 Vercel project + 1 Neon project with branches (`prod`, `dev`, optional `staging`).
+  
 
-### Why `DATABASE_URL_UNPOOLED`?
-- Neon’s pooler (PgBouncer) commonly runs in transaction pooling mode, which breaks long-lived or session-level transactions required by Prisma Migrate and some admin operations.
-- Using the direct/unpooled URL ensures migrations can open session transactions, acquire locks, and complete atomically without pooler interference.
-- Runtime app traffic should use pooled `DATABASE_URL` for efficient connection management; migrations/admin tasks should use `DATABASE_URL_UNPOOLED`.
 
 ### Commands and Scripts
 - Development
@@ -59,6 +57,7 @@ Note: This project standardizes on `.env` (not `.env.local`). Update `.env.examp
 - Safety guard already in place:
   - `pnpm db:reset` refuses to run when `NODE_ENV=production`.
 
+
 ### Migration Workflow
 1. Develop locally: update `prisma/schema.prisma`, run `pnpm prisma:migrate` to create a migration.
 2. Validate locally with `pnpm dev` and app flows. Seed sample data using `pnpm db:bootstrap` if needed.
@@ -74,11 +73,11 @@ Note: This project standardizes on `.env` (not `.env.local`). Update `.env.examp
 ### Neon Setup
 Use these steps with your Neon account. Adjust names to your preference.
 
-1. Project structure (recommended)
+1. Project structure (recommended) 
    - Create two Neon projects for isolation:
      - `betterai-prod` → branch `main` (protected)
      - `betterai-dev` → branch `main` (default), plus optional preview branches `pr-<n>`
-   - Alternative: one project `betterai` with branches `prod`, `dev`, optional `staging`.
+   
 
 2. Roles and users
    - Create a primary app role: `betterai_app` with least-privilege for runtime.
@@ -95,7 +94,7 @@ Use these steps with your Neon account. Adjust names to your preference.
 4. Backups and retention
    - Enable daily automated backups and (if available on your plan) point-in-time restore.
    - Set retention to meet your data policy (e.g., 7–30 days minimum).
-   - Periodically test restores to validate your recovery process.
+   - TODO: Periodically test restores to validate your recovery process.
 
 5. Branching strategy
    - Keep `prod` protected; restrict destructive operations.
@@ -167,3 +166,56 @@ Follow this checklist to move from one Vercel project and one Neon database to i
 - Guarded destructive op: `pnpm db:reset` (blocked when `NODE_ENV=production`)
 
 
+
+### Neon roles quick start (betterai_app, betterai_admin)
+Follow these steps per Neon project (prod and dev) on the target branch (e.g., `main`).
+
+1)(done) Create roles and grants in Neon (run in SQL editor or psql as project owner)
+```sql
+-- Create login roles with strong, URL-safe passwords
+CREATE ROLE betterai_app LOGIN PASSWORD 'dGbjkgCRYsimSOF1vyP1BtNN4OUgX_9KN5Fo9-JdBIYaRZT7KDY24RvrExtfmmqV';
+CREATE ROLE betterai_admin LOGIN PASSWORD 'sWw7svSuSjT3ERghe5HNLubwR_wkYl0PorC9GKPP6ioBbqakD6AYCjrAPNZn2oLh';
+
+-- Allow connection to the database (replace YOUR_DB_NAME)
+GRANT CONNECT ON DATABASE "betterai-dev" TO betterai_app, betterai_admin;
+
+-- Make admin own the schema for migrations
+ALTER SCHEMA public OWNER TO betterai_admin;
+GRANT USAGE, CREATE ON SCHEMA public TO betterai_admin;
+
+-- Grant runtime role basic access to the schema
+GRANT USAGE ON SCHEMA public TO betterai_app;
+
+-- Grant table/sequence privileges on existing objects
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO betterai_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO betterai_app;
+
+-- Ensure future objects created by admin remain accessible to the app
+ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA public
+  GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;
+```
+
+2)(done) Build the two connection strings 
+```text
+DATABASE_URL=postgres://betterai_app:APP_PASSWORD@POOLER_HOST:5432/YOUR_DB_NAME?sslmode=require
+DATABASE_URL_UNPOOLED=postgresql://betterai_admin:ADMIN_PASSWORD@DIRECT_HOST:5432/YOUR_DB_NAME?sslmode=require
+```
+
+3)(done) Set env vars in Vercel 
+- betterai-prod (Production scope): set `DATABASE_URL` (pooled, `betterai_app`) and `DATABASE_URL_UNPOOLED` (direct, `betterai_admin`).
+- betterai-dev (Development and Preview scopes): set both vars to the dev Neon credentials.
+- If using the Vercel–Neon integration, leave the prefix blank so names match exactly.
+
+4) Run migrations using the unpooled URL
+```bash
+pnpm prisma:migrate:deploy
+# or explicitly
+DATABASE_URL="$DATABASE_URL_UNPOOLED" npx prisma migrate deploy --force
+```
+
+5) Verify connectivity and permissions
+- App runtime connects via pooled `DATABASE_URL` (role `betterai_app`).
+- Migrations succeed via direct `DATABASE_URL_UNPOOLED` (role `betterai_admin`).
+- Repeat steps for each Neon project (prod and dev).

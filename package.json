@@ -22,6 +22,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "bash -c 'DATABASE_URL=\"$DATABASE_URL_UNPOOLED\" prisma migrate deploy'",
+    "migrate:deploy:dev": "bash -lc 'set -a; source .env; set +a; pnpm prisma:migrate:deploy'",
+    "migrate:deploy:prod": "bash -lc 'set -a; source .env.prod; set +a; pnpm prisma:migrate:deploy'",
     "prisma:studio": "prisma studio",
     "postinstall": "prisma generate"
   },

@@ -35,3 +35,4 @@ next-env.d.ts
 GEMINI.md
 .env
 **/.DS_Store
+.env.prod
