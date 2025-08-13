@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server'
 import type { ApiResponse } from '@/lib/types'
 import { runBatchPredictionGeneration } from '@/lib/services/generate-batch-predictions'
-import { DEFAULT_MODEL } from '@/lib/db/queries'
 
 
 
@@ -16,19 +15,30 @@ export async function GET(request: NextRequest) {
     }
 
     const topMarketsCount = Number(request.nextUrl.searchParams.get('topMarketsCount') ?? 20)
-    const endDateRangeHours = Number(request.nextUrl.searchParams.get('endDateRangeHours') ?? 24)
+    const endDateRangeHours = Number(request.nextUrl.searchParams.get('endDateRangeHours') ?? 48)
     const targetDaysFromNow = Number(request.nextUrl.searchParams.get('targetDaysFromNow') ?? 7)
-    const modelName = request.nextUrl.searchParams.get('modelName') ?? DEFAULT_MODEL
+    const modelNameParam = request.nextUrl.searchParams.get('modelName') || undefined
 
-    await runBatchPredictionGeneration(
-      { topMarketsCount, endDateRangeHours, targetDaysFromNow, categoryMix: false },
-      modelName
-    )
+    const modelList = [
+      'openai/gpt-oss-120b',
+      'google/gemini-2.5-flash',
+      'deepseek/deepseek-chat-v3-0324',
+      'openai/gpt-4o-mini',
+    ]
+
+    const modelsToRun = Array.from(new Set(modelNameParam ? [...modelList, modelNameParam] : modelList))
+
+    for (const modelName of modelsToRun) {
+      await runBatchPredictionGeneration(
+        { topMarketsCount, endDateRangeHours, targetDaysFromNow, categoryMix: false },
+        modelName
+      )
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Batch prediction generation enqueued for top ${topMarketsCount} markets using ${modelName}`,
+        message: `Batch prediction generation enqueued for top ${topMarketsCount} markets using models: ${modelsToRun.join(', ')}`,
       } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )
