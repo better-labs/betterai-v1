@@ -2,6 +2,7 @@ import { parseAIResponse, validatePredictionResult } from '../utils';
 import type { ZodSchema } from 'zod';
 
 const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
+const OPENROUTER_DEFAULT_TEMPERATURE = 0.2;
 
 interface OpenRouterPredictionResult {
   prediction: string;
@@ -54,7 +55,7 @@ export async function fetchPredictionFromOpenRouter(
         'X-Title': 'BetterAI Prediction Service',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ temperature: OPENROUTER_DEFAULT_TEMPERATURE, ...body }),
     })
   }
 
@@ -142,7 +143,7 @@ export async function fetchStructuredFromOpenRouter<T>(
       type: 'json_schema',
       json_schema: wrapSchema(jsonSchema),
     },
-    temperature: 0.2,
+    temperature: OPENROUTER_DEFAULT_TEMPERATURE,
   })
 
   if (!response.ok && (response.status === 400 || response.status === 422)) {
@@ -153,7 +154,7 @@ export async function fetchStructuredFromOpenRouter<T>(
         { role: 'user', content: userMessage },
       ],
       response_format: { type: 'json_object' },
-      temperature: 0.2,
+      temperature: OPENROUTER_DEFAULT_TEMPERATURE,
     })
   }
 
