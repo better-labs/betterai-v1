@@ -9,14 +9,22 @@ import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
+import { usePrivy } from "@privy-io/react-auth"
+import dynamic from "next/dynamic"
+import { AuthButtons } from "@/components/ui/auth-buttons"
+
+const PrivyUserPill = dynamic(
+  () => import("@privy-io/react-auth/ui").then((m) => m.UserPill),
+  { ssr: false }
+)
 
 export function Header() {
   const [credits, setCredits] = useState(0)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
   const router = useRouter()
   const flags = useFeatureFlags()
+  const { ready, authenticated, login } = usePrivy()
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -125,7 +133,7 @@ export function Header() {
 
           {/* Actions Section */}
           <div className="flex items-center space-x-4" id="header-actions">
-            {isAuthenticated ? (
+            {authenticated && (
               <>
                 <div className="hidden md:flex items-center space-x-2 text-md">
                   <span className="text-muted-foreground font-bold">Remaining balance:</span> <span className="text-muted-foreground">$0.00</span>
@@ -141,26 +149,13 @@ export function Header() {
                   Add Funds
                 </Button>
               </>
-            ) : null}
-
-            {!isAuthenticated && flags.showLoginSignup && (
-              <div className="hidden md:flex items-center space-x-3 bg-muted/20 rounded-lg px-3 py-1 shadow-sm">
-                <span 
-                  className="text-sm font-medium text-primary cursor-pointer hover:text-primary/80 transition-colors"
-                  onClick={() => setIsAuthenticated(true)}
-                >
-                  Log In
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-sm hover:shadow-md transition-shadow"
-                  onClick={() => setIsAuthenticated(true)}
-                >
-                  Sign Up
-                </Button>
-              </div>
             )}
+
+            {!authenticated && flags.showLoginSignup && (
+              <AuthButtons variant="desktop" />
+            )}
+
+            <PrivyUserPill />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -250,6 +245,15 @@ export function Header() {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
+                
+                {/* Mobile Login/Signup */}
+                {!authenticated && flags.showLoginSignup && (
+                  <>
+                    <AuthButtons variant="mobile" />
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                
                 <ThemeToggle />
               </DropdownMenuContent>
             </DropdownMenu>

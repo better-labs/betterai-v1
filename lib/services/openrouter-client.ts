@@ -85,9 +85,30 @@ export async function fetchPredictionFromOpenRouter(
 
   if (!response.ok) {
     if (response.status === 429) {
-      throw new Error(`OpenRouter rate limit exceeded.`);
+      // Lightweight retry with exponential backoff to reduce transient failures
+      const maxRetries = 3
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const backoffMs = 500 * Math.pow(2, attempt - 1)
+        await new Promise((r) => setTimeout(r, backoffMs))
+        const retry = await postWithBody({
+          model,
+          messages: [
+            { role: 'system', content: systemMessage },
+            { role: 'user', content: userMessage },
+          ],
+          response_format: { type: 'json_object' },
+        })
+        if (retry.ok) {
+          response = retry
+          break
+        }
+        if (attempt === maxRetries) {
+          throw new Error(`OpenRouter rate limit exceeded.`)
+        }
+      }
+    } else {
+      throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`)
     }
-    throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
