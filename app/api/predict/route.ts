@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use the new prediction service with user context
-    const result = await generatePredictionForMarket(marketId, userId)
+    const result = await generatePredictionForMarket(marketId, userId, model, userMessage)
 
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 500 })

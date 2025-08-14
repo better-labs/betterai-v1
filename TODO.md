@@ -1,30 +1,18 @@
 
 # Watchlist & Portfolio Watcher v1 Implementation Plan
 
-## High-Level Implementation Strategy
-
-Based on @DESIGN.md Phase 0 requirements, implement user-specific watchlist functionality and Polymarket portfolio import. This aligns with the "Portfolio Watcher v1" feature to enable users to manually select markets and trigger predictions.
-
-**Core Features:**
-1. **Watchlist Management**: Allow authenticated users to bookmark/track markets
-2. **Portfolio Import**: Parse Polymarket public portfolio URLs to import user positions  
-3. **Automated Monitoring**: Setup cron jobs for daily watchlist predictions and alerts
-4. **UI Integration**: Add bookmark icons to market cards and dedicated watchlist pages
+branch: portfolio-watcher-v1-thursday
 
 ## Implementation Tasks
 
 ### Phase 1: Database & Authentication Foundation
-- [ ] **User Authentication Integration** 
-  - Research Privy user.id extraction for user-specific data
-  - Test user identification across authenticated requests
-  - Add user context to existing API routes that need user-specific data
+
 
 - [ ] **Database Schema Design**
-  - Create `User` model to store Privy user IDs and profile data
-  - Create `UserWatchlist` model for market bookmarks (user_id, market_id, added_at)
-  - (Later) Create `UserPortfolioPosition` model for imported positions (user_id, market_id, position_data, imported_at)
+  - ✅ Create `User` model and table to store Privy user IDs and profile data
+  - ✅ Create `UserWatchlist` model and table for market bookmarks (user_id, market_id, added_at)
   - Add database indexes for performance (user_id, market_id combinations)
-  - Run Prisma migration with `--force` flag as per repo guidelines
+  
 
 ### Phase 2: Core API Implementation  
 - [ ] **Watchlist CRUD API**
@@ -51,11 +39,6 @@ Based on @DESIGN.md Phase 0 requirements, implement user-specific watchlist func
   - Build `WatchlistMarketCard` component showing position data + prediction trigger
   - Add watchlist navigation item to header (behind feature flag)
 
-- [ ] **Portfolio Import UI**
-  - Create portfolio import form/modal component  
-  - Add portfolio import button to watchlist page
-  - Show import status and validation feedback
-  - Display imported positions in organized layout
 
 - [ ] **Enhanced Market Interactions**
   - Add "Add to Watchlist" action to market detail pages
@@ -203,6 +186,17 @@ Implement "credits" on the backend.
   -  rotate weekly segments (e.g., day-of-week partitions across the future horizon) to distribute the wider coverage.
   - prediction-check: hourly to track drift and outcomes sooner.
   - update-polymarket-data: every 6 hours for better market coverage.
+
+
+## Portfolio Tracker v2
+
+- [ ] **Portfolio Import UI**
+  - (Later) Create `UserPortfolioPosition` model for imported positions (user_id, market_id, position_data, imported_at)
+  - Create portfolio import form/modal component  
+  - Add portfolio import button to watchlist page
+  - Show import status and validation feedback
+  - Display imported positions in organized layout
+
 
   
 ## Operations & Database Recovery
