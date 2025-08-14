@@ -1,26 +1,14 @@
 
-# Code Review Action Items (URGENT)
-
-  
-## ARCHITECTURAL ENHANCEMENTS
-
-
-
-
----
-
 # Week of 8/11
 
 
 
 ## Thursday
 
-- Check last night's CRON jobs for success. Automate - what is the best way to keep track of this? Something native to Vercel or a separate solution? Something that will notify me in case of failure ..
-(testchange)
-
 - Add a beta program signup landing page with very little additional information.
 
 - Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
+
 - Users who are not signed in can only view the landing page.
 
 
@@ -33,6 +21,8 @@ Add BetterStack integration:
 - [ ] **Add Observability**:
   - [ ] Add performance metrics (execution time trends)
   - [ ] Implement alerting thresholds
+
+  Ask AI which Google Cloud features I could use in the next 90 days for free credit. Review my DESIGN.md and todo docs.
 
 
 ### Gating and egress control
@@ -61,8 +51,10 @@ Add BetterStack integration:
 
 
 ## Nice to have
+
 - Data Pipeline: significantly overhaul and improve research component.
-- Landing page:Track record:  "AI predicted X correctly this week".
+- Landing page: Track record:  "AI predicted X correctly this week".
+- Landing page: "labels" adding most popular tag.labels to the top of the current trending view.
 - Add shadcdn styles and/or or framer motion animation: https://motion.dev/
 - Landing page: "Today's Top Market Insights" (curated quality over quantity),
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
