@@ -1,22 +1,11 @@
 
 # Code Review Action Items (URGENT)
 
-
-- [x] **Code Organization**:
-  - [x] Extract common auth logic to middleware
-
-## MEDIUM PRIORITY IMPROVEMENTS
-- [ ] **Add Input Validation**: Validate query parameters in CRON endpoints with bounds checking for hours/days parameters
-
   
-  
-
 ## ARCHITECTURAL ENHANCEMENTS
 
 
-- [ ] **Add Observability**:
-  - [ ] Add performance metrics (execution time trends)
-  - [ ] Implement alerting thresholds
+
 
 ---
 
@@ -25,7 +14,7 @@
 
 
 ## Thursday
-- Run against prod: dotenv -e .env.prod -- pnpm cron:daily-generate-batch-predictions
+
 - Check last night's CRON jobs for success. Automate - what is the best way to keep track of this? Something native to Vercel or a separate solution? Something that will notify me in case of failure ..
 (testchange)
 
@@ -40,7 +29,10 @@
   - Maybe setup cron jobs to re-run customer watchlist markets daily?
 
 
-
+Add BetterStack integration:
+- [ ] **Add Observability**:
+  - [ ] Add performance metrics (execution time trends)
+  - [ ] Implement alerting thresholds
 
 
 ### Gating and egress control
@@ -53,13 +45,11 @@
 - Legal todos.
 
 ### Operations
-- Operations: Vercel analytics, Vercel "Observability" features currently paid for
+- Operations: Vercel analytics, Vercel "Observability" features currently paid for or PostHog or LogRocket
 - Evaluate: hotjar, canny product request, sentry or logrocket
 
 ### User Signup
 - Share URL for users to signup for private beta and get 100 free daily credits for AI predictions.
-
-
 
 - Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
 
@@ -67,6 +57,8 @@
 - Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
 - Decide category strategy: exclude crypto vs. mark as less effective
   - Default: include all; segment metrics per category
+
+
 
 ## Nice to have
 - Data Pipeline: significantly overhaul and improve research component.

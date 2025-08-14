@@ -9,6 +9,8 @@ export interface BatchPredictionConfig {
   targetDaysFromNow: number // Default 7 days
   categoryMix: boolean // Default false
   excludeCategories?: Category[] // Default [Category.CRYPTOCURRENCY]
+  /** How many OpenRouter jobs to run in parallel per model. Defaults to 3. */
+  concurrencyPerModel?: number
 }
 
 interface MarketWithEndDate {
@@ -137,36 +139,42 @@ export async function getTopMarketsByVolumeAndEndDate(
  */
 export async function generateBatchPredictions(
   marketIds: string[],
-  modelName?: string
+  modelName?: string,
+  options?: { concurrency?: number }
 ): Promise<Array<{marketId: string, success: boolean, message: string}>> {
-  const results = []
+  const results: Array<{marketId: string, success: boolean, message: string}> = []
+  const concurrency = Math.max(1, options?.concurrency ?? 3)
 
-  for (const marketId of marketIds) {
-    try {
-      
-      const result = await generatePredictionForMarket(marketId, modelName)
-      
-      results.push({
-        marketId,
-        success: result.success,
-        message: result.message
-      })
-
-      console.log(`Result for ${marketId}: ${result.success ? 'SUCCESS' : 'FAILED'} - ${result.message}`)
-      
-      // Add a small delay between predictions to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-    } catch (error) {
-      console.error(`Error generating prediction for market ${marketId}:`, error)
-      results.push({
-        marketId,
-        success: false,
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
+  let index = 0
+  async function worker(workerId: number) {
+    // Simple worker loop with shared index for concurrency limiting
+    // Each worker pulls the next marketId and processes it until none remain
+    for (;;) {
+      const current = index
+      if (current >= marketIds.length) break
+      index += 1
+      const marketId = marketIds[current]
+      try {
+        const result = await generatePredictionForMarket(marketId, modelName)
+        results.push({
+          marketId,
+          success: result.success,
+          message: result.message,
+        })
+        console.log(`worker#${workerId} ${marketId}: ${result.success ? 'SUCCESS' : 'FAILED'} - ${result.message}`)
+      } catch (error) {
+        console.error(`worker#${workerId} error for market ${marketId}:`, error)
+        results.push({
+          marketId,
+          success: false,
+          message: error instanceof Error ? error.message : 'Unknown error',
+        })
+      }
     }
   }
 
+  const workers = Array.from({ length: concurrency }, (_, i) => worker(i + 1))
+  await Promise.all(workers)
   return results
 }
 
@@ -182,7 +190,8 @@ export async function runBatchPredictionGeneration(
     endDateRangeHours: 12,
     targetDaysFromNow: 7, 
     categoryMix: false,
-    excludeCategories: [Category.CRYPTOCURRENCY]
+    excludeCategories: [Category.CRYPTOCURRENCY],
+    concurrencyPerModel: 3,
   },
   modelName?: string
 ): Promise<void> {
@@ -204,7 +213,7 @@ export async function runBatchPredictionGeneration(
     // Generate predictions for the selected markets
     console.log(`
 Generating predictions for ${marketIds.length} markets...`)
-    const results = await generateBatchPredictions(marketIds, modelName)
+    const results = await generateBatchPredictions(marketIds, modelName, { concurrency: config.concurrencyPerModel ?? 3 })
     
     // Log summary
     const successful = results.filter(r => r.success).length
