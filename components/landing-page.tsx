@@ -1,6 +1,6 @@
 "use client"
 
-import { TrendingUp, Brain, Target, BarChart3, Zap, Shield, Users, Globe, Mail } from "lucide-react"
+import { TrendingUp, Shield, Mail, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
@@ -115,6 +115,17 @@ export function LandingPage() {
             )}
           </div>
         </div>
+
+        {/* Legal Disclaimer */}
+        <section className="max-w-3xl mx-auto text-center text-xs text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Shield className="h-4 w-4" />
+            <span>Important information</span>
+          </div>
+          <p>
+            BetterAI is provided by BetterLabs LLC as a research and analysis tool. It does not offer financial, investment, legal, or tax advice, and it does not recommend or endorse any trades. Use at your own risk. Markets are volatile and you can lose money. By using BetterAI, you agree to our Terms and acknowledge our Privacy Policy.
+          </p>
+        </section>
       </main>
     </div>
   )

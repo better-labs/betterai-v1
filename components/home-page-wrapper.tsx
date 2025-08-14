@@ -5,6 +5,8 @@ import { LandingPage } from "@/components/landing-page"
 import { TrendingEventsTable } from "@/components/trending-events-table"
 import { RecentPredictions } from "@/components/recent-predictions"
 import { useEffect, useState } from "react"
+import { Loader2 } from "lucide-react"
+import { LoadingCard } from "@/components/ui/loading"
 
 export function HomePageWrapper() {
   const { ready, authenticated } = usePrivy()
@@ -28,11 +30,9 @@ export function HomePageWrapper() {
   // If not ready yet, show loading state
   if (!ready) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" >
         <main className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center">
-            <div className="text-muted-foreground">Loading...</div>
-          </div>
+          <LoadingCard />
         </main>
       </div>
     )
@@ -48,7 +48,14 @@ export function HomePageWrapper() {
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
         {/* Recent predictions */}
-        {!loading && <RecentPredictions items={predictions ?? []} />}
+        {loading ? (
+          <section aria-labelledby="recent-predictions-heading" className="mt-8">
+            <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+            <LoadingCard message="Loading recent predictions…" />
+          </section>
+        ) : (
+          <RecentPredictions items={predictions ?? []} />
+        )}
         {/* <TrendingEventsTable /> */}
       </main>
     </div>

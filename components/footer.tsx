@@ -19,7 +19,7 @@ export function Footer() {
             .
           </p>
           <p className="text-xs text-muted-foreground/70">
-            © 2025 BetterLabs
+             © {new Date().getFullYear()} BetterLabs LLC
           </p>
         </div>
       </div>
