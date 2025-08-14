@@ -76,26 +76,7 @@ export function Header() {
               >
                 About
               </Link>
-              <Link 
-                href="/privacy" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/privacy") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Privacy
-              </Link>
-              <Link 
-                href="/tos" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/tos") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Terms
-              </Link>
+              
               {/* {flags.showMarketAlpha && (
                 <Link 
                   href="/market-alpha" 
