@@ -154,18 +154,19 @@ export function Header() {
           <div className="flex items-center space-x-4" id="header-actions">
             {authenticated && (
               <>
-                <div className="hidden md:flex items-center space-x-2 text-md">
-                  <span className="text-muted-foreground font-bold">Remaining balance:</span> <span className="text-muted-foreground">$0.00</span>
+                <div className="hidden md:flex items-center space-x-1 text-sm text-muted-foreground">
+                  <span>Remaining credits:</span>
+                  <span className="font-medium">{credits}</span>
                 </div>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => {
-                    /* TODO: Implement add funds */
+                    router.push("/credits")
                   }}
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-sm hover:shadow-md transition-shadow"
+                  className="hidden md:inline-flex text-muted-foreground hover:text-foreground"
                 >
-                  Add Funds
+                  Add Credits
                 </Button>
               </>
             )}
@@ -241,6 +242,13 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link href="/activity" className={`w-full ${isActive("/activity") ? "bg-accent" : ""}`}>
                       <span>Activity</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {authenticated && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/credits" className={`w-full ${isActive("/credits") ? "bg-accent" : ""}`}>
+                      <span>Credits</span>
                     </Link>
                   </DropdownMenuItem>
                 )}

@@ -18,11 +18,19 @@ export function HomePageWrapper() {
     let cancelled = false
     setLoading(true)
     fetch(`/api/predictions/recent?limit=12`, { cache: 'no-store' })
-      .then(async (res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`)
+        }
+        return res.json()
+      })
       .then((data) => {
         if (!cancelled) setPredictions(Array.isArray(data?.items) ? data.items : [])
       })
-      .catch(() => { if (!cancelled) setPredictions([]) })
+      .catch((error) => { 
+        console.error('Failed to fetch predictions:', error)
+        if (!cancelled) setPredictions([]) 
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [ready, authenticated])
