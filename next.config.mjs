@@ -15,6 +15,61 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400, // cache optimized images for 1 day
   },
+  // Headers for CSP and security
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: (
+              process.env.NODE_ENV === 'development'
+                ? [
+                    "default-src 'self'",
+                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http:",
+                    "style-src 'self' 'unsafe-inline' https: http:",
+                    "img-src 'self' data: https: blob:",
+                    "font-src 'self' data:",
+                    "connect-src 'self' https: wss:",
+                    "frame-src 'self' https:",
+                    "worker-src 'self' blob:",
+                    "child-src 'self' blob:",
+                    "object-src 'none'",
+                    "base-uri 'self'"
+                  ].join('; ')
+                : [
+                    "default-src 'self'",
+                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com",
+                    "style-src 'self' 'unsafe-inline'",
+                    "img-src 'self' data: https: blob:",
+                    "font-src 'self' data:",
+                    "connect-src 'self' https://auth.privy.io https://*.privy.io https://api.openrouter.ai https://*.neon.tech wss://*.privy.io",
+                    "frame-src 'self' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com",
+                    "frame-ancestors 'self' https://auth.privy.io https://*.privy.io",
+                    "worker-src 'self' blob:",
+                    "child-src 'self' blob:",
+                    "object-src 'none'",
+                    "base-uri 'self'"
+                  ].join('; ')
+            )
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
+          }
+        ]
+      }
+    ]
+  },
   // Note: Vercel toolbar is automatically enabled when FLAGS_SECRET is set
 }
 

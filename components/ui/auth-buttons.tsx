@@ -13,6 +13,16 @@ interface AuthButtonsProps {
 export function AuthButtons({ variant = "desktop", className = "" }: AuthButtonsProps) {
   const { ready, login } = usePrivy()
 
+  const handleLogin = async () => {
+    if (!ready) return
+    try {
+      await login()
+    } catch (error) {
+      console.error('Login error:', error)
+      // Optionally show user-friendly error message
+    }
+  }
+
   if (variant === "desktop") {
     return (
       <div className={`hidden md:flex items-center space-x-3 bg-muted/20 rounded-lg px-3 py-1 shadow-sm ${className}`}>
@@ -22,7 +32,7 @@ export function AuthButtons({ variant = "desktop", className = "" }: AuthButtons
               ? "text-primary cursor-pointer hover:text-primary/80" 
               : "text-muted-foreground cursor-not-allowed"
           }`}
-          onClick={() => ready && login()}
+          onClick={handleLogin}
         >
           {ready ? "Log In" : (
             <div className="flex items-center space-x-1">
@@ -40,7 +50,7 @@ export function AuthButtons({ variant = "desktop", className = "" }: AuthButtons
               ? "text-primary hover:bg-primary hover:text-primary-foreground" 
               : "text-muted-foreground cursor-not-allowed"
           }`}
-          onClick={() => ready && login()}
+          onClick={handleLogin}
         >
           {ready ? "Sign Up" : (
             <div className="flex items-center space-x-1">
