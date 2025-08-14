@@ -11,7 +11,6 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
-import { AuthButtons } from "@/components/ui/auth-buttons"
 
 const PrivyUserPill = dynamic(
   () => import("@privy-io/react-auth/ui").then((m) => m.UserPill),
@@ -24,7 +23,7 @@ export function Header() {
   const pathname = usePathname()
   const router = useRouter()
   const flags = useFeatureFlags()
-  const { ready, authenticated, login } = usePrivy()
+  const { ready, authenticated } = usePrivy()
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -151,9 +150,7 @@ export function Header() {
               </>
             )}
 
-            {!authenticated && flags.showLoginSignup && (
-              <AuthButtons variant="desktop" />
-            )}
+            {/* Login/Signup buttons removed; relying solely on Privy UserPill */}
 
             <PrivyUserPill />
 
@@ -244,15 +241,7 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuSeparator />
-                
-                {/* Mobile Login/Signup */}
-                {!authenticated && flags.showLoginSignup && (
-                  <>
-                    <AuthButtons variant="mobile" />
-                    <DropdownMenuSeparator />
-                  </>
-                )}
+                {/* Mobile Login/Signup removed; relying solely on Privy UserPill */}
                 
                 <ThemeToggle />
               </DropdownMenuContent>
