@@ -144,108 +144,85 @@ Follow this checklist to move from one Vercel project and one Neon database to i
 ### Neon roles quick start (betterai_app, betterai_admin)
 Follow these steps per Neon project (prod and dev) on the target branch (e.g., `main`).
 
-1)(done) Create roles and grants in Neon (run in SQL editor or psql as project owner)
+**Important:** Connect as the database owner (`neondb_owner`) to run these permission commands, as only the table owner can grant permissions to other users.
+
+1)(done) Create roles and grants in Neon (run in SQL editor or psql as `neondb_owner`)
 ```sql
 -- Create login roles with strong, URL-safe passwords
-CREATE ROLE betterai_app LOGIN PASSWORD '$PASSWORD';
-CREATE ROLE betterai_admin LOGIN PASSWORD '$PASSWORD';
+-- Note: If these roles already exist, skip the CREATE ROLE commands
+CREATE ROLE betterai_app LOGIN PASSWORD '$APP_PASSWORD';
+CREATE ROLE betterai_admin LOGIN PASSWORD '$ADMIN_PASSWORD';
 
--- Allow connection to the database (replace YOUR_DB_NAME)
-GRANT CONNECT ON DATABASE "$DATABASE_NAME" TO betterai_app, betterai_admin;
+-- Allow connection to the database
+GRANT CONNECT ON DATABASE neondb TO betterai_app, betterai_admin;
 
--- Make admin own the schema for migrations
-ALTER SCHEMA public OWNER TO betterai_admin;
-GRANT USAGE, CREATE ON SCHEMA public TO betterai_admin;
+-- Grant schema access to both roles
+GRANT USAGE ON SCHEMA public TO betterai_app, betterai_admin;
+GRANT CREATE ON SCHEMA public TO betterai_admin;
 
--- Grant runtime role basic access to the schema
-GRANT USAGE ON SCHEMA public TO betterai_app;
-
--- Grant table/sequence privileges on existing objects
+-- Grant table/sequence privileges on ALL existing objects to betterai_app
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO betterai_app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO betterai_app;
 
--- Ensure future objects created by admin remain accessible to the app
-ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA public
+-- Grant admin full access to existing objects (for migrations and maintenance)
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO betterai_admin;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO betterai_admin;
+
+-- Set default privileges for future objects created by neondb_owner
+-- This ensures new tables automatically grant permissions to betterai_app
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;
-ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA public
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;
+
+-- Also grant default privileges to admin for future maintenance
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT USAGE, SELECT ON SEQUENCES TO betterai_admin;
 ```
 
-- Verify ownership and current grants (run on the target DB/branch)
+- Verify ownership and current grants (run as `neondb_owner`)
   ```sql
-  -- Schema owner
+  -- Check schema owner (should be neondb_owner)
   SELECT n.nspname AS schema, pg_get_userbyid(n.nspowner) AS owner
   FROM pg_namespace n
   WHERE n.nspname = 'public';
 
-  -- Table owners
+  -- Check table owners (should be neondb_owner)
   SELECT schemaname, tablename, tableowner
   FROM pg_tables
   WHERE schemaname = 'public'
   ORDER BY tablename;
 
-  -- Example: current grants on events
-  SELECT grantee, privilege_type
-  FROM information_schema.role_table_grants
-  WHERE table_schema = 'public' AND table_name = 'events';
+  -- Verify permissions for betterai_app on all tables
+  SELECT table_name, string_agg(privilege_type, ', ') as privileges 
+  FROM information_schema.table_privileges 
+  WHERE grantee = 'betterai_app' AND table_schema = 'public'
+  GROUP BY table_name 
+  ORDER BY table_name;
+
+  -- Test actual database access with betterai_app (run as betterai_app user)
+  SELECT COUNT(*) FROM users;
+  SELECT COUNT(*) FROM predictions;
   ```
 
-- One-time ownership alignment (recommended)
-  - If any existing objects are owned by another role (e.g., the Neon default owner), transfer them to `betterai_admin` so migrations and maintenance work consistently.
-  ```sql
-  -- Transfer ownership of all tables/views/partitions/foreign tables in public
-  DO $$
-  DECLARE r RECORD;
-  BEGIN
-    FOR r IN
-      SELECT format('ALTER TABLE %I.%I OWNER TO betterai_admin;', n.nspname, c.relname) AS stmt
-      FROM pg_class c
-      JOIN pg_namespace n ON n.oid = c.relnamespace
-      WHERE n.nspname = 'public' AND c.relkind IN ('r','p','v','m','f')
-    LOOP
-      EXECUTE r.stmt;
-    END LOOP;
+**Troubleshooting Permission Issues:**
 
-    -- Sequences
-    FOR r IN
-      SELECT format('ALTER SEQUENCE %I.%I OWNER TO betterai_admin;', n.nspname, c.relname) AS stmt
-      FROM pg_class c
-      JOIN pg_namespace n ON n.oid = c.relnamespace
-      WHERE n.nspname = 'public' AND c.relkind = 'S'
-    LOOP
-      EXECUTE r.stmt;
-    END LOOP;
-  END $$;
+If `betterai_app` gets "permission denied" errors, run these commands as `neondb_owner`:
 
-  -- Ensure schema owner is admin
-  ALTER SCHEMA public OWNER TO betterai_admin;
-  ```
-
-Permission fixes
 ```sql
-GRANT USAGE ON SCHEMA public TO betterai_app;
-GRANT SELECT ON TABLE public.events TO betterai_app;
-
--- Also catch all current objects
+-- Re-grant all current table permissions
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO betterai_app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO betterai_app;
+GRANT USAGE ON SCHEMA public TO betterai_app;
 
--- Make sure admin owns the schema (optional but recommended)
-ALTER SCHEMA public OWNER TO betterai_admin;
-
--- Ensure future tables/sequences are auto-granted to app
-ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA public
+-- Re-set default privileges for future tables
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;
-ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA public
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;
 ```
-
-- If `betterai_admin` cannot read an object (before ownership transfer), grant explicitly:
-  ```sql
-  GRANT USAGE ON SCHEMA public TO betterai_admin;
-  GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO betterai_admin;
-  GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO betterai_admin;
-  ```
 
 2)(done) Build the two connection strings 
 ```text
@@ -265,7 +242,17 @@ pnpm migrate:deploy:base
 DATABASE_URL="$DATABASE_URL_UNPOOLED" npx prisma migrate deploy --force
 ```
 
+**Note on Migrations:** Prisma migrations will create new tables owned by `neondb_owner` (since that's the database owner), not `betterai_admin`. This is expected behavior in Neon. The default privileges we set above ensure that new tables automatically grant permissions to both `betterai_app` and `betterai_admin`.
+
+**Current Production Setup (as of latest permission fix):**
+- Tables owned by: `neondb_owner` (Neon default owner)
+- App runtime user: `betterai_app` (pooled connection via `DATABASE_URL`)
+- Migration user: `betterai_admin` (direct connection via `DATABASE_URL_UNPOOLED`)
+- Both users have full `SELECT, INSERT, UPDATE, DELETE` permissions on all tables
+- Default privileges ensure future tables automatically grant permissions to both users
+
 5) (done) Verify connectivity and permissions
 - App runtime connects via pooled `DATABASE_URL` (role `betterai_app`).
 - Migrations succeed via direct `DATABASE_URL_UNPOOLED` (role `betterai_admin`).
+- New tables created by migrations automatically have proper permissions due to default privileges.
 - Repeat steps for each Neon project (prod and dev).
