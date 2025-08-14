@@ -58,7 +58,7 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 					logo: '/betterai-logo-vertical.png'
 				},
 				// Keep login simple while we debug network issues
-				loginMethods: ['email'],
+				loginMethods: ['email','google'],
 				
 				// Add error handling for auth failures
 				onError: (error: any) => {
