@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { PrivyClientProvider } from "@/components/privy-client-provider"
 
 export const metadata: Metadata = {
   title: "BetterAI - AI-Powered Market Predictions",
@@ -44,13 +45,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <PrivyClientProvider>
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </PrivyClientProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,37 +1,14 @@
 
-# Code Review Action Items (URGENT)
-
-
-- [x] **Code Organization**:
-  - [x] Extract common auth logic to middleware
-
-## MEDIUM PRIORITY IMPROVEMENTS
-- [ ] **Add Input Validation**: Validate query parameters in CRON endpoints with bounds checking for hours/days parameters
-
-  
-  
-
-## ARCHITECTURAL ENHANCEMENTS
-
-
-- [ ] **Add Observability**:
-  - [ ] Add performance metrics (execution time trends)
-  - [ ] Implement alerting thresholds
-
----
-
 # Week of 8/11
 
 
 
 ## Thursday
-- Run against prod: dotenv -e .env.prod -- pnpm cron:daily-generate-batch-predictions
-- Check last night's CRON jobs for success. Automate - what is the best way to keep track of this? Something native to Vercel or a separate solution? Something that will notify me in case of failure ..
-(testchange)
 
 - Add a beta program signup landing page with very little additional information.
 
 - Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
+
 - Users who are not signed in can only view the landing page.
 
 
@@ -40,7 +17,12 @@
   - Maybe setup cron jobs to re-run customer watchlist markets daily?
 
 
+Add BetterStack integration:
+- [ ] **Add Observability**:
+  - [ ] Add performance metrics (execution time trends)
+  - [ ] Implement alerting thresholds
 
+  Ask AI which Google Cloud features I could use in the next 90 days for free credit. Review my DESIGN.md and todo docs.
 
 
 ### Gating and egress control
@@ -53,13 +35,11 @@
 - Legal todos.
 
 ### Operations
-- Operations: Vercel analytics, Vercel "Observability" features currently paid for
+- Operations: Vercel analytics, Vercel "Observability" features currently paid for or PostHog or LogRocket
 - Evaluate: hotjar, canny product request, sentry or logrocket
 
 ### User Signup
 - Share URL for users to signup for private beta and get 100 free daily credits for AI predictions.
-
-
 
 - Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
 
@@ -68,9 +48,13 @@
 - Decide category strategy: exclude crypto vs. mark as less effective
   - Default: include all; segment metrics per category
 
+
+
 ## Nice to have
+
 - Data Pipeline: significantly overhaul and improve research component.
-- Landing page:Track record:  "AI predicted X correctly this week".
+- Landing page: Track record:  "AI predicted X correctly this week".
+- Landing page: "labels" adding most popular tag.labels to the top of the current trending view.
 - Add shadcdn styles and/or or framer motion animation: https://motion.dev/
 - Landing page: "Today's Top Market Insights" (curated quality over quantity),
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
