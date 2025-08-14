@@ -4,17 +4,25 @@ import { generatePredictionVsMarketDelta } from '@/lib/services/prediction-check
 
 export const maxDuration = 300
 
+// Input validation function
+function validateQueryParams(daysLookback: number, maxPredictions: number) {
+  const errors: string[] = []
+  
+  // Validate daysLookback (1-365 days)
+  if (isNaN(daysLookback) || daysLookback < 1 || daysLookback > 365) {
+    errors.push('daysLookback must be a number between 1 and 365')
+  }
+  
+  // Validate maxPredictions (1-10000)
+  if (isNaN(maxPredictions) || maxPredictions < 1 || maxPredictions > 10000) {
+    errors.push('maxPredictions must be a number between 1 and 10000')
+  }
+  
+  return errors
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization')
-    const isVercelCron = request.headers.get('x-vercel-cron') !== null
-    const isTrustedVercelCron = isVercelCron && !!process.env.VERCEL
-    if (!(authHeader === `Bearer ${process.env.CRON_SECRET}` || isTrustedVercelCron)) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' } as ApiResponse),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
 
     const daysLookback = Number(request.nextUrl.searchParams.get('daysLookback') ?? 30)
     const maxPredictions = Number(request.nextUrl.searchParams.get('maxPredictions') ?? 200)
@@ -23,6 +31,19 @@ export async function GET(request: NextRequest) {
     const excludeCategories = excludeCategoriesParam.length
       ? excludeCategoriesParam
       : []
+
+    // Validate query parameters
+    const validationErrors = validateQueryParams(daysLookback, maxPredictions)
+    if (validationErrors.length > 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid query parameters', 
+          details: validationErrors 
+        } as ApiResponse),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
 
     const result = await generatePredictionVsMarketDelta({
       daysLookback,

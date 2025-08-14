@@ -4,24 +4,48 @@ import { runBatchPredictionGeneration } from '@/lib/services/generate-batch-pred
 
 export const maxDuration = 300
 
-
+// Input validation function
+function validateQueryParams(topMarketsCount: number, endDateRangeHours: number, targetDaysFromNow: number) {
+  const errors: string[] = []
+  
+  // Validate topMarketsCount (1-1000)
+  if (isNaN(topMarketsCount) || topMarketsCount < 1 || topMarketsCount > 1000) {
+    errors.push('topMarketsCount must be a number between 1 and 1000')
+  }
+  
+  // Validate endDateRangeHours (1-168 hours = 1 week)
+  if (isNaN(endDateRangeHours) || endDateRangeHours < 1 || endDateRangeHours > 168) {
+    errors.push('endDateRangeHours must be a number between 1 and 168')
+  }
+  
+  // Validate targetDaysFromNow (1-365 days)
+  if (isNaN(targetDaysFromNow) || targetDaysFromNow < 1 || targetDaysFromNow > 365) {
+    errors.push('targetDaysFromNow must be a number between 1 and 365')
+  }
+  
+  return errors
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization')
-    const isVercelCron = request.headers.get('x-vercel-cron') !== null
-    const isTrustedVercelCron = isVercelCron && !!process.env.VERCEL
-    if (!(authHeader === `Bearer ${process.env.CRON_SECRET}` || isTrustedVercelCron)) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' } as ApiResponse),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
 
     const topMarketsCount = Number(request.nextUrl.searchParams.get('topMarketsCount') ?? 20)
     const endDateRangeHours = Number(request.nextUrl.searchParams.get('endDateRangeHours') ?? 48)
     const targetDaysFromNow = Number(request.nextUrl.searchParams.get('targetDaysFromNow') ?? 7)
     const modelNameParam = request.nextUrl.searchParams.get('modelName') || undefined
+
+    // Validate query parameters
+    const validationErrors = validateQueryParams(topMarketsCount, endDateRangeHours, targetDaysFromNow)
+    if (validationErrors.length > 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid query parameters', 
+          details: validationErrors 
+        } as ApiResponse),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
 
     const modelList = [
       'openai/gpt-oss-120b',

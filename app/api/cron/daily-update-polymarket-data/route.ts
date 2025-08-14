@@ -4,18 +4,64 @@ import { updatePolymarketEventsAndMarketData } from '@/lib/services/updatePolyma
 
 export const maxDuration = 300
 
+// Input validation function
+function validateQueryParams(
+  limit: number,
+  delayMs: number,
+  daysToFetchPast: number,
+  daysToFetchFuture: number,
+  maxRetries: number,
+  retryDelayMs: number,
+  timeoutMs: number,
+  maxBatchFailuresBeforeAbort: number
+) {
+  const errors: string[] = []
+  
+  // Validate limit (1-10000)
+  if (isNaN(limit) || limit < 1 || limit > 10000) {
+    errors.push('limit must be a number between 1 and 10000')
+  }
+  
+  // Validate delayMs (0-10000ms)
+  if (isNaN(delayMs) || delayMs < 0 || delayMs > 10000) {
+    errors.push('delayMs must be a number between 0 and 10000')
+  }
+  
+  // Validate daysToFetchPast (0-365 days)
+  if (isNaN(daysToFetchPast) || daysToFetchPast < 0 || daysToFetchPast > 365) {
+    errors.push('daysToFetchPast must be a number between 0 and 365')
+  }
+  
+  // Validate daysToFetchFuture (0-365 days)
+  if (isNaN(daysToFetchFuture) || daysToFetchFuture < 0 || daysToFetchFuture > 365) {
+    errors.push('daysToFetchFuture must be a number between 0 and 365')
+  }
+  
+  // Validate maxRetries (0-10)
+  if (isNaN(maxRetries) || maxRetries < 0 || maxRetries > 10) {
+    errors.push('maxRetries must be a number between 0 and 10')
+  }
+  
+  // Validate retryDelayMs (0-30000ms)
+  if (isNaN(retryDelayMs) || retryDelayMs < 0 || retryDelayMs > 30000) {
+    errors.push('retryDelayMs must be a number between 0 and 30000')
+  }
+  
+  // Validate timeoutMs (1000-300000ms)
+  if (isNaN(timeoutMs) || timeoutMs < 1000 || timeoutMs > 300000) {
+    errors.push('timeoutMs must be a number between 1000 and 300000')
+  }
+  
+  // Validate maxBatchFailuresBeforeAbort (1-100)
+  if (isNaN(maxBatchFailuresBeforeAbort) || maxBatchFailuresBeforeAbort < 1 || maxBatchFailuresBeforeAbort > 100) {
+    errors.push('maxBatchFailuresBeforeAbort must be a number between 1 and 100')
+  }
+  
+  return errors
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization')
-    const isVercelCron = request.headers.get('x-vercel-cron') !== null
-    const isTrustedVercelCron = isVercelCron && !!process.env.VERCEL
-    if (!(authHeader === `Bearer ${process.env.CRON_SECRET}` || isTrustedVercelCron)) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' } as ApiResponse),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
 
     const url = request.nextUrl
 
@@ -40,6 +86,28 @@ export async function GET(request: NextRequest) {
     const timeoutMs = Number(url.searchParams.get('timeoutMs') ?? defaultTimeoutMs)
     const userAgent = url.searchParams.get('userAgent') || defaultUserAgent
     const maxBatchFailuresBeforeAbort = Number(url.searchParams.get('maxBatchFailuresBeforeAbort') ?? defaultMaxBatchFailures)
+
+    // Validate query parameters
+    const validationErrors = validateQueryParams(
+      limit,
+      delayMs,
+      daysToFetchPast,
+      daysToFetchFuture,
+      maxRetries,
+      retryDelayMs,
+      timeoutMs,
+      maxBatchFailuresBeforeAbort
+    )
+    if (validationErrors.length > 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid query parameters', 
+          details: validationErrors 
+        } as ApiResponse),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
 
     const result = await updatePolymarketEventsAndMarketData({
       limit,

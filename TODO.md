@@ -1,9 +1,31 @@
 
+# Code Review Action Items (URGENT)
+
+
+- [x] **Code Organization**:
+  - [x] Extract common auth logic to middleware
+
+## MEDIUM PRIORITY IMPROVEMENTS
+- [ ] **Add Input Validation**: Validate query parameters in CRON endpoints with bounds checking for hours/days parameters
+
+  
+  
+
+## ARCHITECTURAL ENHANCEMENTS
+
+
+- [ ] **Add Observability**:
+  - [ ] Add performance metrics (execution time trends)
+  - [ ] Implement alerting thresholds
+
+---
+
 # Week of 8/11
 
 
 
 ## Thursday
+- Run against prod: dotenv -e .env.prod -- pnpm cron:daily-generate-batch-predictions
 - Check last night's CRON jobs for success. Automate - what is the best way to keep track of this? Something native to Vercel or a separate solution? Something that will notify me in case of failure ..
 (testchange)
 
