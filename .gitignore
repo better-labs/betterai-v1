@@ -33,7 +33,5 @@ next-env.d.ts
 
 # documentation
 GEMINI.md
-.env
 **/.DS_Store
 .env.prod
-.env

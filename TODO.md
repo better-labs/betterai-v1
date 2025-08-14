@@ -1,4 +1,76 @@
 
+# Watchlist & Portfolio Watcher v1 Implementation Plan
+
+
+
+## Implementation Tasks
+
+### Phase 1: Database & Authentication Foundation
+
+
+branch: portfolio-watcher-v1-thursday  
+
+### Phase 2: Core API Implementation  
+- [ ] **Watchlist CRUD API**
+  - `POST /api/watchlist` - Add market to user watchlist
+  - `DELETE /api/watchlist/[marketId]` - Remove market from watchlist  
+  - `GET /api/watchlist` - Get user's watchlist with market details
+  - Add auth validation using Privy user context
+
+
+
+### Phase 3: UI Components & User Experience
+- [ ] **Watchlist UI Components**
+  - Add bookmark/star icon to `MarketDetailsCard` component
+  - Create `WatchlistPage` component at `/app/watchlist/page.tsx`
+  - Build `WatchlistMarketCard` component showing position data + prediction trigger
+  - Add watchlist navigation item to header (behind feature flag)
+
+
+- [ ] **Enhanced Market Interactions**
+  - Add "Add to Watchlist" action to market detail pages
+  - Show watchlist status on market cards (bookmarked indicator)
+  - Quick prediction triggers from watchlist view
+
+### Phase 4: Automation & Monitoring
+- [ ] **Watchlist Cron Jobs**
+  - Create `cron-watchlist-predictions.js` for daily automated predictions
+  - Extend existing `cron-prediction-check.js` to monitor watchlist markets
+  - Add email notification service integration (optional future enhancement)
+  - Schedule daily runs with proper error handling and backoff [[memory:6211559]]
+
+
+- [ ] **Enhanced Prediction API**
+  - Extend `POST /api/predict` to accept watchlist context
+  - Add batch prediction support for multiple markets
+  - Track prediction source (manual vs automated watchlist)
+
+- [ ] **Performance & Monitoring**
+  - Add caching for frequently accessed watchlist data
+  - Monitor API performance for user-specific queries
+  - Add analytics tracking for watchlist usage patterns
+
+### Phase 5: Polish & Feature Flags
+- [ ] **Feature Flag Integration**
+  - Add `SHOW_WATCHLIST` and `SHOW_PORTFOLIO_IMPORT` feature flags
+  - Gate new UI components behind feature flags for gradual rollout
+  - Update middleware.ts to handle new protected routes
+
+- [ ] **Error Handling & UX**
+  - Add comprehensive error handling for portfolio import failures
+  - Implement optimistic UI updates for watchlist actions
+  - Add loading states and success feedback
+
+
+## Success Criteria
+- Users can bookmark markets and view them in a dedicated watchlist page
+- Users can import their Polymarket portfolio via public URL  
+- Automated daily predictions run for watchlist markets
+- Clean, intuitive UI matching existing design patterns
+- Proper error handling and loading states throughout
+
+---
+
 # Week of 8/11
 
 
@@ -6,62 +78,72 @@
 ## Thursday
 
 
-- Users who are not signed in can only view the landing page.
 
-- Portfolio Watcher v1: add markets to your watchlist. Import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
-  - Maybe setup email based auto notification for market changes.
-  - Maybe setup cron jobs to re-run customer watchlist markets daily?
-
-
-Add BetterStack integration:
-- [ ] **Add Observability**:
-  - [ ] Add performance metrics (execution time trends)
-  - [ ] Implement alerting thresholds
-
-  Ask AI which Google Cloud features I could use in the next 90 days for free credit. Review my DESIGN.md and todo docs.
 
 - Add a beta program signup landing page with very little additional information.
 Add Loops for email signup
 https://loops.so/
 
-Try to add Google account - support@betterai.tools or hello@betterai.tools here:
-https://console.cloud.google.com/auth/overview/create?authuser=0&inv=1&invt=Ab5drg&project=future-synapse-469012-a0
-
-
-Add a “track record: X correct this week” block once we define the metric source.
 
 
 ### Gating and egress control
 - Auth-only access to full context; per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
 
 
+Add BetterStack integration:
+- [ ] **Add Observability**:
+  - [ ] Add performance metrics (execution time trends)
+  - [ ] Implement alerting thresholds
+  Ask AI which Google Cloud features I could use in the next 90 days for free credit. Review my DESIGN.md and todo docs.
+
+
+
+
+
+
+
 ## Friday
 
+Implement "credits" on the backend.
 - Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
+- Make the "add credits" button only appear when the user has less than 10 credits remaining?
 - Legal todos.
 
+
+### Security - Do now (blockers before external traffic)
+
+- No bulk endpoints: Add pagination and strict max limit (e.g., 50–100). Remove/lock any dump-style routes.
+- Per-user/IP rate limiting (basic): Implement a sliding-window limiter on all write/expensive endpoints. Key by userId or IP.
+
+
+
 ### Operations
-- Operations: Vercel analytics, Vercel "Observability" features currently paid for or PostHog or LogRocket
-- Evaluate: hotjar, canny product request, sentry or logrocket
+- Operations: Vercel analytics, Vercel "Observability" features currently paid  or BetterStack
+- Look into Customer.io
 
 ### User Signup
 - Share URL for users to signup for private beta and get 100 free daily credits for AI predictions.
 
 - Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
 
+
 ### Category Fixes?
+- Skip categories and focus on top used tag.Labels? yes I think so
 - Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
 - Decide category strategy: exclude crypto vs. mark as less effective
   - Default: include all; segment metrics per category
 
+### Google Auth
+- Re-enable Google Oauth on App, but first try to add Google account - support@betterai.tools or hello@betterai.tools here: https://console.cloud.google.com/auth/overview/create?authuser=0&inv=1&invt=Ab5drg&project=future-synapse-469012-a0
 
 
 ## Nice to have
 
 - Data Pipeline: significantly overhaul and improve research component.
 - Landing page: Track record:  "AI predicted X correctly this week".
+  - Add a “track record: X correct this week” block once we define the metric source.
 - Landing page: "labels" adding most popular tag.labels to the top of the current trending view.
-- Add shadcdn styles and/or or framer motion animation: https://motion.dev/
+
 - Landing page: "Today's Top Market Insights" (curated quality over quantity),
 - Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
 - Add AI leaderboard?
@@ -97,6 +179,22 @@ Add a “track record: X correct this week” block once we define the metric so
   -  rotate weekly segments (e.g., day-of-week partitions across the future horizon) to distribute the wider coverage.
   - prediction-check: hourly to track drift and outcomes sooner.
   - update-polymarket-data: every 6 hours for better market coverage.
+
+
+## Portfolio Tracker v2
+
+- [ ] **Portfolio Import UI**
+  - (Later) Create `UserPortfolioPosition` model for imported positions (user_id, market_id, position_data, imported_at)
+  - Create portfolio import form/modal component  
+  - Add portfolio import button to watchlist page
+  - Show import status and validation feedback
+  - Display imported positions in organized layout
+
+- [ ] **Portfolio Import API**
+  - `POST /api/portfolio/import` - Parse Polymarket portfolio URL and import positions
+  - Research Polymarket public portfolio URL format and data structure
+  - Create portfolio URL parser service in `lib/services/`
+  - Validate and sanitize imported portfolio data
 
   
 ## Operations & Database Recovery
@@ -150,56 +248,19 @@ Add a “track record: X correct this week” block once we define the metric so
 - [ ] Submit to Polymarket Docs for Feature: https://docs.polymarket.com/quickstart/introduction/showcase#%F0%9F%A4%9D-want-to-be-featured%3F
 - []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
+
+## Security 
+Soon (first week after go-live)
+Per-user quotas (persistent): Track daily/monthly quotas in DB/Redis; return 429 with helpful message; log overages.
+HMAC-signed requests: Sign all internal cron → API calls and any incoming webhooks; rotate secrets via .env.
+
+Later (defense-in-depth)
+WAF + bot detection: Put Cloudflare in front (WAF rules, bot mode) and Turnstile on high-risk forms. Useful but can follow once basics are in place.
+
 ## Potential tasks
 - Add shadcdn styles and/or or framer motion animation: https://motion.dev/
 
 
----
-
-## Notes
-
----
-
-## Trademark search guidance for "BetterLabs" (site: betterai.tools)
-
-- USPTO (United States) — primary search
-  - Go to the USPTO trademark search: [USPTO Trademark Search](https://www.uspto.gov/trademarks/search)
-  - Search variants (Status: Live; focus on Classes 9, 35, 42 first):
-    - Exact/near-exact: `betterlabs`, `"better labs"`, `betterlab`, `"better lab"`
-    - Wildcards: `better*lab*`, `better*labs*`, plus "laboratory/laboratories" variants
-  - For each hit: check goods/services, owner, mark type (word vs stylized), and likelihood-of-confusion.
-
-- International quick screen
-  - WIPO Global Brand DB: [WIPO Search](https://www3.wipo.int/branddb/en/)
-  - EUIPO (if EU relevant): [EUIPO](https://euipo.europa.eu/)
-  - UKIPO (if UK relevant): [UKIPO](https://trademarks.ipo.gov.uk/ipo-tmtext)
-
-- Common‑law (unregistered) use
-  - Web search: combinations like `"betterlabs" software`, `"better labs" ai`, `"betterlabs" saas`
-  - Social/handles: X/Twitter, LinkedIn, GitHub, YouTube, Product Hunt for `betterlabs` / `better labs`
-  - Domains: `betterlabs.com`, `betterlabs.ai`, `better-labs.com`, etc.
-
-- State business name checks
-  - Check your formation state’s Secretary of State database for corporate name conflicts (not a trademark, but useful).
-
-- Distinctiveness notes
-  - "Better" (laudatory) + "Labs" (descriptive) may be weak; USPTO may require disclaiming "LABS".
-  - A stylized/logo mark can be easier initially; pursue a word mark when feasible.
-
-- If clearance looks okay
-  - File US application (1(b) intent-to-use if not yet in commerce; 1(a) with specimen if already in use).
-  - Classes likely relevant: 42 (SaaS/AI services), 9 (software) and/or 35 (business/data services) depending on scope.
-  - After US filing, consider Madrid Protocol for additional countries.
-
-- If conflicts appear
-  - Options: adjust mark (e.g., to a more distinctive name), file stylized logo first, or keep "BetterLabs" as corporate name and brand products under a distinct trademark (e.g., "BetterAI").
-
-- Quick USPTO query set (copy/paste)
-  - `betterlabs`
-  - `"better labs"`
-  - `better*lab*`
-
-Note: Using `betterai.tools` as the website domain is fine; the trademark clearance focuses on the mark you will register (e.g., "BetterLabs").
 
 
 

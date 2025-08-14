@@ -49,7 +49,23 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 	console.log("Privy client ID:", clientId)
 
 	return (
-		<PrivyProvider {...providerProps}>
+		<PrivyProvider 
+			{...providerProps}
+			config={{
+				appearance: {
+					theme: 'light',
+					accentColor: '#3B82F6',
+					logo: '/betterai-logo-vertical.png'
+				},
+				// Keep login simple while we debug network issues
+				loginMethods: ['email'],
+				
+				// Add error handling for auth failures
+				onError: (error: any) => {
+					console.warn('Privy authentication error:', error);
+				}
+			}}
+		>
 			{children}
 		</PrivyProvider>
 	)

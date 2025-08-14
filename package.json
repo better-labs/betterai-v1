@@ -29,6 +29,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^6.13.0",
     "@privy-io/react-auth": "^2.21.2",
+    "@privy-io/server-auth": "^1.31.0",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",

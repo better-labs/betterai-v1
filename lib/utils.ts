@@ -335,6 +335,32 @@ export async function generateMarketURL(marketId: string): Promise<string | null
 }
 
 /**
+ * Makes an authenticated API call using Privy access token
+ * Following Privy's documentation: https://docs.privy.io/authentication/user-authentication/access-tokens
+ */
+export async function authenticatedFetch(
+  url: string, 
+  options: RequestInit = {},
+  getAccessToken: () => Promise<string>
+): Promise<Response> {
+  try {
+    const accessToken = await getAccessToken()
+    
+    return fetch(url, {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    })
+  } catch (error) {
+    console.error('Failed to get access token for authenticated request:', error)
+    throw new Error('Authentication required')
+  }
+}
+
+/**
  * Validates CRON authentication for API routes
  * Checks for either Bearer token or trusted Vercel cron headers
  */
