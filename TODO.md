@@ -33,8 +33,7 @@ Try to add Google account - support@betterai.tools or hello@betterai.tools here:
 https://console.cloud.google.com/auth/overview/create?authuser=0&inv=1&invt=Ab5drg&project=future-synapse-469012-a0
 
 
-Try to add Google account - support@betterai.tools
-
+Add a “track record: X correct this week” block once we define the metric source.
 
 
 ### Gating and egress control

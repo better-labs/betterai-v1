@@ -76,6 +76,26 @@ export function Header() {
               >
                 About
               </Link>
+              <Link 
+                href="/privacy" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/privacy") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Privacy
+              </Link>
+              <Link 
+                href="/tos" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/tos") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Terms
+              </Link>
               {/* {flags.showMarketAlpha && (
                 <Link 
                   href="/market-alpha" 
@@ -224,23 +244,19 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuItem asChild>
+                  <Link href="/privacy" className={`w-full ${isActive("/privacy") ? "bg-accent" : ""}`}>
+                    <span>Privacy Policy</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/tos" className={`w-full ${isActive("/tos") ? "bg-accent" : ""}`}>
+                    <span>Terms of Service</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <span>Contact Us</span>
                 </DropdownMenuItem>
-                {flags.showTermsOfService && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/tos" className="w-full">
-                      Terms of Service
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-                {flags.showPrivacyPolicy && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/privacy" className="w-full">
-                      Privacy Policy
-                    </Link>
-                  </DropdownMenuItem>
-                )}
                 {/* Mobile Login/Signup removed; relying solely on Privy UserPill */}
                 
                 <ThemeToggle />
