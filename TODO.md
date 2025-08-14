@@ -25,6 +25,10 @@ Add BetterStack integration:
   Ask AI which Google Cloud features I could use in the next 90 days for free credit. Review my DESIGN.md and todo docs.
 
 
+Try to add Google account - support@betterai.tools
+
+
+
 ### Gating and egress control
 - Auth-only access to full context; per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
 
