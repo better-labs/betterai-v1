@@ -126,6 +126,9 @@ Implement "credits" on the backend.
 
 - Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
 
+- Social: User is prompted to make the prediction public (optional). Share on social media.
+
+
 
 ### Category Fixes?
 - Skip categories and focus on top used tag.Labels? yes I think so
@@ -163,7 +166,7 @@ Implement "credits" on the backend.
 
 
 
-# Later (Date TBD)
+# Future Weeks (Date TBD)
 
 ## Enhanced Predictions Across Markets
 - Trigger multiple predictions for all markets in an event at once.
@@ -180,6 +183,9 @@ Implement "credits" on the backend.
   - prediction-check: hourly to track drift and outcomes sooner.
   - update-polymarket-data: every 6 hours for better market coverage.
 
+# Security
+- DB user password(s) → new user or new password, revoke old.
+- Any OAuth/client secrets → regenerate.
 
 ## Portfolio Tracker v2
 
