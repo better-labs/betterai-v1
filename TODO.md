@@ -5,7 +5,8 @@
 
 ## Thursday
 
-- Add a beta program signup landing page with very little additional information.
+
+- Add a light update to tos and privacy pages. Add links to them in Privy setup.
 
 - Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
 
@@ -23,6 +24,13 @@ Add BetterStack integration:
   - [ ] Implement alerting thresholds
 
   Ask AI which Google Cloud features I could use in the next 90 days for free credit. Review my DESIGN.md and todo docs.
+
+- Add a beta program signup landing page with very little additional information.
+Add Loops for email signup
+https://loops.so/
+
+Try to add Google account - support@betterai.tools or hello@betterai.tools here:
+https://console.cloud.google.com/auth/overview/create?authuser=0&inv=1&invt=Ab5drg&project=future-synapse-469012-a0
 
 
 Try to add Google account - support@betterai.tools
