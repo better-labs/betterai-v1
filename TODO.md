@@ -85,17 +85,6 @@ Based on @DESIGN.md Phase 0 requirements, implement user-specific watchlist func
   - Implement optimistic UI updates for watchlist actions
   - Add loading states and success feedback
 
-## Technical Implementation Notes
-
-**Authentication**: Uses Privy for user identification. Need to extract `user.id` from Privy context in API routes.
-
-**Database**: Following existing patterns with Prisma ORM, snake_case DB columns, camelCase JS properties.
-
-**APIs**: Maintain existing `ApiResponse` format, proper HTTP status codes, error logging.
-
-**UI**: Use shadcn/ui components, follow existing patterns in market cards and navigation.
-
-**Cron Jobs**: Follow existing patterns in `/scripts/cron/` with proper error handling and using pnpm commands [[memory:6211552]].
 
 ## Success Criteria
 - Users can bookmark markets and view them in a dedicated watchlist page
@@ -146,9 +135,9 @@ Implement "credits" on the backend.
 
 
 ### Security - Do now (blockers before external traffic)
-Auth-only access to full context: Gate privileged responses in app/api/** and any pages rendering full data.
-No bulk endpoints: Add pagination and strict max limit (e.g., 50–100). Remove/lock any dump-style routes.
-Per-user/IP rate limiting (basic): Implement a sliding-window limiter on all write/expensive endpoints. Key by userId or IP.
+
+- No bulk endpoints: Add pagination and strict max limit (e.g., 50–100). Remove/lock any dump-style routes.
+- Per-user/IP rate limiting (basic): Implement a sliding-window limiter on all write/expensive endpoints. Key by userId or IP.
 
 
 

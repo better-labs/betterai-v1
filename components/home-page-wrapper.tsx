@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react"
 import { LoadingCard } from "@/components/ui/loading"
 
 export function HomePageWrapper() {
-  const { ready, authenticated } = usePrivy()
+  const { ready, authenticated, getAccessToken } = usePrivy()
   const [predictions, setPredictions] = useState<any[] | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -17,23 +17,41 @@ export function HomePageWrapper() {
     if (!ready || !authenticated) return
     let cancelled = false
     setLoading(true)
-    fetch(`/api/predictions/recent?limit=12`, { cache: 'no-store' })
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`)
+    
+    // Get access token and make authenticated request
+    const fetchPredictions = async () => {
+      try {
+        const accessToken = await getAccessToken()
+        const response = await fetch(`/api/predictions/recent?limit=12`, { 
+          cache: 'no-store',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            console.error('Authentication failed - user may need to re-authenticate')
+            // Could trigger re-authentication here if needed
+            return
+          }
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
-        return res.json()
-      })
-      .then((data) => {
+        
+        const data = await response.json()
         if (!cancelled) setPredictions(Array.isArray(data?.items) ? data.items : [])
-      })
-      .catch((error) => { 
+      } catch (error) { 
         console.error('Failed to fetch predictions:', error)
         if (!cancelled) setPredictions([]) 
-      })
-      .finally(() => { if (!cancelled) setLoading(false) })
+      } finally { 
+        if (!cancelled) setLoading(false) 
+      }
+    }
+    
+    fetchPredictions()
     return () => { cancelled = true }
-  }, [ready, authenticated])
+  }, [ready, authenticated, getAccessToken])
 
   // If not ready yet, show loading state
   if (!ready) {
@@ -55,16 +73,10 @@ export function HomePageWrapper() {
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
-        {/* Recent predictions */}
-        {loading ? (
-          <section aria-labelledby="recent-predictions-heading" className="mt-8">
-            <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
-            <LoadingCard message="Loading recent predictions…" />
-          </section>
-        ) : (
+        <div className="space-y-8">
+          <TrendingEventsTable />
           <RecentPredictions items={predictions ?? []} />
-        )}
-        {/* <TrendingEventsTable /> */}
+        </div>
       </main>
     </div>
   )

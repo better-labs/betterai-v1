@@ -125,7 +125,8 @@ async function savePrediction(
   systemMessage: string,
   predictionResult: PredictionResult,
   aiResponse: string,
-  market: Market
+  market: Market,
+  userId?: string
 ): Promise<number> {
   // Validate arrays
   if (!Array.isArray(predictionResult.outcomes) || !Array.isArray(predictionResult.outcomesProbabilities)) {
@@ -161,6 +162,7 @@ async function savePrediction(
     systemPrompt: systemMessage,
     aiResponse,
     createdAt: new Date(),
+    userId: userId || null, // Store user ID if provided
   }
 
   const createdPrediction = await predictionQueries.createPrediction(newPrediction)
@@ -170,7 +172,7 @@ async function savePrediction(
   return createdPrediction.id
 }
 
-export async function generatePredictionForMarket(marketId: string, modelName?: string, additionalUserMessageContext?: string): Promise<PredictionServiceResponse> {
+export async function generatePredictionForMarket(marketId: string, userId?: string, modelName?: string, additionalUserMessageContext?: string): Promise<PredictionServiceResponse> {
   try {
     if (!marketId) {
       return { success: false, message: "Market ID is required" }
@@ -196,7 +198,8 @@ export async function generatePredictionForMarket(marketId: string, modelName?: 
       systemMessage,
       predictionResult,
       JSON.stringify(predictionResult),
-      market
+      market,
+      userId
     )
 
     console.log(`New prediction created and stored with ID: ${predictionId}`)

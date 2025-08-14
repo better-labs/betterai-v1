@@ -1,14 +1,63 @@
-# Market prediction app
+# BetterAI
 
-## Overview
+A Next.js prediction market application that integrates with Polymarket and Colosseum APIs, featuring AI-powered market predictions.
 
-Purpose: enable the user to invoke multiple LLMs with enriched datasets to predict the outcome of a given market (like Polymarket or Kalshi). The AI is a "coach" for the user betting on each outcome.
+## Features
 
-Thesis: 
-* Everyone, regardless of their technical skill, should be able to invoke the world's best super intelligences, enriched from the best data (context), from a single mouse click, to enhance a given bet.
-* Each ai platform will improve its ease of use and capability over time, but those improvements will be limited to their own models. AI aggregators like Perplexity have brought the power of multiple AIs to non-technical consumers, yet those user experience are not optimized for specific use cases.
+- **AI-Powered Predictions**: Generate predictions for prediction markets using advanced AI models
+- **Market Integration**: Connect with Polymarket and other prediction market platforms
+- **Real-time Data**: Live market data and prediction tracking
+- **User Authentication**: Secure authentication using Privy
+- **Responsive Design**: Modern UI built with shadcn/ui components
 
-Problem:
-* The average prediction market user does not have the data or ai engineering expertise or time to maximize the use of the latest AI models. 
+## Authentication
+
+This application uses [Privy](https://privy.io/) for user authentication following their official best practices:
+
+### Client-Side Authentication
+- Uses `usePrivy()` hook for authentication state management
+- Implements bearer token approach for API requests
+- Automatic token refresh and error handling
+
+### Server-Side Authentication
+- All privileged API endpoints require authentication
+- Uses Privy's server SDK for token verification
+- User context is available in all authenticated requests
+
+### Protected Endpoints
+The following API endpoints require authentication:
+- `GET /api/predictions/recent` - Recent predictions
+- `POST /api/predict` - Generate new predictions
+- `POST /api/run-data-pipeline` - Run data pipeline
+- `GET /api/markets/[marketId]/prediction` - Market predictions
+
+### Environment Variables
+```bash
+# Privy Configuration
+NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
+NEXT_PUBLIC_PRIVY_CLIENT_ID=your-privy-client-id
+PRIVY_APP_SECRET=your-privy-app-secret
+PRIVY_VERIFICATION_KEY=your-privy-verification-key
+```
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: `pnpm install`
+3. Set up environment variables (see `.env.example`)
+4. Run the development server: `pnpm dev`
+
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: Privy
+- **UI**: shadcn/ui with Tailwind CSS
+- **AI**: OpenRouter API integration
+- **Deployment**: Vercel
+
+## License
+
+MIT
 
 

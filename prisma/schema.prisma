@@ -149,6 +149,7 @@ model Prediction {
   id               Int       @id @default(autoincrement())
   userMessage      String    @map("user_message")
   marketId         String    @map("market_id")
+  userId           String?   @map("user_id") // Privy user ID for authentication tracking
   predictionResult Json      @map("prediction_result")
   modelName        String?   @map("model_name")
   systemPrompt     String?   @map("system_prompt")
@@ -161,6 +162,7 @@ model Prediction {
 
   @@index([createdAt], map: "idx_predictions_created_at")
   @@index([marketId], map: "idx_predictions_market_id")
+  @@index([userId], map: "idx_predictions_user_id")
   @@map("predictions")
 }
 
