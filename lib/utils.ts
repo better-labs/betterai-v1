@@ -333,3 +333,15 @@ export async function generateMarketURL(marketId: string): Promise<string | null
   const marketSlug = market.slug ? `/${encodeURIComponent(market.slug)}` : ''
   return `${baseEventUrl}${marketSlug}`
 }
+
+/**
+ * Validates CRON authentication for API routes
+ * Checks for either Bearer token or trusted Vercel cron headers
+ */
+export function validateCronAuth(request: Request): boolean {
+  const authHeader = request.headers.get('authorization')
+  const isVercelCron = request.headers.get('x-vercel-cron') !== null
+  const isTrustedVercelCron = isVercelCron && !!process.env.VERCEL
+  
+  return authHeader === `Bearer ${process.env.CRON_SECRET}` || isTrustedVercelCron
+}

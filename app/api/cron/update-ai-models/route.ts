@@ -6,16 +6,6 @@ export const maxDuration = 300
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify the request is from a trusted source (cron job)
-    const authHeader = request.headers.get('authorization')
-    const isVercelCron = request.headers.get('x-vercel-cron') !== null
-    const isTrustedVercelCron = isVercelCron && !!process.env.VERCEL
-    if (!(authHeader === `Bearer ${process.env.CRON_SECRET}` || isTrustedVercelCron)) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' } as ApiResponse),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
 
     console.log('Starting AI models update...')
     const result = await updateAIModels()
