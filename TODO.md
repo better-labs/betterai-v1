@@ -1,18 +1,14 @@
 
 # Watchlist & Portfolio Watcher v1 Implementation Plan
 
-branch: portfolio-watcher-v1-thursday
+
 
 ## Implementation Tasks
 
 ### Phase 1: Database & Authentication Foundation
 
 
-- [ ] **Database Schema Design**
-  - ✅ Create `User` model and table to store Privy user IDs and profile data
-  - ✅ Create `UserWatchlist` model and table for market bookmarks (user_id, market_id, added_at)
-  - Add database indexes for performance (user_id, market_id combinations)
-  
+branch: portfolio-watcher-v1-thursday  
 
 ### Phase 2: Core API Implementation  
 - [ ] **Watchlist CRUD API**
@@ -21,16 +17,7 @@ branch: portfolio-watcher-v1-thursday
   - `GET /api/watchlist` - Get user's watchlist with market details
   - Add auth validation using Privy user context
 
-- [ ] **Portfolio Import API**
-  - `POST /api/portfolio/import` - Parse Polymarket portfolio URL and import positions
-  - Research Polymarket public portfolio URL format and data structure
-  - Create portfolio URL parser service in `lib/services/`
-  - Validate and sanitize imported portfolio data
 
-- [ ] **Enhanced Prediction API**
-  - Extend `POST /api/predict` to accept watchlist context
-  - Add batch prediction support for multiple markets
-  - Track prediction source (manual vs automated watchlist)
 
 ### Phase 3: UI Components & User Experience
 - [ ] **Watchlist UI Components**
@@ -51,6 +38,12 @@ branch: portfolio-watcher-v1-thursday
   - Extend existing `cron-prediction-check.js` to monitor watchlist markets
   - Add email notification service integration (optional future enhancement)
   - Schedule daily runs with proper error handling and backoff [[memory:6211559]]
+
+
+- [ ] **Enhanced Prediction API**
+  - Extend `POST /api/predict` to accept watchlist context
+  - Add batch prediction support for multiple markets
+  - Track prediction source (manual vs automated watchlist)
 
 - [ ] **Performance & Monitoring**
   - Add caching for frequently accessed watchlist data
@@ -197,6 +190,11 @@ Implement "credits" on the backend.
   - Show import status and validation feedback
   - Display imported positions in organized layout
 
+- [ ] **Portfolio Import API**
+  - `POST /api/portfolio/import` - Parse Polymarket portfolio URL and import positions
+  - Research Polymarket public portfolio URL format and data structure
+  - Create portfolio URL parser service in `lib/services/`
+  - Validate and sanitize imported portfolio data
 
   
 ## Operations & Database Recovery

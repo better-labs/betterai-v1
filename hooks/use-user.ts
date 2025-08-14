@@ -30,11 +30,20 @@ export function useUser() {
       setError(null)
       
       try {
+        // Get access token, handle null case
+        const accessToken = await getAccessToken()
+        if (!accessToken) {
+          throw new Error('No access token available')
+        }
+
+        // Create a wrapper function that returns Promise<string>
+        const getToken = () => Promise.resolve(accessToken)
+
         // First try to get existing user
         const response = await authenticatedFetch(
           '/api/user',
           { method: 'GET' },
-          getAccessToken
+          getToken
         )
 
         if (response.ok) {
@@ -52,11 +61,11 @@ export function useUser() {
               body: JSON.stringify({
                 email: privyUser.email?.address,
                 walletAddress: privyUser.wallet?.address,
-                username: privyUser.google?.name || privyUser.email?.name,
-                avatar: privyUser.google?.picture || privyUser.email?.picture
+                username: (privyUser as any)?.google?.name || (privyUser as any)?.email?.name,
+                avatar: (privyUser as any)?.google?.picture || (privyUser as any)?.email?.picture
               })
             },
-            getAccessToken
+            getToken
           )
 
           if (createResponse.ok) {
