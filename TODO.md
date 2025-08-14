@@ -6,12 +6,7 @@
 ## Thursday
 
 
-- Add a light update to tos and privacy pages. Add links to them in Privy setup.
-
-- Account Creation & Authentication: Lightweight login via maybe Clerk or Auth.js or similar. Required for persisting predictions and preparing for payments.  *Alpha note*: Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
-
 - Users who are not signed in can only view the landing page.
-
 
 - Portfolio Watcher v1: add markets to your watchlist. Import your active portfolio via public URL from Polymarket only. Enable users to manually select markets and trigger predictions.
   - Maybe setup email based auto notification for market changes.
@@ -42,7 +37,7 @@ Add a “track record: X correct this week” block once we define the metric so
 
 ## Friday
 
-
+- Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
 - Legal todos.
 
 ### Operations
