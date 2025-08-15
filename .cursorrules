@@ -19,7 +19,13 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Add new queries to the appropriate query object
 - Use transactions for multi-step database operations
 - Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
-- Try to use the migration commands in package.json such as "migrate:deploy:dev" or "migrate:deploy:prod"
+- Try to use the migration commands in package.json such as "db:migrate:deploy"
+### Database Operations
+    pnpm db:prisma:generate        # Generate Prisma client
+    pnpm db:prisma:studio          # Open Prisma Studio
+    pnpm db:migrate:deploy     # Deploy migrations to dev database
+    pnpm db:seed:dev           # Seed development database with full pipeline
+
 
 ## API Design
 - Use Next.js API routes in `app/api/`
@@ -70,8 +76,8 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Update README.md for new features
 - Document API endpoints and data structures
 
-## Environemnt Variables
-- Always leverage .env instead of .env.local. Do not create a .env.local file.
+## Environment Variables
+- Always leverage .env.local instead of .env. Do not create a .env file.
 - Update .env.example to include new variables.
 
 ## General Guidance

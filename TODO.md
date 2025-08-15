@@ -1,60 +1,61 @@
 # Week of 8/11
 
-
-
 ## Friday
 
 
+Secrets management:
+vercel env pull .env.local --environment=development
+vercel env pull .env.preview --environment=preview
+vercel env pull .env.production --environment=production
 
-### Security - Do now (blockers before external traffic)
 
+.ENVs
+Make a temp backup locally of my .env vars
+vercel env pull .env.local --environment=development
+
+Prod Database Migration:
+Find a new way to migrate database that doesn't leverage pnpm. Possibly use Github actions or similar automated better practice.
+
+
+Neon
+https://chatgpt.com/c/689f4847-1248-8323-98cd-5d75301f359f
+delete betterai-dev db, rename betterai-prod
+*Keep betterai-prod database, enable integration.
+Step-by-step to move from your “dev & prod only” setup
+Create branches: staging, dev (and optionally dev-<name>). Protect prod. 
+Create roles in prod (migration/app) so they clone into new branches; restrict app role in prod. 
+Enable PITR retention you want (e.g., 7–30 days). 
+Install Vercel Neon Previews → confirm preview branches appear like preview-pr-### and get DATABASE_URL injected. 
+Wire endpoints: app uses pooler URLs; your migration step uses the direct URL. 
+Modify DB and seed scripts to use new roles
+
+Privy like Stripe: create separate Privy apps (and App IDs) per environment: production, staging/preview, and local-dev. Lock each to its own Allowed Domains and Allowed OAuth redirect URLs.
+
+Setup Github Action to pgdump to Vercel Storage nightly.
+Remove backups older than 30 days.
+Ask AI if I could do this somewhere else.
+Update Runbook accordingly.
+
+
+
+
+Security - Do now (blockers before external traffic)
 - No bulk endpoints: Add pagination and strict max limit (e.g., 50–100). Remove/lock any dump-style routes.
 - Per-user/IP rate limiting (basic): Implement a sliding-window limiter on all write/expensive endpoints. Key by userId or IP.
+- Move DB Ops back to using betterai_app and betterai_admin for safety.
 
-
-
-### Operations
 - Operations: Vercel analytics, Vercel "Observability" features currently paid  or BetterStack. Add performance metrics (execution time trends). Implement alerting thresholds
-
-
-
-
-- Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
-
-- Social: User is prompted to make the prediction public (optional). Share on social media.
-
-
-
-### Category Fixes?
-- Skip categories and focus on top used tag.Labels? yes I think so
-- Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
-- Decide category strategy: exclude crypto vs. mark as less effective
-  - Default: include all; segment metrics per category
 
 
 
 ## Nice to have
 
-- Landing page: "labels" adding most popular tag.labels to the top of the current trending view.
-- Landing page: Track record:  "AI predicted X correctly this week".
-  - Add a “track record: X correct this week” block once we define the metric source.
-
 
 - Data Pipeline: enhance research component to use the ":online" flag to do more data research.
-
-- Landing page: "Today's Top Market Insights" (curated quality over quantity),
-- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
-- Add AI leaderboard?
-- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
 - Modify Market detail page to show visualization of prediction outcomes.
-
-
 - User mailing: add a beta program signup landing page with very little additional information.
 Add Loops for email signup
 https://loops.so/
-
-
-
 - Security: per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
 
 
@@ -62,6 +63,23 @@ https://loops.so/
 
 
 # Week of 8/21: 
+
+- Organize todos vs design
+
+
+- Implement "credits" on the backend.
+  - Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
+  - Make the "add credits" button only appear when the user has less than 10 credits remaining?
+  - Check on any legal considerations.
+
+- Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
+- Social: User is prompted to make the prediction public (optional). Share on social media.
+
+- Landing page: Track record:  "AI predicted X correctly this week".
+  - Add a “track record: X correct this week” block once we define the metric source.
+
+
+
 
 ## Watchlist & Portfolio Watcher v1 Implementation Plan
 
@@ -133,15 +151,9 @@ Done
 
 # Future Weeks (Date TBD)
 
-
-- Implement "credits" on the backend.
-  - Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
-  - Make the "add credits" button only appear when the user has less than 10 credits remaining?
-  - Check on any legal considerations.
-
-
-
+- Landing page: "Today's Top Market Insights" (curated quality over quantity),
 - Event level predictions: Trigger multiple predictions for all markets in an event at once. Show event level difference (AI vs Human)
+
 
 ## Premium Features
 - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.

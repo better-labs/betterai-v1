@@ -33,7 +33,7 @@ Key data relationships:
 - Uses **Privy** for user authentication (client and server-side)
 - Server-side auth validation on all privileged API endpoints
 - CSP headers configured for development and production environments
-- Environment variables in `.env` (never `.env.local`)
+- Environment variables in `.env.local` (never `.env`)
 
 ### AI Integration
 - **OpenRouter** API for multiple AI model access
@@ -57,16 +57,12 @@ pnpm test                   # Run Vitest tests
 pnpm test:ui                # Run tests with UI
 
 # Database Operations
-pnpm prisma:generate        # Generate Prisma client
-pnpm prisma:studio          # Open Prisma Studio
+pnpm db:prisma:generate        # Generate Prisma client
+pnpm db:prisma:studio          # Open Prisma Studio
 
-# Database Reset & Migration (Development Only)
-pnpm db:reset:dev           # Reset dev database (includes safety check)
-pnpm migrate:deploy:dev     # Deploy migrations to dev database
+pnpm db:migrate:deploy     # Deploy migrations to dev database
 
-# Database Seeding
 pnpm db:seed:dev           # Seed development database with full pipeline
-pnpm db:seed:prod          # Seed production database
 
 # Linting
 pnpm lint                  # Next.js ESLint
@@ -124,7 +120,7 @@ Follow the project's `.cursorrules` for consistent development:
 
 ### Security Best Practices
 - Validate all user inputs
-- Use environment variables for sensitive data (in `.env`, not `.env.local`)
+- Use environment variables for sensitive data (in `.env.local`, not `.env`)
 - Implement proper authentication for cron jobs
 - Sanitize data before database operations
 - Never expose API keys or secrets in client code
@@ -189,7 +185,7 @@ See `TODO.md` for detailed current implementation tasks and priorities.
 - **Rate Limiting**: Implement per-user quotas before public launch
 - **Data Pipeline**: Multi-step AI-enhanced research process for predictions
 - **Cron Jobs**: Automated daily tasks for data updates and batch predictions
-- **Environment Strategy**: Use `.env` (not `.env.local`), update `.env.example` for new variables
+- **Environment Strategy**: Use `.env.local` (not `.env`), update `.env.example` for new variables
 - **Documentation**: Add single-line comments to explain major code sections
 
 ## Proactive Assistance

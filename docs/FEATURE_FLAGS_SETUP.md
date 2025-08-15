@@ -16,7 +16,7 @@ This project uses a simple, custom feature flags system to control page visibili
 
 ### 1. Environment Variables
 
-Add the following to your `.env` file:
+Add the following to your `.env.local` file:
 
 ```bash
 # Feature Flags Configuration
