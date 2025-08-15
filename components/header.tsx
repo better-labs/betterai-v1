@@ -133,7 +133,8 @@ export function Header() {
 
           {/* Actions Section */}
           <div className="flex items-center space-x-4" id="header-actions">
-            {authenticated && (
+            {/* Hiding this credits section for now, todo: unhide when implemented */}
+            {/* {authenticated && (
               <>
                 <div className="hidden md:flex items-center space-x-1 text-sm text-muted-foreground">
                   <span>Remaining credits:</span>
@@ -150,7 +151,7 @@ export function Header() {
                   Add Credits
                 </Button>
               </>
-            )}
+            )} */}
 
             {/* Login/Signup buttons removed; relying solely on Privy UserPill */}
 

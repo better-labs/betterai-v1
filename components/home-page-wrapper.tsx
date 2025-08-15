@@ -24,7 +24,7 @@ export function HomePageWrapper() {
     const fetchPredictions = async () => {
       try {
         const accessToken = await getAccessToken()
-        const response = await fetch(`/api/predictions/recent?limit=12`, { 
+        const response = await fetch(`/api/predictions/recent?limit=30`, { 
           cache: 'no-store',
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -98,7 +98,8 @@ export function HomePageWrapper() {
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          <TrendingEventsTable />
+          {/* Hide trending events table for now */}
+          {/* <TrendingEventsTable /> */}
           <RecentPredictions items={predictions ?? []} />
         </div>
       </main>

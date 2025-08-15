@@ -1,14 +1,72 @@
-
-# Watchlist & Portfolio Watcher v1 Implementation Plan
-
+# Week of 8/11
 
 
-## Implementation Tasks
+
+## Friday
+
+
+
+### Security - Do now (blockers before external traffic)
+
+- No bulk endpoints: Add pagination and strict max limit (e.g., 50–100). Remove/lock any dump-style routes.
+- Per-user/IP rate limiting (basic): Implement a sliding-window limiter on all write/expensive endpoints. Key by userId or IP.
+
+
+
+### Operations
+- Operations: Vercel analytics, Vercel "Observability" features currently paid  or BetterStack. Add performance metrics (execution time trends). Implement alerting thresholds
+
+
+
+
+- Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
+
+- Social: User is prompted to make the prediction public (optional). Share on social media.
+
+
+
+### Category Fixes?
+- Skip categories and focus on top used tag.Labels? yes I think so
+- Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
+- Decide category strategy: exclude crypto vs. mark as less effective
+  - Default: include all; segment metrics per category
+
+
+
+## Nice to have
+
+- Landing page: "labels" adding most popular tag.labels to the top of the current trending view.
+- Landing page: Track record:  "AI predicted X correctly this week".
+  - Add a “track record: X correct this week” block once we define the metric source.
+
+
+- Data Pipeline: enhance research component to use the ":online" flag to do more data research.
+
+- Landing page: "Today's Top Market Insights" (curated quality over quantity),
+- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
+- Add AI leaderboard?
+- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
+- Modify Market detail page to show visualization of prediction outcomes.
+
+
+- User mailing: add a beta program signup landing page with very little additional information.
+Add Loops for email signup
+https://loops.so/
+
+
+
+- Security: per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
+
+
+
+
+
+# Week of 8/21: 
+
+## Watchlist & Portfolio Watcher v1 Implementation Plan
 
 ### Phase 1: Database & Authentication Foundation
-
-
-branch: portfolio-watcher-v1-thursday  
+Done
 
 ### Phase 2: Core API Implementation  
 - [ ] **Watchlist CRUD API**
@@ -16,8 +74,6 @@ branch: portfolio-watcher-v1-thursday
   - `DELETE /api/watchlist/[marketId]` - Remove market from watchlist  
   - `GET /api/watchlist` - Get user's watchlist with market details
   - Add auth validation using Privy user context
-
-
 
 ### Phase 3: UI Components & User Experience
 - [ ] **Watchlist UI Components**
@@ -38,7 +94,6 @@ branch: portfolio-watcher-v1-thursday
   - Extend existing `cron-prediction-check.js` to monitor watchlist markets
   - Add email notification service integration (optional future enhancement)
   - Schedule daily runs with proper error handling and backoff [[memory:6211559]]
-
 
 - [ ] **Enhanced Prediction API**
   - Extend `POST /api/predict` to accept watchlist context
@@ -71,96 +126,6 @@ branch: portfolio-watcher-v1-thursday
 
 ---
 
-# Week of 8/11
-
-
-
-## Thursday
-
-
-
-
-- Add a beta program signup landing page with very little additional information.
-Add Loops for email signup
-https://loops.so/
-
-
-
-### Gating and egress control
-- Auth-only access to full context; per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
-
-
-Add BetterStack integration:
-- [ ] **Add Observability**:
-  - [ ] Add performance metrics (execution time trends)
-  - [ ] Implement alerting thresholds
-  Ask AI which Google Cloud features I could use in the next 90 days for free credit. Review my DESIGN.md and todo docs.
-
-
-
-
-
-
-
-## Friday
-
-Implement "credits" on the backend.
-- Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
-- Make the "add credits" button only appear when the user has less than 10 credits remaining?
-- Legal todos.
-
-
-### Security - Do now (blockers before external traffic)
-
-- No bulk endpoints: Add pagination and strict max limit (e.g., 50–100). Remove/lock any dump-style routes.
-- Per-user/IP rate limiting (basic): Implement a sliding-window limiter on all write/expensive endpoints. Key by userId or IP.
-
-
-
-### Operations
-- Operations: Vercel analytics, Vercel "Observability" features currently paid  or BetterStack
-- Look into Customer.io
-
-### User Signup
-- Share URL for users to signup for private beta and get 100 free daily credits for AI predictions.
-
-- Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
-
-- Social: User is prompted to make the prediction public (optional). Share on social media.
-
-
-
-### Category Fixes?
-- Skip categories and focus on top used tag.Labels? yes I think so
-- Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
-- Decide category strategy: exclude crypto vs. mark as less effective
-  - Default: include all; segment metrics per category
-
-### Google Auth
-- Re-enable Google Oauth on App, but first try to add Google account - support@betterai.tools or hello@betterai.tools here: https://console.cloud.google.com/auth/overview/create?authuser=0&inv=1&invt=Ab5drg&project=future-synapse-469012-a0
-
-
-## Nice to have
-
-- Data Pipeline: significantly overhaul and improve research component.
-- Landing page: Track record:  "AI predicted X correctly this week".
-  - Add a “track record: X correct this week” block once we define the metric source.
-- Landing page: "labels" adding most popular tag.labels to the top of the current trending view.
-
-- Landing page: "Today's Top Market Insights" (curated quality over quantity),
-- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
-- Add AI leaderboard?
-- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
-- Modify Market detail page to show visualization of prediction outcomes.
-
-
-
-
-
-
-
-
-
 
 
 
@@ -168,8 +133,15 @@ Implement "credits" on the backend.
 
 # Future Weeks (Date TBD)
 
-## Enhanced Predictions Across Markets
-- Trigger multiple predictions for all markets in an event at once.
+
+- Implement "credits" on the backend.
+  - Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
+  - Make the "add credits" button only appear when the user has less than 10 credits remaining?
+  - Check on any legal considerations.
+
+
+
+- Event level predictions: Trigger multiple predictions for all markets in an event at once. Show event level difference (AI vs Human)
 
 ## Premium Features
 - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
@@ -222,9 +194,7 @@ Implement "credits" on the backend.
 
 ## Authentication & Rate Limiting
 - Design mechanism to prevent overuse of free prediction
-  - Research Google user login integration
   - Ask AI to help design rate limiting strategy
-  - Implement user authentication system
 
 ## Free Prediction Features
 - Enable free button inference for market prediction
