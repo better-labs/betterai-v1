@@ -232,6 +232,34 @@ export const tagQueries = {
     const res = await prisma.eventTag.deleteMany({ where: { eventId: { in: eventIds } } })
     return res.count
   },
+  /**
+   * Returns the top tags ranked by the total market volume of markets
+   * associated with events that have those tags.
+   * This aligns with the definition: popular == tags for events whose markets have the most volume.
+   */
+  getTopTagsByMarketVolume: async (limit: number = 10): Promise<Array<{ id: string; label: string; totalMarketVolume: number; eventCount: number }>> => {
+    // Use a single SQL aggregation for accuracy and efficiency
+    const rows: Array<{ id: string; label: string; total_market_volume: any; event_count: number }> = await prisma.$queryRaw`
+      SELECT t.id,
+             t.label,
+             COALESCE(SUM(m.volume), 0) AS total_market_volume,
+             COUNT(DISTINCT e.id) AS event_count
+      FROM tags t
+      JOIN event_tags et ON et.tag_id = t.id
+      JOIN events e ON e.id = et.event_id
+      JOIN markets m ON m.event_id = e.id
+      GROUP BY t.id, t.label
+      ORDER BY total_market_volume DESC NULLS LAST
+      LIMIT ${limit}
+    `
+
+    return rows.map(r => ({
+      id: r.id,
+      label: r.label,
+      totalMarketVolume: typeof (r as any)?.total_market_volume?.toNumber === 'function' ? Number((r as any).total_market_volume.toNumber()) : Number(r.total_market_volume ?? 0),
+      eventCount: Number(r.event_count ?? 0),
+    }))
+  },
 }
 
 // Market queries

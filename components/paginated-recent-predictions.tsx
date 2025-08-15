@@ -28,6 +28,7 @@ type PaginatedRecentPredictionsProps = {
 export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRecentPredictionsProps) {
   const { getAccessToken } = usePrivy()
   const [items, setItems] = useState<any[]>([])
+  const [popularTags, setPopularTags] = useState<Array<{ id: string; label: string }>>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [pageSize, setPageSize] = useState<number>(defaultPageSize)
@@ -63,6 +64,30 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
       const data = await response.json()
       setItems(Array.isArray(data?.items) ? data.items : [])
       setNextCursor(typeof data?.nextCursor === "number" ? data.nextCursor : null)
+
+      // In parallel, fetch the popular tags once (only when on first page)
+      if (cursor == null) {
+        try {
+          const tagsUrl = new URL("/api/tags/popular", window.location.origin)
+          tagsUrl.searchParams.set("limit", "10")
+          const tagsResp = await fetch(tagsUrl.toString(), {
+            cache: "no-store",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          })
+          if (tagsResp.ok) {
+            const tagsData = await tagsResp.json()
+            const rows = Array.isArray(tagsData?.data) ? tagsData.data : []
+            setPopularTags(rows.map((r: any) => ({ id: String(r.id), label: String(r.label) })))
+          } else {
+            setPopularTags([])
+          }
+        } catch {
+          setPopularTags([])
+        }
+      }
     } catch (e: any) {
       setError(e?.message || "Failed to load predictions")
       setItems([])
@@ -110,7 +135,7 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
       ) : error ? (
         <div className="border rounded-lg p-4 text-sm text-destructive bg-card">{error}</div>
       ) : (
-        <RecentPredictions items={items} />
+        <RecentPredictions items={items} popularTags={popularTags} />
       )}
 
       <div className="flex flex-col gap-2 pt-1">

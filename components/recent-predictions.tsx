@@ -6,14 +6,25 @@ import { PredictionProbabilityGrid } from "@/components/prediction-probability-g
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
+type PopularTag = { id: string; label: string }
+
 // Using shared helpers from utils
 
 // Minimal presentational component for a list of recent predictions with market and event context
-export function RecentPredictions({ items }: { items: PredictionWithRelations[] }) {
+export function RecentPredictions({ items, popularTags }: { items: PredictionWithRelations[], popularTags?: PopularTag[] }) {
   if (!items || items.length === 0) {
     return (
       <section aria-labelledby="recent-predictions-heading" className="mt-8">
         <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+        {Array.isArray(popularTags) && popularTags.length > 0 && (
+          <div className="mb-3 overflow-x-auto">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              {popularTags.slice(0, 10).map((t) => (
+                <span key={t.id} className="whitespace-nowrap">{t.label}</span>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="border rounded-lg p-8 text-center bg-card">
           <div className="space-y-2">
             <p className="text-muted-foreground">No predictions yet</p>
@@ -27,6 +38,15 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
   return (
     <section aria-labelledby="recent-predictions-heading" className="mt-8">
       <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+      {Array.isArray(popularTags) && popularTags.length > 0 && (
+        <div className="mb-3 overflow-x-auto">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            {popularTags.slice(0, 10).map((t) => (
+              <span key={t.id} className="whitespace-nowrap">{t.label}</span>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="divide-y rounded-lg border bg-card">
         {items.map((p) => {
           const market = p.market
