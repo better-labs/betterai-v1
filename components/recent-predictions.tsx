@@ -1,8 +1,12 @@
+"use client"
+
 import { format } from "date-fns"
 import Link from "next/link"
-import type { Prediction, Market, Event } from "@/lib/types"
+import { useEffect, useState } from "react"
+import type { Prediction, Market, Event, Tag } from "@/lib/types"
 import { EventIcon } from "@/components/event-icon"
 import { PredictionProbabilityGrid } from "@/components/prediction-probability-grid"
+import { PopularTagsList } from "@/components/popular-tags-list"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
@@ -10,10 +14,37 @@ type PredictionWithRelations = Prediction & { market: (Market & { event: Event |
 
 // Minimal presentational component for a list of recent predictions with market and event context
 export function RecentPredictions({ items }: { items: PredictionWithRelations[] }) {
+  const [popularTags, setPopularTags] = useState<(Tag & { totalVolume: number })[]>([])
+  const [tagsLoading, setTagsLoading] = useState(false)
+
+  // Fetch popular tags when component mounts
+  useEffect(() => {
+    const fetchPopularTags = async () => {
+      setTagsLoading(true)
+      try {
+        const response = await fetch('/api/tags/popular?limit=10')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && Array.isArray(data.data)) {
+            setPopularTags(data.data)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch popular tags:', error)
+      } finally {
+        setTagsLoading(false)
+      }
+    }
+
+    fetchPopularTags()
+  }, [])
   if (!items || items.length === 0) {
     return (
       <section aria-labelledby="recent-predictions-heading" className="mt-8">
         <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+        {!tagsLoading && popularTags.length > 0 && (
+          <PopularTagsList tags={popularTags} />
+        )}
         <div className="border rounded-lg p-8 text-center bg-card">
           <div className="space-y-2">
             <p className="text-muted-foreground">No predictions yet</p>
@@ -27,6 +58,9 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
   return (
     <section aria-labelledby="recent-predictions-heading" className="mt-8">
       <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+      {!tagsLoading && popularTags.length > 0 && (
+        <PopularTagsList tags={popularTags} />
+      )}
       <div className="divide-y rounded-lg border bg-card">
         {items.map((p) => {
           const market = p.market
