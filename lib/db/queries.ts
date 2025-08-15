@@ -473,7 +473,8 @@ export const predictionQueries = {
     limit: number = 20
   ): Promise<Array<Prediction & { market: (Market & { event: Event | null }) | null }>> => {
     return await prisma.prediction.findMany({
-      orderBy: { createdAt: 'desc' },
+      // Keep this simple helper for existing callers
+      orderBy: { id: 'desc' },
       take: limit,
       include: {
         market: {
@@ -483,6 +484,31 @@ export const predictionQueries = {
         },
       },
     })
+  },
+  /**
+   * Cursor-paginated recent predictions with related market + event.
+   * Orders by id desc for stability and to align with cursor semantics.
+   */
+  getRecentPredictionsWithRelationsPaginated: async (
+    limit: number = 20,
+    cursorId?: number | null
+  ): Promise<{ items: Array<Prediction & { market: (Market & { event: Event | null }) | null }>; nextCursor: number | null }> => {
+    const rows = await prisma.prediction.findMany({
+      orderBy: [{ id: 'desc' }],
+      take: limit + 1,
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+      include: {
+        market: {
+          include: { event: true },
+        },
+      },
+    })
+
+    const hasMore = rows.length > limit
+    const items = hasMore ? rows.slice(0, limit) : rows
+    const nextCursor = hasMore ? (items[items.length - 1]?.id as unknown as number) ?? null : null
+
+    return { items, nextCursor }
   },
   createPrediction: async (predictionData: any): Promise<Prediction> => {
     return await prisma.prediction.create({ data: predictionData })

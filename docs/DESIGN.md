@@ -73,6 +73,7 @@ High Value
 
 Medium Value
 - "Prediction Performance" — Show simple AI accuracy stats
+- Adding BI reporting via tools like Cube.js
 
 - Portfolio Watcher Daily News: import your active portfolio from Polymarket. Get daily news on key events that impact your active bets.
 

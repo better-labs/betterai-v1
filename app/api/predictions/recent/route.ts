@@ -23,13 +23,17 @@ export async function GET(request: Request) {
     const { userId } = await requireAuth(request)
     
     const { searchParams } = new URL(request.url)
-    const limit = Math.max(1, Math.min(Number(searchParams.get('limit')) || 12, 50))
-    
-    // Get predictions with user context (can be enhanced later for user-specific filtering)
-    const items = await predictionQueries.getRecentPredictionsWithRelations(limit)
-    
+    const limit = Math.max(1, Math.min(Number(searchParams.get('limit')) || 15, 50))
+    const cursorParam = searchParams.get('cursor')
+    const cursorId = cursorParam ? Number(cursorParam) : null
+
+    // Paginated recent predictions
+    const { items, nextCursor } = await predictionQueries.getRecentPredictionsWithRelationsPaginated(limit, cursorId ?? undefined)
+
     return NextResponse.json({ 
       items: serialize(items),
+      nextCursor,
+      pageSize: limit,
       authenticatedUser: userId 
     })
   } catch (error) {

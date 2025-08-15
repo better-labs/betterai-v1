@@ -12,6 +12,7 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Follow the existing file structure and naming conventions
 
 ## Database Guidelines
+- Wait for user confirmation before moving forward with changes to the Database schema. Ask for user confirmation before moving forward.
 - Always use Prisma queries from `lib/db/queries.ts`
 - Add new queries to the appropriate query object
 - Use transactions for multi-step database operations
