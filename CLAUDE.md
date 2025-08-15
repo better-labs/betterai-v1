@@ -191,3 +191,16 @@ See `TODO.md` for detailed current implementation tasks and priorities.
 - **Cron Jobs**: Automated daily tasks for data updates and batch predictions
 - **Environment Strategy**: Use `.env` (not `.env.local`), update `.env.example` for new variables
 - **Documentation**: Add single-line comments to explain major code sections
+
+## Proactive Assistance
+
+After completing any significant task or making changes to the codebase, Claude should proactively suggest relevant next steps that might be helpful based on the work just completed. This could include:
+- Related improvements or enhancements
+- Testing recommendations
+- Documentation updates needed
+- Security considerations
+- Performance optimizations
+- Integration opportunities
+- Code organization improvements
+
+These suggestions should be tailored to the specific context of what was just accomplished and aligned with the project's current development phase and goals outlined in `TODO.md`.
