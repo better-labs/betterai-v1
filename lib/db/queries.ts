@@ -232,6 +232,46 @@ export const tagQueries = {
     const res = await prisma.eventTag.deleteMany({ where: { eventId: { in: eventIds } } })
     return res.count
   },
+  // Get popular tags ordered by total market volume of their associated events
+  getPopularTagsByMarketVolume: async (limit: number = 10): Promise<Array<Tag & { totalVolume: number }>> => {
+    const result = await prisma.tag.findMany({
+      include: {
+        events: {
+          include: {
+            event: {
+              include: {
+                markets: {
+                  select: {
+                    volume: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    // Calculate total volume for each tag and sort
+    const tagsWithVolume = result.map(tag => {
+      const totalVolume = tag.events.reduce((sum, eventTag) => {
+        const eventVolume = eventTag.event.markets.reduce((marketSum, market) => {
+          return marketSum + (market.volume ? Number(market.volume) : 0)
+        }, 0)
+        return sum + eventVolume
+      }, 0)
+      
+      return {
+        ...tag,
+        totalVolume,
+        events: undefined // Remove the nested data we don't need in the response
+      }
+    }).filter(tag => tag.totalVolume > 0) // Only include tags with volume
+      .sort((a, b) => b.totalVolume - a.totalVolume) // Sort by volume desc
+      .slice(0, limit) // Take only the requested number
+
+    return tagsWithVolume
+  },
 }
 
 // Market queries
@@ -500,6 +540,55 @@ export const predictionQueries = {
       include: {
         market: {
           include: { event: true },
+        },
+      },
+    })
+
+    const hasMore = rows.length > limit
+    const items = hasMore ? rows.slice(0, limit) : rows
+    const nextCursor = hasMore ? (items[items.length - 1]?.id as unknown as number) ?? null : null
+
+    return { items, nextCursor }
+  },
+  /**
+   * Cursor-paginated recent predictions filtered by tag IDs.
+   * Orders by id desc for stability and to align with cursor semantics.
+   */
+  getRecentPredictionsWithRelationsFilteredByTags: async (
+    tagIds: string[],
+    limit: number = 20,
+    cursorId?: number | null
+  ): Promise<{ items: Array<Prediction & { market: (Market & { event: Event | null }) | null }>; nextCursor: number | null }> => {
+    const rows = await prisma.prediction.findMany({
+      where: {
+        market: {
+          event: {
+            eventTags: {
+              some: {
+                tagId: {
+                  in: tagIds
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: [{ id: 'desc' }],
+      take: limit + 1,
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+      include: {
+        market: {
+          include: { 
+            event: {
+              include: {
+                eventTags: {
+                  include: {
+                    tag: true
+                  }
+                }
+              }
+            }
+          },
         },
       },
     })

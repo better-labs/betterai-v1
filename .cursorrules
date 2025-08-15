@@ -3,6 +3,8 @@
 ## Project Overview
 This is a Next.js prediction market application that integrates with Polymarket and Colosseum APIs. The app uses Prisma with PostgreSQL for data management.
 
+**Infrastructure:** The entire application runs on Vercel infrastructure, including hosting, serverless functions, and database connections.
+
 ## Code Style & Patterns
 - Use TypeScript with strict typing
 - Follow Next.js 14+ App Router patterns

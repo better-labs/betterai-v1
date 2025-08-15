@@ -26,14 +26,27 @@ export async function GET(request: Request) {
     const limit = Math.max(1, Math.min(Number(searchParams.get('limit')) || 15, 50))
     const cursorParam = searchParams.get('cursor')
     const cursorId = cursorParam ? Number(cursorParam) : null
+    
+    // Check for tag filtering
+    const tagIdsParam = searchParams.get('tagIds')
+    const tagIds = tagIdsParam ? tagIdsParam.split(',').filter(Boolean) : null
 
-    // Paginated recent predictions
-    const { items, nextCursor } = await predictionQueries.getRecentPredictionsWithRelationsPaginated(limit, cursorId ?? undefined)
+    let result
+    if (tagIds && tagIds.length > 0) {
+      // Filtered predictions by tags
+      result = await predictionQueries.getRecentPredictionsWithRelationsFilteredByTags(tagIds, limit, cursorId ?? undefined)
+    } else {
+      // All recent predictions
+      result = await predictionQueries.getRecentPredictionsWithRelationsPaginated(limit, cursorId ?? undefined)
+    }
+
+    const { items, nextCursor } = result
 
     return NextResponse.json({ 
       items: serialize(items),
       nextCursor,
       pageSize: limit,
+      filteredByTags: tagIds || null,
       authenticatedUser: userId 
     })
   } catch (error) {
