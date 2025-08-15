@@ -10,10 +10,22 @@ import { PopularTagsList } from "@/components/popular-tags-list"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
-// Using shared helpers from utils
+interface RecentPredictionsProps {
+  items: PredictionWithRelations[]
+  selectedTagIds?: string[]
+  onTagSelect?: (tagId: string) => void
+  onClearFilters?: () => void
+  isFiltered?: boolean
+}
 
 // Minimal presentational component for a list of recent predictions with market and event context
-export function RecentPredictions({ items }: { items: PredictionWithRelations[] }) {
+export function RecentPredictions({ 
+  items, 
+  selectedTagIds = [], 
+  onTagSelect, 
+  onClearFilters, 
+  isFiltered = false 
+}: RecentPredictionsProps) {
   const [popularTags, setPopularTags] = useState<(Tag & { totalVolume: number })[]>([])
   const [tagsLoading, setTagsLoading] = useState(false)
 
@@ -43,7 +55,13 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
       <section aria-labelledby="recent-predictions-heading" className="mt-8">
         <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
         {!tagsLoading && popularTags.length > 0 && (
-          <PopularTagsList tags={popularTags} />
+          <PopularTagsList 
+            tags={popularTags} 
+            selectedTagIds={selectedTagIds}
+            onTagSelect={onTagSelect}
+            onClearFilters={onClearFilters}
+            isFiltered={isFiltered}
+          />
         )}
         <div className="border rounded-lg p-8 text-center bg-card">
           <div className="space-y-2">
@@ -59,7 +77,13 @@ export function RecentPredictions({ items }: { items: PredictionWithRelations[] 
     <section aria-labelledby="recent-predictions-heading" className="mt-8">
       <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
       {!tagsLoading && popularTags.length > 0 && (
-        <PopularTagsList tags={popularTags} />
+        <PopularTagsList 
+          tags={popularTags} 
+          selectedTagIds={selectedTagIds}
+          onTagSelect={onTagSelect}
+          onClearFilters={onClearFilters}
+          isFiltered={isFiltered}
+        />
       )}
       <div className="divide-y rounded-lg border bg-card">
         {items.map((p) => {

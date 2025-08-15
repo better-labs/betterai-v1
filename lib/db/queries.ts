@@ -550,6 +550,55 @@ export const predictionQueries = {
 
     return { items, nextCursor }
   },
+  /**
+   * Cursor-paginated recent predictions filtered by tag IDs.
+   * Orders by id desc for stability and to align with cursor semantics.
+   */
+  getRecentPredictionsWithRelationsFilteredByTags: async (
+    tagIds: string[],
+    limit: number = 20,
+    cursorId?: number | null
+  ): Promise<{ items: Array<Prediction & { market: (Market & { event: Event | null }) | null }>; nextCursor: number | null }> => {
+    const rows = await prisma.prediction.findMany({
+      where: {
+        market: {
+          event: {
+            eventTags: {
+              some: {
+                tagId: {
+                  in: tagIds
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: [{ id: 'desc' }],
+      take: limit + 1,
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+      include: {
+        market: {
+          include: { 
+            event: {
+              include: {
+                eventTags: {
+                  include: {
+                    tag: true
+                  }
+                }
+              }
+            }
+          },
+        },
+      },
+    })
+
+    const hasMore = rows.length > limit
+    const items = hasMore ? rows.slice(0, limit) : rows
+    const nextCursor = hasMore ? (items[items.length - 1]?.id as unknown as number) ?? null : null
+
+    return { items, nextCursor }
+  },
   createPrediction: async (predictionData: any): Promise<Prediction> => {
     return await prisma.prediction.create({ data: predictionData })
   },
