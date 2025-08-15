@@ -10,6 +10,8 @@ import {
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
+  PaginationLink,
+  PaginationEllipsis,
 } from "@/components/ui/pagination"
 import {
   Select,
@@ -35,6 +37,7 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
   const currentCursor = cursorHistory[cursorHistory.length - 1] ?? null
   const canGoBack = cursorHistory.length > 1
   const canGoNext = nextCursor != null
+  const currentPage = cursorHistory.length
 
   const fetchPage = useCallback(async (cursor: number | null, limit: number) => {
     setLoading(true)
@@ -90,6 +93,14 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
     fetchPage(prevCursor, pageSize)
   }, [canGoBack, cursorHistory, fetchPage, pageSize])
 
+  const handleGoToPage = useCallback((pageIndex: number) => {
+    // pageIndex is 1-based
+    const targetCursor = cursorHistory[pageIndex - 1] ?? null
+    const newHistory = cursorHistory.slice(0, pageIndex)
+    setCursorHistory(newHistory)
+    fetchPage(targetCursor, pageSize)
+  }, [cursorHistory, fetchPage, pageSize])
+
   const pageSizeOptions = useMemo(() => [10, 15, 20, 30, 50], [])
 
   return (
@@ -104,36 +115,13 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
 
       <div className="flex flex-col gap-2 pt-1">
         <div className="flex items-center justify-between gap-3">
-          <div className="text-sm text-muted-foreground">
-            {items?.length ?? 0} items
-          </div>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={(e: any) => { e.preventDefault(); handlePrevious() }}
-                  aria-disabled={!canGoBack}
-                  className={!canGoBack ? "pointer-events-none opacity-50" : undefined}
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext
-                  onClick={(e: any) => { e.preventDefault(); handleNext() }}
-                  aria-disabled={!canGoNext}
-                  className={!canGoNext ? "pointer-events-none opacity-50" : undefined}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-muted-foreground">Page size</div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+            <div className="text-sm text-muted-foreground whitespace-nowrap">Page size</div>
             <Select
               value={String(pageSize)}
               onValueChange={(v) => setPageSize(Number(v))}
             >
-              <SelectTrigger className="w-[110px]">
+              <SelectTrigger className="w-[110px] sm:w-[110px]">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -145,6 +133,49 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
               </SelectContent>
             </Select>
           </div>
+
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={(e: any) => { e.preventDefault(); handlePrevious() }}
+                  aria-disabled={!canGoBack}
+                  className={!canGoBack ? "pointer-events-none opacity-50" : undefined}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: currentPage }).map((_, idx) => {
+                const pageNumber = idx + 1
+                const isActive = pageNumber === currentPage
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      isActive={isActive}
+                      onClick={(e: any) => { e.preventDefault(); handleGoToPage(pageNumber) }}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              })}
+
+              {canGoNext && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={(e: any) => { e.preventDefault(); handleNext() }}
+                  aria-disabled={!canGoNext}
+                  className={!canGoNext ? "pointer-events-none opacity-50" : undefined}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+
+          <div />
         </div>
       </div>
     </section>
