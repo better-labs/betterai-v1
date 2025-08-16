@@ -5,31 +5,12 @@
 
 Secrets management:
 vercel env pull .env.local --environment=development
-vercel env pull .env.preview --environment=preview
-vercel env pull .env.production --environment=production
-
-
-.ENVs
-Make a temp backup locally of my .env vars
 vercel env pull .env.local --environment=development
 
-Prod Database Migration:
-Find a new way to migrate database that doesn't leverage pnpm. Possibly use Github actions or similar automated better practice.
 
+Database:
+consider using names: app_user + migrator instead of betterai...
 
-Neon
-https://chatgpt.com/c/689f4847-1248-8323-98cd-5d75301f359f
-delete betterai-dev db, rename betterai-prod
-*Keep betterai-prod database, enable integration.
-Step-by-step to move from your “dev & prod only” setup
-Create branches: staging, dev (and optionally dev-<name>). Protect prod. 
-Create roles in prod (migration/app) so they clone into new branches; restrict app role in prod. 
-Enable PITR retention you want (e.g., 7–30 days). 
-Install Vercel Neon Previews → confirm preview branches appear like preview-pr-### and get DATABASE_URL injected. 
-Wire endpoints: app uses pooler URLs; your migration step uses the direct URL. 
-Modify DB and seed scripts to use new roles
-
-Privy like Stripe: create separate Privy apps (and App IDs) per environment: production, staging/preview, and local-dev. Lock each to its own Allowed Domains and Allowed OAuth redirect URLs.
 
 Setup Github Action to pgdump to Vercel Storage nightly.
 Remove backups older than 30 days.
@@ -221,6 +202,7 @@ Done
 
 ## Security
 - Ask AI on best practices for end to end security review prior to public launch.
+- Move db credentials to using betterai_admin & betterai_app.
 
 
 ## Docs to author
@@ -236,6 +218,8 @@ Done
 - [ ] Submit to Polymarket Docs for Feature: https://docs.polymarket.com/quickstart/introduction/showcase#%F0%9F%A4%9D-want-to-be-featured%3F
 - []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
+## Payments:
+Privy like Stripe: create separate Privy apps (and App IDs) per environment: production, staging/preview, and local-dev. Lock each to its own Allowed Domains and Allowed OAuth redirect URLs.
 
 ## Security 
 Soon (first week after go-live)

@@ -13,5 +13,3 @@ Update Runbook to document all of this minimally
 
 Secrets management:
 vercel env pull .env.local --environment=development
-vercel env pull .env.preview --environment=preview
-vercel env pull .env.production --environment=production
