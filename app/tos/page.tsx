@@ -44,6 +44,9 @@ export default function TermsOfServicePage() {
             <li>Do not attempt to access the Service by automated means in violation of rate limits.</li>
             <li>Do not interfere with or disrupt the Service&apos;s integrity or performance.</li>
             <li>Do not use the Service to develop models or systems that compete unfairly with BetterAI.</li>
+            <li>Do not scrape, crawl, spider, harvest, or bulk export any results, outputs, content, or data from the Service (manually or via automated means), except as expressly permitted in writing by BetterAI.</li>
+            <li>Do not reverse engineer, decompile, disassemble, or attempt to derive the source code, underlying models, or ideas of the Service.</li>
+            <li>Do not use the Service&apos;s outputs, results, or data to create, train, fine-tune, evaluate, or improve any AI model, dataset, or service that competes with BetterAI, unless expressly permitted by a separate written agreement.</li>
           </ul>
 
           <h2 className="text-2xl font-semibold mt-8">5. AI Output; No Advice</h2>
