@@ -13,6 +13,9 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Use shadcn/ui components for UI consistency
 - Follow the existing file structure and naming conventions
 
+### Running the development server
+- If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
+
 ## Database Guidelines
 - Wait for user confirmation before moving forward with changes to the Database schema. Ask for user confirmation before moving forward.
 - Always use Prisma queries from `lib/db/queries.ts`
@@ -21,11 +24,7 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
 - Try to use the migration commands in package.json such as "db:migrate:deploy"
 ### Database Operations
-    pnpm db:prisma:generate        # Generate Prisma client
-    pnpm db:prisma:studio          # Open Prisma Studio
-    pnpm db:migrate:deploy     # Deploy migrations to dev database
-    pnpm db:seed:dev           # Seed development database with full pipeline
-
+- Use commands in package.json where possible for database migration in Dev and Preview builds.
 
 ## API Design
 - Use Next.js API routes in `app/api/`

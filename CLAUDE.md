@@ -45,34 +45,11 @@ Key data relationships:
 
 ## Development Commands
 
+### Running the development server
+- If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
+
 ### Common Development Tasks
-```bash
-# Development
-pnpm dev                    # Start development server
-pnpm build                  # Build application (includes Prisma generate)
-pnpm start                  # Start production server
-
-# Testing
-pnpm test                   # Run Vitest tests
-pnpm test:ui                # Run tests with UI
-
-# Database Operations
-pnpm db:prisma:generate        # Generate Prisma client
-pnpm db:prisma:studio          # Open Prisma Studio
-
-pnpm db:migrate:deploy     # Deploy migrations to dev database
-
-pnpm db:seed:dev           # Seed development database with full pipeline
-
-# Linting
-pnpm lint                  # Next.js ESLint
-
-# CRON Jobs (Background Tasks)
-pnpm cron:daily-update-polymarket-data      # Update market data from Polymarket
-pnpm cron:daily-generate-batch-predictions  # Generate predictions for markets
-pnpm cron:prediction-check                  # Check prediction accuracy
-pnpm cron:update-ai-models                  # Update available AI models
-```
+See package.json for the most recent commands.
 
 ### Database Development Pattern
 - Use query functions from `lib/db/queries.ts` for all database operations
@@ -81,11 +58,6 @@ pnpm cron:update-ai-models                  # Update available AI models
 - Use transactions for multi-step operations
 - Store raw API responses in separate `_raw` tables with metadata
 
-### Testing
-Run single test file:
-```bash
-pnpm test path/to/test/file.test.ts
-```
 
 ## Code Style & Patterns
 

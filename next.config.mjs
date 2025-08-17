@@ -27,7 +27,7 @@ const nextConfig = {
               process.env.NODE_ENV === 'development'
                 ? [
                     "default-src 'self'",
-                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http:",
+                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http: data: blob:",
                     "style-src 'self' 'unsafe-inline' https: http:",
                     "img-src 'self' data: https: blob:",
                     "font-src 'self' data:",

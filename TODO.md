@@ -1,17 +1,12 @@
-# Week of 8/11
+# Week of 8/18
 
-## Friday
+## Sunday
 
+- Move planning to linear.
+- Replan when is safe to launch to private beta users.
+- Decide when to split database users to app & admin.
 
-Secrets management:
-vercel env pull .env.local --environment=development
-vercel env pull .env.local --environment=development
-
-
-Database:
-consider using names: app_user + migrator instead of betterai...
-
-
+## Monday
 Setup Github Action to pgdump to Vercel Storage nightly.
 Remove backups older than 30 days.
 Ask AI if I could do this somewhere else.
@@ -57,8 +52,12 @@ https://loops.so/
 - Social: User is prompted to make the prediction public (optional). Share on social media.
 
 - Landing page: AI Leaderboard:  "AI predicted X correctly this week".
+  - Dimensions: AI model, tag.label, event duration.
   -  Make your track record a core, transparent part of the product from the very beginning.
   Make your track record a core, transparent part of the product from the very beginning.
+  - Simply ranks the models based on their prediction outcome, accuracy
+  
+  - inspired by LLMArena
 
 
 
