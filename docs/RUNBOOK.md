@@ -14,6 +14,10 @@ Stripe: (future) Stripe Test keys for dev/preview, Live keys for prod
 
 
 
+Preview rule of thumb: 
+Database: mimic Prod.
+
+APIs/3rd-party services: mimic Dev (sandbox/test).
 
 
 

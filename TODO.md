@@ -2,9 +2,11 @@
 
 ## Sunday
 
+
+- Split database users to app & admin.
 - Move planning to linear.
 - Replan when is safe to launch to private beta users.
-- Decide when to split database users to app & admin.
+
 
 ## Monday
 Setup Github Action to pgdump to Vercel Storage nightly.
