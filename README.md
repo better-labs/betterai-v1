@@ -34,7 +34,7 @@ The following API endpoints require authentication:
 ### Environment Variables
 ```bash
 # Privy Configuration
-PRIVY_PUBLIC_APP_ID=your-privy-app-id
+NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
 PRIVY_SERVER_APP_SECRET=your-privy-app-secret
 PRIVY_SERVER_VERIFICATION_KEY=your-privy-verification-key
 ```

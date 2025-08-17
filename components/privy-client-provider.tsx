@@ -20,13 +20,13 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 		return <>{children}</>
 	}
 
-	const appId = process.env.PRIVY_PUBLIC_APP_ID
+	const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
 
 	// Check if appId exists
 	if (!appId) {
 		if (process.env.NODE_ENV !== "production") {
 			console.warn(
-				"PRIVY_PUBLIC_APP_ID is not set; rendering without PrivyProvider."
+				"NEXT_PUBLIC_PRIVY_APP_ID is not set; rendering without PrivyProvider."
 			)
 		}
 		return <>{children}</>
