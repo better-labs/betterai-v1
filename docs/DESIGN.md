@@ -74,6 +74,7 @@ High Value
 Medium Value
 - "Prediction Performance Weekly Report" — report sent out weekly to summarize the progress and accuracy of AI predictions
 - Adding BI reporting via tools like Cube.js
+- Feature: daily notification on prediction accuracy trends. Wes will be first/only user. A way to get daily notifications on the progress of predictions and cost and how old they’re doing, maybe an email to me to dashboard or something
 
 - Portfolio Watcher Daily News: import your active portfolio from Polymarket. Get daily news on key events that impact your active bets.
 

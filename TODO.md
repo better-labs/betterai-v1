@@ -56,8 +56,10 @@ https://loops.so/
 - Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
 - Social: User is prompted to make the prediction public (optional). Share on social media.
 
-- Landing page: Track record:  "AI predicted X correctly this week".
-  - Add a “track record: X correct this week” block once we define the metric source.
+- Landing page: AI Leaderboard:  "AI predicted X correctly this week".
+  -  Make your track record a core, transparent part of the product from the very beginning.
+  Make your track record a core, transparent part of the product from the very beginning.
+
 
 
 
