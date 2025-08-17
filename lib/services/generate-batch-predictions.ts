@@ -155,7 +155,7 @@ export async function generateBatchPredictions(
       index += 1
       const marketId = marketIds[current]
       try {
-        const result = await generatePredictionForMarket(marketId, modelName)
+        const result = await generatePredictionForMarket(marketId, undefined, modelName)
         results.push({
           marketId,
           success: result.success,
