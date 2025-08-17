@@ -1,5 +1,0 @@
-# BetterAI App Design Doc
-
-
-
-
