@@ -4,9 +4,12 @@ import { runDataPipeline } from '../lib/services/run-data-pipeline';
 import { getTopMarketsByVolumeAndEndDate } from '../lib/services/generate-batch-predictions';
 
 import { config } from 'dotenv'
+import { resolve } from 'path'
 
 // Load environment variables FIRST, before any other imports
-config()
+// Try .env.local first, then fall back to .env
+config({ path: resolve(process.cwd(), '.env.local') })
+config({ path: resolve(process.cwd(), '.env') })
 
 // Verify DATABASE_URL is loaded
 if (!process.env.DATABASE_URL) {

@@ -2,9 +2,12 @@
 import { getTopMarketsByVolumeAndEndDate } from '@/lib/services/generate-batch-predictions';
 import { performMarketResearch } from '../lib/services/market-research-service';
 import { config } from 'dotenv'
+import { resolve } from 'path'
 
 // Load environment variables FIRST, before any other imports
-config({ quiet: true })
+// Try .env.local first, then fall back to .env
+config({ path: resolve(process.cwd(), '.env.local'), quiet: true })
+config({ path: resolve(process.cwd(), '.env'), quiet: true })
 
 // Verify DATABASE_URL is loaded
 if (!process.env.DATABASE_URL) {
