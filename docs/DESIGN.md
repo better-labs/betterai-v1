@@ -72,8 +72,11 @@ High Value
 - "Prediction Performance" — Show simple AI accuracy stats
 
 Medium Value
-- "Prediction Performance" — Show simple AI accuracy stats
+- "Prediction Performance Weekly Report" — report sent out weekly to summarize the progress and accuracy of AI predictions
 - Adding BI reporting via tools like Cube.js
+- Feature: daily notification on prediction accuracy trends. Wes will be first/only user. A way to get daily notifications on the progress of predictions and cost and how old they’re doing, maybe an email to me to dashboard or something
+- About Us: enhance with animated visual explaining how the data pipeline works. Evil Charts - Beautiful & Animated Charts https://evilcharts.com/docs/bar-charts
+- About Us: "personal data pipeline agent"
 
 - Portfolio Watcher Daily News: import your active portfolio from Polymarket. Get daily news on key events that impact your active bets.
 
@@ -81,6 +84,7 @@ Medium Value
 - Allow power users to inject additionalUserMessageContext. Valuable for advanced users; consider guided prompts vs freeform.
 - Mobile App, Browser Extension: additional distribution channels once the core loop and monetisation are validated.
 - Confidence score: add a confidence score to the prediction where the AI defines their level of confidence in the prediction.
+- Landing page visual banners. Possibly create a streaming list of lowest cost (flash) predictions, updating in realtime
 
 Low Value
 - Trust-but-Verify: each prediction includes a public link to the prompt and dataset used (IPFS/S3 audit trail).

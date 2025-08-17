@@ -1,7 +1,7 @@
 import { PrivyClient } from '@privy-io/server-auth'
 
 // Initialize Privy client for server-side authentication
-const privy = new PrivyClient(process.env.NEXT_PUBLIC_PRIVY_APP_ID!, process.env.PRIVY_APP_SECRET!)
+const privy = new PrivyClient(process.env.NEXT_PUBLIC_PRIVY_APP_ID!, process.env.PRIVY_SERVER_APP_SECRET!)
 
 /**
  * Extracts and verifies the Privy access token from a request
@@ -19,7 +19,7 @@ export async function requireAuth(request: Request): Promise<{ userId: string; s
   try {
     // Verify the token using Privy's server SDK
     // Use verification key from env if available for better performance
-    const verificationKey = process.env.PRIVY_VERIFICATION_KEY
+    const verificationKey = process.env.PRIVY_SERVER_VERIFICATION_KEY
     const verifiedClaims = verificationKey 
       ? await privy.verifyAuthToken(accessToken, verificationKey)
       : await privy.verifyAuthToken(accessToken)

@@ -1,60 +1,39 @@
-# Week of 8/11
+# Week of 8/18
+
+## Sunday
+
+
+- Split database users to app & admin.
+- Move planning to linear.
+- Replan when is safe to launch to private beta users.
+
+
+## Monday
+Setup Github Action to pgdump to Vercel Storage nightly.
+Remove backups older than 30 days.
+Ask AI if I could do this somewhere else.
+Update Runbook accordingly.
 
 
 
-## Friday
 
-
-
-### Security - Do now (blockers before external traffic)
-
+Security - Do now (blockers before external traffic)
 - No bulk endpoints: Add pagination and strict max limit (e.g., 50–100). Remove/lock any dump-style routes.
 - Per-user/IP rate limiting (basic): Implement a sliding-window limiter on all write/expensive endpoints. Key by userId or IP.
+- Move DB Ops back to using betterai_app and betterai_admin for safety.
 
-
-
-### Operations
 - Operations: Vercel analytics, Vercel "Observability" features currently paid  or BetterStack. Add performance metrics (execution time trends). Implement alerting thresholds
-
-
-
-
-- Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
-
-- Social: User is prompted to make the prediction public (optional). Share on social media.
-
-
-
-### Category Fixes?
-- Skip categories and focus on top used tag.Labels? yes I think so
-- Category fixes: Choose which categories to filter or down prioritize. consider enhancing my categories to match Polymarket's
-- Decide category strategy: exclude crypto vs. mark as less effective
-  - Default: include all; segment metrics per category
 
 
 
 ## Nice to have
 
-- Landing page: "labels" adding most popular tag.labels to the top of the current trending view.
-- Landing page: Track record:  "AI predicted X correctly this week".
-  - Add a “track record: X correct this week” block once we define the metric source.
-
 
 - Data Pipeline: enhance research component to use the ":online" flag to do more data research.
-
-- Landing page: "Today's Top Market Insights" (curated quality over quantity),
-- Links to Markets, Events, internal and external on the markets, predictions and events pages are haphazard. Find a way to make them consistent.
-- Add AI leaderboard?
-- Add some kind of rotating banner thing to the front page to get attention. maybe create a streaming list of lowest cost (flash) predictions, updating in realtime
 - Modify Market detail page to show visualization of prediction outcomes.
-
-
 - User mailing: add a beta program signup landing page with very little additional information.
 Add Loops for email signup
 https://loops.so/
-
-
-
 - Security: per-user/IP quotas; no bulk endpoints; HMAC-signed requests; WAF + bot detection.
 
 
@@ -62,6 +41,29 @@ https://loops.so/
 
 
 # Week of 8/21: 
+
+- Organize todos vs design
+
+
+- Implement "credits" on the backend.
+  - Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
+  - Make the "add credits" button only appear when the user has less than 10 credits remaining?
+  - Check on any legal considerations.
+
+- Prediction button: User navigates to a prediction detail page. Clicks “Predict” ➞ receives an AI-generated outcome (confidence + share link). User-selectable model providers (ChatGPT, Gemini, Grok, Claude) OR 2-3 will be chosen automatically by default.
+- Social: User is prompted to make the prediction public (optional). Share on social media.
+
+- Landing page: AI Leaderboard:  "AI predicted X correctly this week".
+  - Dimensions: AI model, tag.label, event duration.
+  -  Make your track record a core, transparent part of the product from the very beginning.
+  Make your track record a core, transparent part of the product from the very beginning.
+  - Simply ranks the models based on their prediction outcome, accuracy
+  
+  - inspired by LLMArena
+
+
+
+
 
 ## Watchlist & Portfolio Watcher v1 Implementation Plan
 
@@ -133,15 +135,9 @@ Done
 
 # Future Weeks (Date TBD)
 
-
-- Implement "credits" on the backend.
-  - Provide a free daily credit pool; skip the funding flow for now. Each new user signup gets 100 free credits, reset daily to at least 100.
-  - Make the "add credits" button only appear when the user has less than 10 credits remaining?
-  - Check on any legal considerations.
-
-
-
+- Landing page: "Today's Top Market Insights" (curated quality over quantity),
 - Event level predictions: Trigger multiple predictions for all markets in an event at once. Show event level difference (AI vs Human)
+
 
 ## Premium Features
 - "Explain Your Reasoning" — Let users drill down into why the AI made this prediction. Justify premium pricing — Deeper analysis commands higher prices than single predictions.
@@ -209,6 +205,7 @@ Done
 
 ## Security
 - Ask AI on best practices for end to end security review prior to public launch.
+- Move db credentials to using betterai_admin & betterai_app.
 
 
 ## Docs to author
@@ -224,6 +221,8 @@ Done
 - [ ] Submit to Polymarket Docs for Feature: https://docs.polymarket.com/quickstart/introduction/showcase#%F0%9F%A4%9D-want-to-be-featured%3F
 - []Run a small “prediction tournament” with AI‑augmented suggestions—advertise it on the Polymarket. Real traders will jump at a chance to test new tooling in a competitive environment. 
 
+## Payments:
+Privy like Stripe: create separate Privy apps (and App IDs) per environment: production, staging/preview, and local-dev. Lock each to its own Allowed Domains and Allowed OAuth redirect URLs.
 
 ## Security 
 Soon (first week after go-live)

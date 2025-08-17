@@ -32,25 +32,11 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 		return <>{children}</>
 	}
 
-	// Get the client ID from environment variables
-	const clientId = process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID
-
-	// Build the provider props
-	const providerProps: any = {
-		appId: appId
-	}
-
-	// Only add clientId if it's set in environment variables
-	if (clientId) {
-		providerProps.clientId = clientId
-	}
-
 	console.log("Privy app ID:", appId)
-	console.log("Privy client ID:", clientId)
 
 	return (
 		<PrivyProvider 
-			{...providerProps}
+			appId={appId}
 			config={{
 				appearance: {
 					theme: 'light',
@@ -58,12 +44,7 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 					logo: '/betterai-logo-vertical.png'
 				},
 				// Keep login simple while we debug network issues
-				loginMethods: ['email','google'],
-				
-				// Add error handling for auth failures
-				onError: (error: any) => {
-					console.warn('Privy authentication error:', error);
-				}
+				loginMethods: ['email','google']
 			}}
 		>
 			{children}

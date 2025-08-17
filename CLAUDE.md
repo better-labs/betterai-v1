@@ -33,7 +33,7 @@ Key data relationships:
 - Uses **Privy** for user authentication (client and server-side)
 - Server-side auth validation on all privileged API endpoints
 - CSP headers configured for development and production environments
-- Environment variables in `.env` (never `.env.local`)
+- Environment variables in `.env.local` (never `.env`)
 
 ### AI Integration
 - **OpenRouter** API for multiple AI model access
@@ -45,38 +45,11 @@ Key data relationships:
 
 ## Development Commands
 
+### Running the development server
+- If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
+
 ### Common Development Tasks
-```bash
-# Development
-pnpm dev                    # Start development server
-pnpm build                  # Build application (includes Prisma generate)
-pnpm start                  # Start production server
-
-# Testing
-pnpm test                   # Run Vitest tests
-pnpm test:ui                # Run tests with UI
-
-# Database Operations
-pnpm prisma:generate        # Generate Prisma client
-pnpm prisma:studio          # Open Prisma Studio
-
-# Database Reset & Migration (Development Only)
-pnpm db:reset:dev           # Reset dev database (includes safety check)
-pnpm migrate:deploy:dev     # Deploy migrations to dev database
-
-# Database Seeding
-pnpm db:seed:dev           # Seed development database with full pipeline
-pnpm db:seed:prod          # Seed production database
-
-# Linting
-pnpm lint                  # Next.js ESLint
-
-# CRON Jobs (Background Tasks)
-pnpm cron:daily-update-polymarket-data      # Update market data from Polymarket
-pnpm cron:daily-generate-batch-predictions  # Generate predictions for markets
-pnpm cron:prediction-check                  # Check prediction accuracy
-pnpm cron:update-ai-models                  # Update available AI models
-```
+See package.json for the most recent commands.
 
 ### Database Development Pattern
 - Use query functions from `lib/db/queries.ts` for all database operations
@@ -85,11 +58,6 @@ pnpm cron:update-ai-models                  # Update available AI models
 - Use transactions for multi-step operations
 - Store raw API responses in separate `_raw` tables with metadata
 
-### Testing
-Run single test file:
-```bash
-pnpm test path/to/test/file.test.ts
-```
 
 ## Code Style & Patterns
 
@@ -124,7 +92,7 @@ Follow the project's `.cursorrules` for consistent development:
 
 ### Security Best Practices
 - Validate all user inputs
-- Use environment variables for sensitive data (in `.env`, not `.env.local`)
+- Use environment variables for sensitive data (in `.env.local`, not `.env`)
 - Implement proper authentication for cron jobs
 - Sanitize data before database operations
 - Never expose API keys or secrets in client code
@@ -189,7 +157,7 @@ See `TODO.md` for detailed current implementation tasks and priorities.
 - **Rate Limiting**: Implement per-user quotas before public launch
 - **Data Pipeline**: Multi-step AI-enhanced research process for predictions
 - **Cron Jobs**: Automated daily tasks for data updates and batch predictions
-- **Environment Strategy**: Use `.env` (not `.env.local`), update `.env.example` for new variables
+- **Environment Strategy**: Use `.env.local` (not `.env`), update `.env.example` for new variables
 - **Documentation**: Add single-line comments to explain major code sections
 
 ## Proactive Assistance

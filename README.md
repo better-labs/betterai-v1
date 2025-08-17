@@ -35,9 +35,8 @@ The following API endpoints require authentication:
 ```bash
 # Privy Configuration
 NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
-NEXT_PUBLIC_PRIVY_CLIENT_ID=your-privy-client-id
-PRIVY_APP_SECRET=your-privy-app-secret
-PRIVY_VERIFICATION_KEY=your-privy-verification-key
+PRIVY_SERVER_APP_SECRET=your-privy-app-secret
+PRIVY_SERVER_VERIFICATION_KEY=your-privy-verification-key
 ```
 
 ## Getting Started

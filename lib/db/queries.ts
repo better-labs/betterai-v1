@@ -600,7 +600,12 @@ export const predictionQueries = {
     return { items, nextCursor }
   },
   createPrediction: async (predictionData: any): Promise<Prediction> => {
-    return await prisma.prediction.create({ data: predictionData })
+    // Ensure userId is null if not provided to avoid foreign key constraint violations
+    const data = {
+      ...predictionData,
+      userId: predictionData.userId || null
+    }
+    return await prisma.prediction.create({ data })
   },
   updatePrediction: async (id: number, predictionData: Partial<any>): Promise<Prediction | null> => {
     return await prisma.prediction.update({
