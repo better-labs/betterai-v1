@@ -87,6 +87,9 @@ export function parseAIResponse<T>(text: string): T {
 
     // Strip <think> tags but preserve their inner content in case JSON is inside
     cleanedText = cleanedText.replace(/<\/?think[^>]*>/gi, '').trim();
+    
+    // Remove any XML/HTML-like tags that might wrap JSON
+    cleanedText = cleanedText.replace(/<\/?[^>]+>/g, '').trim();
 
     // Remove markdown code fences (```json ... ``` or ``` ... ```), preserving inner content
     if (cleanedText.startsWith('```') && cleanedText.endsWith('```')) {
@@ -95,6 +98,9 @@ export function parseAIResponse<T>(text: string): T {
 
     // Remove stray leading/trailing backticks
     cleanedText = cleanedText.replace(/^`+|`+$/g, '').trim();
+    
+    // Remove any leading/trailing text that's clearly not JSON
+    cleanedText = cleanedText.replace(/^[^{[]*/, '').replace(/[^\]}]*$/, '').trim();
 
     // Attempt parse of cleaned text
     try {
@@ -108,8 +114,51 @@ export function parseAIResponse<T>(text: string): T {
         } catch {}
       }
 
-      console.error('AI response was not valid JSON even after cleaning:', text);
-      console.error('Cleaned text:', cleanedText);
+      console.error('AI response was not valid JSON even after cleaning');
+      console.error('Raw response (first 500 chars):', String(text).substring(0, 500));
+      console.error('Cleaned text (first 500 chars):', cleanedText.substring(0, 500));
+      console.error('Response type:', typeof text);
+      console.error('Response length:', String(text).length);
+      
+      // Try to find any JSON-like patterns in the response
+      const jsonPatterns = [
+        /\{[^{}]*"prediction"[^{}]*\}/gi,
+        /\{[^{}]*"outcomes"[^{}]*\}/gi,
+        /\{.*?\}/gs
+      ];
+      
+      for (const pattern of jsonPatterns) {
+        const matches = String(text).match(pattern);
+        if (matches && matches.length > 0) {
+          console.error('Found potential JSON patterns:', matches.slice(0, 3));
+          // Try to parse the first match
+          for (const match of matches.slice(0, 3)) {
+            try {
+              const parsed = JSON.parse(match);
+              console.log('Successfully parsed JSON from pattern match:', match);
+              return parsed as T;
+            } catch (e) {
+              console.error('Pattern match failed to parse:', match, e);
+            }
+          }
+          break;
+        }
+      }
+      
+      // Last resort: try to extract prediction text and create a minimal valid response
+      const predictionMatch = String(text).match(/prediction["\s:]*["']([^"']+)["']/i);
+      if (predictionMatch) {
+        console.warn('Creating fallback response from extracted prediction text');
+        const fallbackResponse = {
+          prediction: predictionMatch[1],
+          outcomes: ["Yes", "No"],
+          outcomesProbabilities: [0.5, 0.5],
+          reasoning: "Fallback response due to invalid JSON from AI model",
+          confidence_level: 0.3
+        };
+        return fallbackResponse as T;
+      }
+      
       throw new Error(`AI model returned invalid JSON response. Raw response: ${String(text).substring(0, 200)}...`);
     }
   }

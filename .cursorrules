@@ -16,6 +16,24 @@ This is a Next.js prediction market application that integrates with Polymarket 
 ### Running the development server
 - If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
 
+### Testing Cron Endpoints
+- Use `Authorization: Bearer $CRON_SECRET` header when testing cron endpoints manually
+- Example: `curl -H "Authorization: Bearer your-secret" http://localhost:3000/api/cron/endpoint-name`
+- Extract CRON_SECRET from .env.local: `grep CRON_SECRET .env.local | cut -d'"' -f2`
+
+### Testing Vercel Cron Jobs Locally
+To test the exact same authentication that Vercel Cron will use in production:
+```bash
+# Extract secret from environment
+CRON_SECRET=$(grep CRON_SECRET .env.local | cut -d'"' -f2)
+
+# Test exactly like Vercel Cron will call it
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/daily-update-polymarket-data
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/daily-generate-batch-predictions
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/prediction-check
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/update-ai-models
+```
+
 ## Database Guidelines
 - Wait for user confirmation before moving forward with changes to the Database schema. Ask for user confirmation before moving forward.
 - Always use Prisma queries from `lib/db/queries.ts`
@@ -28,6 +46,9 @@ This is a Next.js prediction market application that integrates with Polymarket 
 
 ## API Design
 - Use Next.js API routes in `app/api/`
+- All cron endpoints (`/api/cron/*`) must require authentication via `CRON_SECRET`
+- Use `Authorization: Bearer $CRON_SECRET` header for cron authentication
+- Implement maximum batch limits (typically 50-100) to prevent resource exhaustion
 - Return consistent `ApiResponse` format
 - Include proper error handling and logging
 - Use appropriate HTTP status codes

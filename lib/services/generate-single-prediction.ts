@@ -189,7 +189,34 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
 
     await new Promise(resolve => setTimeout(resolve, 1000)) // Delay to avoid rate limiting
 
-    const predictionResult = await fetchPredictionFromOpenRouter(model, systemMessage, userMessage)
+    let predictionResult: any;
+    try {
+      predictionResult = await fetchPredictionFromOpenRouter(model, systemMessage, userMessage)
+    } catch (error) {
+      console.error(`Error generating prediction for market ${marketId}:`, error)
+      
+      // If it's a JSON parsing error, try with a fallback model
+      if (error instanceof Error && error.message.includes('invalid JSON response')) {
+        console.log(`Retrying with fallback model for market ${marketId}`)
+        
+        try {
+          // Retry with Claude which tends to be more reliable with JSON
+          const fallbackModel = 'anthropic/claude-3-haiku:beta'
+          await new Promise(resolve => setTimeout(resolve, 1000)) // Additional delay for retry
+          predictionResult = await fetchPredictionFromOpenRouter(fallbackModel, systemMessage, userMessage)
+          console.log(`Fallback model succeeded for market ${marketId}`)
+        } catch (fallbackError) {
+          console.error(`Fallback model also failed for market ${marketId}:`, fallbackError)
+          return { 
+            success: false, 
+            message: `Both primary (${model}) and fallback (anthropic/claude-3-haiku) models failed for market ${marketId}. Primary error: ${error.message}` 
+          }
+        }
+      } else {
+        // For other errors, re-throw
+        throw error
+      }
+    }
 
     const predictionId = await savePrediction(
       marketId,
