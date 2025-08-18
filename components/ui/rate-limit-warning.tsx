@@ -8,14 +8,14 @@ interface RateLimitWarningProps {
   remaining: number;
   resetTime: Date;
   className?: string;
-  variant?: 'warning' | 'destructive';
+  variant?: 'default' | 'destructive';
 }
 
 export function RateLimitWarning({ 
   remaining, 
   resetTime, 
   className,
-  variant = 'warning' 
+  variant = 'default' 
 }: RateLimitWarningProps) {
   const timeUntilReset = formatTimeUntilReset(resetTime);
   const isBlocked = remaining === 0;

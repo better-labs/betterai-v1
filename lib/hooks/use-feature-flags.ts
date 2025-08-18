@@ -19,7 +19,10 @@ export function useFeatureFlags() {
 
   useEffect(() => {
     // Update flags after client-side hydration
-    setFlags(getFeatureFlags());
+    setFlags(prevFlags => ({
+      ...prevFlags,
+      ...getFeatureFlags()
+    }));
   }, []);
 
   return flags;
