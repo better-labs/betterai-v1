@@ -82,3 +82,4 @@ This is a Next.js prediction market application that integrates with Polymarket 
 ## General Guidance
 - Use best practices where possible.
 - Prefer minimal code where possible.
+- Prefer using existing popular libraries and frameworks for solutions rather than custom code where possible. Please suggest and ask for feedback where existing libraries can be used.

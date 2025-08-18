@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { eventQueries, NewEvent } from '@/lib/db/queries'
 import type { ApiResponse } from '@/lib/types'
+import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
@@ -71,6 +72,17 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    // Check rate limit for event write operations
+    const identifier = await getRateLimitIdentifier(request)
+    const rateLimitResult = await checkRateLimit('eventWrite', identifier)
+    
+    if (!rateLimitResult.success) {
+      return createRateLimitResponse(
+        rateLimitResult.remaining || 0,
+        rateLimitResult.reset || new Date(Date.now() + 3600000)
+      )
+    }
+    
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     
@@ -106,6 +118,17 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Check rate limit for event write operations
+    const identifier = await getRateLimitIdentifier(request)
+    const rateLimitResult = await checkRateLimit('eventWrite', identifier)
+    
+    if (!rateLimitResult.success) {
+      return createRateLimitResponse(
+        rateLimitResult.remaining || 0,
+        rateLimitResult.reset || new Date(Date.now() + 3600000)
+      )
+    }
+    
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     

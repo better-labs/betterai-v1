@@ -6,7 +6,8 @@ This runbook documents safe database operations for BetterAI across development,
 Environments recap:
 Hosting: single Vercel project. 
 Environment Variables: Vercel is source of truth. Vercel CLI used to pull new values to dev.
-Database: Single Neon database. Branches used for preview (on deman) and /dev (long running).
+Postgres Database: Single Neon database. Branches used for preview (on deman) and /dev (long running).
+Redis Database: single Upstash instance for all environments. Namespaces used to separate environments.
 User Authentication: Privy Prod and Dev only. Not testing privy flows in Preview, b/c custom subdomains in Vercel cost $100/mo
 Stripe: (future) Stripe Test keys for dev/preview, Live keys for prod
 
