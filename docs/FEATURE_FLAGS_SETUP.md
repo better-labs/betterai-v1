@@ -45,7 +45,7 @@ SHOW_PRIVACY=false
 
 | Flag | Key | Description | Default (Dev) | Default (Prod) |
 |------|-----|-------------|---------------|----------------|
-| Market Alpha | `show-market-alpha` | Controls Market Alpha page visibility | Visible | Hidden |
+
 | Portfolio | `show-portfolio` | Controls Portfolio page visibility | Visible | Hidden |
 | Search | `show-search` | Controls Search functionality | Visible | Hidden |
 | Activity | `show-activity` | Controls Activity page visibility | Visible | Hidden |
@@ -90,8 +90,8 @@ export function MyComponent() {
   
   return (
     <div>
-      {flags.showMarketAlpha && (
-        <Link href="/market-alpha">Market Alpha</Link>
+      {flags.showPortfolio && (
+        <Link href="/portfolio">Portfolio</Link>
       )}
     </div>
   );
@@ -106,11 +106,11 @@ import { getFeatureFlags } from '@/lib/hooks/use-feature-flags';
 export default async function MyPage() {
   const flags = await getFeatureFlags();
   
-  if (!flags.showMarketAlpha) {
+  if (!flags.showPortfolio) {
     redirect('/');
   }
   
-  return <div>Market Alpha Content</div>;
+  return <div>Portfolio Content</div>;
 }
 ```
 

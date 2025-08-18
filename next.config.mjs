@@ -3,6 +3,12 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Memory optimization for development
+  experimental: {
+    // Reduce memory usage in development
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  },
+  // Optimize images
   images: {
     // Use Next.js image optimizer and allow S3/Polymarket hosts
     remotePatterns: [

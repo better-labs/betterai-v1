@@ -118,6 +118,19 @@ Follow the project's `.cursorrules` for consistent development:
 - `GET /api/events` - List events with markets
 - `POST /api/run-data-pipeline` - Manual data pipeline trigger (authenticated)
 
+### Cron Job Endpoints (Authenticated)
+All cron endpoints require `CRON_SECRET` authentication via `Authorization: Bearer` header:
+- `GET /api/cron/daily-update-polymarket-data` - Sync Polymarket events and markets (max 100 per request)
+- `GET /api/cron/daily-generate-batch-predictions` - Generate AI predictions for trending markets
+- `GET /api/cron/prediction-check` - Validate and score existing predictions
+- `GET /api/cron/update-ai-models` - Refresh available AI model list
+
+**Security Requirements:**
+- All cron endpoints are secured with `CRON_SECRET` environment variable
+- Use `Authorization: Bearer $CRON_SECRET` header for manual testing
+- Vercel Cron automatically injects the header in production
+- Maximum batch limits enforced to prevent resource exhaustion
+
 ## Feature Development Guidelines
 
 ### Authentication Requirements
@@ -157,6 +170,7 @@ See `TODO.md` for detailed current implementation tasks and priorities.
 - **Rate Limiting**: Implement per-user quotas before public launch
 - **Data Pipeline**: Multi-step AI-enhanced research process for predictions
 - **Cron Jobs**: Automated daily tasks for data updates and batch predictions
+- **Cron Authentication**: All cron endpoints require `Authorization: Bearer $CRON_SECRET` header
 - **Environment Strategy**: Use `.env.local` (not `.env`), update `.env.example` for new variables
 - **Documentation**: Add single-line comments to explain major code sections
 

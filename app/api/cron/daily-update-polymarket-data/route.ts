@@ -4,6 +4,36 @@ import { updatePolymarketEventsAndMarketData } from '@/lib/services/updatePolyma
 
 export const maxDuration = 300
 
+// Security: Authenticate cron requests
+function authenticateCronRequest(request: NextRequest): boolean {
+  const cronSecret = process.env.CRON_SECRET
+  
+  if (!cronSecret) {
+    console.error('CRON_SECRET environment variable not set')
+    return false
+  }
+  
+  // Check Authorization header
+  const authHeader = request.headers.get('authorization')
+  if (authHeader === `Bearer ${cronSecret}`) {
+    return true
+  }
+  
+  // Check x-cron-secret header (alternative method)
+  const cronSecretHeader = request.headers.get('x-cron-secret')
+  if (cronSecretHeader === cronSecret) {
+    return true
+  }
+  
+  // Check Vercel Cron authentication (if deployed on Vercel)
+  const vercelCronSecret = request.headers.get('x-vercel-cron-secret')
+  if (vercelCronSecret && vercelCronSecret === cronSecret) {
+    return true
+  }
+  
+  return false
+}
+
 // Input validation function
 function validateQueryParams(
   limit: number,
@@ -17,9 +47,9 @@ function validateQueryParams(
 ) {
   const errors: string[] = []
   
-  // Validate limit (1-10000)
-  if (isNaN(limit) || limit < 1 || limit > 10000) {
-    errors.push('limit must be a number between 1 and 10000')
+  // Validate limit (1-100) - Security: Prevent dump-style requests
+  if (isNaN(limit) || limit < 1 || limit > 100) {
+    errors.push('limit must be a number between 1 and 100')
   }
   
   // Validate delayMs (0-10000ms)
@@ -62,11 +92,21 @@ function validateQueryParams(
 
 export async function GET(request: NextRequest) {
   try {
+    // Security: Authenticate the request
+    if (!authenticateCronRequest(request)) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Unauthorized. This endpoint requires authentication.' 
+        } as ApiResponse),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
 
     const url = request.nextUrl
 
-    // Defaults from env with sensible fallbacks
-    const defaultLimit = Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 100)
+    // Defaults from env with sensible fallbacks (Security: Conservative limit)
+    const defaultLimit = Math.min(Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50), 100)
     const defaultDelayMs = Number(process.env.POLYMARKET_UPDATE_DELAY_MS ?? 1000)
     const defaultDaysPast = Number(process.env.POLYMARKET_UPDATE_DAYS_PAST ?? 8)
     const defaultDaysFuture = Number(process.env.POLYMARKET_UPDATE_DAYS_FUTURE ?? 21)

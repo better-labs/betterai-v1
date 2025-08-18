@@ -54,6 +54,8 @@
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
     "@solana/spl-token": "^0.4.13",
+    "@upstash/ratelimit": "^2.0.6",
+    "@vercel/kv": "^3.0.0",
     "ai": "latest",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",

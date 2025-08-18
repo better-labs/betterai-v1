@@ -27,13 +27,6 @@ const isEnabled = (envVar: string, defaultValue: boolean): boolean => {
 };
 
 // Page visibility flags - default to true for development, false for production
-export const showMarketAlpha: FeatureFlag = {
-  key: 'show-market-alpha',
-  description: 'Show Market Alpha page',
-  defaultValue: false,
-  getValue: () => isEnabled('SHOW_MARKET_ALPHA', false)
-};
-
 export const showPortfolio: FeatureFlag = {
   key: 'show-portfolio', 
   description: 'Show Portfolio/My Portfolio page',
@@ -78,7 +71,6 @@ export const showLoginSignup: FeatureFlag = {
 
 // Convenience functions for easy usage
 export const getFeatureFlags = () => ({
-  showMarketAlpha: showMarketAlpha.getValue(),
   showPortfolio: showPortfolio.getValue(),
   showSearch: showSearch.getValue(),
   showActivity: showActivity.getValue(),

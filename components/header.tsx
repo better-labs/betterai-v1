@@ -77,18 +77,7 @@ export function Header() {
                 About
               </Link>
               
-              {/* {flags.showMarketAlpha && (
-                <Link 
-                  href="/market-alpha" 
-                  className={`text-sm font-medium transition-colors ${
-                    isActive("/market-alpha") 
-                      ? "text-foreground border-b-2 border-primary pb-1" 
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Market Alpha
-                </Link>
-              )} */}
+
               {/* {flags.showPortfolio && (
                 <Link 
                   href="/portfolio" 
@@ -204,13 +193,7 @@ export function Header() {
                     <span>About</span>
                   </Link>
                 </DropdownMenuItem>
-                {/* {flags.showMarketAlpha && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/market-alpha" className={`w-full ${isActive("/market-alpha") ? "bg-accent" : ""}`}>
-                      <span>Market Alpha</span>
-                    </Link>
-                  </DropdownMenuItem>
-                )} */}
+
                 {/* {flags.showPortfolio && (
                   <DropdownMenuItem asChild>
                     <Link href="/portfolio" className={`w-full ${isActive("/portfolio") ? "bg-accent" : ""}`}>

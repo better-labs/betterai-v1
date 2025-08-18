@@ -21,7 +21,6 @@ export function middleware(request: NextRequest) {
 
   // Define routes that should be protected by feature flags
   const protectedRoutes = [
-    { path: '/market-alpha', enabled: flags.showMarketAlpha },
     { path: '/portfolio', enabled: flags.showPortfolio },
     { path: '/search', enabled: flags.showSearch },
     { path: '/activity', enabled: flags.showActivity },
