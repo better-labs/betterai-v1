@@ -143,7 +143,7 @@ export async function generateBatchPredictions(
   options?: { concurrency?: number }
 ): Promise<Array<{marketId: string, success: boolean, message: string}>> {
   const results: Array<{marketId: string, success: boolean, message: string}> = []
-  const concurrency = Math.max(1, options?.concurrency ?? 3)
+  const concurrency = Math.max(1, options?.concurrency ?? 1) // Reduced from 3 to 1 to avoid rate limits
 
   let index = 0
   async function worker(workerId: number) {

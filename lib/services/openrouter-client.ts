@@ -47,11 +47,19 @@ export async function fetchPredictionFromOpenRouter(
   } as const
 
   async function postWithBody(body: Record<string, unknown>) {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error('OPENROUTER_API_KEY environment variable is not set');
+    }
+    
+    console.log(`Making OpenRouter API request to ${body.model} (user message length: ${(body.messages as any)?.[1]?.content?.length || 0})`);
+    
     return fetch(`${OPENROUTER_API_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://betterai.com',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://betterai.tools',
         'X-Title': 'BetterAI Prediction Service',
         'Content-Type': 'application/json',
       },
