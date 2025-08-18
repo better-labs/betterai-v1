@@ -43,6 +43,7 @@ export async function runDataPipeline(
 
     const predictionResult = await generatePredictionForMarket(
       marketId,
+      undefined, // userId
       modelName,
       JSON.stringify(researchResult.research),
     );
