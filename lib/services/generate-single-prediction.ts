@@ -187,7 +187,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
     const model = modelName || DEFAULT_MODEL
     const { systemMessage, userMessage } = constructPredictionPrompt(market, additionalUserMessageContext)
 
-    await new Promise(resolve => setTimeout(resolve, 1000)) // Delay to avoid rate limiting
+    await new Promise(resolve => setTimeout(resolve, 2000)) // Increased delay to avoid rate limiting
 
     let predictionResult: any;
     try {
@@ -195,8 +195,8 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
     } catch (error) {
       console.error(`Error generating prediction for market ${marketId}:`, error)
       
-      // If it's a JSON parsing error, try with a fallback model
-      if (error instanceof Error && error.message.includes('invalid JSON response')) {
+      // If it's a JSON parsing error or empty response, try with a fallback model
+      if (error instanceof Error && (error.message.includes('invalid JSON response') || error.message.includes('empty content'))) {
         console.log(`Retrying with fallback model for market ${marketId}`)
         
         try {
