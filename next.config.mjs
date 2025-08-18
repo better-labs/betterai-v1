@@ -7,18 +7,7 @@ const nextConfig = {
   experimental: {
     // Reduce memory usage in development
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    // Disable some features in development to save memory
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
   },
-  // Reduce bundle size and memory usage
-  swcMinify: true,
   // Optimize images
   images: {
     // Use Next.js image optimizer and allow S3/Polymarket hosts

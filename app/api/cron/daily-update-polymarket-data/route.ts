@@ -8,9 +8,6 @@ export const maxDuration = 300
 function authenticateCronRequest(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET
   
-  console.log('DEBUG: CRON_SECRET exists:', !!cronSecret)
-  console.log('DEBUG: CRON_SECRET length:', cronSecret?.length || 0)
-  
   if (!cronSecret) {
     console.error('CRON_SECRET environment variable not set')
     return false
@@ -18,32 +15,22 @@ function authenticateCronRequest(request: NextRequest): boolean {
   
   // Check Authorization header
   const authHeader = request.headers.get('authorization')
-  console.log('DEBUG: Authorization header:', authHeader)
   if (authHeader === `Bearer ${cronSecret}`) {
-    console.log('DEBUG: Auth header matched!')
     return true
   }
   
   // Check x-cron-secret header (alternative method)
   const cronSecretHeader = request.headers.get('x-cron-secret')
-  console.log('DEBUG: x-cron-secret header:', cronSecretHeader)
-  console.log('DEBUG: Expected secret:', cronSecret)
-  console.log('DEBUG: Secrets match:', cronSecretHeader === cronSecret)
-  
   if (cronSecretHeader === cronSecret) {
-    console.log('DEBUG: x-cron-secret matched!')
     return true
   }
   
   // Check Vercel Cron authentication (if deployed on Vercel)
   const vercelCronSecret = request.headers.get('x-vercel-cron-secret')
-  console.log('DEBUG: x-vercel-cron-secret header:', vercelCronSecret)
   if (vercelCronSecret && vercelCronSecret === cronSecret) {
-    console.log('DEBUG: Vercel cron secret matched!')
     return true
   }
   
-  console.log('DEBUG: No authentication method matched')
   return false
 }
 
