@@ -204,19 +204,6 @@ model UserWatchlist {
   @@map("user_watchlist")
 }
 
-model Testerson1 {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  isActive    Boolean   @default(true) @map("is_active")
-  count       Int       @default(0)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
-
-  @@index([name], map: "idx_testerson1_name")
-  @@index([isActive], map: "idx_testerson1_is_active")
-  @@map("testerson1")
-}
 
 enum Category {
   ELECTIONS             @map("elections")
