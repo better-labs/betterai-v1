@@ -8,8 +8,11 @@ BetterAI is a Next.js 15 prediction market application built by a **solo founder
 
 **Core Value Proposition**: Everyone should be able to access world-class AI models with enriched data through a single click to enhance their prediction market decisions.
 
+
+## High level guidance to Claude on coding and design
 **Solo Founder Context**: This project is built and maintained by a single developer. Prioritize:
 - **Simplicity over complexity** - Choose straightforward solutions that are easy to maintain
+- **Less code is better** - Choose solutions that involve less custom code where possible.
 - **Proven technologies** - Use well-established libraries and patterns
 - **Minimal dependencies** - Avoid over-engineering for a 1-person team
 - **Clear documentation** - Write code that's easy to understand and modify later

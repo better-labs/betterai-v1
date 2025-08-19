@@ -156,7 +156,11 @@ export async function getTopMarketsByVolumeAndEndDate(
 export async function generateBatchPredictions(
   marketIds: string[],
   modelName?: string,
-  options?: { concurrency?: number }
+  options?: { 
+    concurrency?: number
+    experimentTag?: string
+    experimentNotes?: string
+  }
 ): Promise<Array<{marketId: string, success: boolean, message: string}>> {
   const results: Array<{marketId: string, success: boolean, message: string}> = []
   const concurrency = Math.max(1, options?.concurrency ?? 1) // Reduced from 3 to 1 to avoid rate limits
@@ -171,7 +175,7 @@ export async function generateBatchPredictions(
       index += 1
       const marketId = marketIds[current]
       try {
-        const result = await generatePredictionForMarket(marketId, undefined, modelName)
+        const result = await generatePredictionForMarket(marketId, undefined, modelName, undefined, options?.experimentTag, options?.experimentNotes)
         results.push({
           marketId,
           success: result.success,
@@ -198,6 +202,7 @@ export async function generateBatchPredictions(
  * Main function to get top markets and generate predictions for them
  * @param config - Configuration for the batch prediction
  * @param modelName - Optional AI model name to use
+ * @param experimentOptions - Optional experiment tracking options
  * @returns Promise<void>
  */
 export async function runBatchPredictionGeneration(
@@ -209,7 +214,11 @@ export async function runBatchPredictionGeneration(
     excludeCategories: [Category.CRYPTOCURRENCY],
     concurrencyPerModel: 3,
   },
-  modelName?: string
+  modelName?: string,
+  experimentOptions?: {
+    experimentTag?: string
+    experimentNotes?: string
+  }
 ): Promise<void> {
   try {
     console.log('Starting batch prediction generation...')
@@ -229,7 +238,11 @@ export async function runBatchPredictionGeneration(
     // Generate predictions for the selected markets
     console.log(`
 Generating predictions for ${marketIds.length} markets...`)
-    const results = await generateBatchPredictions(marketIds, modelName, { concurrency: config.concurrencyPerModel ?? 3 })
+    const results = await generateBatchPredictions(marketIds, modelName, { 
+      concurrency: config.concurrencyPerModel ?? 3,
+      experimentTag: experimentOptions?.experimentTag,
+      experimentNotes: experimentOptions?.experimentNotes
+    })
     
     // Log summary
     const successful = results.filter(r => r.success).length

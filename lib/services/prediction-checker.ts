@@ -130,8 +130,8 @@ export async function generatePredictionVsMarketDelta(
     }
 
     // Pull AI probability from stored arrays (index 0)
-    const aiProbDecimal = Array.isArray((p as any).outcomesProbabilities) && (p as any).outcomesProbabilities.length > 0
-      ? (p as any).outcomesProbabilities[0]
+    const aiProbDecimal = Array.isArray((p as Record<string, unknown>).outcomesProbabilities) && (p as Record<string, unknown>).outcomesProbabilities.length > 0
+      ? (p as Record<string, unknown>).outcomesProbabilities[0]
       : null
     const firstOutcomeDecimal = Array.isArray(market.outcomePrices) && market.outcomePrices.length > 0
       ? market.outcomePrices[0]
