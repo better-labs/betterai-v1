@@ -211,4 +211,4 @@ jobs:
           echo "1. Check migration files in prisma/migrations/"
           echo "2. Verify no destructive operations"
           echo "3. Consider data backup if needed"
-          echo "4. Re-run workflow with 'auto' type when ready"
+          echo "4. Re-run workflow with 'auto' type when ready."
