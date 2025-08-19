@@ -106,9 +106,8 @@ jobs:
     if: |
       needs.detect-changes.outputs.migration_needed == 'true' && 
       (github.event_name == 'push' || github.event.inputs.migration_type != 'manual-review')
-    # environment: 
-    #   name: production
-    #   url: ${{ vars.PRODUCTION_URL }}
+    environment: 
+      name: production
     env:
       DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
     steps:
@@ -212,4 +211,4 @@ jobs:
           echo "1. Check migration files in prisma/migrations/"
           echo "2. Verify no destructive operations"
           echo "3. Consider data backup if needed"
-          echo "4. Re-run workflow with 'auto' type when ready"
+          echo "4. Re-run workflow with 'auto' type when ready."

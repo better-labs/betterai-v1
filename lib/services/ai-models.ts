@@ -46,6 +46,7 @@ export async function updateAIModels(): Promise<AIModelsUpdateStats> {
       perRequestLimits: model.per_request_limits,
       supportedParameters: model.supported_parameters,
       updatedAt: new Date(),
+      migrationTestNote: null, // Test field for migration workflow
     }))
 
     console.log(`Upserting ${modelsToUpsert.length} AI models...`)

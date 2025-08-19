@@ -23,7 +23,7 @@ model AiModel {
   huggingFaceId       String?   @map("hugging_face_id")
   perRequestLimits    Json?     @map("per_request_limits")
   supportedParameters Json?     @map("supported_parameters")
-
+  migrationTestNote   String?   @map("migration_test_note") // Safe test field for production migration workflow
   updatedAt           DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
   @@index([canonicalSlug], map: "idx_ai_models_canonical_slug")

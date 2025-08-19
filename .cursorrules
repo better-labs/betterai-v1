@@ -1,9 +1,16 @@
 # Cursor AI Configuration for BetterAI Project
 
 ## Project Overview
-This is a Next.js prediction market application that integrates with Polymarket and Colosseum APIs. The app uses Prisma with PostgreSQL for data management.
+This is a Next.js prediction market application built by a **solo founder** that integrates with Polymarket and Colosseum APIs. The app uses Prisma with PostgreSQL for data management.
 
 **Infrastructure:** The entire application runs on Vercel infrastructure, including hosting, serverless functions, and database connections.
+
+**Solo Founder Context:** This project is built and maintained by a single developer. Prioritize:
+- **Simplicity over complexity** - Choose straightforward solutions that are easy to maintain
+- **Proven technologies** - Use well-established libraries and patterns  
+- **Minimal dependencies** - Avoid over-engineering for a 1-person team
+- **Clear documentation** - Write code that's easy to understand and modify later
+- **Gradual scaling** - Start simple, optimize later when needed
 
 ## Code Style & Patterns
 - Use TypeScript with strict typing
@@ -12,6 +19,7 @@ This is a Next.js prediction market application that integrates with Polymarket 
 - Prefer functional components with hooks
 - Use shadcn/ui components for UI consistency
 - Follow the existing file structure and naming conventions
+- **Keep it simple** - Avoid over-engineering for a solo founder project
 
 ### Running the development server
 - If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
@@ -41,6 +49,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - Use transactions for multi-step database operations
 - Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
 - Try to use the migration commands in package.json such as "db:migrate:deploy"
+- **Prefer simple queries** - Complex joins can be hard to debug for a solo developer
 ### Database Operations
 - Use commands in package.json where possible for database migration in Dev and Preview builds.
 
@@ -52,6 +61,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - Return consistent `ApiResponse` format
 - Include proper error handling and logging
 - Use appropriate HTTP status codes
+- **Start simple** - Use basic patterns that are easy to debug and maintain
 
 ## Raw Data Storage
 - Store raw API responses in separate `_raw` tables
@@ -71,23 +81,27 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - Use try-catch blocks with proper error logging
 - Return structured error responses
 - Include meaningful error messages for debugging
+- **Keep error handling simple** - Don't over-engineer for edge cases
 
 ## Performance Considerations
 - Use database indexes for common query patterns
 - Implement proper caching strategies
 - Optimize API calls with rate limiting
 - Clean up old raw data periodically
+- **Optimize when needed** - Don't pre-optimize for a solo founder project
 
 ## Security
 - Validate all user inputs
 - Use environment variables for sensitive data
 - Implement proper authentication for cron jobs
 - Sanitize data before database operations
+- **Start with basic security** - Add advanced features as needed
 
 ## Testing
 - Write unit tests for business logic
 - Test API endpoints with proper error cases
 - Validate database operations
+- **Keep testing practical** - Focus on critical paths for a solo founder
 
 ## Documentation
 - Be concise where possible
@@ -106,3 +120,5 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - Use best practices where possible.
 - Prefer minimal code where possible.
 - Prefer using existing popular libraries and frameworks for solutions rather than custom code where possible. Please suggest and ask for feedback where existing libraries can be used.
+- **Solo Founder Approach**: Prefer simple, maintainable solutions over complex architectures
+- **Start simple, scale later**: Don't over-engineer for future needs that may never come
