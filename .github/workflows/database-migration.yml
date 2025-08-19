@@ -39,10 +39,10 @@ jobs:
           fetch-depth: 0
 
       - name: Check for changes
+        if: github.event_name == 'push'
         uses: dorny/paths-filter@v3
         id: changes
         with:
-          base: ${{ github.event.before || 'HEAD~1' }}
           filters: |
             schema:
               - 'prisma/schema.prisma'
