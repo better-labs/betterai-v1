@@ -48,7 +48,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - Add new queries to the appropriate query object
 - Use transactions for multi-step database operations
 - Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
-- Try to use the migration commands in package.json such as "db:migrate:deploy"
+- Try to use the migration commands in package.json such as "db:migrate:deploy:dev"
 - **Prefer simple queries** - Complex joins can be hard to debug for a solo developer
 ### Database Operations
 - Use commands in package.json where possible for database migration in Dev and Preview builds.
