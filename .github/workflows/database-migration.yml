@@ -36,12 +36,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Check for changes
         uses: dorny/paths-filter@v3
         id: changes
         with:
+          base: ${{ github.event.before || 'HEAD~1' }}
           filters: |
             schema:
               - 'prisma/schema.prisma'
@@ -51,10 +52,15 @@ jobs:
       - name: Determine if migration needed
         id: check
         run: |
-          if [[ "${{ steps.changes.outputs.schema }}" == "true" || "${{ steps.changes.outputs.migrations }}" == "true" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "migration_needed=true" >> $GITHUB_OUTPUT
+            echo "Manual workflow dispatch - assuming migration needed"
+          elif [[ "${{ steps.changes.outputs.schema }}" == "true" || "${{ steps.changes.outputs.migrations }}" == "true" ]]; then
+            echo "migration_needed=true" >> $GITHUB_OUTPUT
+            echo "Schema or migration changes detected"
           else
             echo "migration_needed=false" >> $GITHUB_OUTPUT
+            echo "No migration changes detected"
           fi
 
   validate-migration:
