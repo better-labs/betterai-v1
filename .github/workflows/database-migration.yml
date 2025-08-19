@@ -2,7 +2,7 @@ name: Production Database Migration
 
 on:
   push:
-    branches: [main]
+    branches: [main, monday-experimentation-enhancements]
     paths:
       - 'prisma/schema.prisma'
       - 'prisma/migrations/**'
