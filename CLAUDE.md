@@ -100,6 +100,14 @@ Follow the project's `.cursorrules` for consistent development:
 - Store raw API responses with metadata (marketId, eventId, apiEndpoint, responseStatus, fetchedAt)
 - **Prefer simple queries** - Complex joins can be hard to debug for a solo developer
 
+### Database Migrations
+- Use `pnpm run db:migrate:dev` for development migrations
+- Use `pnpm run db:migrate:deploy` for production deployments
+- Use `pnpm run db:migrate:status` to check migration status
+- **Migration naming**: Provide `--name descriptive_name` to avoid interactive prompts
+- **Example**: `pnpm run db:migrate:dev --name add_user_table`
+- Always test migrations in development before deploying to production
+
 ### Security Best Practices
 - Validate all user inputs
 - Use environment variables for sensitive data (in `.env.local`, not `.env`)
