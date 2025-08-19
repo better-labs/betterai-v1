@@ -3,6 +3,8 @@ generator client {
   output   = "../lib/generated/prisma"
 }
 
+// GitHub Actions Migration Test - This comment triggers workflow
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -21,7 +23,7 @@ model AiModel {
   huggingFaceId       String?   @map("hugging_face_id")
   perRequestLimits    Json?     @map("per_request_limits")
   supportedParameters Json?     @map("supported_parameters")
-  testField           String?   @map("test_field") // Test field for GitHub Actions migration
+
   updatedAt           DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
   @@index([canonicalSlug], map: "idx_ai_models_canonical_slug")
