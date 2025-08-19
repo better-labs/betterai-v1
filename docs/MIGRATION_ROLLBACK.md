@@ -90,7 +90,7 @@ The GitHub Actions workflow includes basic rollback detection:
 1. **Assess the situation**:
    ```bash
    # Check current migration status
-   pnpm run db:migrate:status
+   pnpm run db:migrate:status:dev
    
    # Check application health
    curl -f $PRODUCTION_URL/api/health
@@ -113,7 +113,7 @@ The GitHub Actions workflow includes basic rollback detection:
 4. **Verify rollback**:
    ```bash
    # Check schema state
-   pnpm run db:migrate:status
+   pnpm run db:migrate:status:dev
    
    # Test application functionality
    # Run critical user flows
@@ -350,7 +350,7 @@ pnpm run db:migrate:dev --name "rollback_${MIGRATION_NAME}"
 # scripts/check-db-state.sh
 
 echo "Checking database state..."
-pnpm run db:migrate:status
+pnpm run db:migrate:status:dev
 echo "Checking application health..."
 curl -f $NEXT_PUBLIC_APP_URL/api/health
 echo "Checking recent migrations..."

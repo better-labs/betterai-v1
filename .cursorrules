@@ -3,14 +3,19 @@
 ## Project Overview
 This is a Next.js prediction market application built by a **solo founder** that integrates with Polymarket and Colosseum APIs. The app uses Prisma with PostgreSQL for data management.
 
-**Infrastructure:** The entire application runs on Vercel infrastructure, including hosting, serverless functions, and database connections.
+**Infrastructure:** The entire application runs on Vercel infrastructure, including hosting, serverless functions, and database connections. Please see RUNBOOK.md for more information.
 
-**Solo Founder Context:** This project is built and maintained by a single developer. Prioritize:
+
+
+## High level guidance to Claude on coding and design
+**Solo Founder Context**: This project is built and maintained by a single developer. Prioritize:
 - **Simplicity over complexity** - Choose straightforward solutions that are easy to maintain
-- **Proven technologies** - Use well-established libraries and patterns  
+- **Less code is better** - Choose solutions that involve less custom code where possible.
+- **Proven technologies** - Use well-established libraries and patterns
 - **Minimal dependencies** - Avoid over-engineering for a 1-person team
 - **Clear documentation** - Write code that's easy to understand and modify later
 - **Gradual scaling** - Start simple, optimize later when needed
+
 
 ## Code Style & Patterns
 - Use TypeScript with strict typing
@@ -48,7 +53,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - Add new queries to the appropriate query object
 - Use transactions for multi-step database operations
 - Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
-- Try to use the migration commands in package.json such as "db:migrate:deploy"
+- Try to use the migration commands in package.json such as "db:migrate:deploy:dev"
 - **Prefer simple queries** - Complex joins can be hard to debug for a solo developer
 ### Database Operations
 - Use commands in package.json where possible for database migration in Dev and Preview builds.

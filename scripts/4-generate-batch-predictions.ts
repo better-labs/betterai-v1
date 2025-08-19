@@ -14,15 +14,43 @@ if (!process.env.DATABASE_URL) {
   process.exit(1)
 }
 
+// Parse command line arguments
+function parseArgs() {
+  const args = process.argv.slice(2)
+  const parsed: { experimentTag?: string; experimentNotes?: string; modelName?: string } = {}
+  
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    if (arg === '--experiment-tag' && args[i + 1]) {
+      parsed.experimentTag = args[i + 1]
+      i++ // Skip next arg since we consumed it
+    } else if (arg === '--experiment-notes' && args[i + 1]) {
+      parsed.experimentNotes = args[i + 1]
+      i++
+    } else if (arg === '--model' && args[i + 1]) {
+      parsed.modelName = args[i + 1]
+      i++
+    }
+  }
+  
+  return parsed
+}
+
 async function main() {
+  const { experimentTag, experimentNotes, modelName } = parseArgs()
+  
   console.log('Starting batch prediction generation...')
+  if (experimentTag) {
+    console.log(`🧪 Experiment: ${experimentTag}`)
+    if (experimentNotes) {
+      console.log(`📝 Notes: ${experimentNotes}`)
+    }
+  }
   
   try {
     // Dynamically import the function after environment variables are loaded
     const { runBatchPredictionGeneration } = await import('@/lib/services/generate-batch-predictions')
     
-    //await runBatchPredictionGeneration()
-
     await runBatchPredictionGeneration(
       {
         topMarketsCount: 10,
@@ -30,8 +58,11 @@ async function main() {
         targetDaysFromNow: 7,
         categoryMix: true
       },
-      'google/gemini-2.5-flash'
-      //'google/gemini-2.0-flash-001'
+      modelName || 'google/gemini-2.5-flash',
+      {
+        experimentTag,
+        experimentNotes
+      }
     )
 
     console.log('Batch prediction generation completed successfully!')

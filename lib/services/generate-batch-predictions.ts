@@ -21,7 +21,7 @@ interface MarketWithEndDate {
 }
 
 /**
- * Get top markets by volume that end within a specified time range
+ * Get top markets by volume whose events end within a specified time range
  * @param config - Configuration for the batch prediction
  * @returns Promise<MarketWithEndDate[]>
  */
@@ -42,24 +42,31 @@ export async function getTopMarketsByVolumeAndEndDate(
     const rangeStart = new Date(targetDate.getTime() - config.endDateRangeHours * 60 * 60 * 1000)
     const rangeEnd = new Date(targetDate.getTime() + config.endDateRangeHours * 60 * 60 * 1000)
 
-    console.log(`Searching for markets ending between ${rangeStart.toISOString()} and ${rangeEnd.toISOString()}`)
+    console.log(`Searching for markets with events ending between ${rangeStart.toISOString()} and ${rangeEnd.toISOString()}`)
 
     // If categoryMix is true, pick the top market by volume for each category (via related event.category)
     if (config.categoryMix) {
-      const marketsInRange = await prisma.market.findMany({
+      const query = {
         where: {
-          endDate: {
-            gte: rangeStart,
-            lte: rangeEnd,
+          event: {
+            endDate: {
+              gte: rangeStart,
+              lte: rangeEnd,
+            },
           },
         },
-        orderBy: { volume: 'desc' },
+        orderBy: { volume: 'desc' } as const,
         include: {
           event: {
-            select: { category: true },
+            select: { category: true, endDate: true },
           },
         },
-      })
+      }
+      
+      console.log('Prisma query structure:', JSON.stringify(query, null, 2))
+      console.log(`Query date range: ${rangeStart.toISOString()} to ${rangeEnd.toISOString()}`)
+      
+      const marketsInRange = await prisma.market.findMany(query)
       console.log(`Found ${marketsInRange.length} markets in range`)
       const seenCategories = new Set<Category>()
       const selected: MarketWithEndDate[] = []
@@ -74,7 +81,7 @@ export async function getTopMarketsByVolumeAndEndDate(
           id: m.id,
           question: m.question,
           volume: m.volume ? m.volume.toNumber() : null,
-          endDate: m.endDate ?? null,
+          endDate: m.event?.endDate ?? null,
         })
         if (selected.length >= config.topMarketsCount) break
       }
@@ -85,17 +92,21 @@ export async function getTopMarketsByVolumeAndEndDate(
 
     // Otherwise: Query the top markets by volume in the range
     const whereClause: any = {
-      endDate: {
-        gte: rangeStart,
-        lte: rangeEnd,
+      event: {
+        endDate: {
+          gte: rangeStart,
+          lte: rangeEnd,
+        },
       },
     }
 
     if (config.excludeCategories && config.excludeCategories.length > 0) {
       whereClause.event = {
-        is: {
-          category: { notIn: config.excludeCategories },
+        endDate: {
+          gte: rangeStart,
+          lte: rangeEnd,
         },
+        category: { notIn: config.excludeCategories },
       }
     }
 
@@ -107,16 +118,21 @@ export async function getTopMarketsByVolumeAndEndDate(
         id: true,
         question: true,
         volume: true,
-        endDate: true,
+        event: {
+          select: {
+            endDate: true,
+          },
+        },
       },
     })
 
     // Convert volume from Decimal to number and filter out null values
     const processedMarkets: MarketWithEndDate[] = topMarkets
       .map((market) => ({
-        ...market,
+        id: market.id,
+        question: market.question,
         volume: market.volume ? market.volume.toNumber() : null,
-        endDate: market.endDate,
+        endDate: market.event?.endDate ?? null,
       }))
       .filter((market) => market.volume !== null) as MarketWithEndDate[]
 
@@ -140,7 +156,11 @@ export async function getTopMarketsByVolumeAndEndDate(
 export async function generateBatchPredictions(
   marketIds: string[],
   modelName?: string,
-  options?: { concurrency?: number }
+  options?: { 
+    concurrency?: number
+    experimentTag?: string
+    experimentNotes?: string
+  }
 ): Promise<Array<{marketId: string, success: boolean, message: string}>> {
   const results: Array<{marketId: string, success: boolean, message: string}> = []
   const concurrency = Math.max(1, options?.concurrency ?? 1) // Reduced from 3 to 1 to avoid rate limits
@@ -155,7 +175,7 @@ export async function generateBatchPredictions(
       index += 1
       const marketId = marketIds[current]
       try {
-        const result = await generatePredictionForMarket(marketId, undefined, modelName)
+        const result = await generatePredictionForMarket(marketId, undefined, modelName, undefined, options?.experimentTag, options?.experimentNotes)
         results.push({
           marketId,
           success: result.success,
@@ -182,6 +202,7 @@ export async function generateBatchPredictions(
  * Main function to get top markets and generate predictions for them
  * @param config - Configuration for the batch prediction
  * @param modelName - Optional AI model name to use
+ * @param experimentOptions - Optional experiment tracking options
  * @returns Promise<void>
  */
 export async function runBatchPredictionGeneration(
@@ -193,13 +214,17 @@ export async function runBatchPredictionGeneration(
     excludeCategories: [Category.CRYPTOCURRENCY],
     concurrencyPerModel: 3,
   },
-  modelName?: string
+  modelName?: string,
+  experimentOptions?: {
+    experimentTag?: string
+    experimentNotes?: string
+  }
 ): Promise<void> {
   try {
     console.log('Starting batch prediction generation...')
     console.log(`Config: ${config.topMarketsCount} markets, ±${config.endDateRangeHours}h around ${config.targetDaysFromNow} days from now`)
     
-    // Get top markets by volume and end date
+    // Get top markets by volume and event end date
     const topMarkets = await getTopMarketsByVolumeAndEndDate(config)
     
     if (topMarkets.length === 0) {
@@ -213,7 +238,11 @@ export async function runBatchPredictionGeneration(
     // Generate predictions for the selected markets
     console.log(`
 Generating predictions for ${marketIds.length} markets...`)
-    const results = await generateBatchPredictions(marketIds, modelName, { concurrency: config.concurrencyPerModel ?? 3 })
+    const results = await generateBatchPredictions(marketIds, modelName, { 
+      concurrency: config.concurrencyPerModel ?? 3,
+      experimentTag: experimentOptions?.experimentTag,
+      experimentNotes: experimentOptions?.experimentNotes
+    })
     
     // Log summary
     const successful = results.filter(r => r.success).length

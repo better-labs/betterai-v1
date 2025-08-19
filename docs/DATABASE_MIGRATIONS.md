@@ -184,7 +184,7 @@ pnpm prisma migrate status
 
 ```bash
 # Apply to local DB
-pnpm run db:migrate:deploy
+pnpm run db:migrate:deploy:dev
 
 # Generate Prisma client
 pnpm run db:prisma:generate

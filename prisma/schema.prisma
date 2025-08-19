@@ -143,6 +143,8 @@ model Prediction {
   outcomes              String[]
   outcomesProbabilities Decimal[]         @map("outcomes_probabilities") @db.Decimal
   userId                String?           @map("user_id")
+  experimentTag         String?           @map("experiment_tag")
+  experimentNotes       String?           @map("experiment_notes")
   predictionChecks      PredictionCheck[]
   market                Market            @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "predictions_market_id_markets_id_fk")
   user                  User?             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "predictions_user_id_users_id_fk")
@@ -150,6 +152,7 @@ model Prediction {
   @@index([createdAt], map: "idx_predictions_created_at")
   @@index([marketId], map: "idx_predictions_market_id")
   @@index([userId], map: "idx_predictions_user_id")
+  @@index([experimentTag], map: "idx_predictions_experiment_tag")
   @@map("predictions")
 }
 
