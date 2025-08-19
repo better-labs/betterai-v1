@@ -44,17 +44,18 @@ export function LeaderboardWrapper() {
       }
       
       const data = await response.json()
-      setLeaderboard(data.leaderboard || [])
+      const leaderboardData = data.data?.leaderboard || []
+      setLeaderboard(leaderboardData)
       
       // Calculate stats from leaderboard data
-      const totalModels = data.leaderboard?.length || 0
-      const totalPredictions = data.leaderboard?.reduce((sum: number, model: LeaderboardEntry) => 
+      const totalModels = leaderboardData.length || 0
+      const totalPredictions = leaderboardData.reduce((sum: number, model: LeaderboardEntry) => 
         sum + model.totalPredictions, 0) || 0
       const averageAccuracy = totalModels > 0 
-        ? data.leaderboard.reduce((sum: number, model: LeaderboardEntry) => 
+        ? leaderboardData.reduce((sum: number, model: LeaderboardEntry) => 
             sum + model.accuracyRate, 0) / totalModels
         : 0
-      const resolvedMarkets = data.leaderboard?.reduce((sum: number, model: LeaderboardEntry) => 
+      const resolvedMarkets = leaderboardData.reduce((sum: number, model: LeaderboardEntry) => 
         sum + model.resolvedPredictions, 0) || 0
       
       setStats({

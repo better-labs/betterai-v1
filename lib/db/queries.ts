@@ -909,13 +909,14 @@ export const leaderboardQueries = {
       const probabilities = prediction.outcomesProbabilities || []
       
       if (prices.length === 2 && probabilities.length === 2) {
-        // Check if market has a clear winner (one outcome = 1, other = 0)
+        // Convert Prisma Decimal to number and check if market has a clear winner
         const price1 = Number(prices[0])
         const price2 = Number(prices[1])
         const prob1 = Number(probabilities[0])
         const prob2 = Number(probabilities[1])
         
-        if (price1 === 1 || price2 === 1) {
+        // Check if market is resolved (one outcome = 1, other = 0)
+        if ((price1 === 1 && price2 === 0) || (price1 === 0 && price2 === 1)) {
           stats.resolvedPredictions++
           
           // Calculate AI confidence in the winning outcome
@@ -1025,12 +1026,14 @@ export const leaderboardQueries = {
       const probabilities = prediction.outcomesProbabilities || []
       
       if (prices.length === 2 && probabilities.length === 2) {
+        // Convert Prisma Decimal to number and check if market has a clear winner
         const price1 = Number(prices[0])
         const price2 = Number(prices[1])
         const prob1 = Number(probabilities[0])
         const prob2 = Number(probabilities[1])
         
-        if (price1 === 1 || price2 === 1) {
+        // Check if market is resolved (one outcome = 1, other = 0)
+        if ((price1 === 1 && price2 === 0) || (price1 === 0 && price2 === 1)) {
           stats.resolvedPredictions++
           
           const aiConfidenceInWinner = price1 === 1 ? prob1 : prob2
