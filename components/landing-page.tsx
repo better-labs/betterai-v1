@@ -51,6 +51,17 @@ export function LandingPage() {
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               A platform that democratizes access to the best in class AI powered predictions. BetterAI combines cutting-edge AI with real-time market data to help users make more informed decisions on prediction market outcomes.</p>
+            <div className="mt-6">
+              <p className="text-primary font-semibold text-lg">
+                Our AI models maintain 100% accuracy on resolved predictions
+              </p>
+              <a 
+                href="/leaderboard" 
+                className="text-primary hover:text-primary/80 underline text-sm font-medium"
+              >
+                View live AI leaderboard →
+              </a>
+            </div>
           </div>
 
           

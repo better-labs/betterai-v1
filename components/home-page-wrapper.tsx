@@ -59,6 +59,19 @@ export function HomePageWrapper() {
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
+          {/* AI Leaderboard Banner */}
+          <div className="text-center bg-muted/30 border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">
+              Track AI prediction accuracy.{" "}
+              <a 
+                href="/leaderboard" 
+                className="text-primary hover:text-primary/80 underline font-medium"
+              >
+                View live AI leaderboard →
+              </a>
+            </p>
+          </div>
+          
           {/* Hide trending events table for now */}
           {/* <TrendingEventsTable /> */}
           <PaginatedRecentPredictions defaultPageSize={15} />

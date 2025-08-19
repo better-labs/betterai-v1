@@ -67,6 +67,16 @@ export function Header() {
                 Home
               </Link>
               <Link 
+                href="/leaderboard" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/leaderboard") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Leaderboard
+              </Link>
+              <Link 
                 href="/about" 
                 className={`text-sm font-medium transition-colors ${
                   isActive("/about") 
@@ -186,6 +196,11 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/" className={`w-full ${isActive("/") ? "bg-accent" : ""}`}>
                     <span>Home</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/leaderboard" className={`w-full ${isActive("/leaderboard") ? "bg-accent" : ""}`}>
+                    <span>Leaderboard</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
