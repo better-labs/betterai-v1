@@ -106,9 +106,9 @@ jobs:
     if: |
       needs.detect-changes.outputs.migration_needed == 'true' && 
       (github.event_name == 'push' || github.event.inputs.migration_type != 'manual-review')
-    environment: 
-      name: production
-      url: ${{ vars.PRODUCTION_URL }}
+    # environment: 
+    #   name: production
+    #   url: ${{ vars.PRODUCTION_URL }}
     env:
       DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
     steps:
