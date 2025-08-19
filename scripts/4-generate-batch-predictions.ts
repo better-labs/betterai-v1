@@ -14,6 +14,7 @@ if (!process.env.DATABASE_URL) {
   process.exit(1)
 }
 
+
 async function main() {
   console.log('Starting batch prediction generation...')
   
