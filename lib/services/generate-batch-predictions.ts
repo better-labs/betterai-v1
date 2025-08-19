@@ -200,6 +200,7 @@ export async function runBatchPredictionGeneration(
     console.log(`Config: ${config.topMarketsCount} markets, ±${config.endDateRangeHours}h around ${config.targetDaysFromNow} days from now`)
     
     // Get top markets by volume and end date
+    // todo modify this to call a similar function that gets top markets by volume and their EVENT end date (not the market's end date).
     const topMarkets = await getTopMarketsByVolumeAndEndDate(config)
     
     if (topMarkets.length === 0) {
