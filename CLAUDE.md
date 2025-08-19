@@ -102,8 +102,8 @@ Follow the project's `.cursorrules` for consistent development:
 
 ### Database Migrations
 - Use `pnpm run db:migrate:dev` for development migrations
-- Use `pnpm run db:migrate:deploy` for production deployments (requires `.env.local`)
-- Use `pnpm run db:migrate:status` to check migration status (requires `.env.local`)
+- Use `pnpm run db:migrate:deploy:dev` for development deployments (requires `.env.local`)
+- Use `pnpm run db:migrate:status:dev` to check migration status (requires `.env.local`)
 - **Migration naming**: Provide `--name descriptive_name` to avoid interactive prompts
 - **Example**: `pnpm run db:migrate:dev --name add_user_table`
 - Always test migrations in development before deploying to production
