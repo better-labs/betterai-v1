@@ -1,4 +1,4 @@
-## RUNBOOK: Database Operations (BetterAI)
+# RUNBOOK: Database Operations (BetterAI)
 
 This runbook documents safe database operations for BetterAI across development, staging/preview, and production environments.
 
@@ -12,19 +12,20 @@ User Authentication: Privy Prod and Dev only. Not testing privy flows in Preview
 Stripe: (future) Stripe Test keys for dev/preview, Live keys for prod
 
 
+Preview rules of thumb: Database: mimic Prod. APIs/3rd-party services: mimic Dev (sandbox/test).
 
 
+## Weekly Maintenance:
+git clean-branches
 
-Preview rule of thumb: 
-Database: mimic Prod.
 
-APIs/3rd-party services: mimic Dev (sandbox/test).
+## Monthly Maintenance
 
 
 
 ## Future state Env Variables Matrix
 
-# BetterAI Environment Variables Matrix
+### BetterAI Environment Variables Matrix
 
 This document describes how BetterAI manages secrets across **Development**, **Preview**, and **Production**.  
 It assumes two roles per environment:
