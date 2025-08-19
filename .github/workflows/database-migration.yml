@@ -80,9 +80,13 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm run db:prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
 
       - name: Validate schema syntax
         run: npx prisma validate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
 
       - name: Check for destructive changes
         run: |
@@ -125,6 +129,8 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm run db:prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
 
       - name: Check migration status
         run: |
