@@ -84,7 +84,7 @@ jobs:
         run: pnpm run db:prisma:generate
 
       - name: Validate schema syntax
-        run: DATABASE_URL=$DATABASE_URL_UNPOOLED prisma validate
+        run: DATABASE_URL=$DATABASE_URL_UNPOOLED pnpm prisma validate
 
       - name: Check for destructive changes
         run: |
