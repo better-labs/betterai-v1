@@ -99,6 +99,8 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 ## Environment Variables
 - Always leverage .env.local instead of .env. Do not create a .env file.
 - Update .env.example to include new variables.
+- **NEVER** pull down production environment variables automatically. Always ask the user for specific values if production env vars are needed.
+- Use development environment variables by default: `vercel env pull .env.local --environment=development`
 
 ## General Guidance
 - Use best practices where possible.

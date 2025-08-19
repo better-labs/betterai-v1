@@ -4,9 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BetterAI is a Next.js 15 prediction market application that integrates with Polymarket and AI models to provide enhanced market predictions. The app enables non-technical users to invoke multiple AI models with enriched datasets to predict outcomes for prediction markets like Polymarket.
+BetterAI is a Next.js 15 prediction market application built by a **solo founder**. The app integrates with Polymarket and AI models to provide enhanced market predictions, enabling non-technical users to invoke multiple AI models with enriched datasets to predict outcomes for prediction markets like Polymarket.
 
 **Core Value Proposition**: Everyone should be able to access world-class AI models with enriched data through a single click to enhance their prediction market decisions.
+
+**Solo Founder Context**: This project is built and maintained by a single developer. Prioritize:
+- **Simplicity over complexity** - Choose straightforward solutions that are easy to maintain
+- **Proven technologies** - Use well-established libraries and patterns
+- **Minimal dependencies** - Avoid over-engineering for a 1-person team
+- **Clear documentation** - Write code that's easy to understand and modify later
+- **Gradual scaling** - Start simple, optimize later when needed
 
 **Key Files for Context**:
 - Read `TODO.md` for current implementation tasks and project goals
@@ -68,6 +75,7 @@ Follow the project's `.cursorrules` for consistent development:
 - Functional components with hooks preferred
 - Follow Next.js 15 App Router patterns
 - Use shadcn/ui components for consistency
+- **Keep it simple** - Avoid over-engineering for a solo founder project
 
 ### File Organization
 - **Components**: `components/` (reusable) and `app/` (page-specific)
@@ -82,6 +90,7 @@ Follow the project's `.cursorrules` for consistent development:
 - Include proper error handling and logging
 - Use appropriate HTTP status codes
 - Validate all inputs and implement proper authentication
+- **Start simple** - Use basic patterns that are easy to debug and maintain
 
 ### Database Guidelines
 - Always use Prisma queries from `lib/db/queries.ts`
@@ -89,6 +98,7 @@ Follow the project's `.cursorrules` for consistent development:
 - Use database indexes for common query patterns
 - Clean up old raw data periodically
 - Store raw API responses with metadata (marketId, eventId, apiEndpoint, responseStatus, fetchedAt)
+- **Prefer simple queries** - Complex joins can be hard to debug for a solo developer
 
 ### Security Best Practices
 - Validate all user inputs
@@ -96,6 +106,7 @@ Follow the project's `.cursorrules` for consistent development:
 - Implement proper authentication for cron jobs
 - Sanitize data before database operations
 - Never expose API keys or secrets in client code
+- **Start with basic security** - Add advanced features as needed
 
 ## Key Services & APIs
 
@@ -147,12 +158,14 @@ if (!user) {
 - Return structured error responses using `ApiResponse` type
 - Include meaningful error messages for debugging
 - Log errors appropriately for monitoring
+- **Keep error handling simple** - Don't over-engineer for edge cases
 
 ### Performance Considerations
 - Implement caching strategies for frequently accessed data
 - Use database transactions for multi-step operations
 - Process large datasets in chunks (see `upsertEvents` pattern)
 - Monitor API performance and implement rate limiting
+- **Optimize when needed** - Don't pre-optimize for a solo founder project
 
 ## Current Development Focus
 
@@ -173,6 +186,7 @@ See `TODO.md` for detailed current implementation tasks and priorities.
 - **Cron Authentication**: All cron endpoints require `Authorization: Bearer $CRON_SECRET` header
 - **Environment Strategy**: Use `.env.local` (not `.env`), update `.env.example` for new variables
 - **Documentation**: Add single-line comments to explain major code sections
+- **Solo Founder Approach**: Prefer simple, maintainable solutions over complex architectures
 
 ## Proactive Assistance
 
@@ -185,7 +199,7 @@ After completing any significant task or making changes to the codebase, Claude 
 - Integration opportunities
 - Code organization improvements
 
-These suggestions should be tailored to the specific context of what was just accomplished and aligned with the project's current development phase and goals outlined in `TODO.md`.
+These suggestions should be tailored to the specific context of what was just accomplished and aligned with the project's current development phase and goals outlined in `TODO.md`. **Remember this is a solo founder project** - prioritize suggestions that are practical and maintainable for a 1-person team.
 
 # Claude Code Configuration
 
@@ -215,3 +229,4 @@ Examples:
 - `(claude) Fix CSP configuration for Vercel deployments`
 
 This helps identify PRs created by Claude Code instances for better project management and review workflows.
+
