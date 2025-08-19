@@ -2,7 +2,7 @@ name: Production Database Migration
 
 on:
   push:
-    branches: [main, monday-experimentation-enhancements]
+    branches: [main]
     paths:
       - 'prisma/schema.prisma'
       - 'prisma/migrations/**'
@@ -79,14 +79,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: pnpm run db:prisma:generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          export DATABASE_URL="${{ secrets.DATABASE_URL_UNPOOLED }}"
+          pnpm run db:prisma:generate
 
       - name: Validate schema syntax
-        run: npx prisma validate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          export DATABASE_URL="${{ secrets.DATABASE_URL_UNPOOLED }}"
+          npx prisma validate
 
       - name: Check for destructive changes
         run: |
@@ -128,16 +128,15 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: pnpm run db:prisma:generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          export DATABASE_URL="${{ secrets.DATABASE_URL_UNPOOLED }}"
+          pnpm run db:prisma:generate
 
       - name: Check migration status
         run: |
           echo "🔍 Checking current migration status..."
+          export DATABASE_URL="${{ secrets.DATABASE_URL_UNPOOLED }}"
           npx prisma migrate status --schema=prisma/schema.prisma
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
 
       - name: Create database backup point
         if: github.event.inputs.migration_type != 'rollback'
@@ -151,9 +150,8 @@ jobs:
         if: github.event.inputs.migration_type != 'rollback'
         run: |
           echo "🚀 Running database migration..."
+          export DATABASE_URL="${{ secrets.DATABASE_URL_UNPOOLED }}"
           pnpm run db:migrate:deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
 
       - name: Handle rollback
         if: github.event.inputs.migration_type == 'rollback'
@@ -166,9 +164,8 @@ jobs:
       - name: Verify migration success
         run: |
           echo "✅ Verifying migration status..."
+          export DATABASE_URL="${{ secrets.DATABASE_URL_UNPOOLED }}"
           npx prisma migrate status --schema=prisma/schema.prisma
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED }}
 
       - name: Update migration log
         if: success()
