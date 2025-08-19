@@ -9,6 +9,8 @@
     "db:seed": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/3-generate-market-research.ts && tsx scripts/4-generate-batch-predictions.ts && tsx scripts/5-run-data-pipeline.ts",
     "db:prisma:generate": "prisma generate",
     "db:migrate:deploy": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate deploy",
+    "db:migrate:status": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate status",
+    "db:migrate:dev": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate dev",
     "db:prisma:studio": "prisma studio",
     "db:provision:roles": "tsx scripts/db/provision-db-roles.ts",
     "lint": "next lint",
