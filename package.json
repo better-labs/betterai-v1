@@ -12,6 +12,8 @@
     "db:migrate:status": "dotenv -e .env.local -- sh -c 'DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate status'",
     "db:migrate:dev": "dotenv -e .env.local -- sh -c 'DATABASE_URL=$DATABASE_URL_UNPOOLED npx prisma migrate dev'",
     "db:validate": "dotenv -e .env.local -- sh -c 'DATABASE_URL=$DATABASE_URL_UNPOOLED prisma validate'",
+    "db:migrate:deploy:ci": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate deploy",
+    "db:migrate:status:ci": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate status",
     "db:prisma:studio": "prisma studio",
     "db:provision:roles": "tsx scripts/db/provision-db-roles.ts",
     "lint": "next lint",

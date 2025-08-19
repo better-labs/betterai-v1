@@ -84,7 +84,7 @@ jobs:
         run: pnpm run db:prisma:generate
 
       - name: Validate schema syntax
-        run: pnpm run db:validate
+        run: DATABASE_URL=$DATABASE_URL_UNPOOLED prisma validate
 
       - name: Check for destructive changes
         run: |
@@ -132,7 +132,7 @@ jobs:
       - name: Check migration status
         run: |
           echo "🔍 Checking current migration status..."
-          pnpm run db:migrate:status
+          pnpm run db:migrate:status:ci
 
       - name: Create database backup point
         if: github.event.inputs.migration_type != 'rollback'
@@ -146,7 +146,7 @@ jobs:
         if: github.event.inputs.migration_type != 'rollback'
         run: |
           echo "🚀 Running database migration..."
-          pnpm run db:migrate:deploy
+          pnpm run db:migrate:deploy:ci
 
       - name: Handle rollback
         if: github.event.inputs.migration_type == 'rollback'
@@ -159,7 +159,7 @@ jobs:
       - name: Verify migration success
         run: |
           echo "✅ Verifying migration status..."
-          pnpm run db:migrate:status
+          pnpm run db:migrate:status:ci
 
       - name: Update migration log
         if: success()
