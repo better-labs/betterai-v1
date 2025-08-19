@@ -102,11 +102,18 @@ Follow the project's `.cursorrules` for consistent development:
 
 ### Database Migrations
 - Use `pnpm run db:migrate:dev` for development migrations
-- Use `pnpm run db:migrate:deploy` for production deployments
-- Use `pnpm run db:migrate:status` to check migration status
+- Use `pnpm run db:migrate:deploy` for production deployments (requires `.env.local`)
+- Use `pnpm run db:migrate:status` to check migration status (requires `.env.local`)
 - **Migration naming**: Provide `--name descriptive_name` to avoid interactive prompts
 - **Example**: `pnpm run db:migrate:dev --name add_user_table`
 - Always test migrations in development before deploying to production
+
+#### CI/CD Migration Commands
+**IMPORTANT**: GitHub Actions and CI/CD environments should use the `:ci` variants that don't require `.env.local`:
+- Use `pnpm run db:migrate:deploy:ci` for production deployments in CI/CD
+- Use `pnpm run db:migrate:status:ci` for migration status checks in CI/CD
+- These commands expect `DATABASE_URL_UNPOOLED` to be set as an environment variable
+- **Root Cause**: The regular migration commands use `dotenv -e .env.local` which fails in CI/CD environments where no `.env.local` file exists
 
 ### Security Best Practices
 - Validate all user inputs
