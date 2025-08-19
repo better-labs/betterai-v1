@@ -11,6 +11,7 @@
     "db:migrate:deploy": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate deploy",
     "db:migrate:status": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate status",
     "db:migrate:dev": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate dev",
+    "db:validate": "DATABASE_URL=$DATABASE_URL_UNPOOLED prisma validate",
     "db:prisma:studio": "prisma studio",
     "db:provision:roles": "tsx scripts/db/provision-db-roles.ts",
     "lint": "next lint",
