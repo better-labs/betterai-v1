@@ -46,26 +46,6 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
             <TooltipTrigger asChild>
               <div>
                 <ToggleGroupItem 
-                  value="markets" 
-                  className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
-                >
-                  Trending Markets
-                </ToggleGroupItem>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-64">
-              <p className="text-xs">
-                Shows predictions sorted by market trading volume for markets with AI predictions in the last 24 hours
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <ToggleGroupItem 
                   value="predictions" 
                   className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
                 >
@@ -76,6 +56,26 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
             <TooltipContent side="top" className="max-w-64">
               <p className="text-xs">
                 Shows predictions sorted by AI signal strength and disagreement with market odds
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ToggleGroupItem 
+                  value="markets" 
+                  className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
+                >
+                  Trending Markets
+                </ToggleGroupItem>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-64">
+              <p className="text-xs">
+                Shows predictions sorted by market trading volume for markets with AI predictions in the last 24 hours
               </p>
             </TooltipContent>
           </Tooltip>

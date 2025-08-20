@@ -266,6 +266,11 @@ export const tagQueries = {
   // Get popular tags ordered by total market volume of their associated events
   getPopularTagsByMarketVolume: async (limit: number = 10): Promise<Array<Tag & { totalVolume: number }>> => {
     const result = await prisma.tag.findMany({
+      where: {
+        label: {
+          notIn: ["Hide From New", "Weekly", "Recurring"]
+        }
+      },
       include: {
         events: {
           include: {
@@ -621,25 +626,33 @@ export const predictionQueries = {
       orderBy = [{ createdAt: 'desc' }] // For stable sorting when signal strength is similar
     }
 
-    let whereCondition: any = {}
-    
-    if (sortMode === 'markets') {
-      whereCondition = {
-        createdAt: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
-        },
-        market: {
-          volume: {
-            not: null
+    let whereCondition: any = {
+      market: {
+        event: {
+          eventTags: {
+            none: {
+              tag: {
+                label: {
+                  in: ["Hide From New", "Weekly", "Recurring"]
+                }
+              }
+            }
           }
         }
       }
+    }
+    
+    if (sortMode === 'markets') {
+      whereCondition.createdAt = {
+        gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+      }
+      whereCondition.market.volume = {
+        not: null
+      }
     } else if (sortMode === 'predictions') {
       // For predictions mode, only show predictions with AI probabilities
-      whereCondition = {
-        outcomesProbabilities: {
-          isEmpty: false
-        }
+      whereCondition.outcomesProbabilities = {
+        isEmpty: false
       }
     }
 
@@ -687,13 +700,28 @@ export const predictionQueries = {
     let whereCondition: any = {
       market: {
         event: {
-          eventTags: {
-            some: {
-              tagId: {
-                in: tagIds
+          AND: [
+            {
+              eventTags: {
+                some: {
+                  tagId: {
+                    in: tagIds
+                  }
+                }
+              }
+            },
+            {
+              eventTags: {
+                none: {
+                  tag: {
+                    label: {
+                      in: ["Hide From New", "Weekly", "Recurring"]
+                    }
+                  }
+                }
               }
             }
-          }
+          ]
         }
       }
     }
