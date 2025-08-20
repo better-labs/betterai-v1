@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { PrivyClientProvider } from "@/components/privy-client-provider"
+import { PostHogProvider } from "@/components/PostHogProvider"
 
 export const metadata: Metadata = {
   title: "BetterAI - AI-Powered Market Predictions",
@@ -39,22 +40,24 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <PrivyClientProvider>
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-          </PrivyClientProvider>
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <PrivyClientProvider>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </PrivyClientProvider>
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   )

@@ -3,7 +3,8 @@ import { twMerge } from "tailwind-merge"
 import { eventQueries, marketQueries } from "./db/queries"
 import type { Prediction, Market } from "./types"
 import { z } from "zod"
-import type { PredictionResult } from "./types"
+import type { PredictionResult, PolymarketEvent } from "./types"
+import { format } from 'd3-format'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -210,9 +211,12 @@ export function validateProbability(probability: unknown): number {
 /**
  * Formats a value as a percentage string, accepting 0..1 or 0..100 inputs.
  * Returns '—' for null/invalid values.
+ * Uses d3-format for robust number formatting.
  */
 export function formatPercent(value: unknown): string {
   if (value == null) return '—'
+
+  // Convert various input types to number
   let num: number | null = null
   if (typeof value === 'number') {
     num = value
@@ -220,17 +224,22 @@ export function formatPercent(value: unknown): string {
     const parsed = parseFloat(value)
     num = Number.isFinite(parsed) ? parsed : null
   } else if (typeof value === 'object') {
-    const anyVal = value as any
-    if (typeof anyVal?.toNumber === 'function') {
-      try { num = anyVal.toNumber() } catch { num = null }
-    } else if (typeof anyVal?.toString === 'function') {
-      const parsed = parseFloat(anyVal.toString())
+    const objVal = value as Record<string, unknown>
+    if (typeof objVal?.toNumber === 'function') {
+      try { num = (objVal as { toNumber(): number }).toNumber() } catch { num = null }
+    } else if (typeof objVal?.toString === 'function') {
+      const parsed = parseFloat(String(objVal.toString()))
       num = Number.isFinite(parsed) ? parsed : null
     }
   }
+
   if (num == null || !Number.isFinite(num)) return '—'
+
+  // Handle both 0..1 and 0..100 ranges
   const percent = num <= 1 ? num * 100 : num
-  return `${Math.round(percent)}%`
+
+  // Use d3-format for clean percentage formatting
+  return format('.0f')(percent) + '%'
 }
 
 /**
@@ -245,11 +254,11 @@ export function toUnitProbability(value: unknown): number | null {
     const parsed = parseFloat(value)
     num = Number.isFinite(parsed) ? parsed : null
   } else if (typeof value === 'object') {
-    const anyVal = value as any
-    if (typeof anyVal?.toNumber === 'function') {
-      try { num = anyVal.toNumber() } catch { num = null }
-    } else if (typeof anyVal?.toString === 'function') {
-      const parsed = parseFloat(anyVal.toString())
+    const objVal = value as Record<string, unknown>
+    if (typeof objVal?.toNumber === 'function') {
+      try { num = (objVal as { toNumber(): number }).toNumber() } catch { num = null }
+    } else if (typeof objVal?.toString === 'function') {
+      const parsed = parseFloat(String(objVal.toString()))
       num = Number.isFinite(parsed) ? parsed : null
     }
   }
@@ -270,7 +279,7 @@ export function toNumberOrNull(value: unknown): number | null {
     return Number.isFinite(n) ? n : null
   }
   try {
-    const n = Number(value as any)
+    const n = Number(value as Exclude<typeof value, null | undefined>)
     return Number.isFinite(n) ? n : null
   } catch {
     return null
@@ -284,15 +293,16 @@ export function toNumberOrNull(value: unknown): number | null {
  * - marketProbability from the related market's `outcomePrices[0]`
  */
 export function getPredictionDisplayData(
-  prediction: Prediction & { market: (Market & { event?: any }) | null }
+  prediction: Prediction & { market: (Market & { event?: PolymarketEvent }) | null }
 ): { aiProbability: number; reasoning: string | null; marketProbability: number | null } {
   let aiProbability = 0
   let reasoning: string | null = null
   let marketProbability: number | null = null
 
   // AI probability from stored array
-  const p0 = Array.isArray((prediction as any).outcomesProbabilities)
-    ? (prediction as any).outcomesProbabilities[0]
+  const predObj = prediction as Record<string, unknown>
+  const p0 = Array.isArray(predObj.outcomesProbabilities)
+    ? predObj.outcomesProbabilities[0]
     : null
   const p0Num = toNumberOrNull(p0)
   if (p0Num !== null) {
@@ -301,11 +311,11 @@ export function getPredictionDisplayData(
     // Fallback: parse aiResponse
     try {
       const parsed = JSON.parse(prediction.aiResponse as unknown as string)
-      const arr = (parsed as any)?.outcomesProbabilities
+      const arr = (parsed as Record<string, unknown>)?.outcomesProbabilities
       const first = Array.isArray(arr) ? toNumberOrNull(arr[0]) : null
       if (first !== null) aiProbability = Math.round(first * 100)
       if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
-        reasoning = String((parsed as any).reasoning)
+        reasoning = String((parsed as Record<string, unknown>).reasoning)
       }
     } catch {}
   }
@@ -315,15 +325,16 @@ export function getPredictionDisplayData(
     try {
       const parsed = JSON.parse(prediction.aiResponse as unknown as string)
       if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
-        reasoning = String((parsed as any).reasoning)
+        reasoning = String((parsed as Record<string, unknown>).reasoning)
       }
     } catch {}
   }
 
   // Market probability
-  const firstPrice = Array.isArray(prediction.market?.outcomePrices)
-    ? (prediction.market as any).outcomePrices[0]
-    : (prediction.market as any)?.outcomePrices?.[0]
+  const marketObj = prediction.market as Record<string, unknown> | null | undefined
+  const firstPrice = Array.isArray(marketObj?.outcomePrices)
+    ? (marketObj as { outcomePrices: unknown[] }).outcomePrices[0]
+    : (marketObj as { outcomePrices?: unknown[] })?.outcomePrices?.[0]
   const priceNum = toNumberOrNull(firstPrice)
   if (priceNum !== null) marketProbability = Math.round(priceNum * 100)
 

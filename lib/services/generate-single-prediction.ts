@@ -1,5 +1,5 @@
 import { marketQueries, predictionQueries, DEFAULT_MODEL } from '../db/queries'
-import { fetchPredictionFromOpenRouter } from './openrouter-client'
+import { fetchPredictionFromOpenRouter, type OpenRouterPredictionResult } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
 import { Decimal } from '@prisma/client/runtime/library'
 import { USER_MESSAGE_PREFIX } from '@/lib/utils'
@@ -193,7 +193,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
 
     await new Promise(resolve => setTimeout(resolve, 2000)) // Increased delay to avoid rate limiting
 
-    let predictionResult: any;
+    let predictionResult: OpenRouterPredictionResult;
     try {
       predictionResult = await fetchPredictionFromOpenRouter(model, systemMessage, userMessage)
     } catch (error) {
