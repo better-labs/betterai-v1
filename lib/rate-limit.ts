@@ -36,6 +36,12 @@ export const rateLimitConfigs = {
     requests: 100,
     window: '1h', // 100 requests per hour
   },
+  
+  // Search operations (generous limits for good UX)
+  search: {
+    requests: 200,
+    window: '1h', // 200 requests per hour
+  },
 } as const;
 
 // Create rate limiter with environment namespacing
