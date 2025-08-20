@@ -53,6 +53,12 @@ async function runDailyPolymarketUpdate(dryRun = false) {
   if (process.env[`${configPrefix}TIMEOUT_MS`]) params.set('timeoutMs', String(process.env[`${configPrefix}TIMEOUT_MS`]))
   if (process.env[`${configPrefix}USER_AGENT`]) params.set('userAgent', String(process.env[`${configPrefix}USER_AGENT`]))
   if (process.env[`${configPrefix}SORT_BY`]) params.set('sortBy', String(process.env[`${configPrefix}SORT_BY`]))
+  if (process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]) params.set('totalEventLimit', String(process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]))
+  
+  // For 6-month config, set totalEventLimit to 100 if not already set
+  if (use6MonthConfig && !process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]) {
+    params.set('totalEventLimit', '100')
+  }
 
   const qs = params.toString()
   const url = `${baseUrl}/api/cron/daily-update-polymarket-data${qs ? `?${qs}` : ''}`

@@ -18,7 +18,7 @@ export function Footer() {
             </Link>
             . Follow us on{" "}
             <Link href="https://x.com/HelloBetterAI" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              Twitter
+              X (Twitter)
             </Link>
             .
           </p>

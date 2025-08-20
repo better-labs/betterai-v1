@@ -127,6 +127,7 @@ export async function GET(request: NextRequest) {
     const userAgent = url.searchParams.get('userAgent') || defaultUserAgent
     const maxBatchFailuresBeforeAbort = Number(url.searchParams.get('maxBatchFailuresBeforeAbort') ?? defaultMaxBatchFailures)
     const sortBy = url.searchParams.get('sortBy') || undefined
+    const totalEventLimit = url.searchParams.get('totalEventLimit') ? Number(url.searchParams.get('totalEventLimit')) : undefined
 
     // Validate query parameters
     const validationErrors = validateQueryParams(
@@ -161,6 +162,7 @@ export async function GET(request: NextRequest) {
       daysToFetchFuture,
       maxBatchFailuresBeforeAbort,
       sortBy,
+      totalEventLimit,
     })
 
     return new Response(
