@@ -126,6 +126,7 @@ export async function GET(request: NextRequest) {
     const timeoutMs = Number(url.searchParams.get('timeoutMs') ?? defaultTimeoutMs)
     const userAgent = url.searchParams.get('userAgent') || defaultUserAgent
     const maxBatchFailuresBeforeAbort = Number(url.searchParams.get('maxBatchFailuresBeforeAbort') ?? defaultMaxBatchFailures)
+    const sortBy = url.searchParams.get('sortBy') || undefined
 
     // Validate query parameters
     const validationErrors = validateQueryParams(
@@ -159,6 +160,7 @@ export async function GET(request: NextRequest) {
       daysToFetchPast,
       daysToFetchFuture,
       maxBatchFailuresBeforeAbort,
+      sortBy,
     })
 
     return new Response(

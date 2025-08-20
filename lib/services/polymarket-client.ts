@@ -58,11 +58,24 @@ export async function fetchPolymarketEvents(
   limit: number,
   startDateMin: Date | string,
   endDateMax: Date | string,
-  options: FetchOptions
+  options: FetchOptions,
+  sortBy?: string
 ): Promise<PolymarketEvent[]> {
   const startDate = formatDateYYYYMMDD(startDateMin);
   const endDate = formatDateYYYYMMDD(endDateMax);
-  const params = `start_date_min=${startDate}&end_date_max=${endDate}&ascending=true&offset=${offset}&limit=${limit}`;
+  
+  // Build params with optional sortBy
+  let params = `start_date_min=${startDate}&end_date_max=${endDate}&offset=${offset}&limit=${limit}`;
+  
+  if (sortBy) {
+    // When sorting by volume, use descending order to get highest volume first
+    const ascending = sortBy.includes('volume') ? 'false' : 'true';
+    params += `&sortBy=${sortBy}&ascending=${ascending}`;
+  } else {
+    // Default behavior: ascending by date
+    params += `&ascending=true`;
+  }
+  
   const url = `${POLYMARKET_API_BASE_URL}/events?${params}`;
 
   console.log(`Fetching Polymarket events: ${url}`);

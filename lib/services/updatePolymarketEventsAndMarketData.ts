@@ -17,6 +17,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   daysToFetchPast?: number,
   daysToFetchFuture?: number,
   maxBatchFailuresBeforeAbort?: number,
+  sortBy?: string,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -30,6 +31,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
     daysToFetchPast = 8,
     daysToFetchFuture = 21,
     maxBatchFailuresBeforeAbort = 3,
+    sortBy,
     ...fetchOptions
   } = options
 
@@ -54,7 +56,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   while (hasMoreData) {
     try {
       totalRequests++
-      const eventsData = await fetchPolymarketEvents(offset, limit, startDateMin, endDateMax, fetchOptions)
+      const eventsData = await fetchPolymarketEvents(offset, limit, startDateMin, endDateMax, fetchOptions, sortBy)
       
       if (eventsData.length > 0) {
         const batchResult = await processAndUpsertBatch(eventsData)
