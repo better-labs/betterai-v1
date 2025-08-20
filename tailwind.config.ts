@@ -81,9 +81,19 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in-up": "fade-in-up 0.6s ease-out forwards",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+          },
+        },
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"), 
+    require("@tailwindcss/typography")
+  ],
 } satisfies Config
 
 export default config
