@@ -266,6 +266,11 @@ export const tagQueries = {
   // Get popular tags ordered by total market volume of their associated events
   getPopularTagsByMarketVolume: async (limit: number = 10): Promise<Array<Tag & { totalVolume: number }>> => {
     const result = await prisma.tag.findMany({
+      where: {
+        label: {
+          notIn: ["Hide From New", "Weekly", "Recurring"]
+        }
+      },
       include: {
         events: {
           include: {
@@ -605,10 +610,55 @@ export const predictionQueries = {
    */
   getRecentPredictionsWithRelationsPaginated: async (
     limit: number = 20,
-    cursorId?: number | null
+    cursorId?: number | null,
+    sortMode: 'markets' | 'predictions' = 'markets'
   ): Promise<{ items: Array<Prediction & { market: (Market & { event: Event | null }) | null }>; nextCursor: number | null }> => {
+    // Build orderBy based on sort mode
+    let orderBy: any[]
+    if (sortMode === 'markets') {
+      // Sort by market volume for predictions created in last 24 hours
+      orderBy = [
+        { market: { volume: 'desc' } },
+        { id: 'desc' } // fallback for stability
+      ]
+    } else {
+      // Sort by AI signal strength - we'll use a custom approach to sort by probability differences
+      orderBy = [{ createdAt: 'desc' }] // For stable sorting when signal strength is similar
+    }
+
+    let whereCondition: any = {
+      market: {
+        event: {
+          eventTags: {
+            none: {
+              tag: {
+                label: {
+                  in: ["Hide From New", "Weekly", "Recurring"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    if (sortMode === 'markets') {
+      whereCondition.createdAt = {
+        gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+      }
+      whereCondition.market.volume = {
+        not: null
+      }
+    } else if (sortMode === 'predictions') {
+      // For predictions mode, only show predictions with AI probabilities
+      whereCondition.outcomesProbabilities = {
+        isEmpty: false
+      }
+    }
+
     const rows = await prisma.prediction.findMany({
-      orderBy: [{ id: 'desc' }],
+      where: whereCondition,
+      orderBy,
       take: limit + 1,
       ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
       include: {
@@ -631,23 +681,69 @@ export const predictionQueries = {
   getRecentPredictionsWithRelationsFilteredByTags: async (
     tagIds: string[],
     limit: number = 20,
-    cursorId?: number | null
+    cursorId?: number | null,
+    sortMode: 'markets' | 'predictions' = 'markets'
   ): Promise<{ items: Array<Prediction & { market: (Market & { event: Event | null }) | null }>; nextCursor: number | null }> => {
-    const rows = await prisma.prediction.findMany({
-      where: {
-        market: {
-          event: {
-            eventTags: {
-              some: {
-                tagId: {
-                  in: tagIds
+    // Build orderBy based on sort mode
+    let orderBy: any[]
+    if (sortMode === 'markets') {
+      // Sort by market volume for predictions created in last 24 hours
+      orderBy = [
+        { market: { volume: 'desc' } },
+        { id: 'desc' } // fallback for stability
+      ]
+    } else {
+      // Sort by AI signal strength - for now, sort by most recent with outcomesProbabilities
+      orderBy = [{ createdAt: 'desc' }]
+    }
+
+    let whereCondition: any = {
+      market: {
+        event: {
+          AND: [
+            {
+              eventTags: {
+                some: {
+                  tagId: {
+                    in: tagIds
+                  }
+                }
+              }
+            },
+            {
+              eventTags: {
+                none: {
+                  tag: {
+                    label: {
+                      in: ["Hide From New", "Weekly", "Recurring"]
+                    }
+                  }
                 }
               }
             }
-          }
+          ]
         }
-      },
-      orderBy: [{ id: 'desc' }],
+      }
+    }
+
+    // Add filters based on sort mode
+    if (sortMode === 'markets') {
+      whereCondition.createdAt = {
+        gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+      }
+      whereCondition.market.volume = {
+        not: null
+      }
+    } else if (sortMode === 'predictions') {
+      // For predictions mode, only show predictions with AI probabilities
+      whereCondition.outcomesProbabilities = {
+        not: null
+      }
+    }
+
+    const rows = await prisma.prediction.findMany({
+      where: whereCondition,
+      orderBy,
       take: limit + 1,
       ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
       include: {

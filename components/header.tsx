@@ -75,7 +75,7 @@ export function Header() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Leaderboard
+                AI Leaderboard
               </Link>
               <Link 
                 href="/about" 
@@ -201,7 +201,7 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/leaderboard" className={`w-full ${isActive("/leaderboard") ? "bg-accent" : ""}`}>
-                    <span>Leaderboard</span>
+                    <span>AI Leaderboard</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
