@@ -2,26 +2,54 @@
 
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface PostHogProviderProps {
   children: React.ReactNode;
 }
 
 export function PostHogProvider({ children }: PostHogProviderProps) {
+  const [isInitialized, setIsInitialized] = useState(false);
+
   useEffect(() => {
     // Initialize PostHog on the client only
-    try {
-      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-        api_host:
-          process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
-        capture_exceptions: true,
-        debug: process.env.NODE_ENV === "development",
-      });
-    } catch (_err) {
-      // No-op: avoid crashing the app if PostHog init fails in development
-    }
+    const initPostHog = async () => {
+      try {
+        // Only initialize if we have a key and we're on the client
+        if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+          posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+            api_host:
+              process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+            capture_exceptions: true,
+            debug: process.env.NODE_ENV === "development",
+            loaded: () => {
+              setIsInitialized(true);
+            },
+          });
+        } else {
+          // If no key, just set as initialized to render children
+          setIsInitialized(true);
+        }
+      } catch (err) {
+        console.warn('PostHog initialization failed:', err);
+        // Still render children even if PostHog fails
+        setIsInitialized(true);
+      }
+    };
+
+    initPostHog();
   }, []);
 
-  return <PHProvider client={posthog}>{children}</PHProvider>;
+  // Don't render the PHProvider until PostHog is initialized or we're sure it won't be
+  if (!isInitialized) {
+    return <>{children}</>;
+  }
+
+  // Only use PHProvider if PostHog is actually initialized
+  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY && posthog.__loaded) {
+    return <PHProvider client={posthog}>{children}</PHProvider>;
+  }
+
+  // Fallback: just render children without PostHog
+  return <>{children}</>;
 }

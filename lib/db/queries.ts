@@ -621,79 +621,39 @@ export const predictionQueries = {
       orderBy = [{ createdAt: 'desc' }] // For stable sorting when signal strength is similar
     }
 
-    let rows
-    if (sortMode === 'predictions') {
-      // For predictions mode, we need custom sorting by AI signal strength
-      // This is a simplified approach - in production you'd want more sophisticated signal calculation
-      rows = await prisma.$queryRaw`
-        SELECT p.*, 
-               m.id as "market_id", m.question, m.volume, m."outcomePrices", m.outcomes,
-               e.id as "event_id", e.title, e.image, e.icon, e."createdAt" as "event_createdAt", 
-               e."updatedAt" as "event_updatedAt", e."endDate", e."isResolved", e.category,
-               -- Calculate signal strength as the maximum difference between AI and market probabilities
-               (CASE 
-                WHEN m."outcomePrices" IS NOT NULL AND p."outcomesProbabilities" IS NOT NULL 
-                THEN GREATEST(
-                  ABS((p."outcomesProbabilities"->>'0')::numeric - (m."outcomePrices"->>'0')::numeric),
-                  ABS((p."outcomesProbabilities"->>'1')::numeric - (m."outcomePrices"->>'1')::numeric)
-                ) 
-                ELSE 0 
-               END) as signal_strength
-        FROM "Prediction" p
-        LEFT JOIN "Market" m ON p."marketId" = m.id
-        LEFT JOIN "Event" e ON m."eventId" = e.id
-        WHERE p."outcomesProbabilities" IS NOT NULL 
-          AND m."outcomePrices" IS NOT NULL
-        ORDER BY signal_strength DESC, p."createdAt" DESC
-        LIMIT ${limit + 1}
-      ` as any[]
-      
-      // Transform the raw query results to match the expected format
-      rows = rows.map((row: any) => ({
-        ...row,
-        createdAt: new Date(row.createdAt),
-        updatedAt: row.updatedAt ? new Date(row.updatedAt) : null,
-        market: row.market_id ? {
-          id: row.market_id,
-          question: row.question,
-          volume: row.volume,
-          outcomePrices: row.outcomePrices,
-          outcomes: row.outcomes,
-          event: row.event_id ? {
-            id: row.event_id,
-            title: row.title,
-            image: row.image,
-            icon: row.icon,
-            createdAt: new Date(row.event_createdAt),
-            updatedAt: new Date(row.event_updatedAt),
-            endDate: row.endDate ? new Date(row.endDate) : null,
-            isResolved: row.isResolved,
-            category: row.category
-          } : null
-        } : null
-      }))
-    } else {
-      rows = await prisma.prediction.findMany({
-        where: sortMode === 'markets' ? {
-          createdAt: {
-            gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
-          },
-          market: {
-            volume: {
-              not: null
-            }
-          }
-        } : undefined,
-        orderBy,
-        take: limit + 1,
-        ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
-        include: {
-          market: {
-            include: { event: true },
-          },
+    let whereCondition: any = {}
+    
+    if (sortMode === 'markets') {
+      whereCondition = {
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
         },
-      })
+        market: {
+          volume: {
+            not: null
+          }
+        }
+      }
+    } else if (sortMode === 'predictions') {
+      // For predictions mode, only show predictions with AI probabilities
+      whereCondition = {
+        outcomesProbabilities: {
+          not: null
+        }
+      }
     }
+
+    const rows = await prisma.prediction.findMany({
+      where: whereCondition,
+      orderBy,
+      take: limit + 1,
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+      include: {
+        market: {
+          include: { event: true },
+        },
+      },
+    })
 
     const hasMore = rows.length > limit
     const items = hasMore ? rows.slice(0, limit) : rows
