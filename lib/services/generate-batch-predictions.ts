@@ -1,6 +1,5 @@
 import { generatePredictionForMarket } from './generate-single-prediction';
 import { prisma } from '../db/prisma'
-import { CATEGORIES } from '../categorize';
 import { Category } from '../generated/prisma';
 
 export interface BatchPredictionConfig {
@@ -91,7 +90,17 @@ export async function getTopMarketsByVolumeAndEndDate(
     }
 
     // Otherwise: Query the top markets by volume in the range
-    const whereClause: any = {
+    const whereClause: {
+      event: {
+        endDate: {
+          gte: Date;
+          lte: Date;
+        };
+        category?: {
+          notIn: Category[];
+        };
+      };
+    } = {
       event: {
         endDate: {
           gte: rangeStart,

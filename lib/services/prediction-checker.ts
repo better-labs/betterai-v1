@@ -1,6 +1,5 @@
 import { prisma } from '../db/prisma'
 import { predictionCheckQueries } from '../db/queries'
-import { Category } from '../generated/prisma'
 
 export type CheckerConfig = {
   daysLookback?: number
@@ -132,14 +131,22 @@ export async function generatePredictionVsMarketDelta(
     // Pull AI probability from stored arrays (index 0)
     const outcomesProbabilities = (p as Record<string, unknown>).outcomesProbabilities as unknown[]
     const aiProbDecimal = Array.isArray(outcomesProbabilities) && outcomesProbabilities.length > 0
-      ? (outcomesProbabilities[0] as any)
+      ? outcomesProbabilities[0]
       : null
     const firstOutcomeDecimal = Array.isArray(market.outcomePrices) && market.outcomePrices.length > 0
       ? market.outcomePrices[0]
       : null
 
-    const aiProb = aiProbDecimal ? aiProbDecimal.toNumber() : null
-    const marketProb = firstOutcomeDecimal ? firstOutcomeDecimal.toNumber() : null
+    const aiProb = aiProbDecimal && typeof aiProbDecimal === 'object' && 'toNumber' in aiProbDecimal
+      ? (aiProbDecimal as { toNumber(): number }).toNumber()
+      : typeof aiProbDecimal === 'number' ? aiProbDecimal : null
+    const marketProb = firstOutcomeDecimal && typeof firstOutcomeDecimal === 'object' && 'toNumber' in firstOutcomeDecimal
+      ? (firstOutcomeDecimal as { toNumber(): number }).toNumber()
+      : typeof firstOutcomeDecimal === 'number' ? firstOutcomeDecimal : null
+
+    // Ensure proper typing for database insertion
+    const aiProbability: number | null = typeof aiProb === 'number' ? aiProb : null
+    const marketProbability: number | null = typeof marketProb === 'number' ? marketProb : null
 
     // Calculate deltas in number space for the response
     const delta = aiProb !== null && marketProb !== null ? aiProb - marketProb : null
@@ -162,8 +169,8 @@ export async function generatePredictionVsMarketDelta(
         predictionId: p.id,
         marketId: market.id,
         // Pass values allowing the DB layer to normalize to Decimal
-        aiProbability: aiProbDecimal ?? null,
-        marketProbability: firstOutcomeDecimal ?? null,
+        aiProbability: aiProbability,
+        marketProbability: marketProbability,
         delta,
         absDelta,
         marketClosed: !!market.closed,

@@ -4,7 +4,7 @@ import type { ZodSchema } from 'zod';
 const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
 const OPENROUTER_DEFAULT_TEMPERATURE = 0.2;
 
-interface OpenRouterPredictionResult {
+export interface OpenRouterPredictionResult {
   prediction: string;
   outcomes: string[];
   outcomesProbabilities: number[];
@@ -53,7 +53,8 @@ export async function fetchPredictionFromOpenRouter(
       throw new Error('OPENROUTER_API_KEY environment variable is not set');
     }
     
-    console.log(`Making OpenRouter API request to ${body.model} (user message length: ${(body.messages as any)?.[1]?.content?.length || 0})`);
+    const userMessageLength = (body.messages as Array<{content?: string}> | undefined)?.[1]?.content?.length || 0;
+    console.log(`Making OpenRouter API request to ${body.model} (user message length: ${userMessageLength})`);
     
     return fetch(`${OPENROUTER_API_BASE_URL}/chat/completions`, {
       method: 'POST',
@@ -229,7 +230,7 @@ function normalizePredictionShape(value: unknown): unknown {
     return normalizePredictionShape(firstObject);
   }
   if (value && typeof value === 'object') {
-    const v: any = value as any;
+    const v = value as Record<string, unknown>;
     // Unwrap common wrappers
     if (Array.isArray(v.result) || (v.result && typeof v.result === 'object')) {
       return normalizePredictionShape(v.result);
