@@ -87,6 +87,16 @@ export function Header() {
               >
                 About
               </Link>
+              <Link 
+                href="/docs" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/docs") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Docs
+              </Link>
               
 
               {/* {flags.showPortfolio && (
@@ -207,6 +217,11 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/about" className={`w-full ${isActive("/about") ? "bg-accent" : ""}`}>
                     <span>About</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/docs" className={`w-full ${isActive("/docs") ? "bg-accent" : ""}`}>
+                    <span>Docs</span>
                   </Link>
                 </DropdownMenuItem>
 
