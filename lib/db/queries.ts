@@ -638,7 +638,7 @@ export const predictionQueries = {
       // For predictions mode, only show predictions with AI probabilities
       whereCondition = {
         outcomesProbabilities: {
-          not: null
+          isEmpty: false
         }
       }
     }

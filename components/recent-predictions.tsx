@@ -55,12 +55,10 @@ export function RecentPredictions({
 
     fetchPopularTags()
   }, [])
-  const headingText = sortMode === "markets" ? "Trending Markets" : "Trending Predictions"
 
   if (!items || items.length === 0) {
     return (
-      <section aria-labelledby="recent-predictions-heading" className="mt-8">
-        <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">{headingText}</h2>
+      <section className="mt-8">
         {onSortModeChange && (
           <TrendingSelector 
             value={sortMode}
@@ -87,8 +85,7 @@ export function RecentPredictions({
 
   // If Predictions exist
   return (
-    <section aria-labelledby="recent-predictions-heading" className="mt-8">
-      <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">{headingText}</h2>
+    <section className="mt-8">
       {onSortModeChange && (
         <TrendingSelector 
           value={sortMode}
