@@ -20,8 +20,8 @@ BetterAI is a Next.js 15 prediction market application built by a **solo founder
 
 **Key Files for Context**:
 - Read `TODO.md` for current implementation tasks and project goals
-- Read `docs/DESIGN.md` for detailed product vision and user experience design
-- Read `docs/DATA-STRUCTURES.md` for understanding the data relationships
+- Read `system-docs/DESIGN.md` for detailed product vision and user experience design
+- Read `system-docs/DATA-STRUCTURES.md` for understanding the data relationships
 
 ## Architecture Overview
 
