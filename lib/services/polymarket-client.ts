@@ -1,5 +1,9 @@
 import type { PolymarketEvent } from '@/lib/types';
 
+// Note: This file now primarily serves as a data fetcher for TanStack Query hooks.
+// For React components, use the usePolymarketEvents hook from '@/lib/hooks/use-polymarket-events'
+// which provides built-in caching, loading states, and error handling.
+
 const POLYMARKET_API_BASE_URL = 'https://gamma-api.polymarket.com';
 
 interface FetchOptions {

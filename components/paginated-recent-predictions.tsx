@@ -5,6 +5,7 @@ import { usePrivy } from "@privy-io/react-auth"
 import { RecentPredictions } from "@/components/recent-predictions"
 import { LoadingCard } from "@/components/ui/loading"
 import { type SortMode } from "@/components/trending-selector"
+import { useQuery } from "@tanstack/react-query"
 import {
   Pagination,
   PaginationContent,
@@ -28,14 +29,9 @@ type PaginatedRecentPredictionsProps = {
 
 export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRecentPredictionsProps) {
   const { getAccessToken } = usePrivy()
-  const [items, setItems] = useState<any[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
   const [pageSize, setPageSize] = useState<number>(defaultPageSize)
   const [cursorHistory, setCursorHistory] = useState<Array<number | null>>([null])
-  const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
-  const [isFiltered, setIsFiltered] = useState<boolean>(false)
   const [sortMode, setSortMode] = useState<SortMode>(() => {
     // Load from localStorage on client side only
     if (typeof window !== 'undefined') {
@@ -46,8 +42,6 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
   })
 
   const currentCursor = cursorHistory[cursorHistory.length - 1] ?? null
-  const canGoBack = cursorHistory.length > 1
-  const canGoNext = nextCursor != null
   const currentPage = cursorHistory.length
 
   const handleSortModeChange = useCallback((newSortMode: SortMode) => {
@@ -58,70 +52,81 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
     }
   }, [])
 
-  const fetchPage = useCallback(async (cursor: number | null, limit: number, tagIds: string[] = [], sort: SortMode = 'markets') => {
-    setLoading(true)
-    setError(null)
-    try {
-      const accessToken = await getAccessToken()
-      const url = new URL("/api/predictions/recent", window.location.origin)
-      url.searchParams.set("limit", String(limit))
-      if (cursor != null) url.searchParams.set("cursor", String(cursor))
-      if (tagIds.length > 0) url.searchParams.set("tagIds", tagIds.join(','))
-      if (sort) url.searchParams.set("sort", sort)
+  // Build query key for TanStack Query
+  const queryKey = useMemo(() => [
+    'recent-predictions',
+    currentCursor,
+    pageSize,
+    selectedTagIds.join(','),
+    sortMode
+  ], [currentCursor, pageSize, selectedTagIds, sortMode])
 
-      const response = await fetch(url.toString(), {
-        cache: "no-store",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      })
+  // Fetch function for TanStack Query
+  const fetchPredictions = useCallback(async () => {
+    const accessToken = await getAccessToken()
+    const url = new URL("/api/predictions/recent", window.location.origin)
+    url.searchParams.set("limit", String(pageSize))
+    if (currentCursor != null) url.searchParams.set("cursor", String(currentCursor))
+    if (selectedTagIds.length > 0) url.searchParams.set("tagIds", selectedTagIds.join(','))
+    if (sortMode) url.searchParams.set("sort", sortMode)
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
+    const response = await fetch(url.toString(), {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    })
 
-      const data = await response.json()
-      setItems(Array.isArray(data?.items) ? data.items : [])
-      setNextCursor(typeof data?.nextCursor === "number" ? data.nextCursor : null)
-      setIsFiltered(tagIds.length > 0)
-    } catch (e: any) {
-      setError(e?.message || "Failed to load predictions")
-      setItems([])
-      setNextCursor(null)
-    } finally {
-      setLoading(false)
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
     }
-  }, [getAccessToken])
 
-  // Initial load and whenever page size, selected tags, or sort mode change, reset to first page
+    return response.json()
+  }, [getAccessToken, pageSize, currentCursor, selectedTagIds, sortMode])
+
+  // Use TanStack Query
+  const {
+    data,
+    isLoading: loading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey,
+    queryFn: fetchPredictions,
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry auth errors
+  })
+
+  const items = data?.items || []
+  const nextCursor = data?.nextCursor || null
+  const isFiltered = selectedTagIds.length > 0
+  const canGoBack = cursorHistory.length > 1
+  const canGoNext = nextCursor != null
+
+  // Reset to first page when filters change
   useEffect(() => {
     setCursorHistory([null])
-    fetchPage(null, pageSize, selectedTagIds, sortMode)
-  }, [pageSize, selectedTagIds, sortMode, fetchPage])
+  }, [pageSize, selectedTagIds, sortMode])
 
   const handleNext = useCallback(() => {
     if (!canGoNext || nextCursor == null) return
     const newHistory = [...cursorHistory, nextCursor]
     setCursorHistory(newHistory)
-    fetchPage(nextCursor, pageSize, selectedTagIds, sortMode)
-  }, [canGoNext, nextCursor, cursorHistory, fetchPage, pageSize, selectedTagIds, sortMode])
+  }, [canGoNext, nextCursor, cursorHistory])
 
   const handlePrevious = useCallback(() => {
     if (!canGoBack) return
     const newHistory = cursorHistory.slice(0, cursorHistory.length - 1)
-    const prevCursor = newHistory[newHistory.length - 1] ?? null
     setCursorHistory(newHistory)
-    fetchPage(prevCursor, pageSize, selectedTagIds, sortMode)
-  }, [canGoBack, cursorHistory, fetchPage, pageSize, selectedTagIds, sortMode])
+  }, [canGoBack, cursorHistory])
 
   const handleGoToPage = useCallback((pageIndex: number) => {
     // pageIndex is 1-based
-    const targetCursor = cursorHistory[pageIndex - 1] ?? null
     const newHistory = cursorHistory.slice(0, pageIndex)
     setCursorHistory(newHistory)
-    fetchPage(targetCursor, pageSize, selectedTagIds, sortMode)
-  }, [cursorHistory, fetchPage, pageSize, selectedTagIds, sortMode])
+  }, [cursorHistory])
 
   // Tag filtering functions
   const handleTagSelect = useCallback((tagId: string) => {
@@ -145,7 +150,9 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
       {loading ? (
         <LoadingCard />
       ) : error ? (
-        <div className="border rounded-lg p-4 text-sm text-destructive bg-card">{error}</div>
+        <div className="border rounded-lg p-4 text-sm text-destructive bg-card">
+          {error instanceof Error ? error.message : 'Failed to load predictions'}
+        </div>
       ) : (
         <RecentPredictions 
           items={items} 

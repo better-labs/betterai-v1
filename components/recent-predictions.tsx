@@ -2,12 +2,12 @@
 
 import { format } from "date-fns"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import type { Prediction, Market, Event, Tag } from "@/lib/types"
 import { EventIcon } from "@/components/event-icon"
 import { PredictionProbabilityGrid } from "@/components/prediction-probability-grid"
 import { PopularTagsList } from "@/components/popular-tags-list"
 import { TrendingSelector, type SortMode } from "@/components/trending-selector"
+import { useApiQuery } from "@/lib/client/api-handler"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
@@ -31,30 +31,20 @@ export function RecentPredictions({
   sortMode = "markets",
   onSortModeChange
 }: RecentPredictionsProps) {
-  const [popularTags, setPopularTags] = useState<(Tag & { totalVolume: number })[]>([])
-  const [tagsLoading, setTagsLoading] = useState(false)
-
-  // Fetch popular tags when component mounts
-  useEffect(() => {
-    const fetchPopularTags = async () => {
-      setTagsLoading(true)
-      try {
-        const response = await fetch('/api/tags/popular?limit=10')
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success && Array.isArray(data.data)) {
-            setPopularTags(data.data)
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch popular tags:', error)
-      } finally {
-        setTagsLoading(false)
-      }
+  // Fetch popular tags using TanStack Query
+  const { 
+    data: popularTagsResponse, 
+    isLoading: tagsLoading 
+  } = useApiQuery<{ success: boolean; data: (Tag & { totalVolume: number })[] }>(
+    ['popular-tags'],
+    '/api/tags/popular?limit=10',
+    {
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 30 * 60 * 1000, // 30 minutes
     }
-
-    fetchPopularTags()
-  }, [])
+  )
+  
+  const popularTags = popularTagsResponse?.success ? popularTagsResponse.data : []
 
   if (!items || items.length === 0) {
     return (

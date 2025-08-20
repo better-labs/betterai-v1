@@ -1,5 +1,6 @@
-// Reusable API response handler with rate limiting support
+// Reusable API response handler with rate limiting support and TanStack Query integration
 import { toast } from 'sonner';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { 
   isRateLimitError, 
   extractRateLimitInfo, 
@@ -129,3 +130,77 @@ export const apiPut = (url: string, body: any, options: ApiHandlerOptions = {}) 
 
 export const apiDelete = (url: string, options: ApiHandlerOptions = {}) =>
   apiRequest(url, { method: 'DELETE' }, options);
+
+// TanStack Query hooks for common API patterns
+export interface UseApiQueryOptions extends ApiHandlerOptions {
+  enabled?: boolean;
+  staleTime?: number;
+  gcTime?: number;
+  refetchInterval?: number;
+}
+
+export function useApiQuery<T = any>(
+  queryKey: string[],
+  url: string,
+  options: UseApiQueryOptions = {}
+) {
+  const { enabled = true, staleTime, gcTime, refetchInterval, ...handlerOptions } = options;
+  
+  return useQuery({
+    queryKey,
+    queryFn: () => apiGet(url, handlerOptions),
+    enabled,
+    staleTime,
+    gcTime,
+    refetchInterval,
+  });
+}
+
+export interface UseApiMutationOptions extends Omit<ApiHandlerOptions, 'onSuccess' | 'onError'> {
+  onSuccess?: (data: any, variables: any) => void;
+  onError?: (error: Error, variables: any) => void;
+}
+
+export function useApiMutation<TData = any, TVariables = any>(
+  mutationFn: (variables: TVariables) => Promise<TData>,
+  options: UseApiMutationOptions = {}
+) {
+  const { onSuccess, onError, ...handlerOptions } = options;
+  
+  return useMutation({
+    mutationFn,
+    onSuccess,
+    onError,
+  });
+}
+
+// Convenience hooks for common HTTP methods
+export function useApiPost<TData = any, TVariables = any>(
+  options: UseApiMutationOptions = {}
+) {
+  const { onSuccess, onError, ...handlerOptions } = options;
+  return useApiMutation<TData, { url: string; body: TVariables }>(
+    ({ url, body }) => apiPost(url, body, handlerOptions),
+    { onSuccess, onError }
+  );
+}
+
+export function useApiPut<TData = any, TVariables = any>(
+  options: UseApiMutationOptions = {}
+) {
+  const { onSuccess, onError, ...handlerOptions } = options;
+  return useApiMutation<TData, { url: string; body: TVariables }>(
+    ({ url, body }) => apiPut(url, body, handlerOptions),
+    { onSuccess, onError }
+  );
+}
+
+export function useApiDelete<TData = any>(
+  options: UseApiMutationOptions = {}
+) {
+  const { onSuccess, onError, ...handlerOptions } = options;
+  return useApiMutation<TData, { url: string }>(
+    ({ url }) => apiDelete(url, handlerOptions),
+    { onSuccess, onError }
+  );
+}
