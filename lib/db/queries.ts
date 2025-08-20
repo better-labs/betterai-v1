@@ -169,6 +169,37 @@ export const eventQueries = {
     }
     return results
   },
+  /**
+   * Search events by title and description text
+   */
+  searchEvents: async (
+    searchTerm: string,
+    options?: {
+      limit?: number
+      includeMarkets?: boolean
+    }
+  ): Promise<Array<Event & { markets?: Market[] }>> => {
+    const limit = Math.max(1, Math.min(options?.limit ?? 50, 100))
+    
+    const events = await prisma.event.findMany({
+      where: {
+        OR: [
+          { title: { contains: searchTerm, mode: 'insensitive' } },
+          { description: { contains: searchTerm, mode: 'insensitive' } },
+        ],
+      },
+      include: options?.includeMarkets ? {
+        markets: {
+          orderBy: { volume: 'desc' },
+          take: 5 // Limit markets per event for performance
+        }
+      } : undefined,
+      orderBy: { volume: 'desc' },
+      take: limit,
+    })
+    
+    return events
+  },
 }
 
 // Tag queries
@@ -271,6 +302,49 @@ export const tagQueries = {
       .slice(0, limit) // Take only the requested number
 
     return tagsWithVolume
+  },
+  /**
+   * Search tags by label text
+   */
+  searchTags: async (
+    searchTerm: string,
+    options?: {
+      limit?: number
+      includeEventCounts?: boolean
+    }
+  ): Promise<Array<Tag & { eventCount?: number }>> => {
+    const limit = Math.max(1, Math.min(options?.limit ?? 50, 100))
+    
+    if (options?.includeEventCounts) {
+      const tagsWithCounts = await prisma.tag.findMany({
+        where: {
+          label: { contains: searchTerm, mode: 'insensitive' }
+        },
+        include: {
+          events: {
+            select: { eventId: true }
+          }
+        },
+        orderBy: { label: 'asc' },
+        take: limit,
+      })
+      
+      return tagsWithCounts.map(tag => ({
+        ...tag,
+        eventCount: tag.events.length,
+        events: undefined // Remove the nested data we don't need in the response
+      }))
+    }
+    
+    const tags = await prisma.tag.findMany({
+      where: {
+        label: { contains: searchTerm, mode: 'insensitive' }
+      },
+      orderBy: { label: 'asc' },
+      take: limit,
+    })
+    
+    return tags
   },
 }
 
@@ -1065,4 +1139,84 @@ export const leaderboardQueries = {
       return b.totalPredictions - a.totalPredictions
     })
   }
+}
+
+// Unified search functionality
+export const searchQueries = {
+  /**
+   * Unified search across all entity types
+   */
+  searchAll: async (
+    searchTerm: string,
+    options?: {
+      includeMarkets?: boolean
+      includeEvents?: boolean  
+      includeTags?: boolean
+      limit?: number
+      marketOptions?: Parameters<typeof marketQueries.searchMarkets>[1]
+    }
+  ): Promise<{
+    markets: Array<Market & { event: Event | null, predictions: Prediction[] }>
+    events: Array<Event & { markets?: Market[] }>
+    tags: Array<Tag & { eventCount?: number }>
+    totalResults: number
+    suggestions?: string[]
+  }> => {
+    const limit = options?.limit ?? 10
+    const includeMarkets = options?.includeMarkets ?? true
+    const includeEvents = options?.includeEvents ?? true
+    const includeTags = options?.includeTags ?? true
+
+    // Run searches in parallel for better performance
+    const [marketsResult, events, tags] = await Promise.all([
+      includeMarkets 
+        ? marketQueries.searchMarkets(searchTerm, { 
+            ...options?.marketOptions, 
+            limit 
+          })
+        : { items: [], nextCursor: null },
+      includeEvents 
+        ? eventQueries.searchEvents(searchTerm, { 
+            limit, 
+            includeMarkets: false 
+          })
+        : [],
+      includeTags 
+        ? tagQueries.searchTags(searchTerm, { 
+            limit, 
+            includeEventCounts: true 
+          })
+        : []
+    ])
+
+    const totalResults = marketsResult.items.length + events.length + tags.length
+
+    return {
+      markets: marketsResult.items,
+      events,
+      tags,
+      totalResults,
+      suggestions: totalResults === 0 ? await generateSearchSuggestions(searchTerm) : undefined
+    }
+  }
+}
+
+/**
+ * Generate search suggestions when no results are found
+ */
+async function generateSearchSuggestions(searchTerm: string): Promise<string[]> {
+  // Get popular tags as suggestions
+  const popularTags = await tagQueries.getPopularTagsByMarketVolume(5)
+  const suggestions = popularTags.map(tag => tag.label)
+  
+  // Add some common search patterns
+  const commonSuggestions = [
+    'election',
+    'politics', 
+    'sports',
+    'crypto',
+    'stock market'
+  ].filter(s => !suggestions.includes(s))
+  
+  return [...suggestions, ...commonSuggestions].slice(0, 5)
 }
