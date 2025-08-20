@@ -42,45 +42,43 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
         className="bg-muted rounded-xl p-1 shadow-sm border"
       >
         <TooltipProvider>
-          <div className="flex items-center gap-1">
-            <ToggleGroupItem 
-              value="markets" 
-              className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
-            >
-              Trending Markets
-            </ToggleGroupItem>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-3 w-3 text-muted-foreground hover:text-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-64">
-                <p className="text-xs">
-                  Shows predictions sorted by market trading volume for markets with AI predictions in the last 24 hours
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ToggleGroupItem 
+                  value="markets" 
+                  className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
+                >
+                  Trending Markets
+                </ToggleGroupItem>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-64">
+              <p className="text-xs">
+                Shows predictions sorted by market trading volume for markets with AI predictions in the last 24 hours
+              </p>
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
         
         <TooltipProvider>
-          <div className="flex items-center gap-1">
-            <ToggleGroupItem 
-              value="predictions" 
-              className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
-            >
-              Trending Predictions
-            </ToggleGroupItem>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-3 w-3 text-muted-foreground hover:text-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-64">
-                <p className="text-xs">
-                  Shows predictions sorted by AI signal strength and disagreement with market odds
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ToggleGroupItem 
+                  value="predictions" 
+                  className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
+                >
+                  Recent Predictions
+                </ToggleGroupItem>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-64">
+              <p className="text-xs">
+                Shows predictions sorted by AI signal strength and disagreement with market odds
+              </p>
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
       </ToggleGroup>
     </div>

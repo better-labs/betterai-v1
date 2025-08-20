@@ -21,7 +21,7 @@ export function PopularTagsList({
 
   return (
     <div className="mb-6">
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center justify-center">
         {tags.map((tag) => {
           const isSelected = selectedTagIds.includes(tag.id)
           return (
