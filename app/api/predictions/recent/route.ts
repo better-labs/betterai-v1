@@ -30,14 +30,17 @@ export async function GET(request: Request) {
     // Check for tag filtering
     const tagIdsParam = searchParams.get('tagIds')
     const tagIds = tagIdsParam ? tagIdsParam.split(',').filter(Boolean) : null
+    
+    // Check for sort mode
+    const sortMode = searchParams.get('sort') === 'predictions' ? 'predictions' : 'markets'
 
     let result
     if (tagIds && tagIds.length > 0) {
       // Filtered predictions by tags
-      result = await predictionQueries.getRecentPredictionsWithRelationsFilteredByTags(tagIds, limit, cursorId ?? undefined)
+      result = await predictionQueries.getRecentPredictionsWithRelationsFilteredByTags(tagIds, limit, cursorId ?? undefined, sortMode)
     } else {
       // All recent predictions
-      result = await predictionQueries.getRecentPredictionsWithRelationsPaginated(limit, cursorId ?? undefined)
+      result = await predictionQueries.getRecentPredictionsWithRelationsPaginated(limit, cursorId ?? undefined, sortMode)
     }
 
     const { items, nextCursor } = result

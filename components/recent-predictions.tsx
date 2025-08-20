@@ -7,6 +7,7 @@ import type { Prediction, Market, Event, Tag } from "@/lib/types"
 import { EventIcon } from "@/components/event-icon"
 import { PredictionProbabilityGrid } from "@/components/prediction-probability-grid"
 import { PopularTagsList } from "@/components/popular-tags-list"
+import { TrendingSelector, type SortMode } from "@/components/trending-selector"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
@@ -16,6 +17,8 @@ interface RecentPredictionsProps {
   onTagSelect?: (tagId: string) => void
   onClearFilters?: () => void
   isFiltered?: boolean
+  sortMode?: SortMode
+  onSortModeChange?: (mode: SortMode) => void
 }
 
 // Minimal presentational component for a list of recent predictions with market and event context
@@ -24,7 +27,9 @@ export function RecentPredictions({
   selectedTagIds = [], 
   onTagSelect, 
   onClearFilters, 
-  isFiltered = false 
+  isFiltered = false,
+  sortMode = "markets",
+  onSortModeChange
 }: RecentPredictionsProps) {
   const [popularTags, setPopularTags] = useState<(Tag & { totalVolume: number })[]>([])
   const [tagsLoading, setTagsLoading] = useState(false)
@@ -50,10 +55,18 @@ export function RecentPredictions({
 
     fetchPopularTags()
   }, [])
+  const headingText = sortMode === "markets" ? "Trending Markets" : "Trending Predictions"
+
   if (!items || items.length === 0) {
     return (
       <section aria-labelledby="recent-predictions-heading" className="mt-8">
-        <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+        <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">{headingText}</h2>
+        {onSortModeChange && (
+          <TrendingSelector 
+            value={sortMode}
+            onValueChange={onSortModeChange}
+          />
+        )}
         {!tagsLoading && popularTags.length > 0 && (
           <PopularTagsList 
             tags={popularTags} 
@@ -75,7 +88,13 @@ export function RecentPredictions({
   // If Predictions exist
   return (
     <section aria-labelledby="recent-predictions-heading" className="mt-8">
-      <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">Recent AI Predictions</h2>
+      <h2 id="recent-predictions-heading" className="text-lg font-semibold mb-4">{headingText}</h2>
+      {onSortModeChange && (
+        <TrendingSelector 
+          value={sortMode}
+          onValueChange={onSortModeChange}
+        />
+      )}
       {!tagsLoading && popularTags.length > 0 && (
         <PopularTagsList 
           tags={popularTags} 

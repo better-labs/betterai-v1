@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { RecentPredictions } from "@/components/recent-predictions"
 import { LoadingCard } from "@/components/ui/loading"
+import { type SortMode } from "@/components/trending-selector"
 import {
   Pagination,
   PaginationContent,
@@ -35,13 +36,29 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
   const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [isFiltered, setIsFiltered] = useState<boolean>(false)
+  const [sortMode, setSortMode] = useState<SortMode>(() => {
+    // Load from localStorage on client side only
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('prediction-sort-mode')
+      return (saved === 'predictions' ? 'predictions' : 'markets') as SortMode
+    }
+    return 'markets'
+  })
 
   const currentCursor = cursorHistory[cursorHistory.length - 1] ?? null
   const canGoBack = cursorHistory.length > 1
   const canGoNext = nextCursor != null
   const currentPage = cursorHistory.length
 
-  const fetchPage = useCallback(async (cursor: number | null, limit: number, tagIds: string[] = []) => {
+  const handleSortModeChange = useCallback((newSortMode: SortMode) => {
+    setSortMode(newSortMode)
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('prediction-sort-mode', newSortMode)
+    }
+  }, [])
+
+  const fetchPage = useCallback(async (cursor: number | null, limit: number, tagIds: string[] = [], sort: SortMode = 'markets') => {
     setLoading(true)
     setError(null)
     try {
@@ -50,6 +67,7 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
       url.searchParams.set("limit", String(limit))
       if (cursor != null) url.searchParams.set("cursor", String(cursor))
       if (tagIds.length > 0) url.searchParams.set("tagIds", tagIds.join(','))
+      if (sort) url.searchParams.set("sort", sort)
 
       const response = await fetch(url.toString(), {
         cache: "no-store",
@@ -76,34 +94,34 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
     }
   }, [getAccessToken])
 
-  // Initial load and whenever page size or selected tags change, reset to first page
+  // Initial load and whenever page size, selected tags, or sort mode change, reset to first page
   useEffect(() => {
     setCursorHistory([null])
-    fetchPage(null, pageSize, selectedTagIds)
-  }, [pageSize, selectedTagIds, fetchPage])
+    fetchPage(null, pageSize, selectedTagIds, sortMode)
+  }, [pageSize, selectedTagIds, sortMode, fetchPage])
 
   const handleNext = useCallback(() => {
     if (!canGoNext || nextCursor == null) return
     const newHistory = [...cursorHistory, nextCursor]
     setCursorHistory(newHistory)
-    fetchPage(nextCursor, pageSize, selectedTagIds)
-  }, [canGoNext, nextCursor, cursorHistory, fetchPage, pageSize, selectedTagIds])
+    fetchPage(nextCursor, pageSize, selectedTagIds, sortMode)
+  }, [canGoNext, nextCursor, cursorHistory, fetchPage, pageSize, selectedTagIds, sortMode])
 
   const handlePrevious = useCallback(() => {
     if (!canGoBack) return
     const newHistory = cursorHistory.slice(0, cursorHistory.length - 1)
     const prevCursor = newHistory[newHistory.length - 1] ?? null
     setCursorHistory(newHistory)
-    fetchPage(prevCursor, pageSize, selectedTagIds)
-  }, [canGoBack, cursorHistory, fetchPage, pageSize, selectedTagIds])
+    fetchPage(prevCursor, pageSize, selectedTagIds, sortMode)
+  }, [canGoBack, cursorHistory, fetchPage, pageSize, selectedTagIds, sortMode])
 
   const handleGoToPage = useCallback((pageIndex: number) => {
     // pageIndex is 1-based
     const targetCursor = cursorHistory[pageIndex - 1] ?? null
     const newHistory = cursorHistory.slice(0, pageIndex)
     setCursorHistory(newHistory)
-    fetchPage(targetCursor, pageSize, selectedTagIds)
-  }, [cursorHistory, fetchPage, pageSize, selectedTagIds])
+    fetchPage(targetCursor, pageSize, selectedTagIds, sortMode)
+  }, [cursorHistory, fetchPage, pageSize, selectedTagIds, sortMode])
 
   // Tag filtering functions
   const handleTagSelect = useCallback((tagId: string) => {
@@ -135,6 +153,8 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
           onTagSelect={handleTagSelect}
           onClearFilters={handleClearFilters}
           isFiltered={isFiltered}
+          sortMode={sortMode}
+          onSortModeChange={handleSortModeChange}
         />
       )}
 
