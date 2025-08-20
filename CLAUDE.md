@@ -221,21 +221,8 @@ These suggestions should be tailored to the specific context of what was just ac
 
 # Claude Code Configuration
 
-## Development Server
-
-When running the development server, prefer using port 3002 or higher to avoid conflicts:
-
-```bash
-npm run dev -- --port 3002
-```
-
-or
-
-```bash
-yarn dev --port 3002
-```
-
-This helps avoid port conflicts with other development servers that commonly use ports 3000 and 3001.
+### Running the development server
+- If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
 
 ## Pull Request Guidelines
 

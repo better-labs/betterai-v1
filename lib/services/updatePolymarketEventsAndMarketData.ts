@@ -17,6 +17,8 @@ export async function updatePolymarketEventsAndMarketData(options: {
   daysToFetchPast?: number,
   daysToFetchFuture?: number,
   maxBatchFailuresBeforeAbort?: number,
+  sortBy?: string,
+  totalEventLimit?: number,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -30,11 +32,13 @@ export async function updatePolymarketEventsAndMarketData(options: {
     daysToFetchPast = 8,
     daysToFetchFuture = 21,
     maxBatchFailuresBeforeAbort = 3,
+    sortBy,
+    totalEventLimit,
     ...fetchOptions
   } = options
 
   console.log("Starting throttled update of all Polymarket events with batch processing...")
-  console.log(`Processing events with batch limit: ${limit}, daysToFetchPast: ${daysToFetchPast}, daysToFetchFuture: ${daysToFetchFuture}`)
+  console.log(`Processing events with batch limit: ${limit}, daysToFetchPast: ${daysToFetchPast}, daysToFetchFuture: ${daysToFetchFuture}, totalEventLimit: ${totalEventLimit || 'unlimited'}`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
@@ -54,20 +58,36 @@ export async function updatePolymarketEventsAndMarketData(options: {
   while (hasMoreData) {
     try {
       totalRequests++
-      const eventsData = await fetchPolymarketEvents(offset, limit, startDateMin, endDateMax, fetchOptions)
+      
+      // Check if we've reached the total event limit
+      if (totalEventLimit && totalFetched >= totalEventLimit) {
+        console.log(`Reached total event limit of ${totalEventLimit} events. Stopping fetch.`)
+        hasMoreData = false
+        break
+      }
+      
+      // Adjust batch size if we're close to the limit
+      let adjustedLimit = limit
+      if (totalEventLimit && (totalFetched + limit > totalEventLimit)) {
+        adjustedLimit = totalEventLimit - totalFetched
+        console.log(`Adjusting final batch size to ${adjustedLimit} to respect total event limit`)
+      }
+      
+      const eventsData = await fetchPolymarketEvents(offset, adjustedLimit, startDateMin, endDateMax, fetchOptions, sortBy)
       
       if (eventsData.length > 0) {
         const batchResult = await processAndUpsertBatch(eventsData)
         allInsertedEvents.push(...batchResult.insertedEvents)
         allInsertedMarkets.push(...batchResult.insertedMarkets)
         totalFetched += batchResult.totalFetched
-        console.log(`Batch ${totalRequests}: Processed ${eventsData.length} events, ${batchResult.insertedEvents.length} events upserted, ${batchResult.insertedMarkets.length} markets upserted`)
+        console.log(`Batch ${totalRequests}: Processed ${eventsData.length} events, ${batchResult.insertedEvents.length} events upserted, ${batchResult.insertedMarkets.length} markets upserted (total: ${totalFetched})`)
       }
 
-      if (eventsData.length < limit) {
+      // Stop if we've reached the total event limit or no more data
+      if ((totalEventLimit && totalFetched >= totalEventLimit) || eventsData.length < adjustedLimit) {
         hasMoreData = false
       } else {
-        offset += limit
+        offset += adjustedLimit
         await new Promise(resolve => setTimeout(resolve, delayMs))
       }
       // success resets error counter

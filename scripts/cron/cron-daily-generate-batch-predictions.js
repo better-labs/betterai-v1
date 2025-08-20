@@ -1,12 +1,33 @@
 #!/usr/bin/env node
 
-require('dotenv').config()
+require('dotenv').config({ path: '.env.local' })
 
 const https = require('https')
 const http = require('http')
 
+function normalizeBaseUrl(rawBaseUrl) {
+  const fallback = 'http://localhost:3000'
+  let baseUrl = (rawBaseUrl || '').trim() || fallback
+  try {
+    const parsed = new URL(baseUrl)
+    const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname)
+    if (isLocalHost && parsed.protocol === 'https:') {
+      console.warn('⚠️  Detected https for localhost; switching to http:// to avoid TLS errors in local dev')
+      parsed.protocol = 'http:'
+      baseUrl = parsed.toString()
+    } else {
+      baseUrl = parsed.toString()
+    }
+    if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1)
+  } catch {
+    baseUrl = fallback
+  }
+  return baseUrl
+}
+
 async function runBatchPredictions(dryRun = false) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const baseUrl = normalizeBaseUrl(rawBaseUrl)
   const cronSecret = process.env.CRON_SECRET
 
   if (!cronSecret) {
@@ -14,12 +35,19 @@ async function runBatchPredictions(dryRun = false) {
     process.exit(1)
   }
 
-  const topMarketsCount = Number(process.env.BATCH_PREDICTIONS_TOP_COUNT || 10)
-  const endDateRangeHours = Number(process.env.BATCH_PREDICTIONS_END_RANGE_HOURS || 24)
-  const targetDaysFromNow = Number(process.env.BATCH_PREDICTIONS_TARGET_DAYS || 7)
-  const modelName = encodeURIComponent(process.env.BATCH_PREDICTIONS_MODEL || 'google/gemini-2.5-flash-lite')
+  // Determine config type: Check if --6month flag is passed or USE_6MONTH_CONFIG env var is set
+  const use6MonthConfig = process.argv.includes('--6month') || process.env.USE_6MONTH_CONFIG === 'true'
+  const configPrefix = use6MonthConfig ? 'BATCH_PREDICTIONS_6MONTH_' : 'BATCH_PREDICTIONS_'
+  
+  console.log(`🔧 Using ${use6MonthConfig ? '6-MONTH' : 'STANDARD'} batch prediction configuration`)
+  
+  const topMarketsCount = Number(process.env[`${configPrefix}TOP_COUNT`] || (use6MonthConfig ? 100 : 10))
+  const endDateRangeHours = Number(process.env[`${configPrefix}END_RANGE_HOURS`] || (use6MonthConfig ? 4320 : 24))
+  const targetDaysFromNow = Number(process.env[`${configPrefix}TARGET_DAYS`] || (use6MonthConfig ? 180 : 7))
+  const modelName = encodeURIComponent(process.env[`${configPrefix}MODEL`] || (use6MonthConfig ? 'google/gemini-2.0-flash-001' : 'google/gemini-2.5-flash-lite'))
+  const concurrencyParam = Number(process.env[`${configPrefix}CONCURRENCY`] || 3)
 
-  const url = `${baseUrl}/api/cron/daily-generate-batch-predictions?topMarketsCount=${topMarketsCount}&endDateRangeHours=${endDateRangeHours}&targetDaysFromNow=${targetDaysFromNow}&modelName=${modelName}`
+  const url = `${baseUrl}/api/cron/daily-generate-batch-predictions?topMarketsCount=${topMarketsCount}&endDateRangeHours=${endDateRangeHours}&targetDaysFromNow=${targetDaysFromNow}&modelName=${modelName}&concurrencyPerModel=${concurrencyParam}`
   const options = {
     method: 'GET',
     headers: {
@@ -29,12 +57,12 @@ async function runBatchPredictions(dryRun = false) {
   }
 
   if (dryRun) {
-    console.log('🔍 DRY RUN - Would trigger batch predictions')
+    console.log(`🔍 DRY RUN - Would trigger ${use6MonthConfig ? '6-MONTH' : 'standard'} batch predictions`)
     console.log(`📍 Endpoint: ${url}`)
     return
   }
 
-  console.log('🔄 Triggering batch predictions...')
+  console.log(`🔄 Triggering ${use6MonthConfig ? '6-MONTH' : 'standard'} batch predictions...`)
   console.log(`📍 Endpoint: ${url}`)
 
   const startTime = Date.now()

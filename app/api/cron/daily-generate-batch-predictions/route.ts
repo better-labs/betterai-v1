@@ -14,9 +14,9 @@ function validateQueryParams(topMarketsCount: number, endDateRangeHours: number,
     errors.push('topMarketsCount must be a number between 1 and 1000')
   }
   
-  // Validate endDateRangeHours (1-168 hours = 1 week)
-  if (isNaN(endDateRangeHours) || endDateRangeHours < 1 || endDateRangeHours > 168) {
-    errors.push('endDateRangeHours must be a number between 1 and 168')
+  // Validate endDateRangeHours (1-4320 hours = 6 months)
+  if (isNaN(endDateRangeHours) || endDateRangeHours < 1 || endDateRangeHours > 4320) {
+    errors.push('endDateRangeHours must be a number between 1 and 4320')
   }
   
   // Validate targetDaysFromNow (1-365 days)

@@ -1,13 +1,13 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { TrendingUp, Menu, Search, X } from "lucide-react"
+import { TrendingUp, Menu, Search, X, Twitter, Sun, Moon, Monitor } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { useTheme } from "next-themes"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
@@ -24,6 +24,7 @@ export function Header() {
   const router = useRouter()
   const flags = useFeatureFlags()
   const { ready, authenticated } = usePrivy()
+  const { setTheme, theme } = useTheme()
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -217,6 +218,8 @@ export function Header() {
                   </DropdownMenuItem>
                 )} */}
                 
+                
+                {/* App Features Section */}
                 <DropdownMenuSeparator />
                 {flags.showActivity && (
                   <DropdownMenuItem asChild>
@@ -232,22 +235,60 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem asChild>
-                  <Link href="/privacy" className={`w-full ${isActive("/privacy") ? "bg-accent" : ""}`}>
-                    <span>Privacy Policy</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/tos" className={`w-full ${isActive("/tos") ? "bg-accent" : ""}`}>
-                    <span>Terms of Service</span>
-                  </Link>
-                </DropdownMenuItem>
+                
+                {/* Support & Social Section */}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <span>Contact Us</span>
                 </DropdownMenuItem>
-                {/* Mobile Login/Signup removed; relying solely on Privy UserPill */}
+                <DropdownMenuItem asChild>
+                  <Link href="https://x.com/HelloBetterAI" target="_blank" rel="noopener noreferrer" className="w-full flex items-center space-x-2">
+                    <Twitter className="h-4 w-4" />
+                    <span>Follow us on X</span>
+                  </Link>
+                </DropdownMenuItem>
                 
-                <ThemeToggle />
+                {/* Settings & Legal Section */}
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Theme</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => setTheme("light")}>
+                      <Sun className="mr-2 h-4 w-4" />
+                      <span>Light</span>
+                      {theme === "light" && <span className="ml-auto">✓</span>}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme("dark")}>
+                      <Moon className="mr-2 h-4 w-4" />
+                      <span>Dark</span>
+                      {theme === "dark" && <span className="ml-auto">✓</span>}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme("system")}>
+                      <Monitor className="mr-2 h-4 w-4" />
+                      <span>System</span>
+                      {theme === "system" && <span className="ml-auto">✓</span>}
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Legal</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem asChild>
+                      <Link href="/privacy" className={`w-full ${isActive("/privacy") ? "bg-accent" : ""}`}>
+                        <span>Privacy Policy</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/tos" className={`w-full ${isActive("/tos") ? "bg-accent" : ""}`}>
+                        <span>Terms of Service</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
