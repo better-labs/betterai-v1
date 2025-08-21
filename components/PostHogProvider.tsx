@@ -29,14 +29,8 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
             capture_pageview: true,
             capture_pageleave: true,
             enable_recording_console_log: false,
-            session_recording: {
-              enabled: false
-            },
-            autocapture: {
-              web_vitals: false, // Disable Web Vitals 
-              css_selector_allowlist: [], // Minimal autocapture
-              url_allowlist: []
-            },
+            disable_session_recording: true,
+            autocapture: true, // Disable autocapture to avoid config issues
             // Disable specific external script loading instead of all
             disable_surveys: true,
             disable_external_dependency_loading: false, // Allow core functionality
