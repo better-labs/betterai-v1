@@ -154,7 +154,7 @@ export function RecentPredictions({
             <Link
               key={p.id as any}
               href={`/prediction/${p.id as any}`}
-              className="block p-2 sm:p-3 hover:bg-muted/50 rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+              className="block p-2 sm:p-3 hover:bg-muted/30 hover:shadow-lg hover:shadow-muted/20 hover:-translate-y-0.5 rounded-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring border-b border-border/50 hover:border-transparent"
             >
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-12 sm:items-start sm:gap-4">
                 {/* Event image - 1 column */}
