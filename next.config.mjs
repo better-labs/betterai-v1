@@ -46,11 +46,11 @@ const nextConfig = {
                   ].join('; ')
                 : [
                     "default-src 'self'",
-                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com",
+                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com https://us.i.posthog.com https://us-assets.i.posthog.com",
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                     "img-src 'self' data: https: blob:",
                     "font-src 'self' data: https://fonts.gstatic.com",
-                    "connect-src 'self' https://auth.privy.io https://*.privy.io https://api.openrouter.ai https://*.neon.tech wss://*.privy.io https://fonts.googleapis.com https://fonts.gstatic.com https://pulse.walletconnect.org https://api.web3modal.org",
+                    "connect-src 'self' https://auth.privy.io https://*.privy.io https://api.openrouter.ai https://*.neon.tech wss://*.privy.io https://fonts.googleapis.com https://fonts.gstatic.com https://pulse.walletconnect.org https://api.web3modal.org https://us.i.posthog.com https://us-assets.i.posthog.com",
                     "frame-src 'self' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com",
                     "frame-ancestors 'self' https://auth.privy.io https://*.privy.io https://*.vercel.app",
                     "worker-src 'self' blob:",
