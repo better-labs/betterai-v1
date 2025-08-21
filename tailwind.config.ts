@@ -85,6 +85,24 @@ const config = {
         DEFAULT: {
           css: {
             fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+            'h1': {
+              textDecoration: 'none',
+            },
+            'h2': {
+              textDecoration: 'none',
+            },
+            'h3': {
+              textDecoration: 'none',
+            },
+            'h4': {
+              textDecoration: 'none',
+            },
+            'h5': {
+              textDecoration: 'none',
+            },
+            'h6': {
+              textDecoration: 'none',
+            },
           },
         },
       },
