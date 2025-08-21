@@ -38,7 +38,7 @@ export function PopularTagsList({
   }
 
   return (
-    <div className="mb-4 hidden sm:block">
+    <div className="hidden sm:block">
       {/* Horizontal scrollable filter bar */}
       <div className="bg-muted/30 rounded-lg border border-border/40 relative">
         {/* Left scroll button */}

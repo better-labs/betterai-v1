@@ -34,7 +34,7 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
   }
 
   return (
-    <div className={`flex justify-center mb-3 transition-all duration-200 ${className || ""}`}>
+    <div className={`flex justify-center transition-all duration-200 ${className?.includes('flex-shrink-0') ? 'mb-0' : 'mb-3'} ${className || ""}`}>
       <ToggleGroup 
         type="single" 
         value={value}

@@ -49,21 +49,38 @@ export function RecentPredictions({
   if (!items || items.length === 0) {
     return (
       <section className="mt-2">
-        {onSortModeChange && (
-          <TrendingSelector 
-            value={sortMode}
-            onValueChange={onSortModeChange}
-          />
-        )}
-        {!tagsLoading && popularTags.length > 0 && (
-          <PopularTagsList 
-            tags={popularTags} 
-            selectedTagIds={selectedTagIds}
-            onTagSelect={onTagSelect}
-            onClearFilters={onClearFilters}
-            isFiltered={isFiltered}
-          />
-        )}
+        {/* Combined selector and filter bar row */}
+        <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6 sm:mb-4">
+          {onSortModeChange && (
+            <TrendingSelector 
+              value={sortMode}
+              onValueChange={onSortModeChange}
+              className="flex-shrink-0"
+            />
+          )}
+          {!tagsLoading && popularTags.length > 0 && (
+            <div className="flex-1 min-w-0">
+              <PopularTagsList 
+                tags={popularTags} 
+                selectedTagIds={selectedTagIds}
+                onTagSelect={onTagSelect}
+                onClearFilters={onClearFilters}
+                isFiltered={isFiltered}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Mobile - show components stacked */}
+        <div className="sm:hidden">
+          {onSortModeChange && (
+            <TrendingSelector 
+              value={sortMode}
+              onValueChange={onSortModeChange}
+            />
+          )}
+        </div>
+
         <div className="border rounded-lg p-8 text-center bg-card">
           <div className="space-y-2">
             <p className="text-muted-foreground">No predictions yet</p>
@@ -76,21 +93,37 @@ export function RecentPredictions({
   // If Predictions exist
   return (
     <section className="mt-2">
-      {onSortModeChange && (
-        <TrendingSelector 
-          value={sortMode}
-          onValueChange={onSortModeChange}
-        />
-      )}
-      {!tagsLoading && popularTags.length > 0 && (
-        <PopularTagsList 
-          tags={popularTags} 
-          selectedTagIds={selectedTagIds}
-          onTagSelect={onTagSelect}
-          onClearFilters={onClearFilters}
-          isFiltered={isFiltered}
-        />
-      )}
+      {/* Combined selector and filter bar row */}
+      <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6 sm:mb-4">
+        {onSortModeChange && (
+          <TrendingSelector 
+            value={sortMode}
+            onValueChange={onSortModeChange}
+            className="flex-shrink-0"
+          />
+        )}
+        {!tagsLoading && popularTags.length > 0 && (
+          <div className="flex-1 min-w-0">
+            <PopularTagsList 
+              tags={popularTags} 
+              selectedTagIds={selectedTagIds}
+              onTagSelect={onTagSelect}
+              onClearFilters={onClearFilters}
+              isFiltered={isFiltered}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Mobile - show components stacked */}
+      <div className="sm:hidden">
+        {onSortModeChange && (
+          <TrendingSelector 
+            value={sortMode}
+            onValueChange={onSortModeChange}
+          />
+        )}
+      </div>
       <div className="divide-y rounded-lg border bg-card">
         {items.map((p) => {
           const market = p.market
