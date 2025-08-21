@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { Tag } from "@/lib/types"
 
@@ -20,10 +20,43 @@ export function PopularTagsList({
   isFiltered = false 
 }: PopularTagsListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
 
   if (!tags || tags.length === 0) {
     return null
   }
+
+  const updateScrollButtons = () => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const canScrollLeftValue = container.scrollLeft > 0
+    const canScrollRightValue = container.scrollLeft < (container.scrollWidth - container.clientWidth)
+    
+    setCanScrollLeft(canScrollLeftValue)
+    setCanScrollRight(canScrollRightValue)
+  }
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    // Initial check
+    updateScrollButtons()
+
+    // Add scroll event listener
+    container.addEventListener('scroll', updateScrollButtons)
+    
+    // Add resize observer to handle container size changes
+    const resizeObserver = new ResizeObserver(updateScrollButtons)
+    resizeObserver.observe(container)
+
+    return () => {
+      container.removeEventListener('scroll', updateScrollButtons)
+      resizeObserver.disconnect()
+    }
+  }, [tags])
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -40,24 +73,34 @@ export function PopularTagsList({
   return (
     <div className="hidden sm:block">
       {/* Horizontal scrollable filter bar */}
-      <div className="bg-muted/30 rounded-lg border border-border/40 relative">
-        {/* Left scroll button */}
-        <button
-          onClick={scrollLeft}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm border border-border rounded-md p-1 hover:bg-muted/50 transition-colors shadow-sm"
-          aria-label="Scroll left"
-        >
-          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
-        </button>
+      <div className="bg-muted/30 rounded-lg border border-border/40 relative overflow-hidden">
+        {/* Left gradient shadow and scroll button */}
+        {canScrollLeft && (
+          <>
+            <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-muted/30 via-muted/20 to-transparent z-[5] pointer-events-none" />
+            <button
+              onClick={scrollLeft}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background/90 backdrop-blur-sm border border-border rounded-md p-1 hover:bg-muted/50 transition-colors shadow-sm"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </>
+        )}
 
-        {/* Right scroll button */}
-        <button
-          onClick={scrollRight}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm border border-border rounded-md p-1 hover:bg-muted/50 transition-colors shadow-sm"
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
+        {/* Right gradient shadow and scroll button */}
+        {canScrollRight && (
+          <>
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-muted/30 via-muted/20 to-transparent z-[5] pointer-events-none" />
+            <button
+              onClick={scrollRight}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/90 backdrop-blur-sm border border-border rounded-md p-1 hover:bg-muted/50 transition-colors shadow-sm"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </>
+        )}
 
         {/* Scrollable container */}
         <div 
