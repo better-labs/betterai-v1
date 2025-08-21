@@ -62,40 +62,42 @@ export function WelcomeBanner() {
   }
 
   return (
-    <div className="container mx-auto px-4 pt-4">
-      <Alert className="border-primary/20 bg-primary/5 text-foreground">
-        <Info className="h-4 w-4 text-primary" />
-        <div className="flex items-start justify-between">
-          <AlertDescription className="flex-1 pr-4">
-            <span className="font-semibold">Welcome to BetterAI!</span>
-            {" "}
-            Learn about{" "}
-            <Link 
-              href="/docs/overview/what-is-betterai" 
-              className="text-primary underline hover:no-underline font-medium transition-colors"
+    <div className="flex justify-center pt-4">
+      <div className="w-auto max-w-5xl">
+        <Alert className="border-primary/20 bg-primary/5 text-foreground">
+          <Info className="h-4 w-4 text-primary" />
+          <div className="flex items-start justify-between">
+            <AlertDescription className="flex-1 pr-4">
+              Welcome to BetterAI!
+              {" "} {" "}
+              Learn about{" "}
+              <Link
+                href="/docs/overview/what-is-betterai"
+                className="text-primary underline hover:no-underline font-medium transition-colors"
+              >
+                What is BetterAI
+              </Link>
+              {" "}and{" "}
+              <Link
+                href="/docs/overview/prediction-markets"
+                className="text-primary underline hover:no-underline font-medium transition-colors"
+              >
+                What are Prediction Markets
+              </Link>
+              {" "}in our docs, or start browsing below to get started.
+            </AlertDescription>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              onClick={handleDismiss}
+              aria-label="Dismiss welcome banner"
             >
-              What is BetterAI
-            </Link>
-            {" "}and{" "}
-            <Link 
-              href="/docs/overview/prediction-markets" 
-              className="text-primary underline hover:no-underline font-medium transition-colors"
-            >
-              What are Prediction Markets
-            </Link>
-            {" "}in our docs, or start browsing below to get started.
-          </AlertDescription>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-            onClick={handleDismiss}
-            aria-label="Dismiss welcome banner"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </Alert>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </Alert>
+      </div>
     </div>
   )
 }
