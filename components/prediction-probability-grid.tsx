@@ -39,16 +39,16 @@ export function PredictionProbabilityGrid({
   // Color coding based on delta magnitude
   const getDeltaColor = (delta: number | null) => {
     if (delta == null) return 'text-muted-foreground'
-    if (delta >= 0.20) return 'text-green-600' // High disagreement - major AI insight!
-    if (delta >= 0.10) return 'text-yellow-600' // Small disagreement
+    if (delta >= 0.10) return 'text-green-600' // High disagreement - major AI insight!
+    if (delta >= 0.05) return 'text-yellow-600' // Small disagreement
     return 'text-foreground' // Close agreement - no color
   }
 
-  const getDeltaBg = (delta: number | null) => {
-    if (delta == null) return 'bg-muted/20 border-border'
-    if (delta >= 0.20) return 'bg-green-50 border-green-200' // High disagreement - major AI insight!
-    if (delta >= 0.10) return 'bg-yellow-50 border-yellow-200' // Small disagreement
-    return 'bg-background border-border' // Close agreement - no color
+  const getDeltaSize = (delta: number | null) => {
+    if (delta == null) return 'text-xl'
+    if (delta >= 0.10) return 'text-3xl font-bold' // High disagreement - larger and bold
+    if (delta >= 0.05) return 'text-2xl font-semibold' // Small disagreement - medium size
+    return 'text-xl' // Close agreement - normal size
   }
 
   return (
@@ -100,8 +100,8 @@ export function PredictionProbabilityGrid({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className={`mt-1 rounded-md border px-3 py-2 text-center font-bold text-lg shadow-sm ${getDeltaBg(difference0)}`}>
-          <div className={getDeltaColor(difference0)}>
+        <div className="mt-1 text-right">
+          <div className={`${getDeltaColor(difference0)} ${getDeltaSize(difference0)} tabular-nums`}>
             {difference0 == null ? '—' : formatPercent(difference0)}
           </div>
         </div>

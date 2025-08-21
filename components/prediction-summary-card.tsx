@@ -33,16 +33,16 @@ export function PredictionSummaryCard({
   // Color coding based on delta magnitude
   const getDeltaColor = (delta: number | null) => {
     if (delta == null) return 'text-muted-foreground'
-    if (delta >= 0.20) return 'text-green-600' // High disagreement - major AI insight!
-    if (delta >= 0.10) return 'text-yellow-600' // Small disagreement
+    if (delta >= 0.10) return 'text-green-600' // High disagreement - major AI insight!
+    if (delta >= 0.05) return 'text-yellow-600' // Small disagreement
     return 'text-foreground' // Close agreement - no color
   }
 
-  const getDeltaBg = (delta: number | null) => {
-    if (delta == null) return 'bg-muted/20 border-border'
-    if (delta >= 0.20) return 'bg-green-50 border-green-200' // High disagreement - major AI insight!
-    if (delta >= 0.10) return 'bg-yellow-50 border-yellow-200' // Small disagreement
-    return 'bg-background border-border' // Close agreement - no color
+  const getDeltaSize = (delta: number | null) => {
+    if (delta == null) return 'text-5xl'
+    if (delta >= 0.10) return 'text-6xl font-bold' // High disagreement - larger and bold
+    if (delta >= 0.05) return 'text-5xl font-semibold' // Small disagreement - medium size  
+    return 'text-5xl' // Close agreement - normal size
   }
 
   return (
@@ -83,8 +83,8 @@ export function PredictionSummaryCard({
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className={`rounded-lg border px-4 py-3 text-center shadow-sm ${getDeltaBg(delta)}`}>
-              <div className={`text-4xl font-bold tabular-nums leading-none ${getDeltaColor(delta)}`}>
+            <div className="text-center">
+              <div className={`${getDeltaColor(delta)} ${getDeltaSize(delta)} tabular-nums leading-none`}>
                 {formatPercent(delta)}
               </div>
             </div>
