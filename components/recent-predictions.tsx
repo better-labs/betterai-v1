@@ -37,7 +37,7 @@ export function RecentPredictions({
     isLoading: tagsLoading 
   } = useApiQuery<{ success: boolean; data: (Tag & { totalVolume: number })[] }>(
     ['popular-tags'],
-    '/api/tags/popular?limit=10',
+    '/api/tags/popular?limit=25',
     {
       staleTime: 10 * 60 * 1000, // 10 minutes
       gcTime: 30 * 60 * 1000, // 30 minutes
