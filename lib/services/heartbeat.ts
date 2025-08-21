@@ -31,10 +31,16 @@ export async function sendHeartbeat(type: HeartbeatType): Promise<boolean> {
   }
 
   try {
+    // Create AbortController for timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+    
     const response = await fetch(url, {
       method: 'GET',
-      timeout: 5000, // 5 second timeout
+      signal: controller.signal,
     })
+    
+    clearTimeout(timeoutId)
     
     if (response.ok) {
       console.log(`✅ BetterStack heartbeat sent for ${type}`)
