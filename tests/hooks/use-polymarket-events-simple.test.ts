@@ -18,19 +18,14 @@ describe('polymarket client integration', () => {
       title: 'Test Event 1',
       description: 'Test description',
       slug: 'test-event-1',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2024-12-31'),
       image: 'https://example.com/image.jpg',
       icon: '🏆',
       volume: 1000000,
-      liquidity: 500000,
-      commentCount: 10,
       tags: [],
       markets: [],
-      active: true,
-      closed: false,
-      archived: false,
-      restricted: false
+      category: 'Politics'
     }
   ]
 

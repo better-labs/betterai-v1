@@ -5,10 +5,11 @@ import { tagQueries } from "@/lib/db/queries"
 type CachedTag = {
   id: string
   label: string
-  color: string | null
+  slug: string | null
+  forceShow: boolean | null
+  providerUpdatedAt: Date | null
+  provider: string | null
   totalVolume: number
-  createdAt: Date
-  updatedAt: Date
 }
 
 type CacheEntry = {

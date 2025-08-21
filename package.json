@@ -17,6 +17,7 @@
     "db:prisma:studio": "prisma studio",
     "db:provision:roles": "tsx scripts/db/provision-db-roles.ts",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
