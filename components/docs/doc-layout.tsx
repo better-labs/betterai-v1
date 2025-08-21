@@ -39,8 +39,8 @@ export function DocLayout({ doc }: DocLayoutProps) {
       </div>
       
       <div className="container mx-auto px-4">
-        <div className="flex gap-8 py-8">
-          <aside className="w-64 shrink-0">
+        <div className="flex flex-col lg:flex-row gap-8 py-8">
+          <aside className="w-full lg:w-64 shrink-0">
             <DocSidebar currentSlug={doc.metadata.slug} />
           </aside>
           

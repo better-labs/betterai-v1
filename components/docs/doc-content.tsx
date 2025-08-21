@@ -20,7 +20,7 @@ export function DocContent({ content }: DocContentProps) {
   }
   
   return (
-    <div className="prose prose-slate dark:prose-invert max-w-none">
+    <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:no-underline">
       <MDXRemote {...content} components={mdxComponents} />
     </div>
   )

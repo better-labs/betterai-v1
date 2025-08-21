@@ -132,4 +132,24 @@ export const mdxComponents = {
   code: Code,
   pre: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Tag,
+  h1: ({ children }: { children: React.ReactNode }) => (
+    <h1 className="text-4xl font-bold tracking-tight text-foreground mb-6 mt-8 first:mt-0" style={{ textDecoration: 'none' }}>
+      {children}
+    </h1>
+  ),
+  h2: ({ children }: { children: React.ReactNode }) => (
+    <h2 className="text-3xl font-semibold tracking-tight text-foreground mb-4 mt-8 first:mt-0" style={{ textDecoration: 'none' }}>
+      {children}
+    </h2>
+  ),
+  h3: ({ children }: { children: React.ReactNode }) => (
+    <h3 className="text-2xl font-semibold tracking-tight text-foreground mb-3 mt-6 first:mt-0" style={{ textDecoration: 'none' }}>
+      {children}
+    </h3>
+  ),
+  h4: ({ children }: { children: React.ReactNode }) => (
+    <h4 className="text-xl font-semibold tracking-tight text-foreground mb-2 mt-4 first:mt-0" style={{ textDecoration: 'none' }}>
+      {children}
+    </h4>
+  ),
 }

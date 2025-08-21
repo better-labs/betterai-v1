@@ -22,7 +22,7 @@ export function DocSidebar({ currentSlug }: DocSidebarProps) {
     return acc
   }, {})
   
-  const sectionOrder = ['overview', 'guides', 'legal']
+  const sectionOrder = ['overview', /* 'guides', */ 'legal']
   const sectionTitles = {
     overview: 'Overview',
     guides: 'Guides',
