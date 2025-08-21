@@ -21,11 +21,11 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
             api_host:
               process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
             capture_exceptions: true,
-            debug: process.env.NODE_ENV === "development",
+            debug: false, // Disable debug to reduce console noise
             loaded: () => {
               setIsInitialized(true);
             },
-            // Disable problematic features in development
+            // Selective feature disabling for development
             capture_pageview: true,
             capture_pageleave: true,
             enable_recording_console_log: false,
@@ -33,9 +33,15 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
               enabled: false
             },
             autocapture: {
-              web_vitals: false // Disable Web Vitals to fix the error
+              web_vitals: false, // Disable Web Vitals 
+              css_selector_allowlist: [], // Minimal autocapture
+              url_allowlist: []
             },
-            disable_external_dependency_loading: process.env.NODE_ENV === "development"
+            // Disable specific external script loading instead of all
+            disable_surveys: true,
+            disable_external_dependency_loading: false, // Allow core functionality
+            advanced_disable_decide: process.env.NODE_ENV === "development", // Disable feature flag fetching in dev
+            persistence: process.env.NODE_ENV === "development" ? "memory" : "localStorage" // Use memory storage in dev
           });
         } else {
           // If no key, just set as initialized to render children
