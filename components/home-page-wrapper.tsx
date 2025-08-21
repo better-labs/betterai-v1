@@ -7,6 +7,7 @@ import { useEffect } from "react"
 import { LoadingCard } from "@/components/ui/loading"
 import { PaginatedRecentPredictions } from "@/components/paginated-recent-predictions"
 import { useUser } from "@/hooks/use-user"
+import { WelcomeBanner } from "@/components/welcome-banner"
 import { TrendingUp, Activity, Target, Trophy } from "lucide-react"
 
 export function HomePageWrapper() {
@@ -58,6 +59,7 @@ export function HomePageWrapper() {
   // If authenticated, show regular content
   return (
     <div className="min-h-screen bg-background">
+      <WelcomeBanner />
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Header */}
