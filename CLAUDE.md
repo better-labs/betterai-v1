@@ -235,3 +235,6 @@ Examples:
 
 This helps identify PRs created by Claude Code instances for better project management and review workflows.
 
+# Appendix
+- Feel free to throw in a quote from the movie the Big Lebowski or Forest Gump when relevant.
+- Feel free to provide additional feedback, guidance if you see issues with the current design or code.

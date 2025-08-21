@@ -1,38 +1,11 @@
 import { NextRequest } from 'next/server'
 import type { ApiResponse } from '@/lib/types'
 import { updatePolymarketEventsAndMarketData } from '@/lib/services/updatePolymarketEventsAndMarketData'
+import { sendHeartbeatSafe, HeartbeatType } from '@/lib/services/heartbeat'
+import { requireCronAuth } from '@/lib/auth/cron-auth'
 
 export const maxDuration = 300
 
-// Security: Authenticate cron requests
-function authenticateCronRequest(request: NextRequest): boolean {
-  const cronSecret = process.env.CRON_SECRET
-  
-  if (!cronSecret) {
-    console.error('CRON_SECRET environment variable not set')
-    return false
-  }
-  
-  // Check Authorization header
-  const authHeader = request.headers.get('authorization')
-  if (authHeader === `Bearer ${cronSecret}`) {
-    return true
-  }
-  
-  // Check x-cron-secret header (alternative method)
-  const cronSecretHeader = request.headers.get('x-cron-secret')
-  if (cronSecretHeader === cronSecret) {
-    return true
-  }
-  
-  // Check Vercel Cron authentication (if deployed on Vercel)
-  const vercelCronSecret = request.headers.get('x-vercel-cron-secret')
-  if (vercelCronSecret && vercelCronSecret === cronSecret) {
-    return true
-  }
-  
-  return false
-}
 
 // Input validation function
 function validateQueryParams(
@@ -93,14 +66,9 @@ function validateQueryParams(
 export async function GET(request: NextRequest) {
   try {
     // Security: Authenticate the request
-    if (!authenticateCronRequest(request)) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Unauthorized. This endpoint requires authentication.' 
-        } as ApiResponse),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      )
+    const authResponse = requireCronAuth(request)
+    if (authResponse) {
+      return authResponse
     }
 
     const url = request.nextUrl
@@ -164,6 +132,9 @@ export async function GET(request: NextRequest) {
       sortBy,
       totalEventLimit,
     })
+
+    // Send heartbeat to BetterStack on successful completion
+    await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
 
     return new Response(
       JSON.stringify({
