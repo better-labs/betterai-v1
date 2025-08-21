@@ -36,6 +36,21 @@ export function PredictionProbabilityGrid({
     return Math.abs(marketP0 - aiP0)
   })()
 
+  // Color coding based on delta magnitude
+  const getDeltaColor = (delta: number | null) => {
+    if (delta == null) return 'text-muted-foreground'
+    if (delta >= 0.20) return 'text-green-600' // High disagreement - major AI insight!
+    if (delta >= 0.10) return 'text-yellow-600' // Small disagreement
+    return 'text-foreground' // Close agreement - no color
+  }
+
+  const getDeltaBg = (delta: number | null) => {
+    if (delta == null) return 'bg-muted/20 border-border'
+    if (delta >= 0.20) return 'bg-green-50 border-green-200' // High disagreement - major AI insight!
+    if (delta >= 0.10) return 'bg-yellow-50 border-yellow-200' // Small disagreement
+    return 'bg-background border-border' // Close agreement - no color
+  }
+
   return (
     <div className={cn('grid grid-cols-1 gap-6 sm:grid-cols-5', className)}>
       {/* Market Probability */}
@@ -85,7 +100,11 @@ export function PredictionProbabilityGrid({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="mt-1 text-xl text-right">{difference0 == null ? '—' : formatPercent(difference0)}</div>
+        <div className={`mt-1 rounded-md border px-3 py-2 text-center font-bold text-lg shadow-sm ${getDeltaBg(difference0)}`}>
+          <div className={getDeltaColor(difference0)}>
+            {difference0 == null ? '—' : formatPercent(difference0)}
+          </div>
+        </div>
       </div>
     </div>
   )
