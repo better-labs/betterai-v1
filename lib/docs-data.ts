@@ -56,6 +56,14 @@ export const docsNavigation: DocNavItem[] = [
     section: "legal"
   },
   
+  // Changelog
+  {
+    title: "Changelog",
+    slug: "changelog",
+    order: 1,
+    section: "root"
+  },
+
   // Contact
   {
     title: "Contact Us",
