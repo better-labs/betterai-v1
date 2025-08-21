@@ -856,7 +856,7 @@ export const predictionQueries = {
         },
         // For predictions mode, only show predictions with AI probabilities
         outcomesProbabilities: {
-          not: null
+          isEmpty: false
         }
       }
 
