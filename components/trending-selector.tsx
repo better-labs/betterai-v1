@@ -1,7 +1,6 @@
 "use client"
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { Info } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -28,7 +27,7 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
   if (!mounted) {
     return (
       <div className="flex justify-center mb-6">
-        <div className="bg-muted rounded-xl p-1 h-10 w-80 animate-pulse" />
+        <div className="bg-muted rounded-lg p-1 h-8 w-64 animate-pulse" />
       </div>
     )
   }
@@ -39,7 +38,7 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
         type="single" 
         value={value}
         onValueChange={(newValue) => newValue && onValueChange(newValue as SortMode)}
-        className="bg-muted rounded-xl p-1 shadow-sm border"
+        className="bg-muted rounded-lg p-0.5 shadow-sm border"
       >
         <TooltipProvider>
           <Tooltip>
@@ -47,7 +46,7 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
               <div>
                 <ToggleGroupItem 
                   value="predictions" 
-                  className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
+                  className="px-3 py-1.5 text-xs font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md transition-all duration-200 hover:bg-muted-foreground/10"
                 >
                   Recent Predictions
                 </ToggleGroupItem>
@@ -67,7 +66,7 @@ export function TrendingSelector({ value, onValueChange, className }: TrendingSe
               <div>
                 <ToggleGroupItem 
                   value="markets" 
-                  className="px-4 py-2 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-lg transition-all duration-200 hover:bg-muted-foreground/10"
+                  className="px-3 py-1.5 text-xs font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md transition-all duration-200 hover:bg-muted-foreground/10"
                 >
                   Trending Markets
                 </ToggleGroupItem>
