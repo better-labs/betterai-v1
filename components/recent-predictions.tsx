@@ -192,7 +192,7 @@ export function RecentPredictions({
                  
 
                 {/* Reasoning + Timestamp -  (link to prediction detail) */}
-                <div className="sm:col-span-2 min-w-0">
+                <div className="sm:col-span-3 min-w-0">
                   <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Reasoning</div>
                   <div className="flex flex-col gap-1">
                     <div className="text-sm text-muted-foreground line-clamp-2">

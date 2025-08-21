@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PredictionProbabilityGrid } from '@/components/prediction-probability-grid'
 import { cn, formatPercent, toUnitProbability } from '@/lib/utils'
 import { PredictionMeta } from '@/components/prediction-meta'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 
 interface PredictionSummaryCardProps {
   marketOutcomes?: Array<string | null | undefined> | null
@@ -47,12 +49,26 @@ export function PredictionSummaryCard({
             <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(mp0)}</div>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Prediction</div>
             <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(ap0)}</div>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Difference</div>
-            <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(delta)}</div>
+            <div className="flex items-center gap-1 mb-1">
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Delta</div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-64">
+                    <p className="text-xs">
+                      Delta is the difference between the Market Probability and AI Prediction
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="text-5xl font-semibold tabular-nums leading-none">{formatPercent(delta)}</div>
           </div>
           <div className="flex items-end justify-start sm:justify-end">
             <PredictionMeta

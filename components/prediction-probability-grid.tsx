@@ -1,5 +1,7 @@
 import React from 'react'
 import { cn, formatPercent, toUnitProbability } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 
 interface PredictionProbabilityGridProps {
   marketOutcomes?: Array<string | null | undefined> | null
@@ -35,9 +37,9 @@ export function PredictionProbabilityGrid({
   })()
 
   return (
-    <div className={cn('grid grid-cols-1 gap-6 sm:grid-cols-3', className)}>
+    <div className={cn('grid grid-cols-1 gap-6 sm:grid-cols-5', className)}>
       {/* Market Probability */}
-      <div className="sm:col-span-1">
+      <div className="sm:col-span-2">
         <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
         <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
           <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
@@ -51,9 +53,9 @@ export function PredictionProbabilityGrid({
         </div>
       </div>
 
-      {/* AI Probability */}
-      <div className="sm:col-span-1">
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Probability</div>
+      {/* AI Prediction */}
+      <div className="sm:col-span-2">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Prediction</div>
         <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
           <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
             <div className="text-muted-foreground">{ao0}</div>
@@ -66,9 +68,23 @@ export function PredictionProbabilityGrid({
         </div>
       </div>
 
-      {/* Difference */}
+      {/* Delta */}
       <div className="sm:col-span-1">
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Difference</div>
+        <div className="flex items-center justify-end gap-1">
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Delta</div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-64">
+                <p className="text-xs">
+                  Delta is the difference between the Market Probability and AI Prediction
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="mt-1 text-xl text-right">{difference0 == null ? '—' : formatPercent(difference0)}</div>
       </div>
     </div>

@@ -77,13 +77,13 @@ export function PopularTagsList({
         {/* Left gradient shadow and scroll button */}
         {canScrollLeft && (
           <>
-            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background/95 via-background/60 via-background/30 to-transparent z-[5] pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background via-background/90 via-background/70 via-background/40 to-transparent z-[5] pointer-events-none" />
             <button
               onClick={scrollLeft}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background backdrop-blur-sm border border-border rounded-md p-1 hover:bg-muted/50 transition-colors shadow-md"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-background backdrop-blur-sm border border-border rounded-lg p-2 hover:bg-muted/50 transition-colors shadow-lg"
               aria-label="Scroll left"
             >
-              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+              <ChevronLeft className="h-5 w-5 text-foreground" />
             </button>
           </>
         )}
@@ -91,13 +91,13 @@ export function PopularTagsList({
         {/* Right gradient shadow and scroll button */}
         {canScrollRight && (
           <>
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background/95 via-background/60 via-background/30 to-transparent z-[5] pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background via-background/90 via-background/70 via-background/40 to-transparent z-[5] pointer-events-none" />
             <button
               onClick={scrollRight}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background backdrop-blur-sm border border-border rounded-md p-1 hover:bg-muted/50 transition-colors shadow-md"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-background backdrop-blur-sm border border-border rounded-lg p-2 hover:bg-muted/50 transition-colors shadow-lg"
               aria-label="Scroll right"
             >
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-5 w-5 text-foreground" />
             </button>
           </>
         )}

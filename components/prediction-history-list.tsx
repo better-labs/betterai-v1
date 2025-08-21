@@ -90,7 +90,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[160px]">Time</TableHead>
-                  <TableHead>AI Probability</TableHead>
+                  <TableHead>AI Prediction</TableHead>
                   <TableHead>Model</TableHead>
                 </TableRow>
               </TableHeader>
