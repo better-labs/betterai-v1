@@ -16,11 +16,7 @@ export function Footer() {
             <Link href="/privacy" className="underline hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
-            . Follow us on{" "}
-            <Link href="https://x.com/HelloBetterAI" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              X (Twitter)
-            </Link>
-            .
+            . 
           </p>
           <p className="text-xs text-muted-foreground/70">
              © {new Date().getFullYear()} BetterLabs LLC
