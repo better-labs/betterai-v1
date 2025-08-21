@@ -133,23 +133,23 @@ export const mdxComponents = {
   pre: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Tag,
   h1: ({ children }: { children: React.ReactNode }) => (
-    <h1 className="text-4xl font-bold tracking-tight text-foreground mb-6 mt-8 first:mt-0" style={{ textDecoration: 'none' }}>
+    <div className="text-4xl font-bold tracking-tight text-foreground mb-6 mt-8 first:mt-0 !no-underline" style={{ textDecoration: 'none !important' }}>
       {children}
-    </h1>
+    </div>
   ),
   h2: ({ children }: { children: React.ReactNode }) => (
-    <h2 className="text-3xl font-semibold tracking-tight text-foreground mb-4 mt-8 first:mt-0" style={{ textDecoration: 'none' }}>
+    <div className="text-3xl font-semibold tracking-tight text-foreground mb-4 mt-8 first:mt-0 !no-underline" style={{ textDecoration: 'none !important' }}>
       {children}
-    </h2>
+    </div>
   ),
   h3: ({ children }: { children: React.ReactNode }) => (
-    <h3 className="text-2xl font-semibold tracking-tight text-foreground mb-3 mt-6 first:mt-0" style={{ textDecoration: 'none' }}>
+    <div className="text-2xl font-semibold tracking-tight text-foreground mb-3 mt-6 first:mt-0 !no-underline" style={{ textDecoration: 'none !important' }}>
       {children}
-    </h3>
+    </div>
   ),
   h4: ({ children }: { children: React.ReactNode }) => (
-    <h4 className="text-xl font-semibold tracking-tight text-foreground mb-2 mt-4 first:mt-0" style={{ textDecoration: 'none' }}>
+    <div className="text-xl font-semibold tracking-tight text-foreground mb-2 mt-4 first:mt-0 !no-underline" style={{ textDecoration: 'none !important' }}>
       {children}
-    </h4>
+    </div>
   ),
 }
