@@ -1,9 +1,12 @@
 import { NextRequest } from 'next/server'
 import type { ApiResponse } from '@/lib/types'
 import { runBatchPredictionGeneration } from '@/lib/services/generate-batch-predictions'
+import { sendHeartbeatSafe, HeartbeatType } from '@/lib/services/heartbeat'
+import { requireCronAuth } from '@/lib/auth/cron-auth'
 
 // Leave headroom under Vercel limit; our code should target < 240s
 export const maxDuration = 300
+
 
 // Input validation function
 function validateQueryParams(topMarketsCount: number, endDateRangeHours: number, targetDaysFromNow: number) {
@@ -29,6 +32,12 @@ function validateQueryParams(topMarketsCount: number, endDateRangeHours: number,
 
 export async function GET(request: NextRequest) {
   try {
+    // Security: Authenticate the request
+    const authResponse = requireCronAuth(request)
+    if (authResponse) {
+      return authResponse
+    }
+
     const topMarketsCount = Number(request.nextUrl.searchParams.get('topMarketsCount') ?? 20)
     const endDateRangeHours = Number(request.nextUrl.searchParams.get('endDateRangeHours') ?? 48)
     const targetDaysFromNow = Number(request.nextUrl.searchParams.get('targetDaysFromNow') ?? 7)
@@ -60,6 +69,9 @@ export async function GET(request: NextRequest) {
     // Run models concurrently but with a safeguard to avoid exhausting runtime
     const perModelConfig = { topMarketsCount, endDateRangeHours, targetDaysFromNow, categoryMix: false, concurrencyPerModel: Math.max(1, Math.min(concurrencyParam, 6)) }
     await Promise.all(modelsToRun.map((modelName) => runBatchPredictionGeneration(perModelConfig, modelName)))
+
+    // Send heartbeat to BetterStack on successful completion
+    await sendHeartbeatSafe(HeartbeatType.BATCH_PREDICTIONS)
 
     return new Response(
       JSON.stringify({

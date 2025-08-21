@@ -1,8 +1,11 @@
 import { NextRequest } from 'next/server'
 import type { ApiResponse } from '@/lib/types'
 import { generatePredictionVsMarketDelta } from '@/lib/services/prediction-checker'
+import { sendHeartbeatSafe, HeartbeatType } from '@/lib/services/heartbeat'
+import { requireCronAuth } from '@/lib/auth/cron-auth'
 
 export const maxDuration = 300
+
 
 // Input validation function
 function validateQueryParams(daysLookback: number, maxPredictions: number) {
@@ -23,6 +26,11 @@ function validateQueryParams(daysLookback: number, maxPredictions: number) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Security: Authenticate the request
+    const authResponse = requireCronAuth(request)
+    if (authResponse) {
+      return authResponse
+    }
 
     const daysLookback = Number(request.nextUrl.searchParams.get('daysLookback') ?? 30)
     const maxPredictions = Number(request.nextUrl.searchParams.get('maxPredictions') ?? 200)
@@ -51,6 +59,9 @@ export async function GET(request: NextRequest) {
       includeClosedMarkets,
       excludeCategories,
     })
+
+    // Send heartbeat to BetterStack on successful completion
+    await sendHeartbeatSafe(HeartbeatType.PREDICTION_CHECK)
 
     const sample = result.results.slice(0, 20)
 

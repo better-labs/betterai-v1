@@ -1,11 +1,17 @@
 import { NextRequest } from 'next/server'
 import { updateAIModels } from '@/lib/services/ai-models'
 import type { ApiResponse } from '@/lib/types'
+import { requireCronAuth } from '@/lib/auth/cron-auth'
 
 export const maxDuration = 300
 
 export async function GET(request: NextRequest) {
   try {
+    // Security: Authenticate the request
+    const authResponse = requireCronAuth(request)
+    if (authResponse) {
+      return authResponse
+    }
 
     console.log('Starting AI models update...')
     const result = await updateAIModels()
