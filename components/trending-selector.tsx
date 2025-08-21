@@ -7,7 +7,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useEffect, useState } from "react"
 
 export type SortMode = "markets" | "predictions"
 
@@ -18,27 +17,13 @@ interface TrendingSelectorProps {
 }
 
 export function TrendingSelector({ value, onValueChange, className }: TrendingSelectorProps) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return (
-      <div className="flex justify-center mb-6">
-        <div className="bg-muted rounded-lg p-1 h-8 w-64 animate-pulse" />
-      </div>
-    )
-  }
-
   return (
     <div className={`flex justify-center transition-all duration-200 ${className?.includes('flex-shrink-0') ? 'mb-0' : 'mb-3'} ${className || ""}`}>
       <ToggleGroup 
         type="single" 
         value={value}
         onValueChange={(newValue) => newValue && onValueChange(newValue as SortMode)}
-        className="bg-muted rounded-lg p-0.5 shadow-sm border"
+        className="bg-muted rounded-lg p-1 shadow-sm border"
       >
         <TooltipProvider>
           <Tooltip>
