@@ -26,7 +26,8 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
               setIsInitialized(true);
             },
             // Selective feature disabling for development
-            capture_pageview: true,
+            // Disable automatic pageview until after identify, to avoid anonymous DAUs
+            capture_pageview: false,
             capture_pageleave: true,
             enable_recording_console_log: false,
             disable_session_recording: true,
@@ -35,7 +36,8 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
             disable_surveys: true,
             disable_external_dependency_loading: false, // Allow core functionality
             advanced_disable_decide: process.env.NODE_ENV === "development", // Disable feature flag fetching in dev
-            persistence: process.env.NODE_ENV === "development" ? "memory" : "localStorage" // Use memory storage in dev
+            persistence: process.env.NODE_ENV === "development" ? "memory" : "localStorage", // Use memory storage in dev
+            person_profiles: "identified_only", // Only create persons after identify
           });
         } else {
           // If no key, just set as initialized to render children
