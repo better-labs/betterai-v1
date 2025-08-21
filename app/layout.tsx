@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { PrivyClientProvider } from "@/components/privy-client-provider"
 import { PostHogProvider } from "@/components/PostHogProvider"
+import { AnalyticsIdentify } from "@/components/analytics-identify"
 import { QueryProvider } from "@/components/providers/query-provider"
 
 export const metadata: Metadata = {
@@ -50,6 +51,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <PrivyClientProvider>
+                <AnalyticsIdentify />
                 <div className="min-h-screen flex flex-col">
                   <Header />
                   <main className="flex-1">
