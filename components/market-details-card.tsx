@@ -75,8 +75,10 @@ export default function MarketDetailsCard({
 
   // Make the entire card clickable when href is provided without nesting anchors
   return href ? (
-    <div className="relative">
-      {card}
+    <div className="relative group">
+      <div className="transition-all duration-200 ease-in-out group-hover:shadow-lg group-hover:shadow-muted/20 group-hover:-translate-y-0.5">
+        {card}
+      </div>
       <Link
         href={href}
         aria-label={`View market: ${market.question}`}

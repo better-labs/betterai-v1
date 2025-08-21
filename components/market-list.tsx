@@ -25,7 +25,7 @@ export function MarketList({ markets, predictions }: MarketListProps) {
       {markets.map(market => (
         <div key={market.id} className="border-t" data-testid={`market-row-${market.id}`}>
           {/* Market Row */}
-          <Link href={`/market/${market.id}`} className="block hover:bg-muted/30 transition-colors">
+          <Link href={`/market/${market.id}`} className="block hover:bg-muted/20 hover:shadow-lg hover:shadow-muted/20 hover:-translate-y-0.5 transition-all duration-200 ease-in-out rounded-sm border-b border-border/30 hover:border-transparent">
             <div className="p-4 space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4" data-testid={`market-content-${market.id}`}>
               {/* Market Question - Full width on mobile, 4 cols on desktop */}
               <div className="md:col-span-4">

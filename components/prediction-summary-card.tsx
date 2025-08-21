@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PredictionProbabilityGrid } from '@/components/prediction-probability-grid'
 import { cn, formatPercent, toUnitProbability } from '@/lib/utils'
 import { PredictionMeta } from '@/components/prediction-meta'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 
 interface PredictionSummaryCardProps {
   marketOutcomes?: Array<string | null | undefined> | null
@@ -28,6 +30,21 @@ export function PredictionSummaryCard({
   const ap0 = toUnitProbability(aiOutcomesProbabilities?.[0])
   const delta = mp0 != null && ap0 != null ? Math.abs(mp0 - ap0) : null
 
+  // Color coding based on delta magnitude
+  const getDeltaColor = (delta: number | null) => {
+    if (delta == null) return 'text-muted-foreground'
+    if (delta >= 0.10) return 'text-green-600' // High disagreement - major AI insight!
+    if (delta >= 0.05) return 'text-yellow-600' // Small disagreement
+    return 'text-foreground' // Close agreement - no color
+  }
+
+  const getDeltaSize = (delta: number | null) => {
+    if (delta == null) return 'text-5xl'
+    if (delta >= 0.10) return 'text-6xl font-bold' // High disagreement - larger and bold
+    if (delta >= 0.05) return 'text-5xl font-semibold' // Small disagreement - medium size  
+    return 'text-5xl' // Close agreement - normal size
+  }
+
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -47,12 +64,30 @@ export function PredictionSummaryCard({
             <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(mp0)}</div>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Probability</div>
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">AI Prediction</div>
             <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(ap0)}</div>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Difference</div>
-            <div className="mt-1 text-5xl font-semibold tabular-nums leading-none">{formatPercent(delta)}</div>
+            <div className="flex items-center gap-1 mb-1">
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Delta</div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-64">
+                    <p className="text-xs">
+                      Delta is the difference between the Market Probability and AI Prediction
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="text-center">
+              <div className={`${getDeltaColor(delta)} ${getDeltaSize(delta)} tabular-nums leading-none`}>
+                {formatPercent(delta)}
+              </div>
+            </div>
           </div>
           <div className="flex items-end justify-start sm:justify-end">
             <PredictionMeta

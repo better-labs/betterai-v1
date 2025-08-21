@@ -32,17 +32,20 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
   const [pageSize, setPageSize] = useState<number>(defaultPageSize)
   const [cursorHistory, setCursorHistory] = useState<Array<number | null>>([null])
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
-  const [sortMode, setSortMode] = useState<SortMode>(() => {
-    // Load from localStorage on client side only
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('prediction-sort-mode')
-      return (saved === 'predictions' ? 'predictions' : 'markets') as SortMode
-    }
-    return 'markets'
-  })
+  const [sortMode, setSortMode] = useState<SortMode>('markets') // Always start with default
 
   const currentCursor = cursorHistory[cursorHistory.length - 1] ?? null
   const currentPage = cursorHistory.length
+
+  // Load sort mode from localStorage on client after mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('prediction-sort-mode')
+      if (saved === 'predictions' || saved === 'markets') {
+        setSortMode(saved as SortMode)
+      }
+    }
+  }, [])
 
   const handleSortModeChange = useCallback((newSortMode: SortMode) => {
     setSortMode(newSortMode)

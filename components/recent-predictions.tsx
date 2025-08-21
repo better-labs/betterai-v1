@@ -37,7 +37,7 @@ export function RecentPredictions({
     isLoading: tagsLoading 
   } = useApiQuery<{ success: boolean; data: (Tag & { totalVolume: number })[] }>(
     ['popular-tags'],
-    '/api/tags/popular?limit=10',
+    '/api/tags/popular?limit=25',
     {
       staleTime: 10 * 60 * 1000, // 10 minutes
       gcTime: 30 * 60 * 1000, // 30 minutes
@@ -49,21 +49,38 @@ export function RecentPredictions({
   if (!items || items.length === 0) {
     return (
       <section className="mt-2">
-        {onSortModeChange && (
-          <TrendingSelector 
-            value={sortMode}
-            onValueChange={onSortModeChange}
-          />
-        )}
-        {!tagsLoading && popularTags.length > 0 && (
-          <PopularTagsList 
-            tags={popularTags} 
-            selectedTagIds={selectedTagIds}
-            onTagSelect={onTagSelect}
-            onClearFilters={onClearFilters}
-            isFiltered={isFiltered}
-          />
-        )}
+        {/* Combined selector and filter bar row */}
+        <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6 sm:mb-4">
+          {onSortModeChange && (
+            <TrendingSelector 
+              value={sortMode}
+              onValueChange={onSortModeChange}
+              className="flex-shrink-0"
+            />
+          )}
+          {!tagsLoading && popularTags.length > 0 && (
+            <div className="flex-1 min-w-0">
+              <PopularTagsList 
+                tags={popularTags} 
+                selectedTagIds={selectedTagIds}
+                onTagSelect={onTagSelect}
+                onClearFilters={onClearFilters}
+                isFiltered={isFiltered}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Mobile - show components stacked */}
+        <div className="sm:hidden">
+          {onSortModeChange && (
+            <TrendingSelector 
+              value={sortMode}
+              onValueChange={onSortModeChange}
+            />
+          )}
+        </div>
+
         <div className="border rounded-lg p-8 text-center bg-card">
           <div className="space-y-2">
             <p className="text-muted-foreground">No predictions yet</p>
@@ -76,21 +93,37 @@ export function RecentPredictions({
   // If Predictions exist
   return (
     <section className="mt-2">
-      {onSortModeChange && (
-        <TrendingSelector 
-          value={sortMode}
-          onValueChange={onSortModeChange}
-        />
-      )}
-      {!tagsLoading && popularTags.length > 0 && (
-        <PopularTagsList 
-          tags={popularTags} 
-          selectedTagIds={selectedTagIds}
-          onTagSelect={onTagSelect}
-          onClearFilters={onClearFilters}
-          isFiltered={isFiltered}
-        />
-      )}
+      {/* Combined selector and filter bar row */}
+      <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6 sm:mb-4">
+        {onSortModeChange && (
+          <TrendingSelector 
+            value={sortMode}
+            onValueChange={onSortModeChange}
+            className="flex-shrink-0"
+          />
+        )}
+        {!tagsLoading && popularTags.length > 0 && (
+          <div className="flex-1 min-w-0">
+            <PopularTagsList 
+              tags={popularTags} 
+              selectedTagIds={selectedTagIds}
+              onTagSelect={onTagSelect}
+              onClearFilters={onClearFilters}
+              isFiltered={isFiltered}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Mobile - show components stacked */}
+      <div className="sm:hidden">
+        {onSortModeChange && (
+          <TrendingSelector 
+            value={sortMode}
+            onValueChange={onSortModeChange}
+          />
+        )}
+      </div>
       <div className="divide-y rounded-lg border bg-card">
         {items.map((p) => {
           const market = p.market
@@ -121,7 +154,7 @@ export function RecentPredictions({
             <Link
               key={p.id as any}
               href={`/prediction/${p.id as any}`}
-              className="block p-2 sm:p-3 hover:bg-muted/50 rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+              className="block p-2 sm:p-3 hover:bg-muted/30 hover:shadow-lg hover:shadow-muted/20 hover:-translate-y-0.5 rounded-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring border-b border-border/50 hover:border-transparent"
             >
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-12 sm:items-start sm:gap-4">
                 {/* Event image - 1 column */}
@@ -159,13 +192,13 @@ export function RecentPredictions({
                  
 
                 {/* Reasoning + Timestamp -  (link to prediction detail) */}
-                <div className="sm:col-span-2 min-w-0">
-                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Reasoning</div>
+                <div className="sm:col-span-3 min-w-0">
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground/70">Reasoning</div>
                   <div className="flex flex-col gap-1">
-                    <div className="text-sm text-muted-foreground line-clamp-2">
+                    <div className="text-xs text-muted-foreground/80 line-clamp-2">
                       {reasoning || '—'}
                     </div>
-                    <div className="text-[10px] text-muted-foreground/60 sm:text-right">
+                    <div className="text-[9px] text-muted-foreground/50 sm:text-right">
                       Generated: {createdAtDisplay}
                     </div>
                   </div>

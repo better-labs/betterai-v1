@@ -34,10 +34,10 @@ const nextConfig = {
                 ? [
                     "default-src 'self'",
                     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http: data: blob:",
-                    "style-src 'self' 'unsafe-inline' https: http:",
+                    "style-src 'self' 'unsafe-inline' https: http: https://fonts.googleapis.com",
                     "img-src 'self' data: https: blob:",
-                    "font-src 'self' data:",
-                    "connect-src 'self' https: wss:",
+                    "font-src 'self' data: https://fonts.gstatic.com",
+                    "connect-src 'self' https: wss: https://fonts.googleapis.com https://fonts.gstatic.com",
                     "frame-src 'self' https:",
                     "worker-src 'self' blob:",
                     "child-src 'self' blob:",

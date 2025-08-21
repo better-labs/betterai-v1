@@ -3,7 +3,7 @@
 This runbook documents safe database operations for BetterAI across development, staging/preview, and production environments.
 
 
-Environments recap:
+## Environments recap
 Hosting: single Vercel project. 
 Environment Variables: Vercel is source of truth. Vercel CLI used to pull new values to dev.
 Postgres Database: Single Neon database. Branches used for preview (on deman) and /dev (long running).
