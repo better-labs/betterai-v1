@@ -58,7 +58,7 @@ export function RecentPredictions({
 
   if (!items || items.length === 0) {
     return (
-      <section className="mt-8">
+      <section className="mt-2">
         {onSortModeChange && (
           <TrendingSelector 
             value={sortMode}
