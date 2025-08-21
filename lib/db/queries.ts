@@ -613,66 +613,115 @@ export const predictionQueries = {
     cursorId?: number | null,
     sortMode: 'markets' | 'predictions' = 'markets'
   ): Promise<{ items: Array<Prediction & { market: (Market & { event: Event | null }) | null }>; nextCursor: number | null }> => {
-    // Build orderBy based on sort mode
-    let orderBy: any[]
     if (sortMode === 'markets') {
-      // Sort by market volume for predictions created in last 24 hours
-      orderBy = [
-        { market: { volume: 'desc' } },
-        { id: 'desc' } // fallback for stability
-      ]
-    } else {
-      // Sort by AI signal strength - we'll use a custom approach to sort by probability differences
-      orderBy = [{ createdAt: 'desc' }] // For stable sorting when signal strength is similar
-    }
-
-    let whereCondition: any = {
-      market: {
-        event: {
-          eventTags: {
-            none: {
-              tag: {
-                label: {
-                  in: ["Hide From New", "Weekly", "Recurring"]
+      // For trending markets, get the most recent prediction per market, sorted by market volume
+      // First, get markets with predictions in the last 24 hours, sorted by volume
+      const markets = await prisma.market.findMany({
+        where: {
+          volume: { not: null },
+          predictions: {
+            some: {
+              createdAt: {
+                gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+              }
+            }
+          },
+          event: {
+            eventTags: {
+              none: {
+                tag: {
+                  label: {
+                    in: ["Hide From New", "Weekly", "Recurring"]
+                  }
                 }
               }
             }
           }
+        },
+        orderBy: [
+          { volume: 'desc' },
+          { id: 'desc' }
+        ],
+        take: limit + 1,
+        ...(cursorId ? { 
+          cursor: { id: cursorId as unknown as string }, 
+          skip: 1 
+        } : {}),
+        select: { id: true }
+      })
+
+      // Then get the most recent prediction for each market
+      const marketIds = markets.map(m => m.id)
+      if (marketIds.length === 0) {
+        return { items: [], nextCursor: null }
+      }
+
+      const predictions = await Promise.all(
+        marketIds.slice(0, limit).map(async (marketId) => {
+          return await prisma.prediction.findFirst({
+            where: {
+              marketId,
+              createdAt: {
+                gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+              }
+            },
+            orderBy: { createdAt: 'desc' },
+            include: {
+              market: {
+                include: { event: true },
+              },
+            },
+          })
+        })
+      )
+
+      const validPredictions = predictions.filter(p => p !== null) as Array<Prediction & { market: (Market & { event: Event | null }) | null }>
+      const hasMore = markets.length > limit
+      const nextCursor = hasMore ? (markets[limit - 1]?.id as unknown as number) ?? null : null
+
+      return { items: validPredictions, nextCursor }
+    } else {
+      // For predictions mode, use the original logic
+      const orderBy = [{ createdAt: 'desc' as const }]
+      
+      const whereCondition: any = {
+        market: {
+          event: {
+            eventTags: {
+              none: {
+                tag: {
+                  label: {
+                    in: ["Hide From New", "Weekly", "Recurring"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        // For predictions mode, only show predictions with AI probabilities
+        outcomesProbabilities: {
+          isEmpty: false
         }
       }
-    }
-    
-    if (sortMode === 'markets') {
-      whereCondition.createdAt = {
-        gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
-      }
-      whereCondition.market.volume = {
-        not: null
-      }
-    } else if (sortMode === 'predictions') {
-      // For predictions mode, only show predictions with AI probabilities
-      whereCondition.outcomesProbabilities = {
-        isEmpty: false
-      }
-    }
 
-    const rows = await prisma.prediction.findMany({
-      where: whereCondition,
-      orderBy,
-      take: limit + 1,
-      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
-      include: {
-        market: {
-          include: { event: true },
+      const rows = await prisma.prediction.findMany({
+        where: whereCondition,
+        orderBy,
+        take: limit + 1,
+        ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+        include: {
+          market: {
+            include: { event: true },
+          },
         },
-      },
-    })
+      })
 
-    const hasMore = rows.length > limit
-    const items = hasMore ? rows.slice(0, limit) : rows
-    const nextCursor = hasMore ? (items[items.length - 1]?.id as unknown as number) ?? null : null
+      const hasMore = rows.length > limit
+      const items = hasMore ? rows.slice(0, limit) : rows
+      const nextCursor = hasMore ? (items[items.length - 1]?.id as unknown as number) ?? null : null
 
-    return { items, nextCursor }
+      return { items, nextCursor }
+    }
   },
   /**
    * Cursor-paginated recent predictions filtered by tag IDs.
@@ -684,90 +733,161 @@ export const predictionQueries = {
     cursorId?: number | null,
     sortMode: 'markets' | 'predictions' = 'markets'
   ): Promise<{ items: Array<Prediction & { market: (Market & { event: Event | null }) | null }>; nextCursor: number | null }> => {
-    // Build orderBy based on sort mode
-    let orderBy: any[]
     if (sortMode === 'markets') {
-      // Sort by market volume for predictions created in last 24 hours
-      orderBy = [
-        { market: { volume: 'desc' } },
-        { id: 'desc' } // fallback for stability
-      ]
-    } else {
-      // Sort by AI signal strength - for now, sort by most recent with outcomesProbabilities
-      orderBy = [{ createdAt: 'desc' }]
-    }
-
-    let whereCondition: any = {
-      market: {
-        event: {
-          AND: [
-            {
-              eventTags: {
-                some: {
-                  tagId: {
-                    in: tagIds
+      // For trending markets, get the most recent prediction per market, sorted by market volume
+      // First, get markets with predictions in the last 24 hours, sorted by volume
+      const markets = await prisma.market.findMany({
+        where: {
+          volume: { not: null },
+          predictions: {
+            some: {
+              createdAt: {
+                gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+              }
+            }
+          },
+          event: {
+            AND: [
+              {
+                eventTags: {
+                  some: {
+                    tagId: {
+                      in: tagIds
+                    }
                   }
                 }
-              }
-            },
-            {
-              eventTags: {
-                none: {
-                  tag: {
-                    label: {
-                      in: ["Hide From New", "Weekly", "Recurring"]
+              },
+              {
+                eventTags: {
+                  none: {
+                    tag: {
+                      label: {
+                        in: ["Hide From New", "Weekly", "Recurring"]
+                      }
                     }
                   }
                 }
               }
-            }
-          ]
-        }
-      }
-    }
+            ]
+          }
+        },
+        orderBy: [
+          { volume: 'desc' },
+          { id: 'desc' }
+        ],
+        take: limit + 1,
+        ...(cursorId ? { 
+          cursor: { id: cursorId as unknown as string }, 
+          skip: 1 
+        } : {}),
+        select: { id: true }
+      })
 
-    // Add filters based on sort mode
-    if (sortMode === 'markets') {
-      whereCondition.createdAt = {
-        gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+      // Then get the most recent prediction for each market
+      const marketIds = markets.map(m => m.id)
+      if (marketIds.length === 0) {
+        return { items: [], nextCursor: null }
       }
-      whereCondition.market.volume = {
-        not: null
-      }
-    } else if (sortMode === 'predictions') {
-      // For predictions mode, only show predictions with AI probabilities
-      whereCondition.outcomesProbabilities = {
-        not: null
-      }
-    }
 
-    const rows = await prisma.prediction.findMany({
-      where: whereCondition,
-      orderBy,
-      take: limit + 1,
-      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
-      include: {
+      const predictions = await Promise.all(
+        marketIds.slice(0, limit).map(async (marketId) => {
+          return await prisma.prediction.findFirst({
+            where: {
+              marketId,
+              createdAt: {
+                gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // last 24 hours
+              }
+            },
+            orderBy: { createdAt: 'desc' },
+            include: {
+              market: {
+                include: { 
+                  event: {
+                    include: {
+                      eventTags: {
+                        include: {
+                          tag: true
+                        }
+                      }
+                    }
+                  }
+                },
+              },
+            },
+          })
+        })
+      )
+
+      const validPredictions = predictions.filter(p => p !== null) as Array<Prediction & { market: (Market & { event: Event | null }) | null }>
+      const hasMore = markets.length > limit
+      const nextCursor = hasMore ? (markets[limit - 1]?.id as unknown as number) ?? null : null
+
+      return { items: validPredictions, nextCursor }
+    } else {
+      // For predictions mode, use the original logic
+      const orderBy = [{ createdAt: 'desc' as const }]
+      
+      const whereCondition: any = {
         market: {
-          include: { 
-            event: {
-              include: {
+          event: {
+            AND: [
+              {
                 eventTags: {
-                  include: {
-                    tag: true
+                  some: {
+                    tagId: {
+                      in: tagIds
+                    }
+                  }
+                }
+              },
+              {
+                eventTags: {
+                  none: {
+                    tag: {
+                      label: {
+                        in: ["Hide From New", "Weekly", "Recurring"]
+                      }
+                    }
                   }
                 }
               }
-            }
+            ]
+          }
+        },
+        // For predictions mode, only show predictions with AI probabilities
+        outcomesProbabilities: {
+          not: null
+        }
+      }
+
+      const rows = await prisma.prediction.findMany({
+        where: whereCondition,
+        orderBy,
+        take: limit + 1,
+        ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+        include: {
+          market: {
+            include: { 
+              event: {
+                include: {
+                  eventTags: {
+                    include: {
+                      tag: true
+                    }
+                  }
+                }
+              }
+            },
           },
         },
-      },
-    })
+      })
 
-    const hasMore = rows.length > limit
-    const items = hasMore ? rows.slice(0, limit) : rows
-    const nextCursor = hasMore ? (items[items.length - 1]?.id as unknown as number) ?? null : null
+      const hasMore = rows.length > limit
+      const items = hasMore ? rows.slice(0, limit) : rows
+      const nextCursor = hasMore ? (items[items.length - 1]?.id as unknown as number) ?? null : null
 
-    return { items, nextCursor }
+      return { items, nextCursor }
+    }
   },
   createPrediction: async (predictionData: any): Promise<Prediction> => {
     // Ensure userId is null if not provided to avoid foreign key constraint violations
