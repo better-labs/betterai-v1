@@ -49,7 +49,9 @@ export async function GET(request: NextRequest) {
     if (tagCache.size >= MAX_CACHE_ENTRIES) {
       // Remove oldest entry to prevent memory growth
       const oldestKey = tagCache.keys().next().value
-      tagCache.delete(oldestKey)
+      if (oldestKey) {
+        tagCache.delete(oldestKey)
+      }
     }
     
     tagCache.set(cacheKey, {
