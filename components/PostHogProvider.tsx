@@ -25,6 +25,17 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
             loaded: () => {
               setIsInitialized(true);
             },
+            // Disable problematic features in development
+            capture_pageview: true,
+            capture_pageleave: true,
+            enable_recording_console_log: false,
+            session_recording: {
+              enabled: false
+            },
+            autocapture: {
+              web_vitals: false // Disable Web Vitals to fix the error
+            },
+            disable_external_dependency_loading: process.env.NODE_ENV === "development"
           });
         } else {
           // If no key, just set as initialized to render children
