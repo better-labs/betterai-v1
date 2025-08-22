@@ -1,8 +1,11 @@
+"use client"
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatPercent } from '@/lib/utils'
 import Link from 'next/link'
 import { Sparkline } from '@/components/sparkline'
+import { useRouter } from 'next/navigation'
 
 type CheckItem = {
   createdAt: Date | string
@@ -13,6 +16,7 @@ type CheckItem = {
 }
 
 type PredictionItem = {
+  id?: string | null
   createdAt: Date | string
   modelName?: string | null
   outcomesProbabilities?: Array<unknown> | null
@@ -28,11 +32,16 @@ interface PredictionHistoryListProps {
 }
 
 export function PredictionHistoryList({ checks, predictions, className, marketId, showChecks = true, showPredictions = true }: PredictionHistoryListProps) {
+  const router = useRouter()
   const hasChecks = !!checks && checks.length > 0
   const hasPredictions = !!predictions && predictions.length > 0
   const renderChecks = showChecks && hasChecks
   const renderPredictions = showPredictions && hasPredictions
   if (!renderChecks && !renderPredictions) return null
+
+  const handlePredictionClick = (predictionId: string) => {
+    router.push(`/prediction/${predictionId}`)
+  }
 
   return (
     <div className={className}>
@@ -97,8 +106,14 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
               <TableBody>
                 {predictions!.map((p, idx) => {
                   const p0 = Array.isArray(p.outcomesProbabilities) ? p.outcomesProbabilities[0] : null
+                  const isClickable = !!p.id
+                  
                   return (
-                    <TableRow key={idx}>
+                    <TableRow 
+                      key={idx}
+                      className={isClickable ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
+                      onClick={isClickable ? () => handlePredictionClick(p.id!) : undefined}
+                    >
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(p.createdAt).toLocaleString()}
                       </TableCell>

@@ -86,6 +86,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
             marketClosed: c.marketClosed ?? null,
           }))}
           predictions={pastPredictions?.map((p) => ({
+            id: p.id?.toString() ?? null,
             createdAt: p.createdAt as any,
             modelName: p.modelName ?? null,
             outcomesProbabilities: (p as any).outcomesProbabilities ?? null,

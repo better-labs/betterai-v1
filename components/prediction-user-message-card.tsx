@@ -1,26 +1,30 @@
 "use client"
 
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ClipboardCopyIcon, CheckIcon } from 'lucide-react'
-import { USER_MESSAGE_PREFIX } from '@/lib/utils'
+import { ClipboardCopyIcon, CheckIcon, ChevronDown, ChevronUp } from 'lucide-react'
+import { USER_MESSAGE_PREFIX, cn } from '@/lib/utils'
 
 interface PredictionUserMessageCardProps {
   userMessage?: string | null
 }
 
 export function PredictionUserMessageCard({ userMessage }: PredictionUserMessageCardProps) {
+  const [expanded, setExpanded] = useState(false)
   const text = userMessage || '—'
 
   // Extract the static guidance sentence from the prompt, if present
-  
   let content = text
   const idx = text.indexOf(USER_MESSAGE_PREFIX)
   if (idx !== -1) {
-    
     content = text.slice(idx + USER_MESSAGE_PREFIX.length).trimStart()
   }
+
+  const needsCollapse = useMemo(() => {
+    return content.length > 400 // Collapse if content is longer than 400 characters
+  }, [content])
 
   const handleCopy = async () => {
     try {
@@ -39,13 +43,13 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
         <div className="whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground">
           The text below was sent to the AI model to generate this prediction. To verify the prediction you can copy and paste the prompt exactly as shown below into your AI provider of choice.
         </div>
-        <div className="relative rounded-md border bg-muted/20 p-3 text-xs text-muted-foreground whitespace-pre-wrap">
+        <div className="relative rounded-md border bg-muted/20 p-3 text-xs text-muted-foreground">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   onClick={handleCopy}
-                  className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-foreground shadow-sm hover:bg-muted/50"
+                  className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-foreground shadow-sm hover:bg-muted/50 z-10"
                   aria-label="Copy prompt"
                 >
                   <ClipboardCopyIcon className="h-3 w-3" />
@@ -55,7 +59,42 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
               <TooltipContent>Copy to clipboard</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          {content}
+          <div 
+            className={cn(
+              "whitespace-pre-wrap relative",
+              !expanded && needsCollapse && "overflow-hidden",
+            )}
+            style={{ 
+              maxHeight: !expanded && needsCollapse ? '8rem' : 'none'
+            }}
+          >
+            {content}
+            {!expanded && needsCollapse && (
+              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent" />
+            )}
+          </div>
+          {needsCollapse && (
+            <div className="mt-3 flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setExpanded((v) => !v)}
+                className="text-xs h-auto p-1"
+              >
+                {expanded ? (
+                  <>
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    Show less
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                    Show more
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
