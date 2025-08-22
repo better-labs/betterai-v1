@@ -48,4 +48,16 @@ export const predictionCheckQueries = {
     })
     return serializeDecimals(checks)
   },
+
+  /**
+   * Get checks by market ID with serialized output for tRPC
+   */
+  getChecksByMarketIdSerialized: async (marketId: string, limit = 25): Promise<SerializeDecimals<PredictionCheck[]>> => {
+    const checks = await prisma.predictionCheck.findMany({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+    return serializeDecimals(checks)
+  },
 }

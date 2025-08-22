@@ -73,7 +73,7 @@ export const PredictionResultSchema = z.object({
 }).nullable().or(z.any()) // Allow any shape or null for flexibility
 
 export const PredictionSchema = z.object({
-  id: z.number().transform(String), // Convert number ID to string for consistency
+  id: z.union([z.string(), z.number()]).transform((val) => String(val)), // Accept both string and number IDs
   userMessage: z.string(),
   marketId: z.string(),
   predictionResult: z.any().nullable(), // More permissive for now
@@ -82,7 +82,7 @@ export const PredictionSchema = z.object({
   aiResponse: z.string().nullable(),
   createdAt: z.any(), // More permissive for dates
   outcomes: z.array(z.string()).optional().default([]), // Default to empty array
-  outcomesProbabilities: z.array(z.number()).optional().default([]), // Default to empty array
+  outcomesProbabilities: z.array(z.union([z.number(), z.any()])).optional().default([]), // Accept both numbers and any (for Decimal)
   userId: z.string().nullable(),
   experimentTag: z.string().nullable(),
   experimentNotes: z.string().nullable(),

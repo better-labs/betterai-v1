@@ -187,7 +187,29 @@ export const userQueries = {
       totalCreditsSpent: stats._sum.totalCreditsSpent || 0,
       usersWithLowCredits
     }
-  }
+  },
+
+  /**
+   * Get multiple users by IDs for batch operations
+   */
+  getUsersByIds: async (userIds: string[]): Promise<User[]> => {
+    return await prisma.user.findMany({
+      where: {
+        id: { in: userIds }
+      }
+    })
+  },
+
+  /**
+   * Get count of users with low credits
+   */
+  getUsersWithLowCreditsCount: async (threshold: number): Promise<number> => {
+    return await prisma.user.count({
+      where: {
+        credits: { lt: threshold }
+      }
+    })
+  },
 }
 
 // User Watchlist queries

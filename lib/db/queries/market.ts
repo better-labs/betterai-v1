@@ -139,18 +139,15 @@ export const marketQueries = {
    * - event → tags.label
    * Returns markets with the related event included for UI context.
    */
-  searchMarkets: async (
-    searchTerm: string,
-    options?: {
-      limit?: number
-      onlyActive?: boolean
-      orderBy?: 'volume' | 'liquidity' | 'updatedAt' // legacy param (mapped from sort)
-      sort?: 'trending' | 'liquidity' | 'volume' | 'newest' | 'ending' | 'competitive'
-      status?: 'active' | 'resolved' | 'all'
-      cursorId?: string | null
-    }
-  ): Promise<{ items: Array<Market & { event: Event | null, predictions: Prediction[] }>; nextCursor: string | null }> => {
-    const limit = Math.max(1, Math.min(options?.limit ?? 50, 100))
+  searchMarkets: async (searchTerm: string, options?: {
+    limit?: number
+    sort?: 'trending' | 'volume' | 'liquidity' | 'newest' | 'ending' | 'competitive'
+    status?: 'all' | 'active' | 'resolved'
+    onlyActive?: boolean
+    orderBy?: 'volume' | 'liquidity' | 'updatedAt' | 'endDate'
+    cursorId?: string | null
+  }): Promise<{ items: Market[], nextCursor: string | null }> => {
+    const limit = options?.limit ?? 20
     const sort = options?.sort ?? 'trending'
     const status = options?.status ?? (options?.onlyActive ? 'active' : 'all')
     const orderKeyFromSort: 'volume' | 'liquidity' | 'updatedAt' | 'endDate' =
@@ -249,5 +246,68 @@ export const marketQueries = {
     const nextCursor = hasMore ? items[items.length - 1]?.id ?? null : null
 
     return { items, nextCursor }
+  },
+
+  /**
+   * Get markets with recent predictions for the tRPC router
+   */
+  getMarketsWithRecentPredictions: async (params: {
+    eventId?: string
+    active?: boolean
+    eventTagsWhere: any
+    limit: number
+    cursor?: string
+  }): Promise<{ id: string }[]> => {
+    const { eventId, active, eventTagsWhere, limit, cursor } = params
+    
+    return await prisma.market.findMany({
+      where: {
+        ...(eventId && { eventId }),
+        ...(active !== undefined && { active }),
+        volume: { not: null },
+        predictions: {
+          some: {
+            createdAt: {
+              gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // last 24 hours
+            },
+          },
+        },
+        event: {
+          eventTags: eventTagsWhere,
+        },
+      },
+      orderBy: [{ volume: 'desc' }, { id: 'desc' }],
+      take: limit,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      select: { id: true },
+    })
+  },
+
+  /**
+   * Get markets in a specific date range for batch predictions
+   */
+  getMarketsInDateRange: async (query: any): Promise<Market[]> => {
+    return await prisma.market.findMany(query)
+  },
+
+  /**
+   * Get top markets by volume and date range for batch predictions
+   */
+  getTopMarketsByVolumeAndDateRange: async (whereClause: any, limit: number): Promise<Market[]> => {
+    return await prisma.market.findMany({
+      where: whereClause,
+      orderBy: { volume: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        question: true,
+        volume: true,
+        event: {
+          select: {
+            endDate: true,
+          },
+        },
+      },
+    })
   },
 }

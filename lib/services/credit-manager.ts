@@ -1,5 +1,6 @@
-import { prisma } from '@/lib/db/prisma'
-import { userQueries } from '@/lib/db/queries'
+import { prisma } from '../db/prisma'
+import { userQueries } from '../db/queries'
+import { CreditBalance } from '../types'
 
 export interface CreditTransaction {
   userId: string
@@ -7,13 +8,6 @@ export interface CreditTransaction {
   reason: string  // "daily_reset", "prediction_generated", "signup_bonus"
   marketId?: string
   predictionId?: number
-}
-
-export interface CreditBalance {
-  credits: number
-  creditsLastReset: Date
-  totalCreditsEarned: number
-  totalCreditsSpent: number
 }
 
 export class CreditManager {
@@ -156,11 +150,7 @@ export class CreditManager {
    */
   async getUsersCredits(userIds: string[]): Promise<Record<string, CreditBalance | null>> {
     try {
-      const users = await prisma.user.findMany({
-        where: {
-          id: { in: userIds }
-        }
-      })
+      const users = await userQueries.getUsersByIds(userIds)
 
       const result: Record<string, CreditBalance | null> = {}
 
@@ -209,26 +199,14 @@ export class CreditManager {
     usersWithLowCredits: number
   }> {
     try {
-      const stats = await prisma.user.aggregate({
-        _count: { id: true },
-        _sum: {
-          credits: true,
-          totalCreditsEarned: true,
-          totalCreditsSpent: true
-        }
-      })
-
-      const usersWithLowCredits = await prisma.user.count({
-        where: {
-          credits: { lt: CreditManager.LOW_CREDIT_THRESHOLD }
-        }
-      })
+      const stats = await userQueries.getCreditStats()
+      const usersWithLowCredits = await userQueries.getUsersWithLowCreditsCount(CreditManager.LOW_CREDIT_THRESHOLD)
 
       return {
-        totalUsers: stats._count.id,
-        totalCreditsInCirculation: stats._sum.credits || 0,
-        totalCreditsEarned: stats._sum.totalCreditsEarned || 0,
-        totalCreditsSpent: stats._sum.totalCreditsSpent || 0,
+        totalUsers: stats.totalUsers,
+        totalCreditsInCirculation: stats.totalCreditsInCirculation,
+        totalCreditsEarned: stats.totalCreditsEarned,
+        totalCreditsSpent: stats.totalCreditsSpent,
         usersWithLowCredits
       }
     } catch (error) {

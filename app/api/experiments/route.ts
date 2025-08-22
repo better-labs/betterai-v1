@@ -1,32 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db/prisma'
+import { predictionQueries } from '@/lib/db/queries'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get experiment summary with accuracy metrics
-    const experiments = await prisma.prediction.findMany({
-      where: {
-        experimentTag: {
-          not: null
-        }
-      },
-      select: {
-        experimentTag: true,
-        experimentNotes: true,
-        modelName: true,
-        createdAt: true,
-        predictionChecks: {
-          select: {
-            absDelta: true,
-            marketClosed: true,
-            createdAt: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+    // Get experiment summary with accuracy metrics using centralized queries
+    const experiments = await predictionQueries.getExperimentsWithChecks()
 
     // Group by experiment tag and calculate stats
     const experimentStats = experiments.reduce((acc: any, pred: any) => {

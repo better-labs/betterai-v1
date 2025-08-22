@@ -63,7 +63,7 @@ Key data relationships:
 See package.json for the most recent commands.
 
 ### Database Development Pattern
-- Use query functions from `lib/db/queries.ts` for all database operations
+- Use query functions from `lib/db/queries.ts` for all database operations. Avoid direct Prisma usage in /app/api and /lib/services/ directories.
 - Add new queries to appropriate query object (e.g., `marketQueries`, `eventQueries`)
 - Follow existing patterns: snake_case for DB columns, camelCase for TypeScript
 - Use transactions for multi-step operations

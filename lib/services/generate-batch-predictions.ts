@@ -1,6 +1,7 @@
 import { generatePredictionForMarket } from './generate-single-prediction';
 import { prisma } from '../db/prisma'
 import { Category } from '../generated/prisma';
+import * as marketQueries from '../db/market-queries';
 
 export interface BatchPredictionConfig {
   topMarketsCount: number
@@ -65,7 +66,7 @@ export async function getTopMarketsByVolumeAndEndDate(
       console.log('Prisma query structure:', JSON.stringify(query, null, 2))
       console.log(`Query date range: ${rangeStart.toISOString()} to ${rangeEnd.toISOString()}`)
       
-      const marketsInRange = await prisma.market.findMany(query)
+      const marketsInRange = await marketQueries.getMarketsInDateRange(query)
       console.log(`Found ${marketsInRange.length} markets in range`)
       const seenCategories = new Set<Category>()
       const selected: MarketWithEndDate[] = []
@@ -119,21 +120,7 @@ export async function getTopMarketsByVolumeAndEndDate(
       }
     }
 
-    const topMarkets = await prisma.market.findMany({
-      where: whereClause,
-      orderBy: { volume: 'desc' },
-      take: config.topMarketsCount,
-      select: {
-        id: true,
-        question: true,
-        volume: true,
-        event: {
-          select: {
-            endDate: true,
-          },
-        },
-      },
-    })
+    const topMarkets = await marketQueries.getTopMarketsByVolumeAndDateRange(whereClause, config.topMarketsCount)
 
     // Convert volume from Decimal to number and filter out null values
     const processedMarkets: MarketWithEndDate[] = topMarkets

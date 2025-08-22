@@ -479,4 +479,111 @@ export const predictionQueries = {
       take: limit
     })
   },
+
+  /**
+   * Get recent predictions with filters for the tRPC router
+   */
+  getRecentPredictionsWithFilters: async (params: {
+    eventId?: string
+    eventTagsWhere: any
+    limit: number
+    cursor?: number
+  }): Promise<PredictionDTO[]> => {
+    const { eventId, eventTagsWhere, limit, cursor } = params
+    
+    const whereCondition = {
+      market: {
+        ...(eventId && { eventId }),
+        event: {
+          eventTags: eventTagsWhere,
+        },
+      },
+      outcomesProbabilities: {
+        isEmpty: false,
+      },
+    }
+
+    const rows = await prisma.prediction.findMany({
+      where: whereCondition,
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      include: {
+        market: {
+          include: { event: true },
+        },
+      },
+    })
+
+    // Serialize the results
+    const s = serializeDecimals(rows) as any[]
+    return s.map((p) => ({
+      id: String(p.id),
+      userMessage: p.userMessage,
+      marketId: p.marketId,
+      predictionResult: p.predictionResult,
+      modelName: p.modelName ?? null,
+      systemPrompt: p.systemPrompt ?? null,
+      aiResponse: p.aiResponse ?? null,
+      createdAt: p.createdAt,
+      outcomes: p.outcomes ?? [],
+      outcomesProbabilities: p.outcomesProbabilities ?? [],
+      userId: p.userId ?? null,
+      experimentTag: p.experimentTag ?? null,
+      experimentNotes: p.experimentNotes ?? null,
+      market: p.market ?? null,
+    }))
+  },
+
+  /**
+   * Search predictions by message with serialized output
+   */
+  searchPredictionsByMessageSerialized: async (searchTerm: string, limit = 5): Promise<PredictionDTO[]> => {
+    const rows = await predictionQueries.searchPredictionsByUserMessage(searchTerm, limit)
+    const s = serializeDecimals(rows) as any[]
+    return s.map((p) => ({
+      id: String(p.id),
+      userMessage: p.userMessage,
+      marketId: p.marketId,
+      predictionResult: p.predictionResult,
+      modelName: p.modelName ?? null,
+      systemPrompt: p.systemPrompt ?? null,
+      aiResponse: p.aiResponse ?? null,
+      createdAt: p.createdAt,
+      outcomes: p.outcomes ?? [],
+      outcomesProbabilities: p.outcomesProbabilities ?? [],
+      userId: p.userId ?? null,
+      experimentTag: p.experimentTag ?? null,
+      experimentNotes: p.experimentNotes ?? null,
+    }))
+  },
+
+  /**
+   * Get experiments with checks for the experiments API route
+   */
+  getExperimentsWithChecks: async () => {
+    return await prisma.prediction.findMany({
+      where: {
+        experimentTag: {
+          not: null
+        }
+      },
+      select: {
+        experimentTag: true,
+        experimentNotes: true,
+        modelName: true,
+        createdAt: true,
+        predictionChecks: {
+          select: {
+            absDelta: true,
+            marketClosed: true,
+            createdAt: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+  },
 }
