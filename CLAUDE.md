@@ -68,6 +68,13 @@ See package.json for the most recent commands.
 - Use transactions for multi-step operations
 - Store raw API responses in separate `_raw` tables with metadata
 
+### Prisma & Serialization Best Practices
+- **Prisma JSON Protocol**: Uses `jsonProtocol = "true"` in `schema.prisma` to return plain JSON objects instead of Decimal instances
+- **Server-to-Client Serialization**: Use `serializeDecimals()` from `lib/serialization.ts` when passing Prisma data to Client Components
+- **API Routes**: Always serialize Prisma responses using `serializeDecimals()` before returning JSON
+- **Migration Pattern**: After schema changes, run `pnpm prisma generate` to regenerate the client with JSON protocol
+- **Common Issue**: "Only plain objects can be passed to Client Components" errors indicate missing serialization
+
 
 ## Code Style & Patterns
 

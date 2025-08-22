@@ -3,6 +3,7 @@ import { eventQueries, marketQueries, predictionQueries } from '@/lib/db/queries
 import { MarketEventHeader } from '@/components/market-event-header'
 import { PredictionSummaryCard } from '@/components/prediction-summary-card'
 import type { PredictionResult } from '@/lib/types'
+import { serializeDecimals } from '@/lib/serialization'
 
 type PageParams = { marketId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -42,14 +43,14 @@ export default async function MarketPredictionsPage({ params }: PageProps) {
             {predictions.map((p) => {
               const predictionResult = (p as any).predictionResult as PredictionResult | null
               const aiOutcomes = (p as any).outcomes ?? null
-              const aiOutcomesProbabilities = (p as any).outcomesProbabilities ?? null
+              const aiOutcomesProbabilities = serializeDecimals((p as any).outcomesProbabilities) ?? null
               const confidenceLevel = predictionResult?.confidence_level ?? null
 
               return (
                 <PredictionSummaryCard
                   key={p.id}
                   marketOutcomes={market.outcomes ?? null}
-                  marketOutcomePrices={(market as any).outcomePrices ?? null}
+                  marketOutcomePrices={serializeDecimals((market as any).outcomePrices) ?? null}
                   aiOutcomes={aiOutcomes}
                   aiOutcomesProbabilities={aiOutcomesProbabilities}
                   confidenceLevel={confidenceLevel}

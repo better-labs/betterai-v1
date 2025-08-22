@@ -72,6 +72,13 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - Follow the existing schema patterns (snake_case for DB columns, camelCase for JS)
 - Try to use the migration commands in package.json such as "db:migrate:deploy:dev"
 - **Prefer simple queries** - Complex joins can be hard to debug for a solo developer
+
+### Prisma & Serialization Best Practices
+- **Prisma JSON Protocol**: Schema uses `jsonProtocol = "true"` to return plain objects instead of Decimal instances
+- **Server-to-Client Serialization**: Always use `serializeDecimals()` from `lib/serialization.ts` when passing Prisma data to Client Components
+- **API Routes**: Serialize all Prisma responses with `serializeDecimals()` before returning JSON
+- **Migration Pattern**: Run `pnpm prisma generate` after schema changes to regenerate client with JSON protocol
+- **Error Pattern**: "Only plain objects can be passed to Client Components" = missing serialization
 ### Database Operations
 - Use commands in package.json where possible for database migration in Dev and Preview builds.
 

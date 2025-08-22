@@ -1,21 +1,7 @@
 import { NextResponse } from "next/server"
 import { predictionQueries } from "@/lib/db/queries"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
-
-function serialize(value: any): any {
-  if (value == null) return value
-  if (Array.isArray(value)) return value.map(serialize)
-  if (value instanceof Date) return value.toISOString()
-  if (typeof value === 'object') {
-    if (typeof (value as any)?.toNumber === 'function') {
-      try { return Number((value as any).toNumber()) } catch {}
-    }
-    const out: Record<string, any> = {}
-    for (const [k, v] of Object.entries(value)) out[k] = serialize(v)
-    return out
-  }
-  return value
-}
+import { serializeDecimals } from "@/lib/serialization"
 
 export async function GET(request: Request) {
   try {
@@ -46,7 +32,7 @@ export async function GET(request: Request) {
     const { items, nextCursor } = result
 
     return NextResponse.json({ 
-      items: serialize(items),
+      items: serializeDecimals(items),
       nextCursor,
       pageSize: limit,
       filteredByTags: tagIds || null,
