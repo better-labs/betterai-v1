@@ -12,7 +12,14 @@ import { ArrowLeft, AlertCircle, CheckCircle2, Clock, Zap, Share2, RefreshCw } f
 import Link from 'next/link'
 import { LoadingCard } from '@/components/ui/loading'
 import type { MarketDTO, EventDTO, PredictionResult, ApiResponse } from '@/lib/types'
-import { SUPPORTED_MODELS } from '@/lib/services/generate-user-prediction'
+// Move SUPPORTED_MODELS to avoid Prisma client import on client-side
+const SUPPORTED_MODELS = [
+  { id: 'google/gemini-2.5-pro', name: 'Google Gemini', description: 'Advanced reasoning', costCredits: 1 },
+  { id: 'openai/gpt-5', name: 'OpenAI GPT-5', description: 'Latest OpenAI model', costCredits: 1 },
+  { id: 'anthropic/claude-sonnet-4', name: 'Anthropic Claude', description: 'Thoughtful analysis', costCredits: 1 },
+  { id: 'x-ai/grok-4', name: 'xAI Grok', description: 'Real-time aware', costCredits: 1 },
+  { id: 'qwen3-235b-a22b-instruct-2507', name: 'Alibaba Qwen', description: 'Multilingual capability', costCredits: 1 }
+]
 
 interface PredictionResultsPageProps {
   params: Promise<{

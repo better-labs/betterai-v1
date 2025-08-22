@@ -1,10 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { initiatePredictionSession, generateSessionId, calculateTotalCredits } from "@/lib/services/generate-user-prediction"
+import { initiatePredictionSession, generateSessionId } from "@/lib/services/generate-user-prediction"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from "@/lib/rate-limit"
 import { userQueries } from "@/lib/db/queries"
 
 import type { ApiResponse, UserPredictionRequest } from "@/lib/types"
+
+// Calculate total credits for the API
+function calculateTotalCredits(selectedModels: string[]): number {
+  // Each model costs 1 credit for now
+  return selectedModels.length
+}
 
 export async function POST(request: NextRequest) {
   try {

@@ -42,8 +42,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   // Optional history: recent checks and past predictions for this market
   const marketId = market?.id
   const [checks, pastPredictions] = await Promise.all([
-    marketId ? predictionCheckQueries.getRecentByMarket(marketId, 25) : Promise.resolve([]),
-    marketId ? pq.getPredictionsByMarketId(marketId) : Promise.resolve([]),
+    marketId ? predictionCheckQueries.getRecentByMarketSerialized(marketId, 25) : Promise.resolve([]),
+    marketId ? pq.getPredictionsByMarketIdSerialized(marketId) : Promise.resolve([]),
   ])
 
   return (
@@ -81,8 +81,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         {/* Then: Past predictions only */}
         <PredictionHistoryList
           className="mt-2"
-          checks={checks ? serializePredictionChecks(checks) : null}
-          predictions={pastPredictions ? serializePredictionData(pastPredictions) : null}
+          checks={checks || null}
+          predictions={pastPredictions || null}
           marketId={marketId ?? null}
           showChecks={false}
           showPredictions={true}

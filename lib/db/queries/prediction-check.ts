@@ -38,4 +38,14 @@ export const predictionCheckQueries = {
       take: limit,
     })
   },
+
+  getRecentByMarketSerialized: async (marketId: string, limit = 50) => {
+    const { serializeDecimals } = await import('../../serialization')
+    const checks = await prisma.predictionCheck.findMany({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+    return serializeDecimals(checks)
+  },
 }

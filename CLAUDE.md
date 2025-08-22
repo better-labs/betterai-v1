@@ -70,12 +70,16 @@ See package.json for the most recent commands.
 - Store raw API responses in separate `_raw` tables with metadata
 
 ### Prisma & Serialization Best Practices
+- **CRITICAL RULE**: **Always use `*Serialized` methods when passing data to Client Components**
+  - ✅ `getMarketByIdSerialized()`, `getPredictionsByMarketIdSerialized()`, `getRecentByMarketSerialized()`
+  - ❌ Never use raw query methods like `getMarketById()` for client component data
+  - **Why**: Raw Prisma data contains Decimal objects that break React's server-to-client serialization
 - **Prisma JSON Protocol**: Uses `jsonProtocol = "true"` in `schema.prisma` to return plain JSON objects instead of Decimal instances
 - **Server-to-Client Serialization**: Use `serializeDecimals()` from `lib/serialization.ts` when passing Prisma data to Client Components
 - **API Routes**: Always serialize Prisma responses using `serializeDecimals()` before returning JSON
 - **Migration Pattern**: After schema changes, run `pnpm prisma generate` to regenerate the client with JSON protocol
-- **Common Issue**: "Only plain objects can be passed to Client Components" errors indicate missing serialization
-- **Centralized Pattern**: Use `*Serialized` query wrappers (e.g., `getMarketByIdSerialized`) instead of manual serialization calls
+- **Common Error**: `"Only plain objects can be passed to Client Components"` errors indicate missing serialization
+- **Centralized Pattern**: Use `*Serialized` query wrappers instead of manual serialization calls - if a `*Serialized` method doesn't exist, create it
 - **Type Safety**: Define DTO interfaces in `lib/types.ts` with JSON-safe types (numbers, ISO date strings) for client components
 - **Build Safety**: Avoid importing from `@prisma/client/runtime/library` at build time - use runtime detection for Decimal objects
 

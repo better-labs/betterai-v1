@@ -8,7 +8,23 @@ import { Button } from '@/components/ui/button'
 import { AlertCircle, Zap } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import type { ModelProvider } from '@/lib/types'
-import { SUPPORTED_MODELS, calculateTotalCredits } from '@/lib/services/generate-user-prediction'
+
+// Define SUPPORTED_MODELS locally to avoid server-side imports in client component
+const SUPPORTED_MODELS: ModelProvider[] = [
+  { id: 'google/gemini-2.5-pro', name: 'Google Gemini', description: 'Advanced reasoning', costCredits: 1 },
+  { id: 'openai/gpt-5', name: 'OpenAI GPT-5', description: 'Latest OpenAI model', costCredits: 1 },
+  { id: 'anthropic/claude-sonnet-4', name: 'Anthropic Claude', description: 'Thoughtful analysis', costCredits: 1 },
+  { id: 'x-ai/grok-4', name: 'xAI Grok', description: 'Real-time aware', costCredits: 1 },
+  { id: 'qwen3-235b-a22b-instruct-2507', name: 'Alibaba Qwen', description: 'Multilingual capability', costCredits: 1 }
+]
+
+// Calculate total credits locally
+function calculateTotalCredits(selectedModels: string[]): number {
+  return selectedModels.reduce((total, modelId) => {
+    const model = SUPPORTED_MODELS.find(m => m.id === modelId)
+    return total + (model ? model.costCredits : 1)
+  }, 0)
+}
 
 interface ModelProviderSelectionProps {
   selectedModels: string[]

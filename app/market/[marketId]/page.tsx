@@ -11,6 +11,7 @@ import { MarketEventHeader } from '@/components/market-event-header'
 import { PredictionReasoningCard } from '@/components/prediction-reasoning-card'
 import { PredictionHistoryList } from '@/components/prediction-history-list'
 import { serializePredictionData, serializeDecimals } from '@/lib/serialization'
+import { PredictionActionButtons } from '@/components/prediction-action-buttons'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 
 interface MarketDetailPageProps {
@@ -135,16 +136,11 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                   )}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
-                    No predictions available for this market yet.
-                  </p>
-                  <Button asChild>
-                    <Link href={`/predict/${marketId}`}>
-                      Generate AI Prediction
-                    </Link>
-                  </Button>
-                </div>
+                <PredictionActionButtons 
+                  marketId={marketId}
+                  hasExistingPrediction={false}
+                  className="py-4"
+                />
               )}
             </CardContent>
           </Card>
@@ -195,24 +191,28 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
         )}
 
          {/* Action Buttons */}
-         <div className="mt-8 flex gap-4">
-          <Button asChild>
-            <Link href="/">
-              Back to Markets
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/predict/${marketId}`}>
-              Generate New Prediction
-            </Link>
-          </Button>
-          {serializedPrediction && (
+         <div className="mt-8 space-y-6">
+          {/* Prediction Action Buttons */}
+          <PredictionActionButtons 
+            marketId={marketId}
+            hasExistingPrediction={!!serializedPrediction}
+          />
+          
+          {/* Navigation Buttons */}
+          <div className="flex gap-4">
             <Button variant="outline" asChild>
-              <Link href={`/market/${marketId}/predictions`}>
-                View All Predictions
+              <Link href="/">
+                Back to Markets
               </Link>
             </Button>
-          )}
+            {serializedPrediction && (
+              <Button variant="outline" asChild>
+                <Link href={`/market/${marketId}/predictions`}>
+                  View All Predictions
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

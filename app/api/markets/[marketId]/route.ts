@@ -3,14 +3,14 @@ import { marketQueries, eventQueries } from '@/lib/db/queries'
 import type { ApiResponse, MarketDTO, EventDTO } from '@/lib/types'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     marketId: string
-  }
+  }>
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { marketId } = params
+    const { marketId } = await params
 
     if (!marketId) {
       const errorResponse: ApiResponse = {

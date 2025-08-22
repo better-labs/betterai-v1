@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/services/generate-user-prediction'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     sessionId: string
-  }
+  }>
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const { sessionId } = params
+  const { sessionId } = await params
   
   if (!sessionId) {
     return NextResponse.json({ error: 'Session ID is required' }, { status: 400 })

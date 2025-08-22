@@ -4,16 +4,16 @@ import { getSession, deleteSession } from '@/lib/services/generate-user-predicti
 import type { ApiResponse } from '@/lib/types'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     sessionId: string
-  }
+  }>
 }
 
 // GET /api/predict/sessions/[sessionId] - Get specific session details
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { userId } = await requireAuth(request)
-    const { sessionId } = params
+    const { sessionId } = await params
     
     if (!sessionId) {
       const errorResponse: ApiResponse = {
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { userId } = await requireAuth(request)
-    const { sessionId } = params
+    const { sessionId } = await params
     
     if (!sessionId) {
       const errorResponse: ApiResponse = {
