@@ -257,6 +257,37 @@ if (!user) {
 - Log errors appropriately for monitoring
 - **Keep error handling simple** - Don't over-engineer for edge cases
 
+### Server→Client Data Flow Validation
+**MANDATORY**: Check for this pattern in all new server→client data flows to prevent Decimal serialization errors:
+
+**✅ Correct Patterns:**
+```typescript
+// Server Component → Client Component
+const market = await marketQueries.getMarketByIdSerialized(id)
+return <ClientComponent market={market} />
+
+// API Route
+const data = await queries.getSomethingSerialized(id)
+return NextResponse.json({ success: true, data })
+```
+
+**❌ Incorrect Patterns:**
+```typescript
+// Will cause "Only plain objects can be passed" error
+const market = await marketQueries.getMarketById(id) // Raw Prisma data
+return <ClientComponent market={market} />
+
+// Missing serialization in API
+const data = await prisma.model.findMany() // Raw Prisma data
+return NextResponse.json({ success: true, data }) // Error at runtime
+```
+
+**Development Checklist:**
+- [ ] Are you passing Prisma data to a Client Component? → Use `*Serialized` method
+- [ ] Are you returning Prisma data from an API route? → Use `serializeDecimals()`
+- [ ] Does the `*Serialized` method exist? → Create it if missing
+- [ ] Are you importing Prisma in client components? → Move to server-side or API route
+
 ### Performance Considerations
 - Implement caching strategies for frequently accessed data
 - Use database transactions for multi-step operations
