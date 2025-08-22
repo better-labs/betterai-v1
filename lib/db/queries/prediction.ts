@@ -24,24 +24,14 @@ export const predictionQueries = {
     const row = await predictionQueries.getPredictionWithRelationsById(id)
     if (!row) return null
     
-    // First serialize the entire object to handle all decimal fields recursively
+    // Serialize the entire object to handle all decimal fields recursively
     const serialized = serializeDecimals(row) as any
     
+    // Ensure arrays exist and return the fully serialized object
     return {
-      id: serialized.id,
-      userMessage: serialized.userMessage,
-      marketId: serialized.marketId,
-      predictionResult: serialized.predictionResult,
-      modelName: serialized.modelName,
-      systemPrompt: serialized.systemPrompt,
-      aiResponse: serialized.aiResponse,
-      createdAt: serialized.createdAt,
+      ...serialized,
       outcomes: serialized.outcomes || [],
       outcomesProbabilities: serialized.outcomesProbabilities || [],
-      userId: serialized.userId,
-      experimentTag: serialized.experimentTag,
-      experimentNotes: serialized.experimentNotes,
-      market: serialized.market, // This will now have all decimals converted to numbers
     }
   },
   getPredictionsByMarketIdSerialized: async (
@@ -106,21 +96,11 @@ export const predictionQueries = {
     // Serialize the entire object to handle all decimal fields recursively
     const serialized = serializeDecimals(row) as any
     
+    // Ensure arrays exist and return the fully serialized object
     return {
-      id: serialized.id,
-      userMessage: serialized.userMessage,
-      marketId: serialized.marketId,
-      predictionResult: serialized.predictionResult,
-      modelName: serialized.modelName ?? null,
-      systemPrompt: serialized.systemPrompt ?? null,
-      aiResponse: serialized.aiResponse ?? null,
-      createdAt: serialized.createdAt,
+      ...serialized,
       outcomes: serialized.outcomes ?? [],
       outcomesProbabilities: serialized.outcomesProbabilities ?? [],
-      userId: serialized.userId ?? null,
-      experimentTag: serialized.experimentTag ?? null,
-      experimentNotes: serialized.experimentNotes ?? null,
-      market: serialized.market ?? null, // All decimals now converted to numbers
     }
   },
   getPredictionsByMarketId: async (marketId: string): Promise<Array<Prediction & { market: Market | null }>> => {
@@ -557,20 +537,9 @@ export const predictionQueries = {
     // Serialize the entire results array to handle all decimal fields recursively
     const serialized = serializeDecimals(rows) as any[]
     return serialized.map((p) => ({
-      id: p.id,
-      userMessage: p.userMessage,
-      marketId: p.marketId,
-      predictionResult: p.predictionResult,
-      modelName: p.modelName ?? null,
-      systemPrompt: p.systemPrompt ?? null,
-      aiResponse: p.aiResponse ?? null,
-      createdAt: p.createdAt,
+      ...p,
       outcomes: p.outcomes ?? [],
       outcomesProbabilities: p.outcomesProbabilities ?? [],
-      userId: p.userId ?? null,
-      experimentTag: p.experimentTag ?? null,
-      experimentNotes: p.experimentNotes ?? null,
-      market: p.market ?? null, // All decimals now converted to numbers
     }))
   },
 
