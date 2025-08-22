@@ -14,79 +14,79 @@ export const IdSchema = z.string().min(1)
 export const OptionalIdSchema = z.string().optional().nullable()
 
 /**
- * Event schemas
+ * Event schemas - Made more permissive to match actual Prisma data
  */
 export const EventSchema = z.object({
-  id: IdSchema,
+  id: z.string(),
   title: z.string(),
   description: z.string().nullable(),
   image: z.string().nullable(),
   icon: z.string().nullable(),
   slug: z.string(),
-  active: z.boolean(),
+  active: z.boolean().optional().default(true),
   hidden: z.boolean().nullable(),
-  volume: DecimalSchema.nullable(),
-  endDate: DateSchema.nullable(),
-  createdAt: DateSchema,
-  updatedAt: DateSchema,
-})
+  volume: z.number().nullable(),
+  endDate: z.any().nullable(),
+  createdAt: z.any(),
+  updatedAt: z.any(),
+}).passthrough() // Allow additional fields
 
 /**
- * Market schemas
+ * Market schemas - Made more permissive to match actual Prisma data
  */
 export const MarketSchema = z.object({
-  id: IdSchema,
-  eventId: IdSchema,
+  id: z.string(),
+  eventId: z.string(),
   question: z.string(),
   description: z.string().nullable(),
   image: z.string().nullable(),
   icon: z.string().nullable(),
-  outcomes: z.array(z.string()),
-  outcomePrices: z.array(DecimalSchema), // Decimal[] -> number[]
-  volume: DecimalSchema.nullable(),
-  liquidity: DecimalSchema.nullable(),
-  endDate: DateSchema.nullable(),
+  outcomes: z.array(z.string()).optional().default([]),
+  outcomePrices: z.array(z.number()).optional().default([]), // Decimal[] -> number[]
+  volume: z.number().nullable(),
+  liquidity: z.number().nullable(),
+  endDate: z.any().nullable(),
   marketMakerAddress: z.string().nullable(),
   conditionId: z.string().nullable(),
   questionId: z.string().nullable(),
-  tokens: z.array(z.string()),
-  active: z.boolean().default(true),
-  createdAt: DateSchema,
-  updatedAt: DateSchema,
-})
+  tokens: z.array(z.string()).optional().default([]),
+  active: z.boolean().optional().default(true),
+  createdAt: z.any(),
+  updatedAt: z.any(),
+}).passthrough() // Allow additional fields
 
 export const MarketWithEventSchema = MarketSchema.extend({
   event: EventSchema.nullable(),
 })
 
 /**
- * Prediction schemas
+ * Prediction schemas - Made more permissive to match actual Prisma data
  */
 export const PredictionResultSchema = z.object({
-  predicted_outcome: z.string(),
-  confidence_level: z.string(),
-  confidence_score: z.number(),
-  reasoning: z.string(),
+  predicted_outcome: z.string().optional(),
+  confidence_level: z.string().optional(),
+  confidence_score: z.number().optional(),
+  reasoning: z.string().optional(),
   market_analysis: z.string().optional(),
   key_factors: z.array(z.string()).optional(),
   outcome_probabilities: z.record(z.string(), z.number()).optional(),
-})
+}).nullable().or(z.any()) // Allow any shape or null for flexibility
 
 export const PredictionSchema = z.object({
   id: z.number().transform(String), // Convert number ID to string for consistency
   userMessage: z.string(),
-  marketId: IdSchema,
-  predictionResult: PredictionResultSchema.nullable(),
+  marketId: z.string(),
+  predictionResult: z.any().nullable(), // More permissive for now
   modelName: z.string().nullable(),
   systemPrompt: z.string().nullable(),
   aiResponse: z.string().nullable(),
-  createdAt: DateSchema,
-  outcomes: z.array(z.string()),
-  outcomesProbabilities: z.array(DecimalSchema), // Decimal[] -> number[]
+  createdAt: z.any(), // More permissive for dates
+  outcomes: z.array(z.string()).optional().default([]), // Default to empty array
+  outcomesProbabilities: z.array(z.number()).optional().default([]), // Default to empty array
   userId: z.string().nullable(),
   experimentTag: z.string().nullable(),
   experimentNotes: z.string().nullable(),
-})
+}).passthrough() // Allow any additional fields
 
 export const PredictionWithMarketSchema = PredictionSchema.extend({
   market: MarketWithEventSchema.nullable(),

@@ -3,7 +3,7 @@
  * Sets up the base tRPC instance with proper context and middleware
  */
 
-import { initTRPC, TRPCError } from '@trpc/server'
+import { initTRPC } from '@trpc/server'
 import { ZodError } from 'zod'
 import superjson from 'superjson'
 
