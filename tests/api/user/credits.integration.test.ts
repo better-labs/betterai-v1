@@ -20,7 +20,8 @@ vi.mock('@/lib/services/credit-manager', () => ({
 }))
 
 vi.mock('@/lib/rate-limit', () => ({
-  checkRateLimit: vi.fn().mockResolvedValue({ success: true })
+  checkRateLimit: vi.fn().mockResolvedValue({ success: true }),
+  getRateLimitIdentifier: vi.fn().mockReturnValue('test-user-id')
 }))
 
 const { requireAuth } = await import('@/lib/auth')
