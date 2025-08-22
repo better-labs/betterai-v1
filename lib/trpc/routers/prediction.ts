@@ -5,7 +5,7 @@
 
 import { z } from 'zod'
 import { createTRPCRouter, publicProcedure } from '../init'
-import { prisma } from '@/lib/db/prisma'
+import { predictionQueries, marketQueries, predictionCheckQueries } from '@/lib/db/queries'
 import {
   PredictionSchema,
   PredictionWithMarketSchema,
@@ -23,20 +23,7 @@ export const predictionRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .output(z.any()) // Very permissive for now - can tighten later
     .query(async ({ input }) => {
-      const prediction = await prisma.prediction.findUnique({
-        where: { id: input.id },
-        include: {
-          market: {
-            include: {
-              event: true,
-            },
-          },
-        },
-      })
-
-      if (!prediction) return null
-
-      // superjson automatically handles Decimal -> number conversion
+      const prediction = await predictionQueries.getPredictionWithRelationsByIdSerialized(input.id)
       return prediction
     }),
 
@@ -47,14 +34,7 @@ export const predictionRouter = createTRPCRouter({
     .input(z.object({ marketId: z.string() }))
     .output(z.array(PredictionSchema))
     .query(async ({ input }) => {
-      const predictions = await prisma.prediction.findMany({
-        where: { marketId: input.marketId },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          market: true,
-        },
-      })
-
+      const predictions = await predictionQueries.getPredictionsByMarketIdSerialized(input.marketId)
       return predictions
     }),
 
@@ -90,50 +70,23 @@ export const predictionRouter = createTRPCRouter({
             }
 
         // Get markets with recent predictions, sorted by volume
-        const markets = await prisma.market.findMany({
-          where: {
-            ...(eventId && { eventId }),
-            ...(active !== undefined && { active }),
-            volume: { not: null },
-            predictions: {
-              some: {
-                createdAt: {
-                  gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // last 24 hours
-                },
-              },
-            },
-            event: {
-              eventTags: eventTagsWhere,
-            },
-          },
-          orderBy: [{ volume: 'desc' }, { id: 'desc' }],
-          take: limit + 1,
-          ...(cursor ? { cursor: { id: cursor.toString() }, skip: 1 } : {}),
-          select: { id: true },
+        const markets = await marketQueries.getMarketsWithRecentPredictions({
+          eventId,
+          active,
+          eventTagsWhere,
+          limit: limit + 1,
+          cursor: cursor ? cursor.toString() : undefined,
         })
 
-        // Get most recent prediction for each market
-        const marketIds = markets.map((m) => m.id)
-        if (marketIds.length === 0) {
+        if (markets.length === 0) {
           return { items: [], nextCursor: null }
         }
 
+        // Get most recent prediction for each market
+        const marketIds = markets.map((m) => m.id)
         const predictions = await Promise.all(
           marketIds.slice(0, limit).map(async (marketId) => {
-            return await prisma.prediction.findFirst({
-              where: {
-                marketId,
-                createdAt: {
-                  gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                },
-              },
-              orderBy: { createdAt: 'desc' },
-              include: {
-                market: {
-                  include: { event: true },
-                },
-              },
-            })
+            return await predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId)
           })
         )
 
@@ -145,7 +98,7 @@ export const predictionRouter = createTRPCRouter({
 
         return { items: validPredictions, nextCursor }
       } else {
-        // Build where condition for predictions mode
+        // Predictions mode - traditional pagination
         const eventTagsWherePredictions = tagIds?.length
           ? {
               some: { tagId: { in: tagIds } },
@@ -163,35 +116,17 @@ export const predictionRouter = createTRPCRouter({
               },
             }
 
-        // Predictions mode - traditional pagination
-        const whereCondition = {
-          market: {
-            ...(eventId && { eventId }),
-            event: {
-              eventTags: eventTagsWherePredictions,
-            },
-          },
-          outcomesProbabilities: {
-            isEmpty: false,
-          },
-        }
-
-        const predictions = await prisma.prediction.findMany({
-          where: whereCondition,
-          orderBy: { createdAt: 'desc' },
-          take: limit + 1,
-          ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-          include: {
-            market: {
-              include: { event: true },
-            },
-          },
+        const predictions = await predictionQueries.getRecentPredictionsWithFilters({
+          eventId,
+          eventTagsWhere: eventTagsWherePredictions,
+          limit: limit + 1,
+          cursor,
         })
 
         const hasMore = predictions.length > limit
         const items = hasMore ? predictions.slice(0, limit) : predictions
         const nextCursor = hasMore 
-          ? (items[items.length - 1]?.id ?? null) 
+          ? (items[items.length - 1]?.id ? Number(items[items.length - 1].id) : null) 
           : null
 
         return { items, nextCursor }
@@ -205,13 +140,10 @@ export const predictionRouter = createTRPCRouter({
     .input(CreatePredictionInputSchema)
     .output(PredictionSchema)
     .mutation(async ({ input }) => {
-      const prediction = await prisma.prediction.create({
-        data: {
-          ...input,
-          userId: null, // TODO: Get from auth context
-        },
+      const prediction = await predictionQueries.createPrediction({
+        ...input,
+        userId: null, // TODO: Get from auth context
       })
-
       return prediction
     }),
 
@@ -224,11 +156,10 @@ export const predictionRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { id, ...updateData } = input
       
-      const prediction = await prisma.prediction.update({
-        where: { id },
-        data: updateData,
-      })
-
+      const prediction = await predictionQueries.updatePrediction(id, updateData)
+      if (!prediction) {
+        throw new Error('Prediction not found')
+      }
       return prediction
     }),
 
@@ -242,12 +173,10 @@ export const predictionRouter = createTRPCRouter({
     }))
     .output(z.array(PredictionCheckSchema))
     .query(async ({ input }) => {
-      const checks = await prisma.predictionCheck.findMany({
-        where: { marketId: input.marketId },
-        orderBy: { createdAt: 'desc' },
-        take: input.limit,
-      })
-
+      const checks = await predictionCheckQueries.getChecksByMarketIdSerialized(
+        input.marketId, 
+        input.limit
+      )
       return checks
     }),
 
@@ -261,17 +190,10 @@ export const predictionRouter = createTRPCRouter({
     }))
     .output(z.array(PredictionSchema))
     .query(async ({ input }) => {
-      const predictions = await prisma.prediction.findMany({
-        where: {
-          userMessage: {
-            contains: input.searchTerm,
-            mode: 'insensitive',
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: input.limit,
-      })
-
+      const predictions = await predictionQueries.searchPredictionsByMessageSerialized(
+        input.searchTerm,
+        input.limit
+      )
       return predictions
     }),
 })
