@@ -3,32 +3,14 @@
  * Handles Prisma Decimals, Dates, and other non-serializable objects
  */
 
-// Dynamic import to avoid Prisma client during build
-let Decimal: any
-
-// Check if we're in build mode or if Prisma is available
-const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL
-const isPrismaAvailable = (() => {
-  try {
-    require.resolve('@prisma/client/runtime/library')
-    return true
-  } catch {
-    return false
-  }
-})()
-
-if (!isBuildTime && isPrismaAvailable) {
-  Decimal = require('@prisma/client/runtime/library').Decimal
-} else {
-  // Fallback for build time when Prisma isn't available
-  Decimal = class {
-    constructor(value: any) {
-      return value
-    }
-    toString() {
-      return String(this)
-    }
-  }
+// Check if an object is a Prisma Decimal by looking at its constructor and methods
+function isPrismaDecimal(obj: any): boolean {
+  return obj != null && 
+         typeof obj === 'object' && 
+         obj.constructor && 
+         obj.constructor.name === 'Decimal' && 
+         typeof obj.toString === 'function' &&
+         typeof obj.toNumber === 'function'
 }
 
 /**
@@ -38,8 +20,8 @@ if (!isBuildTime && isPrismaAvailable) {
 export function serializeDecimals<T>(obj: T): T {
   if (obj === null || obj === undefined) return obj
 
-  // Handle Prisma Decimal objects
-  if (obj instanceof Decimal) {
+  // Handle Prisma Decimal objects (check without importing Decimal class)
+  if (isPrismaDecimal(obj)) {
     return Number(obj.toString()) as T
   }
 

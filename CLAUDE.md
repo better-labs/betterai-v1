@@ -74,6 +74,9 @@ See package.json for the most recent commands.
 - **API Routes**: Always serialize Prisma responses using `serializeDecimals()` before returning JSON
 - **Migration Pattern**: After schema changes, run `pnpm prisma generate` to regenerate the client with JSON protocol
 - **Common Issue**: "Only plain objects can be passed to Client Components" errors indicate missing serialization
+- **Centralized Pattern**: Use `*Serialized` query wrappers (e.g., `getMarketByIdSerialized`) instead of manual serialization calls
+- **Type Safety**: Define DTO interfaces in `lib/types.ts` with JSON-safe types (numbers, ISO date strings) for client components
+- **Build Safety**: Avoid importing from `@prisma/client/runtime/library` at build time - use runtime detection for Decimal objects
 
 
 ## Code Style & Patterns
@@ -181,6 +184,13 @@ Follow these consistent spacing patterns for professional, polished layouts:
 - Use `pnpm run db:migrate:status:ci` for migration status checks in CI/CD
 - These commands expect `DATABASE_URL_UNPOOLED` to be set as an environment variable
 - **Root Cause**: The regular migration commands use `dotenv -e .env.local` which fails in CI/CD environments where no `.env.local` file exists
+
+### Next.js Build Best Practices
+- **Use `pnpm` not `npm`**: Project uses pnpm for package management and build commands
+- **Prisma Externalization**: Use `serverExternalPackages: ['@prisma/client']` in `next.config.mjs` for Next.js 15+
+- **Avoid Build-Time Imports**: Never import from Prisma runtime libraries at module level to prevent webpack errors
+- **Test Both Build & Runtime**: Always run `pnpm run build` and `pnpm test --run` after Prisma-related changes
+- **Keep Config Simple**: Prefer Next.js built-in externalization over complex webpack configurations
 
 ### Security Best Practices
 - Validate all user inputs

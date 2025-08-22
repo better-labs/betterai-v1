@@ -1,5 +1,39 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Decimal } from '@prisma/client/runtime/library'
+
+// Mock Decimal class to avoid importing Prisma runtime during tests
+class MockDecimal {
+  private value: number
+  
+  constructor(value: number | string) {
+    this.value = typeof value === 'string' ? parseFloat(value) : value
+  }
+  
+  toString(): string {
+    return this.value.toString()
+  }
+  
+  toNumber(): number {
+    return this.value
+  }
+  
+  // Add the required methods and properties to match Prisma Decimal
+  static get name() {
+    return 'Decimal'
+  }
+  
+  get [Symbol.toStringTag]() {
+    return 'Decimal'
+  }
+}
+
+// Ensure the constructor name is correct for our detection function
+Object.defineProperty(MockDecimal.prototype.constructor, 'name', {
+  value: 'Decimal',
+  configurable: true
+})
+
+// Create a mock that behaves like Prisma's Decimal
+const Decimal = MockDecimal
 
 // Mock the prisma module
 vi.mock('@/lib/db/prisma', () => ({

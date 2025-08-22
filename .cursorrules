@@ -119,6 +119,9 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 - **API Routes**: Serialize all Prisma responses with `serializeDecimals()` before returning JSON
 - **Migration Pattern**: Run `pnpm prisma generate` after schema changes to regenerate client with JSON protocol
 - **Error Pattern**: "Only plain objects can be passed to Client Components" = missing serialization
+- **Centralized Serialization**: Use `*Serialized` query wrappers (e.g., `getMarketByIdSerialized`) to avoid repeating serialization logic
+- **DTO Types**: Define client-safe DTO interfaces in `lib/types.ts` with plain JSON types (numbers, ISO strings) to catch serialization issues early
+- **Build-Safe Imports**: Never import from `@prisma/client/runtime/library` at module level - use runtime detection patterns to avoid webpack build errors
 ### Database Operations
 - Use commands in package.json where possible for database migration in Dev and Preview builds.
 

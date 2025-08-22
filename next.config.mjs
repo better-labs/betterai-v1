@@ -3,50 +3,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Memory optimization for development
+  // Memory optimization and Prisma externalization for Next.js 15
   experimental: {
     // Reduce memory usage in development
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
-  webpack: (config, { webpack, isServer }) => {
-    // Handle Node.js modules for Prisma
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      dns: false,
-      child_process: false,
-      tls: false,
-      os: false,
-      module: false,
-      'node:fs': false,
-      'node:fs/promises': false,
-      'node:child_process': false,
-      'node:module': false,
-      'node:os': false,
-    };
-
-    // Add alias for Node.js modules
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'node:fs': false,
-      'node:fs/promises': false,
-      'node:child_process': false,
-      'node:module': false,
-      'node:os': false,
-    };
-
-    // Add Node.js polyfills
-    if (!isServer) {
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^node:/,
-        })
-      );
-    }
-
-    return config;
-  },
+  // Externalize Prisma for server components (Next.js 15 best practice)
+  serverExternalPackages: ['@prisma/client'],
   // Optimize images
   images: {
     // Use Next.js image optimizer and allow S3/Polymarket hosts
