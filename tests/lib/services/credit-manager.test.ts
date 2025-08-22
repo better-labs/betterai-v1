@@ -41,6 +41,12 @@ describe('CreditManager', () => {
     it('should return credit balance for existing user', async () => {
       const mockUser = {
         id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         credits: 50,
         creditsLastReset: new Date('2024-01-01'),
         totalCreditsEarned: 150,
@@ -71,7 +77,15 @@ describe('CreditManager', () => {
     it('should return false when user has insufficient credits', async () => {
       const mockUser = {
         id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         credits: 5,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 100,
         totalCreditsSpent: 10
       }
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
@@ -85,7 +99,15 @@ describe('CreditManager', () => {
     it('should successfully consume credits', async () => {
       const mockUser = {
         id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         credits: 20,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 100,
         totalCreditsSpent: 10
       }
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
@@ -106,7 +128,15 @@ describe('CreditManager', () => {
       const { prisma } = await import('@/lib/db/prisma')
       const mockUser = {
         id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         credits: 20,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 100,
         totalCreditsSpent: 10
       }
 
@@ -129,8 +159,16 @@ describe('CreditManager', () => {
     it('should successfully add credits', async () => {
       const mockUser = {
         id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         credits: 20,
-        totalCreditsEarned: 30
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 30,
+        totalCreditsSpent: 10
       }
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
       vi.mocked(userQueries.updateUserCredits).mockResolvedValue(mockUser)
@@ -156,8 +194,16 @@ describe('CreditManager', () => {
     it('should reset credits to minimum when user has less than minimum', async () => {
       const mockUser = {
         id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         credits: 50,
-        totalCreditsEarned: 100
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 100,
+        totalCreditsSpent: 0
       }
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
       vi.mocked(userQueries.resetUserDailyCredits).mockResolvedValue(mockUser)
@@ -180,7 +226,16 @@ describe('CreditManager', () => {
     it('should return true when credits are below threshold', async () => {
       const mockUser = {
         id: 'user-123',
-        credits: 5
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        credits: 5,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 100,
+        totalCreditsSpent: 0
       }
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
 
@@ -192,7 +247,16 @@ describe('CreditManager', () => {
     it('should return false when credits are above threshold', async () => {
       const mockUser = {
         id: 'user-123',
-        credits: 50
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        credits: 50,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 100,
+        totalCreditsSpent: 0
       }
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
 

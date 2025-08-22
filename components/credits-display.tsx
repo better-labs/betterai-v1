@@ -16,24 +16,25 @@ interface CreditsDisplayProps {
 export function CreditsDisplay({ showAddButton = true, compact = false }: CreditsDisplayProps) {
   const { user } = useUser()
 
-  // Fetch user credits
-  const { data: creditsData, isLoading } = useQuery({
-    queryKey: ['user-credits', user?.id],
-    queryFn: async (): Promise<{ credits: CreditBalance }> => {
-      const response = await fetch('/api/user/credits')
-      if (!response.ok) {
-        throw new Error('Failed to fetch credits')
-      }
-      return response.json()
-    },
-    enabled: !!user?.id,
-    refetchInterval: 60000, // Refetch every minute
-    staleTime: 30000, // Consider data stale after 30 seconds
-  })
+  	// Fetch user credits
+	const { data: creditsData, isLoading } = useQuery({
+		queryKey: ['user-credits', user?.id],
+		queryFn: async (): Promise<{ credits: CreditBalance | null; isAuthenticated: boolean; message?: string }> => {
+			const response = await fetch('/api/user/credits')
+			if (!response.ok) {
+				throw new Error('Failed to fetch credits')
+			}
+			return response.json()
+		},
+		enabled: true, // Always enabled to check authentication status
+		refetchInterval: 60000, // Refetch every minute
+		staleTime: 30000, // Consider data stale after 30 seconds
+	})
 
-  const credits = creditsData?.credits
+	const credits = creditsData?.credits
+	const isAuthenticated = creditsData?.isAuthenticated ?? false
 
-  if (!user?.id) {
+  if (!user?.id || !isAuthenticated) {
     return null
   }
 

@@ -17,7 +17,7 @@ class MockDecimal {
   }
   
   // Add the required methods and properties to match Prisma Decimal
-  static get name() {
+  static get decimalName() {
     return 'Decimal'
   }
   

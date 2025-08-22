@@ -39,6 +39,13 @@ describe('User Credit Queries', () => {
 
     it('should return credit balance for existing user', async () => {
       const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         credits: 50,
         creditsLastReset: new Date('2024-01-01'),
         totalCreditsEarned: 150,
@@ -59,7 +66,19 @@ describe('User Credit Queries', () => {
 
   describe('updateUserCredits', () => {
     it('should update all credit fields', async () => {
-      const mockUser = { id: 'user-123', credits: 50 }
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        credits: 100,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 200,
+        totalCreditsSpent: 50
+      }
       vi.mocked(prisma.user.update).mockResolvedValue(mockUser)
 
       const result = await userQueries.updateUserCredits(
@@ -82,7 +101,19 @@ describe('User Credit Queries', () => {
     })
 
     it('should only update credits when other fields are undefined', async () => {
-      const mockUser = { id: 'user-123', credits: 50 }
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        credits: 100,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 100,
+        totalCreditsSpent: 0
+      }
       vi.mocked(prisma.user.update).mockResolvedValue(mockUser)
 
       const result = await userQueries.updateUserCredits('user-123', 100)
@@ -100,7 +131,19 @@ describe('User Credit Queries', () => {
 
   describe('resetUserDailyCredits', () => {
     it('should reset credits to minimum when user has less than minimum', async () => {
-      const mockUser = { id: 'user-123', credits: 50, totalCreditsEarned: 100 }
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        credits: 100,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 150,
+        totalCreditsSpent: 0
+      }
       vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
       vi.mocked(prisma.user.update).mockResolvedValue(mockUser)
 
@@ -119,7 +162,19 @@ describe('User Credit Queries', () => {
     })
 
     it('should preserve existing credits when above minimum', async () => {
-      const mockUser = { id: 'user-123', credits: 150, totalCreditsEarned: 200 }
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        walletAddress: null,
+        username: 'testuser',
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        credits: 150,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: 200,
+        totalCreditsSpent: 0
+      }
       vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser)
       vi.mocked(prisma.user.update).mockResolvedValue(mockUser)
 
@@ -154,7 +209,10 @@ describe('User Credit Queries', () => {
           credits: 5000,
           totalCreditsEarned: 10000,
           totalCreditsSpent: 5000
-        }
+        },
+        _avg: {},
+        _min: {},
+        _max: {}
       }
       vi.mocked(prisma.user.aggregate).mockResolvedValue(mockStats)
       vi.mocked(prisma.user.count).mockResolvedValue(15)

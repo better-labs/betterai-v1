@@ -6,7 +6,27 @@ import { serializeDecimals } from '@/lib/serialization'
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await requireAuth(request)
+    // Try to get authenticated user, but don't fail if not authenticated
+    let userId: string | null = null
+    try {
+      const authResult = await requireAuth(request)
+      userId = authResult.userId
+    } catch (authError) {
+      // User is not authenticated, return guest response
+      return NextResponse.json({
+        credits: null,
+        isAuthenticated: false,
+        message: 'User not authenticated'
+      })
+    }
+
+    if (!userId) {
+      return NextResponse.json({
+        credits: null,
+        isAuthenticated: false,
+        message: 'User not authenticated'
+      })
+    }
 
     // Check rate limit for credit queries
     const identifier = await getRateLimitIdentifier(request, userId)
@@ -27,13 +47,18 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      credits: serializeDecimals(credits)
+      credits: serializeDecimals(credits),
+      isAuthenticated: true
     })
   } catch (error) {
     console.error('Get user credits error:', error)
 
     if (error instanceof Error && error.message.includes('authentication')) {
-      return createAuthErrorResponse(error.message)
+      return NextResponse.json({
+        credits: null,
+        isAuthenticated: false,
+        message: 'User not authenticated'
+      })
     }
 
     return NextResponse.json({ error: 'Failed to get user credits' }, { status: 500 })
@@ -42,7 +67,27 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await requireAuth(request)
+    // Try to get authenticated user, but don't fail if not authenticated
+    let userId: string | null = null
+    try {
+      const authResult = await requireAuth(request)
+      userId = authResult.userId
+    } catch (authError) {
+      // User is not authenticated
+      return NextResponse.json({
+        error: 'Authentication required',
+        isAuthenticated: false,
+        message: 'Please log in to perform credit operations'
+      }, { status: 401 })
+    }
+
+    if (!userId) {
+      return NextResponse.json({
+        error: 'Authentication required',
+        isAuthenticated: false,
+        message: 'Please log in to perform credit operations'
+      }, { status: 401 })
+    }
 
     // Check rate limit for credit operations
     const identifier = await getRateLimitIdentifier(request, userId)
@@ -87,7 +132,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          credits: serializeDecimals(updatedCredits)
+          credits: serializeDecimals(updatedCredits),
+          isAuthenticated: true
         })
       }
 
@@ -108,7 +154,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          credits: serializeDecimals(updatedCredits)
+          credits: serializeDecimals(updatedCredits),
+          isAuthenticated: true
         })
       }
 
@@ -120,7 +167,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          credits: serializeDecimals(updatedCredits)
+          credits: serializeDecimals(updatedCredits),
+          isAuthenticated: true
         })
       }
 
@@ -131,7 +179,11 @@ export async function POST(request: NextRequest) {
     console.error('User credits operation error:', error)
 
     if (error instanceof Error && error.message.includes('authentication')) {
-      return createAuthErrorResponse(error.message)
+      return NextResponse.json({
+        error: 'Authentication required',
+        isAuthenticated: false,
+        message: 'Please log in to perform credit operations'
+      }, { status: 401 })
     }
 
     return NextResponse.json({ error: 'Failed to perform credit operation' }, { status: 500 })

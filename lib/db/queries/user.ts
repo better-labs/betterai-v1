@@ -143,7 +143,7 @@ export const userQueries = {
     })
   },
 
-  getUsersWithLowCredits: async (threshold: number = 10): Promise<User[]> => {
+  getUsersWithLowCredits: async (threshold: number = 10): Promise<Pick<User, 'id' | 'email' | 'username' | 'credits' | 'creditsLastReset'>[]> => {
     return await prisma.user.findMany({
       where: {
         credits: { lt: threshold }
