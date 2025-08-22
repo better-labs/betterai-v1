@@ -177,19 +177,25 @@ model PredictionCheck {
 }
 
 model User {
-  id            String          @id
-  email         String?
-  walletAddress String?         @map("wallet_address")
-  username      String?
-  avatar        String?
-  createdAt     DateTime?       @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt     DateTime?       @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
-  predictions   Prediction[]
-  watchlist     UserWatchlist[]
+  id                  String          @id
+  email               String?
+  walletAddress       String?         @map("wallet_address")
+  username            String?
+  avatar              String?
+  createdAt           DateTime?       @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime?       @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  credits             Int             @default(100)
+  creditsLastReset    DateTime?       @default(now()) @map("credits_last_reset") @db.Timestamp(6)
+  totalCreditsEarned  Int             @default(100) @map("total_credits_earned")
+  totalCreditsSpent   Int             @default(0) @map("total_credits_spent")
+  predictions         Prediction[]
+  watchlist           UserWatchlist[]
 
   @@index([email], map: "idx_users_email")
   @@index([walletAddress], map: "idx_users_wallet_address")
   @@index([username], map: "idx_users_username")
+  @@index([credits], map: "idx_users_credits")
+  @@index([creditsLastReset], map: "idx_users_credits_reset")
   @@map("users")
 }
 

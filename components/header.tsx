@@ -11,6 +11,7 @@ import { useTheme } from "next-themes"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
+import { CreditsDisplay } from "@/components/credits-display"
 
 const PrivyUserPill = dynamic(
   () => import("@privy-io/react-auth/ui").then((m) => m.UserPill),
@@ -18,7 +19,6 @@ const PrivyUserPill = dynamic(
 )
 
 export function Header() {
-  const [credits, setCredits] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
   const router = useRouter()
@@ -143,25 +143,12 @@ export function Header() {
 
           {/* Actions Section */}
           <div className="flex items-center space-x-4" id="header-actions">
-            {/* Hiding this credits section for now, todo: unhide when implemented */}
-            {/* {authenticated && (
-              <>
-                <div className="hidden md:flex items-center space-x-1 text-sm text-muted-foreground">
-                  <span>Remaining credits:</span>
-                  <span className="font-medium">{credits}</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    router.push("/credits")
-                  }}
-                  className="hidden md:inline-flex text-muted-foreground hover:text-foreground"
-                >
-                  Add Credits
-                </Button>
-              </>
-            )} */}
+            {/* Credits Display */}
+            {authenticated && (
+              <div className="hidden md:flex">
+                <CreditsDisplay />
+              </div>
+            )}
 
             {/* Login/Signup buttons removed; relying solely on Privy UserPill */}
 
