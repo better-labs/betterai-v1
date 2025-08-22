@@ -8,6 +8,7 @@ import { formatVolume, generateMarketURL } from '@/lib/utils'
 import type { PredictionResult } from '@/lib/types'
 import MarketDetailsCard from '@/components/market-details-card'
 import { MarketEventHeader } from '@/components/market-event-header'
+import { PredictionReasoningCard } from '@/components/prediction-reasoning-card'
 
 interface MarketDetailPageProps {
   params: Promise<{
@@ -102,9 +103,12 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                   {predictionResult.reasoning && (
                     <div>
                       <h4 className="font-medium mb-2">Reasoning</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {predictionResult.reasoning}
-                      </p>
+                      <PredictionReasoningCard 
+                        reasoning={predictionResult.reasoning}
+                        collapsedHeight="7rem"
+                        showHeader={false}
+                        className="border-0 shadow-none bg-transparent"
+                      />
                     </div>
                   )}
 

@@ -26,6 +26,23 @@ This is a Next.js prediction market application built by a **solo founder** that
 - Follow the existing file structure and naming conventions
 - **Keep it simple** - Avoid over-engineering for a solo founder project
 
+### UI/UX Patterns
+- **Collapsible Content with Gradient Fade**: For long text content that needs to be collapsed, use gradient fade effects to indicate there's more content below:
+  ```jsx
+  // Collapsed content with fade effect
+  <div className={cn(
+    "relative overflow-hidden",
+    !expanded && "max-h-[5rem]"
+  )}>
+    {content}
+    {!expanded && (
+      <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent" />
+    )}
+  </div>
+  ```
+- **Show More/Less Controls**: Use chevron icons (ChevronDown/ChevronUp) with descriptive text for expand/collapse actions
+- **Consistent Collapsed Heights**: Match collapsed heights to related UI sections (e.g., prediction summary height)
+
 ### Running the development server
 - If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
 

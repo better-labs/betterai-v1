@@ -80,6 +80,23 @@ Follow the project's `.cursorrules` for consistent development:
 - Use shadcn/ui components for consistency
 - **Keep it simple** - Avoid over-engineering for a solo founder project
 
+### UI/UX Patterns
+- **Collapsible Content with Gradient Fade**: For long text content that needs to be collapsed, use gradient fade effects to indicate there's more content below:
+  ```jsx
+  // Collapsed content with fade effect
+  <div className={cn(
+    "relative overflow-hidden",
+    !expanded && "max-h-[5rem]"
+  )}>
+    {content}
+    {!expanded && (
+      <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent" />
+    )}
+  </div>
+  ```
+- **Show More/Less Controls**: Use chevron icons (ChevronDown/ChevronUp) with descriptive text for expand/collapse actions
+- **Consistent Collapsed Heights**: Match collapsed heights to related UI sections (e.g., prediction summary height)
+
 ### File Organization
 - **Components**: `components/` (reusable) and `app/` (page-specific)
 - **Services**: `lib/services/` for business logic
