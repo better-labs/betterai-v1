@@ -12,7 +12,7 @@ import { PredictionReasoningCard } from '@/components/prediction-reasoning-card'
 import { PredictionHistoryList } from '@/components/prediction-history-list'
 import { serializePredictionData, serializeDecimals } from '@/lib/serialization'
 import { PredictionActionButtons } from '@/components/prediction-action-buttons'
-import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
+import type { EventOutput, MarketOutput, PredictionOutput } from '@/lib/trpc/schemas'
 
 interface MarketDetailPageProps {
   params: Promise<{
@@ -24,18 +24,18 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   const { marketId } = await params
 
   // Fetch market data
-  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketDTO | null
+  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketOutput | null
   if (!market) {
     notFound()
   }
 
   // Fetch event data if market has an eventId
-  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventDTO | null : null
+  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventOutput | null : null
 
   // Fetch most recent prediction and all predictions for history
   const [prediction, allPredictions] = await Promise.all([
-    predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId) as unknown as Promise<PredictionDTO | null>,
-    predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as Promise<PredictionDTO[]>
+    predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId) as unknown as Promise<PredictionOutput | null>,
+    predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as Promise<PredictionOutput[]>
   ])
 
   const serializedMarket = market

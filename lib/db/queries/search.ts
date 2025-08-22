@@ -3,7 +3,7 @@ import { marketQueries } from './market'
 import { eventQueries } from './event'
 import { tagQueries } from './tag'
 import { serializeDecimals } from '../../serialization'
-import type { MarketDTO, EventDTO, PredictionDTO } from '../../types'
+import type { MarketOutput, EventOutput, PredictionOutput } from '@/lib/trpc/schemas'
 
 // Unified search functionality
 export const searchQueries = {
@@ -77,8 +77,8 @@ export const searchQueries = {
       marketOptions?: Parameters<typeof marketQueries.searchMarkets>[1]
     }
   ): Promise<{
-    markets: Array<MarketDTO & { event: EventDTO | null, predictions: PredictionDTO[] }>
-    events: Array<EventDTO & { markets?: MarketDTO[] }>
+    markets: Array<MarketOutput & { event: EventOutput | null, predictions: PredictionOutput[] }>
+    events: Array<EventOutput & { markets?: MarketOutput[] }>
     tags: Array<Tag & { eventCount?: number }>
     totalResults: number
     suggestions?: string[]

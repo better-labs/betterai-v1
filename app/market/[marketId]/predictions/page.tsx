@@ -4,7 +4,7 @@ import { MarketEventHeader } from '@/components/market-event-header'
 import { PredictionSummaryCard } from '@/components/prediction-summary-card'
 import type { PredictionResult } from '@/lib/types'
 import { serializeDecimals } from '@/lib/serialization'
-import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
+import type { EventOutput, MarketOutput, PredictionOutput } from '@/lib/trpc/schemas'
 
 type PageParams = { marketId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -12,11 +12,11 @@ type PageProps = { params: Promise<PageParams> }
 export default async function MarketPredictionsPage({ params }: PageProps) {
   const { marketId } = await params
 
-  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketDTO | null
+  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketOutput | null
   if (!market) return notFound()
 
-  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventDTO | null : null
-  const predictions = await predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as PredictionDTO[]
+  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventOutput | null : null
+  const predictions = await predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as PredictionOutput[]
 
   const serializedMarket = market
   const serializedEvent = event

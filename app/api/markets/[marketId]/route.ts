@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { marketQueries, eventQueries } from '@/lib/db/queries'
-import type { ApiResponse, MarketDTO, EventDTO } from '@/lib/types'
+import type { ApiResponse } from '@/lib/types'
+import type { MarketOutput, EventOutput } from '@/lib/trpc/schemas'
 
 interface RouteParams {
   params: Promise<{
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Fetch market data
-    const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketDTO | null
+    const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketOutput | null
     
     if (!market) {
       const errorResponse: ApiResponse = {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Fetch related event data if available
     let event: EventDTO | null = null
     if (market.eventId) {
-      event = await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventDTO | null
+      event = await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventOutput | null
     }
 
     const responseData: ApiResponse = {

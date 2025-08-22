@@ -2,7 +2,7 @@ import { prisma } from "../prisma"
 import type { Event, Market, Category } from '../../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 import { serializeDecimals } from "@/lib/serialization"
-import type { EventDTO } from "@/lib/types"
+import type { EventOutput } from "@/lib/trpc/schemas"
 
 // Event queries
 export const eventQueries = {
@@ -30,8 +30,8 @@ export const eventQueries = {
       where: { id }
     })
   },
-  /** Serialized wrappers returning DTO-safe shapes */
-  getEventByIdSerialized: async (id: string): Promise<EventDTO | null> => {
+  /** Serialized wrappers returning client-safe shapes */
+  getEventByIdSerialized: async (id: string): Promise<EventOutput | null> => {
     const e = await eventQueries.getEventById(id)
     if (!e) return null
     const s = serializeDecimals(e) as any

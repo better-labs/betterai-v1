@@ -2,7 +2,7 @@ import { prisma } from "../prisma"
 import { Prisma } from '../../../lib/generated/prisma'
 import type { Market, Event, Prediction } from '../../../lib/generated/prisma';
 import { serializeDecimals } from "@/lib/serialization"
-import type { MarketDTO } from "@/lib/types"
+import type { MarketOutput } from "@/lib/trpc/schemas"
 
 // Market queries
 export const marketQueries = {
@@ -17,8 +17,8 @@ export const marketQueries = {
       where: { id }
     })
   },
-  /** Serialized wrappers returning DTO-safe shapes */
-  getMarketByIdSerialized: async (id: string): Promise<MarketDTO | null> => {
+  /** Serialized wrappers returning client-safe shapes */
+  getMarketByIdSerialized: async (id: string): Promise<MarketOutput | null> => {
     const m = await marketQueries.getMarketById(id)
     if (!m) return null
     const s = serializeDecimals(m) as any
@@ -49,7 +49,7 @@ export const marketQueries = {
       take: limit
     })
   },
-  getMarketsByEventIdSerialized: async (eventId: string): Promise<MarketDTO[]> => {
+  getMarketsByEventIdSerialized: async (eventId: string): Promise<MarketOutput[]> => {
     const rows = await marketQueries.getMarketsByEventId(eventId)
     const s = serializeDecimals(rows) as any[]
     return s.map((m) => ({
