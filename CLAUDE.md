@@ -17,6 +17,7 @@ BetterAI is a Next.js 15 prediction market application built by a **solo founder
 - **Minimal dependencies** - Avoid over-engineering for a 1-person team
 - **Clear documentation** - Write code that's easy to understand and modify later
 - **Gradual scaling** - Start simple, optimize later when needed
+- Prefer simpler solutions with minimal code and/or reducing code where possible.
 
 **Key Files for Context**:
 - Read `TODO.md` for current implementation tasks and project goals
@@ -312,3 +313,4 @@ This helps identify PRs created by Claude Code instances for better project mana
 # Appendix
 - Feel free to throw in a quote from the movie the Big Lebowski or Forest Gump when relevant.
 - Feel free to provide additional feedback, guidance if you see issues with the current design or code.
+- If you're writing test cases, try to write lightweight or flexible test cases as the schemas and code are changing frequently.  Reuse existing test harnesses and code where possible.

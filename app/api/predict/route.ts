@@ -3,6 +3,8 @@ import { generatePredictionForMarket } from "@/lib/services/generate-single-pred
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from "@/lib/rate-limit"
 
+import type { ApiResponse } from "@/lib/types"
+
 export async function POST(request: NextRequest) {
   try {
     // Require authentication for this endpoint
@@ -22,22 +24,41 @@ export async function POST(request: NextRequest) {
     const { marketId, userMessage, model, dataSources } = await request.json()
 
     if (!marketId) {
-      return NextResponse.json({ error: "Market ID is required" }, { status: 400 })
+      const errorResponse: ApiResponse = {
+        success: false,
+        error: "Market ID is required",
+        timestamp: new Date().toISOString()
+      }
+      return NextResponse.json(errorResponse, { status: 400 })
     }
 
     // Use the new prediction service with user context
     const result = await generatePredictionForMarket(marketId, userId, model, userMessage)
 
     if (!result.success) {
-      return NextResponse.json({ error: result.message }, { status: 500 })
+      const errorResponse: ApiResponse = {
+        success: false,
+        error: result.message || "Failed to generate prediction",
+        timestamp: new Date().toISOString()
+      }
+      return NextResponse.json(errorResponse, { status: 500 })
     }
 
-    return NextResponse.json({ 
-      prediction: result.prediction,
-      predictionId: result.predictionId,
+    // Prepare the response data
+    const responseData: ApiResponse = {
+      success: true,
+      data: {
+        prediction: result.prediction,
+        predictionId: result.predictionId,
+        authenticatedUser: userId
+      },
       message: result.message,
-      authenticatedUser: userId
-    })
+      timestamp: new Date().toISOString()
+    }
+
+    // Note: We could add validation here if we had a specific schema for this response
+    // For now, using the consistent ApiResponse format provides structure
+    return NextResponse.json(responseData)
   } catch (error) {
     console.error("Prediction error:", error)
     
@@ -46,6 +67,11 @@ export async function POST(request: NextRequest) {
       return createAuthErrorResponse(error.message)
     }
     
-    return NextResponse.json({ error: "Failed to generate prediction" }, { status: 500 })
+    const errorResponse: ApiResponse = {
+      success: false,
+      error: "Failed to generate prediction",
+      timestamp: new Date().toISOString()
+    }
+    return NextResponse.json(errorResponse, { status: 500 })
   }
 }

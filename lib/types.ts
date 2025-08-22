@@ -3,6 +3,29 @@
  * Contains type definitions that are used in the application but don't directly map to database models.
  * These types are used for UI state management, API responses, and other application-specific data structures.
  */
+
+// Server-side types (with Date objects)
+export interface CreditBalanceServer {
+  credits: number
+  creditsLastReset: Date
+  totalCreditsEarned: number
+  totalCreditsSpent: number
+}
+
+// Client-side types (with serialized dates as strings)
+export interface CreditBalanceClient {
+  credits: number
+  creditsLastReset: string // ISO string from JSON
+  totalCreditsEarned: number
+  totalCreditsSpent: number
+}
+
+// API Response types
+export interface CreditsApiResponse {
+  credits: CreditBalanceClient | null
+  isAuthenticated: boolean
+  message?: string
+}
 export interface ThinkingState {
   isThinking: boolean
   message: string
@@ -30,6 +53,47 @@ export interface PolymarketEvent {
   endDate?: Date | null;
   markets: PolymarketMarket[];
   category: string;
+}
+
+// DTO for validated Polymarket API responses (strings before conversion)
+export interface PolymarketEventDTO {
+  id: string;
+  title: string;
+  description: string;
+  slug: string;
+  icon: string;
+  image?: string;
+  tags: Array<{
+    id: string;
+    label: string;
+    slug: string;
+    forceShow: boolean;
+    updatedAt: string;
+  }>;
+  volume: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  markets: PolymarketMarketDTO[];
+  category: string;
+}
+
+export interface PolymarketMarketDTO {
+  id: string;
+  question: string;
+  description?: string;
+  slug?: string;
+  icon?: string;
+  image?: string;
+  outcomePrices: string; // JSON string
+  outcomes?: string; // JSON string array
+  volume: string;
+  liquidity: string;
+  active?: boolean;
+  closed?: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  resolutionSource?: string;
+  eventId?: string;
 }
 
 export interface OpenRouterModel {

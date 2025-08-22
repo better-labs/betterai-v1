@@ -1,4 +1,9 @@
 import type { PolymarketEvent } from '@/lib/types';
+import { 
+  validatePolymarketEvent,
+  validatePolymarketEventSafe,
+  ApiResponseValidationError 
+} from '@/lib/validation/response-validator';
 
 // Note: This file now primarily serves as a data fetcher for TanStack Query hooks.
 // For React components, use the usePolymarketEvents hook from '@/lib/hooks/use-polymarket-events'
@@ -57,6 +62,27 @@ function formatDateYYYYMMDD(input: Date | string): string {
   return input;
 }
 
+// Convert DTO (with string dates) to server types (with Date objects)
+function convertPolymarketEventDTOToServerType(eventDTO: any): PolymarketEvent {
+  const toDateOrNull = (value: string | null | undefined): Date | null | undefined => {
+    if (value === undefined) return undefined;
+    if (value === null) return null;
+    if (typeof value === 'string') return new Date(value);
+    return value as Date | null | undefined;
+  };
+
+  return {
+    ...eventDTO,
+    startDate: toDateOrNull(eventDTO.startDate),
+    endDate: toDateOrNull(eventDTO.endDate),
+    markets: (eventDTO.markets || []).map((market: any) => ({
+      ...market,
+      startDate: toDateOrNull(market.startDate),
+      endDate: toDateOrNull(market.endDate),
+    })),
+  };
+}
+
 export async function fetchPolymarketEvents(
   offset: number,
   limit: number,
@@ -87,8 +113,51 @@ export async function fetchPolymarketEvents(
   const data = await response.json();
 
   if (!Array.isArray(data)) {
-    throw new Error("Invalid response format from Polymarket API");
+    // Filter sensitive logging in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Polymarket API returned non-array response');
+    } else {
+      console.error('Polymarket API returned non-array response:', JSON.stringify(data, null, 2));
+    }
+    throw new Error("Invalid response format from Polymarket API - expected array");
   }
 
-  return data;
+  // Validate each event in the response
+  const validatedEvents: PolymarketEvent[] = [];
+  const validationErrors: string[] = [];
+  
+  for (let i = 0; i < data.length; i++) {
+    const eventData = data[i];
+    const validationResult = validatePolymarketEventSafe(eventData);
+    
+    if (validationResult.success) {
+      // Convert DTO (strings) to server types (Dates)
+      const convertedEvent = convertPolymarketEventDTOToServerType(validationResult.data);
+      validatedEvents.push(convertedEvent);
+    } else {
+      const errorMsg = `Event ${i}: ${validationResult.error}`;
+      validationErrors.push(errorMsg);
+      
+      // Filter sensitive logging in production
+      if (process.env.NODE_ENV === 'production') {
+        console.warn('Polymarket event validation failed:', errorMsg);
+      } else {
+        console.warn('Polymarket event validation failed:', errorMsg);
+        console.warn('Problematic event data:', JSON.stringify(eventData, null, 2));
+      }
+    }
+  }
+
+  // If we have validation errors but some valid events, log warnings but continue
+  if (validationErrors.length > 0) {
+    console.warn(`Polymarket API: ${validationErrors.length}/${data.length} events failed validation:`, validationErrors);
+    
+    // If more than 50% of events failed validation, something might be seriously wrong
+    if (validationErrors.length > data.length * 0.5) {
+      throw new Error(`Too many validation failures (${validationErrors.length}/${data.length}). Polymarket API might have changed format.`);
+    }
+  }
+
+  console.log(`Successfully validated ${validatedEvents.length}/${data.length} Polymarket events`);
+  return validatedEvents;
 }

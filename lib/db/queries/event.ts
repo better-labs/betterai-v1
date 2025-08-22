@@ -2,7 +2,7 @@ import { prisma } from "../prisma"
 import type { Event, Market, Category } from '../../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 import { serializeDecimals } from "@/lib/serialization"
-import type { EventDTO, MarketDTO } from "@/lib/types"
+import type { EventDTO } from "@/lib/types"
 
 // Event queries
 export const eventQueries = {

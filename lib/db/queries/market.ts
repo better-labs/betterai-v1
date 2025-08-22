@@ -2,7 +2,7 @@ import { prisma } from "../prisma"
 import { Prisma } from '../../../lib/generated/prisma'
 import type { Market, Event, Prediction } from '../../../lib/generated/prisma';
 import { serializeDecimals } from "@/lib/serialization"
-import type { MarketDTO, EventDTO, PredictionDTO } from "@/lib/types"
+import type { MarketDTO } from "@/lib/types"
 
 // Market queries
 export const marketQueries = {

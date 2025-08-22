@@ -13,7 +13,7 @@ export const CATEGORIES = {
   10: 'Climate & Environment',
 };
 
-type CategoryId = keyof typeof CATEGORIES;
+
 
 // Human-readable display names keyed by enum
 export const CATEGORY_DISPLAY_NAME: Record<Category, string> = {

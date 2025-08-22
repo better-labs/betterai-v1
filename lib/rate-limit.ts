@@ -42,6 +42,16 @@ export const rateLimitConfigs = {
     requests: 200,
     window: '1h', // 200 requests per hour
   },
+
+  // Credit operations (moderate limits)
+  creditQuery: {
+    requests: 100,
+    window: '1h', // 100 credit queries per hour
+  },
+  creditOperation: {
+    requests: 20,
+    window: '1h', // 20 credit operations per hour
+  },
 } as const;
 
 // Create rate limiter with environment namespacing
