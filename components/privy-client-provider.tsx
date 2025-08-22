@@ -32,10 +32,13 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 		return <>{children}</>
 	}
 
-	console.log("Privy app ID:", appId)
+	// Only log in development for debugging
+	if (process.env.NODE_ENV !== "production") {
+		console.log("Privy app ID:", appId)
+	}
 
 	return (
-		<PrivyProvider 
+		<PrivyProvider
 			appId={appId}
 			config={{
 				appearance: {
@@ -44,7 +47,13 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 					logo: '/betterai-logo-vertical.png'
 				},
 				// Keep login simple while we debug network issues
-				loginMethods: ['email','google']
+				loginMethods: ['email','google'],
+				// Disable WalletConnect in development to prevent double initialization warnings
+				...(process.env.NODE_ENV === "development" && {
+					walletConnect: {
+						projectId: null // Disable WalletConnect in dev
+					}
+				})
 			}}
 		>
 			{children}

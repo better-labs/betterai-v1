@@ -35,7 +35,7 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
             // Disable specific external script loading instead of all
             disable_surveys: true,
             disable_external_dependency_loading: false, // Allow core functionality
-            advanced_disable_decide: process.env.NODE_ENV === "development", // Disable feature flag fetching in dev
+            advanced_disable_decide: true, // Disable feature flag fetching entirely since we use custom env-based flags
             persistence: process.env.NODE_ENV === "development" ? "memory" : "localStorage", // Use memory storage in dev
             person_profiles: "identified_only", // Only create persons after identify
           });
