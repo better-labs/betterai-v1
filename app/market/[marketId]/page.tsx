@@ -9,6 +9,8 @@ import type { PredictionResult } from '@/lib/types'
 import MarketDetailsCard from '@/components/market-details-card'
 import { MarketEventHeader } from '@/components/market-event-header'
 import { PredictionReasoningCard } from '@/components/prediction-reasoning-card'
+import { PredictionHistoryList } from '@/components/prediction-history-list'
+import { serializePredictionData } from '@/lib/serialization'
 
 interface MarketDetailPageProps {
   params: Promise<{
@@ -28,8 +30,11 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   // Fetch event data if market has an eventId
   const event = market.eventId ? await eventQueries.getEventById(market.eventId) : null
 
-  // Fetch most recent prediction
-  const prediction = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
+  // Fetch most recent prediction and all predictions for history
+  const [prediction, allPredictions] = await Promise.all([
+    predictionQueries.getMostRecentPredictionByMarketId(marketId),
+    predictionQueries.getPredictionsByMarketId(marketId)
+  ])
   const predictionResult = prediction?.predictionResult as PredictionResult | null
   const externalMarketUrl = await generateMarketURL(marketId)
 
@@ -136,6 +141,17 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               )}
             </CardContent>
           </Card>
+
+          {/* Past Predictions */}
+          {allPredictions.length > 1 && (
+            <PredictionHistoryList
+              predictions={serializePredictionData(allPredictions)}
+              marketId={marketId}
+              showChecks={false}
+              showPredictions={true}
+              className="mt-6"
+            />
+          )}
         </div>
 
        

@@ -43,6 +43,46 @@ This is a Next.js prediction market application built by a **solo founder** that
 - **Show More/Less Controls**: Use chevron icons (ChevronDown/ChevronUp) with descriptive text for expand/collapse actions
 - **Consistent Collapsed Heights**: Match collapsed heights to related UI sections (e.g., prediction summary height)
 
+### Layout & Spacing Standards
+Follow these consistent spacing patterns for professional, polished layouts:
+
+**Page Sections:**
+- Use semantic `<section>` elements for major content areas
+- **Section spacing**: `mb-24` (6rem/96px) between major sections
+- **Hero sections**: `py-16` (4rem/64px) vertical padding, `mb-24` bottom margin
+- **Section dividers**: `my-16` (4rem/64px) margin for border separators
+
+**Content Spacing:**
+- **Page titles (H1)**: `mb-6` (1.5rem/24px) bottom margin
+- **Section titles (H2)**: `mb-6` (1.5rem/24px) bottom margin 
+- **Content blocks**: `mb-12` (3rem/48px) between content areas within sections
+- **Call-to-action elements**: `mt-8` (2rem/32px) top margin for secondary actions
+
+**Container Structure:**
+```jsx
+// Standard page layout
+<main className="container mx-auto px-4 py-8">
+  <section className="py-16 mb-24"> {/* Hero */}
+    <h1 className="mb-6">Page Title</h1>
+    <p>Description</p>
+  </section>
+  
+  <section className="mb-24"> {/* Content section */}
+    <div className="text-center mb-12">
+      <h2 className="mb-6">Section Title</h2>
+      <p>Section description</p>
+    </div>
+    {/* Section content */}
+  </section>
+</main>
+```
+
+**Best Practices:**
+- **Consistency**: Always use the same spacing values across similar elements
+- **Breathing room**: Generous spacing prevents cramped layouts and improves readability
+- **Visual hierarchy**: Larger spacing between major sections, smaller spacing within sections
+- **Responsive**: Tailwind spacing classes automatically scale appropriately on mobile
+
 ### Running the development server
 - If the development server port localhost:3000 is already in use, please do not try to start another development server automatically. Ask first before starting another development server.
 

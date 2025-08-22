@@ -50,24 +50,16 @@ export function withSerialization<T extends Record<string, any>>(props: T): T {
  * Type-safe serializer for specific data shapes
  */
 export function serializePredictionData(predictions: any[]) {
-  return predictions.map(p => ({
+  return serializeDecimals(predictions.map(p => ({
     ...p,
     id: p.id?.toString(),
-    outcomesProbabilities: p.outcomesProbabilities?.map((prob: any) => 
-      prob instanceof Decimal ? Number(prob.toString()) : prob
-    ),
-    // Add other specific field transformations as needed
-  }))
+    marketOutcomePrices: p.market?.outcomePrices || null,
+  })))
 }
 
 /**
  * Serializer for prediction checks
  */
 export function serializePredictionChecks(checks: any[]) {
-  return checks.map(c => ({
-    ...c,
-    aiProbability: c.aiProbability instanceof Decimal ? Number(c.aiProbability.toString()) : c.aiProbability,
-    marketProbability: c.marketProbability instanceof Decimal ? Number(c.marketProbability.toString()) : c.marketProbability,
-    delta: (c.absDelta || c.delta) instanceof Decimal ? Number((c.absDelta || c.delta).toString()) : (c.absDelta || c.delta),
-  }))
+  return serializeDecimals(checks)
 }
