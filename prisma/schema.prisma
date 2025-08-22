@@ -168,7 +168,7 @@ model PredictionCheck {
   delta             Decimal?    @db.Decimal
   absDelta          Decimal?    @map("abs_delta") @db.Decimal
   marketClosed      Boolean?    @map("market_closed")
-  createdAt         DateTime?   @default(now()) @map("created_at") @db.Timestamp(6)
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
   market            Market?     @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "prediction_checks_market_id_markets_id_fk")
   prediction        Prediction? @relation(fields: [predictionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "prediction_checks_prediction_id_predictions_id_fk")
 

@@ -46,8 +46,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
     marketId ? pq.getPredictionsByMarketIdSerialized(marketId) : Promise.resolve([]),
   ])
 
-  // Filter out entries with null createdAt to match component expectations
-  const checks = checksRaw.filter((check): check is typeof check & { createdAt: NonNullable<typeof check.createdAt> } => check.createdAt !== null)
+  // Database now enforces NOT NULL on createdAt; pass through directly
+  const checks = checksRaw as Array<typeof checksRaw[number] & { createdAt: string }>
   const pastPredictions = pastPredictionsRaw.filter((pred): pred is typeof pred & { createdAt: NonNullable<typeof pred.createdAt> } => pred.createdAt !== null)
 
   return (
