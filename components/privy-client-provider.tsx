@@ -48,6 +48,14 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 				},
 				// Keep login simple while we debug network issues
 				loginMethods: ['email','google'],
+				// Allow localhost and common development origins
+				allowedOrigins: [
+					'http://localhost:3000',
+					'https://localhost:3000',
+					'http://127.0.0.1:3000',
+					'https://betterai.tools',
+					'https://www.betterai.tools'
+				],
 				// Disable WalletConnect in development to prevent double initialization warnings
 				...(process.env.NODE_ENV === "development" && {
 					walletConnect: {

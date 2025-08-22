@@ -162,6 +162,46 @@ export interface PredictionResult {
   confidence_level: "High" | "Medium" | "Low"
 }
 
+// Prediction Builder types
+export interface ModelProvider {
+  id: string           // 'google/gemini-2.5-pro'
+  name: string         // 'Google Gemini'
+  description: string
+  costCredits: number  // Always 1 for now
+}
+
+export interface UserPredictionRequest {
+  marketId: string
+  userId: string
+  selectedModels: string[]
+  sessionId: string
+}
+
+export interface PredictionProgress {
+  sessionId: string
+  status: 'initializing' | 'researching' | 'predicting' | 'completed' | 'error'
+  currentStep?: string
+  completedModels: string[]
+  totalModels: number
+  results: Map<string, PredictionResult>
+  error?: string
+}
+
+export interface PredictionSession {
+  id: string
+  marketId: string
+  userId: string
+  selectedModels: string[]
+  status: 'initializing' | 'researching' | 'predicting' | 'completed' | 'error'
+  progress: number
+  currentStep?: string
+  completedModels: string[]
+  results: { [modelId: string]: PredictionResult }
+  error?: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface DatabaseMetadata {
   database: "neon"
   orm: "prisma"

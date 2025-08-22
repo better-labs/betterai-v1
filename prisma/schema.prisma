@@ -2,6 +2,8 @@ generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
   jsonProtocol = "true"
+  // Disable Prisma tips and promotional messages
+  showTips = false
 }
 
 // GitHub Actions Migration Test - This comment triggers workflow

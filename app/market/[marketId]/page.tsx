@@ -140,8 +140,8 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     No predictions available for this market yet.
                   </p>
                   <Button asChild>
-                    <Link href="/">
-                      Make a Prediction
+                    <Link href={`/predict/${marketId}`}>
+                      Generate AI Prediction
                     </Link>
                   </Button>
                 </div>
@@ -199,6 +199,11 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           <Button asChild>
             <Link href="/">
               Back to Markets
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href={`/predict/${marketId}`}>
+              Generate New Prediction
             </Link>
           </Button>
           {serializedPrediction && (
