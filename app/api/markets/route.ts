@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server'
 import { marketQueries, NewMarket } from '@/lib/db/queries'
 import type { ApiResponse } from '@/lib/types'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
+import { serializeDecimals } from '@/lib/serialization'
+import { validateSingleMarketResponseSafe, validateMarketListResponseSafe } from '@/lib/validation/response-validator'
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,35 +14,62 @@ export async function GET(request: NextRequest) {
     if (id) {
       const market = await marketQueries.getMarketById(id)
       if (!market) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: 'Market not found',
+          timestamp: new Date().toISOString()
+        }
         return new Response(
-          JSON.stringify({ success: false, error: 'Market not found' } as ApiResponse),
+          JSON.stringify(errorResponse),
           { status: 404, headers: { 'Content-Type': 'application/json' } }
         )
       }
+      
+      const responseData: ApiResponse = {
+        success: true,
+        data: serializeDecimals(market),
+        timestamp: new Date().toISOString()
+      }
+      
       return new Response(
-        JSON.stringify({ success: true, data: market } as ApiResponse),
+        JSON.stringify(responseData),
         { headers: { 'Content-Type': 'application/json' } }
       )
     }
 
     if (eventId) {
       const markets = await marketQueries.getMarketsByEventId(eventId)
+      const responseData: ApiResponse = {
+        success: true,
+        data: serializeDecimals(markets),
+        timestamp: new Date().toISOString()
+      }
       return new Response(
-        JSON.stringify({ success: true, data: markets } as ApiResponse),
+        JSON.stringify(responseData),
         { headers: { 'Content-Type': 'application/json' } }
       )
     }
 
     // Default: get all markets
     const markets = await marketQueries.getMarketsByEventId('')
+    const responseData: ApiResponse = {
+      success: true,
+      data: serializeDecimals(markets),
+      timestamp: new Date().toISOString()
+    }
     return new Response(
-      JSON.stringify({ success: true, data: markets } as ApiResponse),
+      JSON.stringify(responseData),
       { headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Markets API error:', error)
+    const errorResponse: ApiResponse = {
+      success: false,
+      error: 'Internal server error',
+      timestamp: new Date().toISOString()
+    }
     return new Response(
-      JSON.stringify({ success: false, error: 'Internal server error' } as ApiResponse),
+      JSON.stringify(errorResponse),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }

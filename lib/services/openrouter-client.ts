@@ -1,8 +1,17 @@
 import { parseAIResponse, validatePredictionResult } from '../utils';
 import type { ZodSchema } from 'zod';
+import { 
+  validateOpenRouterResponse, 
+  validateOpenRouterPrediction,
+  validateOpenRouterResponseSafe,
+  ApiResponseValidationError 
+} from '@/lib/validation/response-validator';
 
 const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
 const OPENROUTER_DEFAULT_TEMPERATURE = 0.2;
+// Standardize OpenRouter headers via environment with sensible defaults
+const OPENROUTER_SITE_URL = process.env.OPENROUTER_SITE_URL || 'https://betterai.tools';
+const OPENROUTER_SITE_NAME = process.env.OPENROUTER_SITE_NAME || 'BetterAI';
 
 export interface OpenRouterPredictionResult {
   prediction: string;
@@ -60,8 +69,8 @@ export async function fetchPredictionFromOpenRouter(
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://betterai.tools',
-        'X-Title': 'BetterAI Prediction Service',
+        'HTTP-Referer': OPENROUTER_SITE_URL,
+        'X-Title': OPENROUTER_SITE_NAME,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ temperature: OPENROUTER_DEFAULT_TEMPERATURE, ...body }),
@@ -122,28 +131,46 @@ export async function fetchPredictionFromOpenRouter(
 
   const data = await response.json();
   
+  // Validate the OpenRouter API response structure first
+  const validationResult = validateOpenRouterResponseSafe(data);
+  if (!validationResult.success) {
+    console.error('OpenRouter API response validation failed:', validationResult.error);
+    console.error('Raw response:', JSON.stringify(data, null, 2));
+    throw new Error(`OpenRouter API returned invalid response structure: ${validationResult.error}`);
+  }
+  
+  const validatedData = validationResult.data;
+  
   // Log the full response for debugging empty responses
-  if (!data.choices || data.choices.length === 0) {
-    console.error('OpenRouter API returned no choices:', JSON.stringify(data, null, 2));
-    throw new Error(`OpenRouter API returned no choices. Full response: ${JSON.stringify(data)}`);
+  if (!validatedData.choices || validatedData.choices.length === 0) {
+    console.error('OpenRouter API returned no choices:', JSON.stringify(validatedData, null, 2));
+    throw new Error(`OpenRouter API returned no choices. Full response: ${JSON.stringify(validatedData)}`);
   }
   
   // Prefer structured tool call arguments when present (some models return JSON via tool calls)
-  const toolArgs = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ?? null;
-  const text = toolArgs ?? (data.choices?.[0]?.message?.content ?? '');
+  const toolArgs = validatedData.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ?? null;
+  const text = toolArgs ?? (validatedData.choices?.[0]?.message?.content ?? '');
   
   // Handle empty responses
   if (!text || text.trim() === '') {
-    console.error('OpenRouter API returned empty content:', JSON.stringify(data.choices[0], null, 2));
-    throw new Error(`OpenRouter API returned empty content. Choice data: ${JSON.stringify(data.choices[0])}`);
+    console.error('OpenRouter API returned empty content:', JSON.stringify(validatedData.choices[0], null, 2));
+    throw new Error(`OpenRouter API returned empty content. Choice data: ${JSON.stringify(validatedData.choices[0])}`);
   }
 
   const parsed = parseAIResponse<unknown>(text);
   // Normalize common non-conforming shapes from providers (e.g., array wrappers)
   const normalized = normalizePredictionShape(parsed);
-  // Enforce runtime schema validation
-  const validated = validatePredictionResult(normalized);
-  return validated as OpenRouterPredictionResult;
+  
+  // Validate the prediction result with our comprehensive schema
+  try {
+    const validatedPrediction = validateOpenRouterPrediction(normalized);
+    return validatedPrediction;
+  } catch (error) {
+    // Fallback to existing validation for backward compatibility
+    console.warn('New validation failed, falling back to legacy validation:', error instanceof Error ? error.message : error);
+    const validated = validatePredictionResult(normalized);
+    return validated as OpenRouterPredictionResult;
+  }
 }
 
 /**
@@ -170,8 +197,8 @@ export async function fetchStructuredFromOpenRouter<T>(
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://betterai.com',
-        'X-Title': 'BetterAI Structured Client',
+        'HTTP-Referer': OPENROUTER_SITE_URL,
+        'X-Title': OPENROUTER_SITE_NAME,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -211,8 +238,18 @@ export async function fetchStructuredFromOpenRouter<T>(
   }
 
   const data = await response.json();
-  const toolArgs = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ?? null;
-  const text = toolArgs ?? (data.choices?.[0]?.message?.content ?? '');
+  
+  // Validate OpenRouter response structure
+  const validationResult = validateOpenRouterResponseSafe(data);
+  if (!validationResult.success) {
+    console.error('OpenRouter structured API response validation failed:', validationResult.error);
+    console.error('Raw response:', JSON.stringify(data, null, 2));
+    throw new Error(`OpenRouter API returned invalid response structure: ${validationResult.error}`);
+  }
+  
+  const validatedData = validationResult.data;
+  const toolArgs = validatedData.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ?? null;
+  const text = toolArgs ?? (validatedData.choices?.[0]?.message?.content ?? '');
 
   const parsed = parseAIResponse<T>(text);
   const normalized = normalizePredictionShape(parsed) as unknown as T;

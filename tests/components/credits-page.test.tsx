@@ -36,6 +36,8 @@ describe('CreditsPage Component', () => {
       // Mock authenticated user
       vi.mocked(useUser).mockReturnValue({
         user: { id: 'user-123', username: 'testuser' },
+        loading: false,
+        error: null,
         isAuthenticated: true,
         isReady: true
       })
@@ -156,6 +158,8 @@ describe('CreditsPage Component', () => {
     beforeEach(() => {
       vi.mocked(useUser).mockReturnValue({
         user: null,
+        loading: false,
+        error: null,
         isAuthenticated: false,
         isReady: true
       })

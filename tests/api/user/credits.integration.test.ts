@@ -6,7 +6,10 @@ import { GET, POST } from '@/app/api/user/credits/route'
 vi.mock('@/lib/auth', () => ({
   requireAuth: vi.fn(),
   createAuthErrorResponse: vi.fn().mockReturnValue(
-    Response.json({ error: 'Unauthorized' }, { status: 401 })
+    new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    })
   )
 }))
 

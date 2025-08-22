@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server'
 import { eventQueries, NewEvent } from '@/lib/db/queries'
 import type { ApiResponse } from '@/lib/types'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
+import { serializeDecimals } from '@/lib/serialization'
+import { validateSingleEventResponseSafe, validateEventListResponseSafe } from '@/lib/validation/response-validator'
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,13 +14,24 @@ export async function GET(request: NextRequest) {
     if (id) {
       const event = await eventQueries.getEventById(id)
       if (!event) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: 'Event not found',
+          timestamp: new Date().toISOString()
+        }
         return new Response(
-          JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
+          JSON.stringify(errorResponse),
           { status: 404, headers: { 'Content-Type': 'application/json' } }
         )
       }
+      
+      const responseData: ApiResponse = {
+        success: true,
+        data: serializeDecimals(event),
+        timestamp: new Date().toISOString()
+      }
       return new Response(
-        JSON.stringify({ success: true, data: event } as ApiResponse),
+        JSON.stringify(responseData),
         { headers: { 'Content-Type': 'application/json' } }
       )
     }
@@ -26,27 +39,48 @@ export async function GET(request: NextRequest) {
     if (slug) {
       const event = await eventQueries.getEventBySlug(slug)
       if (!event) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: 'Event not found',
+          timestamp: new Date().toISOString()
+        }
         return new Response(
-          JSON.stringify({ success: false, error: 'Event not found' } as ApiResponse),
+          JSON.stringify(errorResponse),
           { status: 404, headers: { 'Content-Type': 'application/json' } }
         )
       }
+      
+      const responseData: ApiResponse = {
+        success: true,
+        data: serializeDecimals(event),
+        timestamp: new Date().toISOString()
+      }
       return new Response(
-        JSON.stringify({ success: true, data: event } as ApiResponse),
+        JSON.stringify(responseData),
         { headers: { 'Content-Type': 'application/json' } }
       )
     }
 
     // Default: get trending events
     const events = await eventQueries.getTrendingEvents()
+    const responseData: ApiResponse = {
+      success: true,
+      data: serializeDecimals(events),
+      timestamp: new Date().toISOString()
+    }
     return new Response(
-      JSON.stringify({ success: true, data: events } as ApiResponse),
+      JSON.stringify(responseData),
       { headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Events API error:', error)
+    const errorResponse: ApiResponse = {
+      success: false,
+      error: 'Internal server error',
+      timestamp: new Date().toISOString()
+    }
     return new Response(
-      JSON.stringify({ success: false, error: 'Internal server error' } as ApiResponse),
+      JSON.stringify(errorResponse),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }

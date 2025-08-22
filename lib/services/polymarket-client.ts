@@ -1,4 +1,9 @@
 import type { PolymarketEvent } from '@/lib/types';
+import { 
+  validatePolymarketEvent,
+  validatePolymarketEventSafe,
+  ApiResponseValidationError 
+} from '@/lib/validation/response-validator';
 
 // Note: This file now primarily serves as a data fetcher for TanStack Query hooks.
 // For React components, use the usePolymarketEvents hook from '@/lib/hooks/use-polymarket-events'
@@ -87,8 +92,39 @@ export async function fetchPolymarketEvents(
   const data = await response.json();
 
   if (!Array.isArray(data)) {
-    throw new Error("Invalid response format from Polymarket API");
+    console.error('Polymarket API returned non-array response:', JSON.stringify(data, null, 2));
+    throw new Error("Invalid response format from Polymarket API - expected array");
   }
 
-  return data;
+  // Validate each event in the response
+  const validatedEvents: PolymarketEvent[] = [];
+  const validationErrors: string[] = [];
+  
+  for (let i = 0; i < data.length; i++) {
+    const eventData = data[i];
+    const validationResult = validatePolymarketEventSafe(eventData);
+    
+    if (validationResult.success) {
+      validatedEvents.push(validationResult.data);
+    } else {
+      const errorMsg = `Event ${i}: ${validationResult.error}`;
+      validationErrors.push(errorMsg);
+      console.warn('Polymarket event validation failed:', errorMsg);
+      // Log the problematic event data for debugging
+      console.warn('Problematic event data:', JSON.stringify(eventData, null, 2));
+    }
+  }
+
+  // If we have validation errors but some valid events, log warnings but continue
+  if (validationErrors.length > 0) {
+    console.warn(`Polymarket API: ${validationErrors.length}/${data.length} events failed validation:`, validationErrors);
+    
+    // If more than 50% of events failed validation, something might be seriously wrong
+    if (validationErrors.length > data.length * 0.5) {
+      throw new Error(`Too many validation failures (${validationErrors.length}/${data.length}). Polymarket API might have changed format.`);
+    }
+  }
+
+  console.log(`Successfully validated ${validatedEvents.length}/${data.length} Polymarket events`);
+  return validatedEvents;
 }

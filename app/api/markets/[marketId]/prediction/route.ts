@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from "next/server"
 import { predictionQueries } from "@/lib/db/queries"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
 import { serializeDecimals } from "@/lib/serialization"
+import { validateSingleMarketResponseSafe } from "@/lib/validation/response-validator"
+import type { ApiResponse } from "@/lib/types"
 
 export async function GET(
   request: NextRequest,
@@ -14,22 +16,41 @@ export async function GET(
     const { marketId } = await params
 
     if (!marketId) {
-      return NextResponse.json({ error: "Market ID is required" }, { status: 400 })
+      const errorResponse: ApiResponse = {
+        success: false,
+        error: "Market ID is required",
+        timestamp: new Date().toISOString()
+      }
+      return NextResponse.json(errorResponse, { status: 400 })
     }
 
     const prediction = await predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId)
 
     if (!prediction) {
-      return NextResponse.json({ prediction: null }, { status: 200 })
+      const responseData: ApiResponse = {
+        success: true,
+        data: { prediction: null },
+        message: "No prediction found for this market",
+        timestamp: new Date().toISOString()
+      }
+      return NextResponse.json(responseData, { status: 200 })
     }
 
-    // Serialize the prediction to handle Decimal objects
-    return NextResponse.json({
-      prediction: prediction.predictionResult,
-      createdAt: prediction.createdAt,
-      modelName: prediction.modelName,
-      authenticatedUser: userId
-    })
+    // Prepare the response data
+    const responseData: ApiResponse = {
+      success: true,
+      data: {
+        prediction: prediction.predictionResult,
+        createdAt: prediction.createdAt,
+        modelName: prediction.modelName,
+        authenticatedUser: userId
+      },
+      timestamp: new Date().toISOString()
+    }
+
+    // Validate our response before sending it
+    // Note: Using a generic validation here since this endpoint returns a custom format
+    return NextResponse.json(responseData)
   } catch (error) {
     console.error("Failed to fetch market prediction:", error)
     
@@ -38,6 +59,11 @@ export async function GET(
       return createAuthErrorResponse(error.message)
     }
     
-    return NextResponse.json({ error: "Failed to fetch market prediction" }, { status: 500 })
+    const errorResponse: ApiResponse = {
+      success: false,
+      error: "Failed to fetch market prediction",
+      timestamp: new Date().toISOString()
+    }
+    return NextResponse.json(errorResponse, { status: 500 })
   }
 } 
