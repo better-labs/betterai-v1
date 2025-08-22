@@ -190,7 +190,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/upda
 
 ## General Guidance
 - Use best practices where possible.
-- Prefer minimal code where possible.
+- Prefer simpler solutions with minimal code and/or reducing code where possible.
 - Prefer using existing popular libraries and frameworks for solutions rather than custom code where possible. Please suggest and ask for feedback where existing libraries can be used.
 - **Solo Founder Approach**: Prefer simple, maintainable solutions over complex architectures
 - **Start simple, scale later**: Don't over-engineer for future needs that may never come

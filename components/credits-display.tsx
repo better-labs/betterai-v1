@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { CreditCard, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { CreditBalance } from "@/lib/services/credit-manager"
+import { usePrivy } from "@privy-io/react-auth"
+import { authenticatedFetch } from "@/lib/utils"
 
 interface CreditsDisplayProps {
   showAddButton?: boolean
@@ -14,25 +16,40 @@ interface CreditsDisplayProps {
 }
 
 export function CreditsDisplay({ showAddButton = true, compact = false }: CreditsDisplayProps) {
-  const { user } = useUser()
+  const { user, isAuthenticated, isReady } = useUser()
+  const { getAccessToken } = usePrivy()
 
-  	// Fetch user credits
+	// Fetch user credits
 	const { data: creditsData, isLoading } = useQuery({
 		queryKey: ['user-credits', user?.id],
 		queryFn: async (): Promise<{ credits: CreditBalance | null; isAuthenticated: boolean; message?: string }> => {
-			const response = await fetch('/api/user/credits')
+			if (!isAuthenticated) {
+				return {
+					credits: null,
+					isAuthenticated: false,
+					message: 'User not authenticated'
+				}
+			}
+
+			const accessToken = await getAccessToken()
+			if (!accessToken) {
+				throw new Error('No access token available')
+			}
+
+			const getToken = () => Promise.resolve(accessToken)
+			const response = await authenticatedFetch('/api/user/credits', { method: 'GET' }, getToken)
+			
 			if (!response.ok) {
 				throw new Error('Failed to fetch credits')
 			}
 			return response.json()
 		},
-		enabled: true, // Always enabled to check authentication status
+		enabled: isReady && isAuthenticated, // Only fetch when authenticated
 		refetchInterval: 60000, // Refetch every minute
 		staleTime: 30000, // Consider data stale after 30 seconds
 	})
 
 	const credits = creditsData?.credits
-	const isAuthenticated = creditsData?.isAuthenticated ?? false
 
   if (!user?.id || !isAuthenticated) {
     return null

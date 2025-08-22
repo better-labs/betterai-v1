@@ -3,6 +3,29 @@
  * Contains type definitions that are used in the application but don't directly map to database models.
  * These types are used for UI state management, API responses, and other application-specific data structures.
  */
+
+// Server-side types (with Date objects)
+export interface CreditBalanceServer {
+  credits: number
+  creditsLastReset: Date
+  totalCreditsEarned: number
+  totalCreditsSpent: number
+}
+
+// Client-side types (with serialized dates as strings)
+export interface CreditBalanceClient {
+  credits: number
+  creditsLastReset: string // ISO string from JSON
+  totalCreditsEarned: number
+  totalCreditsSpent: number
+}
+
+// API Response types
+export interface CreditsApiResponse {
+  credits: CreditBalanceClient | null
+  isAuthenticated: boolean
+  message?: string
+}
 export interface ThinkingState {
   isThinking: boolean
   message: string

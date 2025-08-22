@@ -9,26 +9,43 @@ import { useQuery } from "@tanstack/react-query"
 import { CreditBalance } from "@/lib/services/credit-manager"
 import { CreditCard, Calendar, TrendingUp, AlertTriangle } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { usePrivy } from "@privy-io/react-auth"
+import { authenticatedFetch } from "@/lib/utils"
 
 export default function CreditsPage() {
-	const { user } = useUser()
+	const { user, isAuthenticated, isReady } = useUser()
+	const { getAccessToken } = usePrivy()
 
 	// Fetch user credits
 	const { data: creditsData, isLoading } = useQuery({
 		queryKey: ['user-credits', user?.id],
 		queryFn: async (): Promise<{ credits: CreditBalance | null; isAuthenticated: boolean; message?: string }> => {
-			const response = await fetch('/api/user/credits')
+			if (!isAuthenticated) {
+				return {
+					credits: null,
+					isAuthenticated: false,
+					message: 'User not authenticated'
+				}
+			}
+
+			const accessToken = await getAccessToken()
+			if (!accessToken) {
+				throw new Error('No access token available')
+			}
+
+			const getToken = () => Promise.resolve(accessToken)
+			const response = await authenticatedFetch('/api/user/credits', { method: 'GET' }, getToken)
+			
 			if (!response.ok) {
 				throw new Error('Failed to fetch credits')
 			}
 			return response.json()
 		},
-		enabled: true, // Always enabled to show login prompt for unauthenticated users
-		refetchInterval: 30000, // Refetch every 30 seconds
+		enabled: isReady, // Only fetch when Privy is ready
+		refetchInterval: isAuthenticated ? 30000 : false, // Only refetch if authenticated
 	})
 
 	const credits = creditsData?.credits
-	const isAuthenticated = creditsData?.isAuthenticated ?? false
 
 	return (
 		<main className="container mx-auto px-4 py-8">
@@ -75,9 +92,9 @@ export default function CreditsPage() {
 														Low Credits
 													</Badge>
 												)}
-												<div className="text-sm text-muted-foreground">
-													Next reset: {formatDistanceToNow(new Date(credits.creditsLastReset.getTime() + 24 * 60 * 60 * 1000), { addSuffix: true })}
-												</div>
+																							<div className="text-sm text-muted-foreground">
+												Next reset: {formatDistanceToNow(new Date(new Date(credits.creditsLastReset).getTime() + 24 * 60 * 60 * 1000), { addSuffix: true })}
+											</div>
 											</div>
 										</div>
 
@@ -140,7 +157,7 @@ export default function CreditsPage() {
 										<div className="text-sm">
 											<strong>Last reset:</strong>{' '}
 											{credits?.creditsLastReset ? (
-												formatDistanceToNow(credits.creditsLastReset, { addSuffix: true })
+												formatDistanceToNow(new Date(credits.creditsLastReset), { addSuffix: true })
 											) : (
 												'Never'
 											)}

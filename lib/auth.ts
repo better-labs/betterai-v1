@@ -51,14 +51,16 @@ export async function optionalAuth(request: Request): Promise<{ userId: string; 
  */
 export function createAuthErrorResponse(message: string = 'Unauthorized'): Response {
   return new Response(
-    JSON.stringify({ 
-      success: false, 
+    JSON.stringify({
+      success: false,
       error: message,
       code: 'UNAUTHORIZED'
     }),
-    { 
-      status: 401, 
-      headers: { 'Content-Type': 'application/json' } 
+    {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
     }
   )
 }
+
+

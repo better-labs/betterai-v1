@@ -17,6 +17,7 @@ BetterAI is a Next.js 15 prediction market application built by a **solo founder
 - **Minimal dependencies** - Avoid over-engineering for a 1-person team
 - **Clear documentation** - Write code that's easy to understand and modify later
 - **Gradual scaling** - Start simple, optimize later when needed
+- Prefer simpler solutions with minimal code and/or reducing code where possible.
 
 **Key Files for Context**:
 - Read `TODO.md` for current implementation tasks and project goals
