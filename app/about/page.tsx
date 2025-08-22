@@ -6,28 +6,15 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section with Background */}
-        <div className="relative overflow-hidden rounded-xl mb-16">
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: 'url("/betterai-background.png")'
-            }}
-          />
-          {/* Dark Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-black/40" />
-          
-          {/* Content */}
-          <div className="relative z-10 text-center py-24 px-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 flex items-center justify-center gap-2">
-              <TrendingUp className="text-blue-300" />
-              What is BetterAI?
-            </h1>
-            <p className="text-blue-100 text-lg max-w-3xl mx-auto">
-              Democratizing access to world-class AI predictions for everyone
-            </p>
-          </div>
+        {/* Hero Section */}
+        <div className="text-center py-24 px-8 mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
+            <TrendingUp className="text-primary" />
+            What is BetterAI?
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+            Democratizing access to world-class AI predictions for everyone
+          </p>
         </div>
 
         {/* Better Definition 1 */}

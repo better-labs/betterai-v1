@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -59,20 +60,29 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
               <TooltipContent>Copy to clipboard</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <div 
-            className={cn(
-              "whitespace-pre-wrap relative",
-              !expanded && needsCollapse && "overflow-hidden",
-            )}
-            style={{ 
-              maxHeight: !expanded && needsCollapse ? '8rem' : 'none'
+          <motion.div 
+            className="whitespace-pre-wrap relative overflow-hidden"
+            animate={{ 
+              height: !expanded && needsCollapse ? '8rem' : 'auto'
+            }}
+            transition={{ 
+              duration: 0.2,
+              ease: "easeInOut"
             }}
           >
             {content}
-            {!expanded && needsCollapse && (
-              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent" />
-            )}
-          </div>
+            <AnimatePresence>
+              {!expanded && needsCollapse && (
+                <motion.div 
+                  className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                />
+              )}
+            </AnimatePresence>
+          </motion.div>
           {needsCollapse && (
             <div className="mt-3 flex items-center gap-1">
               <Button 
