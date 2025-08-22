@@ -16,7 +16,7 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/lib/services/credit-manager', () => ({
   creditManager: {
     getUserCredits: vi.fn(),
-    consumeCredits: vi.fn(),
+    spendCredits: vi.fn(),
     addCredits: vi.fn(),
     resetDailyCredits: vi.fn()
   }

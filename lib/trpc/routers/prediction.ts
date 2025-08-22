@@ -6,6 +6,7 @@
 import { z } from 'zod'
 import { createTRPCRouter, publicProcedure } from '../init'
 import { predictionQueries, marketQueries, predictionCheckQueries } from '@/lib/db/queries'
+import { serializeDecimals } from '@/lib/serialization'
 import {
   PredictionSchema,
   PredictionWithMarketSchema,
@@ -21,7 +22,7 @@ export const predictionRouter = createTRPCRouter({
    */
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
-    .output(z.any()) // Very permissive for now - can tighten later
+    .output(PredictionWithMarketSchema.nullable())
     .query(async ({ input }) => {
       const prediction = await predictionQueries.getPredictionWithRelationsByIdSerialized(input.id)
       return prediction
@@ -86,11 +87,11 @@ export const predictionRouter = createTRPCRouter({
         const marketIds = markets.map((m) => m.id)
         const predictions = await Promise.all(
           marketIds.slice(0, limit).map(async (marketId) => {
-            return await predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId)
+            return await predictionQueries.getMostRecentPredictionWithRelationsByMarketIdSerialized(marketId)
           })
         )
 
-        const validPredictions = predictions.filter(Boolean)
+        const validPredictions = predictions.filter((p): p is z.infer<typeof PredictionWithMarketSchema> => !!p)
         const hasMore = markets.length > limit
         const nextCursor = hasMore 
           ? (Number(markets[limit - 1]?.id) ?? null) 
@@ -124,7 +125,7 @@ export const predictionRouter = createTRPCRouter({
         })
 
         const hasMore = predictions.length > limit
-        const items = hasMore ? predictions.slice(0, limit) : predictions
+        const items = (hasMore ? predictions.slice(0, limit) : predictions) as z.infer<typeof PredictionWithMarketSchema>[]
         const nextCursor = hasMore 
           ? (items[items.length - 1]?.id ? Number(items[items.length - 1].id) : null) 
           : null
@@ -144,7 +145,7 @@ export const predictionRouter = createTRPCRouter({
         ...input,
         userId: null, // TODO: Get from auth context
       })
-      return prediction
+      return serializeDecimals(prediction) as any
     }),
 
   /**
@@ -160,7 +161,7 @@ export const predictionRouter = createTRPCRouter({
       if (!prediction) {
         throw new Error('Prediction not found')
       }
-      return prediction
+      return serializeDecimals(prediction) as any
     }),
 
   /**

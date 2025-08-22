@@ -44,7 +44,7 @@ export class CreditManager {
       }
 
       const newCredits = user.credits + credits
-      await userQueries.updateUserCredits(userId, newCredits, user.totalCreditsEarned + credits)
+      await userQueries.updateUserCredits(userId, newCredits, user.totalCreditsEarned + credits, user.totalCreditsSpent)
 
       // Log the transaction
       console.log(`Added ${credits} credits to user ${userId}. Reason: ${reason}. New balance: ${newCredits}`)
@@ -73,7 +73,7 @@ export class CreditManager {
       }
 
       const newCredits = user.credits - credits
-      await userQueries.updateUserCredits(userId, newCredits, user.totalCreditsSpent + credits)
+      await userQueries.updateUserCredits(userId, newCredits, undefined, user.totalCreditsSpent + credits)
 
       // Log the transaction
       console.log(`Spent ${credits} credits from user ${userId}. Reason: ${reason}. New balance: ${newCredits}`)
@@ -185,12 +185,9 @@ export class CreditManager {
         throw new Error('User not found')
       }
 
-      const newCredits = Math.max(user.credits, 100)
-      const creditsAdded = newCredits - user.credits
-
-      if (creditsAdded > 0) {
-        await userQueries.updateUserCredits(userId, newCredits, user.totalCreditsEarned + creditsAdded)
-        console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${newCredits}`)
+      const result = await userQueries.resetUserDailyCredits(userId, 100)
+      if (result) {
+        console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${Math.max(user.credits, 100)}`)
       }
     } catch (error) {
       console.error('Error resetting daily credits:', error)

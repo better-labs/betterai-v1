@@ -150,10 +150,11 @@ describe('CreditManager', () => {
   })
 
   describe('addCredits', () => {
-    it('should throw error when user not found', async () => {
+    it('should return false when user not found', async () => {
       vi.mocked(userQueries.getUserById).mockResolvedValue(null)
 
-      await expect(creditManager.addCredits('user-123', 10, 'test')).rejects.toThrow('User not found')
+      const result = await creditManager.addCredits('user-123', 10, 'test')
+      expect(result).toBe(false)
     })
 
     it('should successfully add credits', async () => {
@@ -179,7 +180,7 @@ describe('CreditManager', () => {
         'user-123',
         30, // new credits value (20 + 10)
         40, // new totalCreditsEarned (30 + 10)
-        undefined // spentAmount stays the same
+        10 // totalCreditsSpent stays the same (10)
       )
     })
   })

@@ -23,31 +23,34 @@ export const predictionQueries = {
   ): Promise<(PredictionOutput & { market: (ReturnType<typeof serializeDecimals> & any) | null }) | null> => {
     const row = await predictionQueries.getPredictionWithRelationsById(id)
     if (!row) return null
-    const s = serializeDecimals(row) as any
+    
+    // First serialize the entire object to handle all decimal fields recursively
+    const serialized = serializeDecimals(row) as any
+    
     return {
-      id: String(s.id),
-      userMessage: s.userMessage,
-      marketId: s.marketId,
-      predictionResult: s.predictionResult,
-      modelName: s.modelName,
-      systemPrompt: s.systemPrompt,
-      aiResponse: s.aiResponse,
-      createdAt: s.createdAt,
-      outcomes: s.outcomes || [],
-      outcomesProbabilities: s.outcomesProbabilities || [],
-      userId: s.userId,
-      experimentTag: s.experimentTag,
-      experimentNotes: s.experimentNotes,
-      market: s.market,
+      id: serialized.id,
+      userMessage: serialized.userMessage,
+      marketId: serialized.marketId,
+      predictionResult: serialized.predictionResult,
+      modelName: serialized.modelName,
+      systemPrompt: serialized.systemPrompt,
+      aiResponse: serialized.aiResponse,
+      createdAt: serialized.createdAt,
+      outcomes: serialized.outcomes || [],
+      outcomesProbabilities: serialized.outcomesProbabilities || [],
+      userId: serialized.userId,
+      experimentTag: serialized.experimentTag,
+      experimentNotes: serialized.experimentNotes,
+      market: serialized.market, // This will now have all decimals converted to numbers
     }
   },
   getPredictionsByMarketIdSerialized: async (
     marketId: string
-  ): Promise<PredictionDTO[]> => {
+  ): Promise<PredictionOutput[]> => {
     const rows = await predictionQueries.getPredictionsByMarketId(marketId)
     const s = serializeDecimals(rows) as any[]
     return s.map((p) => ({
-      id: String(p.id),
+      id: p.id,
       userMessage: p.userMessage,
       marketId: p.marketId,
       predictionResult: p.predictionResult,
@@ -64,24 +67,60 @@ export const predictionQueries = {
   },
   getMostRecentPredictionByMarketIdSerialized: async (
     marketId: string
-  ): Promise<PredictionDTO | null> => {
+  ): Promise<PredictionOutput | null> => {
     const row = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
     if (!row) return null
     const p = serializeDecimals(row) as any
     return {
-      id: String(p.id),
+      id: p.id, // Keep as number, not string
       userMessage: p.userMessage,
       marketId: p.marketId,
       predictionResult: p.predictionResult,
-      modelName: p.modelName,
-      systemPrompt: p.systemPrompt,
-      aiResponse: p.aiResponse,
+      modelName: p.modelName ?? null,
+      systemPrompt: p.systemPrompt ?? null,
+      aiResponse: p.aiResponse ?? null,
       createdAt: p.createdAt,
-      outcomes: p.outcomes || [],
-      outcomesProbabilities: p.outcomesProbabilities || [],
-      userId: p.userId,
-      experimentTag: p.experimentTag,
-      experimentNotes: p.experimentNotes,
+      outcomes: p.outcomes ?? [],
+      outcomesProbabilities: p.outcomesProbabilities ?? [],
+      userId: p.userId ?? null,
+      experimentTag: p.experimentTag ?? null,
+      experimentNotes: p.experimentNotes ?? null,
+    }
+  },
+
+  /**
+   * Most recent prediction for a market, including market and event relations
+   */
+  getMostRecentPredictionWithRelationsByMarketIdSerialized: async (
+    marketId: string
+  ): Promise<(PredictionOutput & { market: any | null }) | null> => {
+    const row = await prisma.prediction.findFirst({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        market: { include: { event: true } },
+      },
+    })
+    if (!row) return null
+    
+    // Serialize the entire object to handle all decimal fields recursively
+    const serialized = serializeDecimals(row) as any
+    
+    return {
+      id: serialized.id,
+      userMessage: serialized.userMessage,
+      marketId: serialized.marketId,
+      predictionResult: serialized.predictionResult,
+      modelName: serialized.modelName ?? null,
+      systemPrompt: serialized.systemPrompt ?? null,
+      aiResponse: serialized.aiResponse ?? null,
+      createdAt: serialized.createdAt,
+      outcomes: serialized.outcomes ?? [],
+      outcomesProbabilities: serialized.outcomesProbabilities ?? [],
+      userId: serialized.userId ?? null,
+      experimentTag: serialized.experimentTag ?? null,
+      experimentNotes: serialized.experimentNotes ?? null,
+      market: serialized.market ?? null, // All decimals now converted to numbers
     }
   },
   getPredictionsByMarketId: async (marketId: string): Promise<Array<Prediction & { market: Market | null }>> => {
@@ -488,7 +527,7 @@ export const predictionQueries = {
     eventTagsWhere: any
     limit: number
     cursor?: number
-  }): Promise<PredictionDTO[]> => {
+  }): Promise<Array<PredictionOutput & { market: any | null }>> => {
     const { eventId, eventTagsWhere, limit, cursor } = params
     
     const whereCondition = {
@@ -515,10 +554,10 @@ export const predictionQueries = {
       },
     })
 
-    // Serialize the results
-    const s = serializeDecimals(rows) as any[]
-    return s.map((p) => ({
-      id: String(p.id),
+    // Serialize the entire results array to handle all decimal fields recursively
+    const serialized = serializeDecimals(rows) as any[]
+    return serialized.map((p) => ({
+      id: p.id,
       userMessage: p.userMessage,
       marketId: p.marketId,
       predictionResult: p.predictionResult,
@@ -531,18 +570,18 @@ export const predictionQueries = {
       userId: p.userId ?? null,
       experimentTag: p.experimentTag ?? null,
       experimentNotes: p.experimentNotes ?? null,
-      market: p.market ?? null,
+      market: p.market ?? null, // All decimals now converted to numbers
     }))
   },
 
   /**
    * Search predictions by message with serialized output
    */
-  searchPredictionsByMessageSerialized: async (searchTerm: string, limit = 5): Promise<PredictionDTO[]> => {
+  searchPredictionsByMessageSerialized: async (searchTerm: string, limit = 5): Promise<PredictionOutput[]> => {
     const rows = await predictionQueries.searchPredictionsByUserMessage(searchTerm, limit)
     const s = serializeDecimals(rows) as any[]
     return s.map((p) => ({
-      id: String(p.id),
+      id: p.id,
       userMessage: p.userMessage,
       marketId: p.marketId,
       predictionResult: p.predictionResult,
@@ -569,6 +608,7 @@ export const predictionQueries = {
         }
       },
       select: {
+        id: true,
         experimentTag: true,
         experimentNotes: true,
         modelName: true,

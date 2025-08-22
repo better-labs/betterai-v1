@@ -320,14 +320,27 @@ export function getPredictionDisplayData(
     } catch {}
   }
 
-  // Reasoning if not already set
-  if (!reasoning && prediction.aiResponse) {
-    try {
-      const parsed = JSON.parse(prediction.aiResponse as unknown as string)
-      if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
-        reasoning = String((parsed as Record<string, unknown>).reasoning)
-      }
-    } catch {}
+  // Reasoning if not already set - check multiple fields
+  if (!reasoning) {
+    // First check aiResponse for reasoning
+    if (prediction.aiResponse) {
+      try {
+        const parsed = JSON.parse(prediction.aiResponse as unknown as string)
+        if (parsed && typeof parsed === 'object' && 'reasoning' in parsed) {
+          reasoning = String((parsed as Record<string, unknown>).reasoning)
+        }
+      } catch {}
+    }
+
+    // Also check systemPrompt as fallback
+    if (!reasoning && prediction.systemPrompt) {
+      reasoning = prediction.systemPrompt
+    }
+
+    // Check experimentNotes as another fallback
+    if (!reasoning && prediction.experimentNotes) {
+      reasoning = prediction.experimentNotes
+    }
   }
 
   // Market probability

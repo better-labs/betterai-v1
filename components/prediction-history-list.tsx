@@ -16,8 +16,8 @@ type CheckItem = {
 }
 
 type PredictionItem = {
-  id?: string | null
-  createdAt: Date | string
+  id?: number | string | null
+  createdAt: Date | string | null
   modelName?: string | null
   outcomesProbabilities?: Array<unknown> | null
   marketOutcomePrices?: Array<unknown> | null
@@ -40,7 +40,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
   const renderPredictions = showPredictions && hasPredictions
   if (!renderChecks && !renderPredictions) return null
 
-  const handlePredictionClick = (predictionId: string) => {
+  const handlePredictionClick = (predictionId: number | string) => {
     router.push(`/prediction/${predictionId}`)
   }
 
@@ -133,7 +133,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                       onClick={isClickable ? () => handlePredictionClick(p.id!) : undefined}
                     >
                       <TableCell className="text-xs text-muted-foreground">
-                        {new Date(p.createdAt).toLocaleString()}
+                        {p.createdAt ? new Date(p.createdAt).toLocaleString() : '—'}
                       </TableCell>
                       <TableCell className="text-right tabular-nums hidden sm:table-cell">{formatPercent(marketP0)}</TableCell>
                       <TableCell className="text-right tabular-nums">

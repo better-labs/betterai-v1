@@ -350,3 +350,4 @@ This helps identify PRs created by Claude Code instances for better project mana
 - Feel free to provide additional feedback, guidance if you see issues with the current design or code.
 - If you're writing test cases, try to write lightweight or flexible test cases as the schemas and code are changing frequently.  Reuse existing test harnesses and code where possible.
 - Prefer comprehensive solutions where possible.
+- Choose best practices that help the platform scale, rather than short term solutiosn.

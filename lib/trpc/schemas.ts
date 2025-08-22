@@ -22,14 +22,16 @@ export const EventSchema = z.object({
   description: z.string().nullable(),
   image: z.string().nullable(),
   icon: z.string().nullable(),
-  slug: z.string(),
-  active: z.boolean().optional().default(true),
-  hidden: z.boolean().nullable(),
+  slug: z.string().nullable(),
+  tags: z.any().nullable(),
   volume: z.number().nullable(),
   endDate: z.any().nullable(),
-  createdAt: z.any(),
-  updatedAt: z.any(),
-}).passthrough() // Allow additional fields
+  marketProvider: z.string().nullable(),
+  updatedAt: z.any().nullable(),
+  startDate: z.any().nullable(),
+  category: z.string().nullable(),
+  providerCategory: z.string().nullable(),
+}).passthrough()
 
 /**
  * Market schemas - Made more permissive to match actual Prisma data
@@ -41,19 +43,18 @@ export const MarketSchema = z.object({
   description: z.string().nullable(),
   image: z.string().nullable(),
   icon: z.string().nullable(),
-  outcomes: z.array(z.string()).optional().default([]),
-  outcomePrices: z.array(z.number()).optional().default([]), // Decimal[] -> number[]
+  outcomes: z.array(z.string()),
+  outcomePrices: z.array(z.number()), // Decimal[] -> number[]
   volume: z.number().nullable(),
   liquidity: z.number().nullable(),
   endDate: z.any().nullable(),
-  marketMakerAddress: z.string().nullable(),
-  conditionId: z.string().nullable(),
-  questionId: z.string().nullable(),
-  tokens: z.array(z.string()).optional().default([]),
-  active: z.boolean().optional().default(true),
-  createdAt: z.any(),
-  updatedAt: z.any(),
-}).passthrough() // Allow additional fields
+  updatedAt: z.any().nullable(),
+  slug: z.string().nullable(),
+  startDate: z.any().nullable(),
+  resolutionSource: z.string().nullable(),
+  closed: z.boolean().nullable(),
+  active: z.boolean().nullable(),
+}).passthrough()
 
 export const MarketWithEventSchema = MarketSchema.extend({
   event: EventSchema.nullable(),
@@ -74,14 +75,14 @@ export const PredictionResultSchema = z.object({
 
 // Prediction schema that matches DB exactly (after serialization)
 export const PredictionSchema = z.object({
-  id: z.number().transform(String), // DB: Int -> serialize to string for client
+  id: z.number(),
   userMessage: z.string(),
   marketId: z.string(), 
   predictionResult: z.any(), // JSON field - can be any shape
   modelName: z.string().nullable(), // DB: String?
   systemPrompt: z.string().nullable(), // DB: String?
   aiResponse: z.string().nullable(), // DB: String?
-  createdAt: DateSchema.nullable(), // DB: DateTime? 
+  createdAt: DateSchema.nullable(), // DB: DateTime?
   outcomes: z.array(z.string()), // DB: String[]
   outcomesProbabilities: z.array(z.number()), // DB: Decimal[] -> serialized to number[]
   userId: z.string().nullable(), // DB: String?

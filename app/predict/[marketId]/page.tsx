@@ -12,7 +12,8 @@ import { ModelProviderSelection } from '@/components/prediction-builder/model-pr
 import MarketDetailsCard from '@/components/market-details-card'
 import { MarketEventHeader } from '@/components/market-event-header'
 import { LoadingCard } from '@/components/ui/loading'
-import type { MarketDTO, EventDTO, CreditBalanceClient, ApiResponse } from '@/lib/types'
+import type { CreditBalanceClient, ApiResponse } from '@/lib/types'
+import type { MarketOutput as MarketDTO, EventOutput as EventDTO } from '@/lib/trpc/schemas'
 
 interface PredictionBuilderPageProps {
   params: Promise<{

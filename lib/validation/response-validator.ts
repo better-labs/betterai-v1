@@ -20,17 +20,17 @@ export function createResponseValidator<T extends z.ZodSchema>(schema: T) {
         // Filter sensitive logging in production
         if (process.env.NODE_ENV === 'production') {
           console.error('API Response validation failed:', {
-            errors: error.errors.map(err => ({ path: err.path, message: err.message }))
+            issues: (error as any).issues?.map((err: any) => ({ path: err.path, message: err.message })) ?? []
           })
         } else {
           console.error('API Response validation failed:', {
-            errors: error.errors,
+            issues: (error as any).issues ?? [],
             data: JSON.stringify(data, null, 2)
           })
         }
         
         // Create user-friendly error message
-        const fieldErrors = error.errors.map(err => 
+        const fieldErrors = ((error as any).issues ?? []).map((err: any) => 
           `${err.path.join('.')}: ${err.message}`
         ).join(', ')
         
@@ -53,18 +53,18 @@ export function createSafeResponseValidator<T extends z.ZodSchema>(schema: T) {
       return { success: true, data: result }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const fieldErrors = error.errors.map(err => 
+        const fieldErrors = ((error as any).issues ?? []).map((err: any) => 
           `${err.path.join('.')}: ${err.message}`
         ).join(', ')
         
         // Filter sensitive logging in production
         if (process.env.NODE_ENV === 'production') {
           console.error('API Response validation failed:', {
-            errors: error.errors.map(err => ({ path: err.path, message: err.message }))
+            issues: (error as any).issues?.map((err: any) => ({ path: err.path, message: err.message })) ?? []
           })
         } else {
           console.error('API Response validation failed:', {
-            errors: error.errors,
+            issues: (error as any).issues ?? [],
             data: JSON.stringify(data, null, 2)
           })
         }

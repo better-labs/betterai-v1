@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
+import type { EventOutput as Event, MarketOutput as Market, PredictionOutput as Prediction } from '@/lib/trpc/schemas'
 import { PredictionProbabilityGrid } from '@/components/prediction-probability-grid'
 
 interface MarketDetailsCardProps {
@@ -46,13 +46,15 @@ export default function MarketDetailsCard({
         </div>
 
         {/* Probability Grid */}
-        <PredictionProbabilityGrid
-          marketOutcomes={market.outcomes}
-          marketOutcomePrices={market.outcomePrices as unknown as number[]}
-          aiOutcomes={latestPrediction?.outcomes ?? null}
-          aiOutcomesProbabilities={latestPrediction?.outcomesProbabilities ?? null}
-          className="mt-2"
-        />
+        {market.outcomes && market.outcomePrices && (
+          <PredictionProbabilityGrid
+            marketOutcomes={market.outcomes}
+            marketOutcomePrices={market.outcomePrices as unknown as number[]}
+            aiOutcomes={latestPrediction?.outcomes ?? null}
+            aiOutcomesProbabilities={latestPrediction?.outcomesProbabilities ?? null}
+            className="mt-2"
+          />
+        )}
 
         {/* External Provider Link */}
         {externalMarketUrl && (

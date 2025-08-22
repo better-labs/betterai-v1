@@ -35,7 +35,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Fetch related event data if available
-    let event: EventDTO | null = null
+    let event: EventOutput | null = null
     if (market.eventId) {
       event = await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventOutput | null
     }

@@ -9,7 +9,7 @@ import Link from 'next/link'
 import type { Market } from '@/lib/types'
 import { formatVolume } from '@/lib/utils'
 import { serializeDecimals } from '@/lib/serialization'
-import type { EventDTO, MarketDTO } from '@/lib/types'
+import type { EventOutput, MarketOutput } from '@/lib/trpc/schemas'
 
 interface EventDetailPageProps {
   params: Promise<{
@@ -21,13 +21,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const { eventId } = await params
 
   // Fetch event data
-  const event = await eventQueries.getEventByIdSerialized(eventId) as unknown as EventDTO | null
+  const event = await eventQueries.getEventByIdSerialized(eventId) as unknown as EventOutput | null
   if (!event) {
     notFound()
   }
 
   // Fetch markets for the event
-  const markets = await marketQueries.getMarketsByEventIdSerialized(eventId) as unknown as MarketDTO[]
+  const markets = await marketQueries.getMarketsByEventIdSerialized(eventId) as unknown as MarketOutput[]
 
   // Serialize all data to handle Decimal objects
   const serializedEvent = event

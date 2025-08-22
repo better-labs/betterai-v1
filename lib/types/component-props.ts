@@ -4,19 +4,19 @@
  */
 
 import type { ClientSafe, ClientComponentProps } from './client-safe'
-import type { MarketDTO, PredictionDTO, EventDTO, PredictionCheckDTO } from '../types'
+import type { MarketOutput, PredictionOutput, EventOutput, PredictionCheckOutput } from '../trpc/schemas'
 
 // Strict prop types for common components
 export interface MarketDetailsCardProps extends ClientComponentProps<{
-  market: MarketDTO
-  event?: EventDTO | null
+  market: MarketOutput
+  event?: EventOutput | null
   externalMarketUrl?: string | null
-  latestPrediction?: PredictionDTO | null
+  latestPrediction?: PredictionOutput | null
 }> {}
 
 export interface PredictionHistoryListProps extends ClientComponentProps<{
-  predictions?: PredictionDTO[] | null
-  checks?: PredictionCheckDTO[] | null
+  predictions?: PredictionOutput[] | null
+  checks?: PredictionCheckOutput[] | null
   marketId?: string | null
   showChecks?: boolean
   showPredictions?: boolean

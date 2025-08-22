@@ -71,8 +71,8 @@ export async function getTopMarketsByVolumeAndEndDate(
       const seenCategories = new Set<Category>()
       const selected: MarketWithEndDate[] = []
 
-      for (const m of marketsInRange) {
-        const category = (m.event?.category as unknown as Category) || null
+      for (const m of marketsInRange as any[]) {
+        const category = (m.event?.category as Category) || null
         if (!category) continue
         if (config.excludeCategories && config.excludeCategories.includes(category)) continue
         if (seenCategories.has(category)) continue
@@ -123,8 +123,8 @@ export async function getTopMarketsByVolumeAndEndDate(
     const topMarkets = await marketQueries.getTopMarketsByVolumeAndDateRange(whereClause, config.topMarketsCount)
 
     // Convert volume from Decimal to number and filter out null values
-    const processedMarkets: MarketWithEndDate[] = topMarkets
-      .map((market) => ({
+    const processedMarkets: MarketWithEndDate[] = (topMarkets as any[])
+      .map((market: any) => ({
         id: market.id,
         question: market.question,
         volume: market.volume ? market.volume.toNumber() : null,

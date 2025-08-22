@@ -35,22 +35,7 @@ export const eventQueries = {
     const e = await eventQueries.getEventById(id)
     if (!e) return null
     const s = serializeDecimals(e) as any
-    return {
-      id: s.id,
-      title: s.title,
-      description: s.description ?? null,
-      slug: s.slug ?? null,
-      icon: s.icon ?? null,
-      image: s.image ?? null,
-      tags: s.tags ?? null,
-      volume: s.volume ?? null,
-      endDate: s.endDate ?? null,
-      marketProvider: s.marketProvider ?? null,
-      updatedAt: s.updatedAt ?? null,
-      startDate: s.startDate ?? null,
-      category: s.category ?? null,
-      providerCategory: s.providerCategory ?? null,
-    }
+    return s
   },
   getEventBySlug: async (slug: string): Promise<Event | null> => {
     return await prisma.event.findFirst({

@@ -11,7 +11,8 @@ import { Progress } from '@/components/ui/progress'
 import { ArrowLeft, AlertCircle, CheckCircle2, Clock, Zap, Share2, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { LoadingCard } from '@/components/ui/loading'
-import type { MarketDTO, EventDTO, PredictionResult, ApiResponse } from '@/lib/types'
+import type { PredictionResult, ApiResponse } from '@/lib/types'
+import type { MarketOutput as MarketDTO, EventOutput as EventDTO } from '@/lib/trpc/schemas'
 // Move SUPPORTED_MODELS to avoid Prisma client import on client-side
 const SUPPORTED_MODELS = [
   { id: 'google/gemini-2.5-pro', name: 'Google Gemini', description: 'Advanced reasoning', costCredits: 1 },

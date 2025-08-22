@@ -19,7 +19,7 @@ export default function CreditsPage() {
 	// Fetch user credits
 	const { data: creditsData, isLoading } = useQuery({
 		queryKey: ['user-credits', user?.id],
-		queryFn: async (): Promise<{ credits: CreditBalance | null; isAuthenticated: boolean; message?: string }> => {
+		queryFn: async (): Promise<{ credits: CreditBalanceClient | null; isAuthenticated: boolean; message?: string }> => {
 			if (!isAuthenticated) {
 				return {
 					credits: null,
