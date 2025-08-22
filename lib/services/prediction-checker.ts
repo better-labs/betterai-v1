@@ -43,20 +43,7 @@ export async function generatePredictionVsMarketDelta(
     )}] since=${sinceDate.toISOString()}`
   )
 
-  const predictions = await prisma.prediction.findMany({
-    where: {
-      createdAt: { gte: sinceDate },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: maxPredictions,
-    include: {
-      market: {
-        include: {
-          event: true,
-        },
-      },
-    },
-  })
+  const predictions = await predictionQueries.getPredictionsForChecking(sinceDate, maxPredictions)
 
   console.log(
     `prediction-check:found ${predictions.length} predictions since ${sinceDate.toISOString()}`

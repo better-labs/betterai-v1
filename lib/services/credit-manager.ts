@@ -1,28 +1,24 @@
 import { prisma } from '../db/prisma'
 import { userQueries } from '../db/queries'
-import { CreditBalance } from '../types'
+import { CreditBalanceServer } from '../types'
 
 export interface CreditTransaction {
   userId: string
-  amount: number  // positive = earned, negative = spent
-  reason: string  // "daily_reset", "prediction_generated", "signup_bonus"
-  marketId?: string
+  credits: number
+  reason: string
   predictionId?: number
 }
 
 export class CreditManager {
-  private static readonly DAILY_CREDIT_RESET = 100
-  private static readonly LOW_CREDIT_THRESHOLD = 10
+  static readonly LOW_CREDIT_THRESHOLD = 10
 
   /**
-   * Get current credit balance for a user
+   * Get a user's current credit balance
    */
-  async getUserCredits(userId: string): Promise<CreditBalance | null> {
+  async getUserCredits(userId: string): Promise<CreditBalanceServer | null> {
     try {
       const user = await userQueries.getUserById(userId)
-      if (!user) {
-        return null
-      }
+      if (!user) return null
 
       return {
         credits: user.credits,
@@ -37,104 +33,66 @@ export class CreditManager {
   }
 
   /**
-   * Consume credits for a user
-   * Returns true if successful, false if insufficient credits
+   * Add credits to a user's account
    */
-  async consumeCredits(
-    userId: string,
-    amount: number,
-    reason: string,
-    metadata?: { marketId?: string; predictionId?: number }
-  ): Promise<boolean> {
+  async addCredits(userId: string, credits: number, reason: string, predictionId?: number): Promise<boolean> {
     try {
       const user = await userQueries.getUserById(userId)
       if (!user) {
+        console.error(`User not found: ${userId}`)
         return false
       }
 
-      // Check if user has enough credits
-      if (user.credits < amount) {
-        return false
-      }
+      const newCredits = user.credits + credits
+      await userQueries.updateUserCredits(userId, newCredits, user.totalCreditsEarned + credits)
 
-      // Update user credits in transaction
-      await userQueries.updateUserCredits(
-        userId,
-        user.credits - amount, // new credits value
-        undefined, // earnedAmount stays the same
-        user.totalCreditsSpent + amount // spentAmount
-      )
-
-      // Log the transaction (we can add this later if needed)
-      console.log(`Credit consumed: ${userId}, amount: ${amount}, reason: ${reason}`)
+      // Log the transaction
+      console.log(`Added ${credits} credits to user ${userId}. Reason: ${reason}. New balance: ${newCredits}`)
 
       return true
     } catch (error) {
-      console.error('Error consuming credits:', error)
+      console.error('Error adding credits:', error)
       return false
     }
   }
 
   /**
-   * Add credits to a user
+   * Spend credits from a user's account
    */
-  async addCredits(
-    userId: string,
-    amount: number,
-    reason: string,
-    metadata?: { marketId?: string; predictionId?: number }
-  ): Promise<void> {
+  async spendCredits(userId: string, credits: number, reason: string, predictionId?: number): Promise<boolean> {
     try {
       const user = await userQueries.getUserById(userId)
       if (!user) {
-        throw new Error('User not found')
+        console.error(`User not found: ${userId}`)
+        return false
       }
 
-      await userQueries.updateUserCredits(
-        userId,
-        user.credits + amount,
-        user.totalCreditsEarned + amount,
-        undefined // spentAmount stays the same
-      )
+      if (user.credits < credits) {
+        console.error(`Insufficient credits for user ${userId}. Required: ${credits}, Available: ${user.credits}`)
+        return false
+      }
+
+      const newCredits = user.credits - credits
+      await userQueries.updateUserCredits(userId, newCredits, user.totalCreditsSpent + credits)
 
       // Log the transaction
-      console.log(`Credits added: ${userId}, amount: ${amount}, reason: ${reason}`)
+      console.log(`Spent ${credits} credits from user ${userId}. Reason: ${reason}. New balance: ${newCredits}`)
+
+      return true
     } catch (error) {
-      console.error('Error adding credits:', error)
-      throw error
+      console.error('Error spending credits:', error)
+      return false
     }
   }
 
   /**
-   * Reset daily credits for a user
-   * Ensures user gets at least DAILY_CREDIT_RESET credits
-   */
-  async resetDailyCredits(userId: string): Promise<void> {
-    try {
-      const user = await userQueries.getUserById(userId)
-      if (!user) {
-        throw new Error('User not found')
-      }
-
-      const newCredits = Math.max(user.credits, CreditManager.DAILY_CREDIT_RESET)
-      const creditsAdded = newCredits - user.credits
-
-      await userQueries.resetUserDailyCredits(userId, newCredits)
-
-      console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${newCredits}`)
-    } catch (error) {
-      console.error('Error resetting daily credits:', error)
-      throw error
-    }
-  }
-
-  /**
-   * Check if user should see the "Add Credits" button (< 10 credits)
+   * Check if a user should see the "add credits" button
    */
   async shouldShowAddCreditsButton(userId: string): Promise<boolean> {
     try {
       const user = await userQueries.getUserById(userId)
       if (!user) {
+        console.error(`User not found: ${userId}`)
         return false
       }
 
@@ -148,11 +106,11 @@ export class CreditManager {
   /**
    * Get multiple users' credit balances (for admin/batch operations)
    */
-  async getUsersCredits(userIds: string[]): Promise<Record<string, CreditBalance | null>> {
+  async getUsersCredits(userIds: string[]): Promise<Record<string, CreditBalanceServer | null>> {
     try {
       const users = await userQueries.getUsersByIds(userIds)
 
-      const result: Record<string, CreditBalance | null> = {}
+      const result: Record<string, CreditBalanceServer | null> = {}
 
       for (const userId of userIds) {
         const user = users.find(u => u.id === userId)

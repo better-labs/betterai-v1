@@ -586,4 +586,24 @@ export const predictionQueries = {
       }
     })
   },
+
+  /**
+   * Get predictions for checking with market and event data
+   */
+  getPredictionsForChecking: async (sinceDate: Date, maxPredictions: number) => {
+    return await prisma.prediction.findMany({
+      where: {
+        createdAt: { gte: sinceDate },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: maxPredictions,
+      include: {
+        market: {
+          include: {
+            event: true,
+          },
+        },
+      },
+    })
+  },
 }

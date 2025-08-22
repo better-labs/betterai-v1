@@ -8,26 +8,9 @@ config({ path: resolve(process.cwd(), '.env.local') })
 
 async function main() {
   try {
-    const { prisma } = await import('../lib/db/prisma')
+    const { predictionQueries } = await import('../lib/db/queries')
     
-    const predictions = await prisma.prediction.findMany({
-      where: {
-        experimentTag: {
-          not: null
-        }
-      },
-      select: {
-        id: true,
-        experimentTag: true,
-        experimentNotes: true,
-        modelName: true,
-        createdAt: true,
-      },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 10
-    })
+    const predictions = await predictionQueries.getExperimentsWithChecks()
 
     console.log(`Found ${predictions.length} predictions with experiment tags:`)
     console.log()
