@@ -55,6 +55,47 @@ export interface PolymarketEvent {
   category: string;
 }
 
+// DTO for validated Polymarket API responses (strings before conversion)
+export interface PolymarketEventDTO {
+  id: string;
+  title: string;
+  description: string;
+  slug: string;
+  icon: string;
+  image?: string;
+  tags: Array<{
+    id: string;
+    label: string;
+    slug: string;
+    forceShow: boolean;
+    updatedAt: string;
+  }>;
+  volume: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  markets: PolymarketMarketDTO[];
+  category: string;
+}
+
+export interface PolymarketMarketDTO {
+  id: string;
+  question: string;
+  description?: string;
+  slug?: string;
+  icon?: string;
+  image?: string;
+  outcomePrices: string; // JSON string
+  outcomes?: string; // JSON string array
+  volume: string;
+  liquidity: string;
+  active?: boolean;
+  closed?: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  resolutionSource?: string;
+  eventId?: string;
+}
+
 export interface OpenRouterModel {
   id: string;
   name: string;

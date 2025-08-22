@@ -17,10 +17,17 @@ export function createResponseValidator<T extends z.ZodSchema>(schema: T) {
       return schema.parse(data)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error('API Response validation failed:', {
-          errors: error.errors,
-          data: JSON.stringify(data, null, 2)
-        })
+        // Filter sensitive logging in production
+        if (process.env.NODE_ENV === 'production') {
+          console.error('API Response validation failed:', {
+            errors: error.errors.map(err => ({ path: err.path, message: err.message }))
+          })
+        } else {
+          console.error('API Response validation failed:', {
+            errors: error.errors,
+            data: JSON.stringify(data, null, 2)
+          })
+        }
         
         // Create user-friendly error message
         const fieldErrors = error.errors.map(err => 
@@ -50,10 +57,17 @@ export function createSafeResponseValidator<T extends z.ZodSchema>(schema: T) {
           `${err.path.join('.')}: ${err.message}`
         ).join(', ')
         
-        console.error('API Response validation failed:', {
-          errors: error.errors,
-          data: JSON.stringify(data, null, 2)
-        })
+        // Filter sensitive logging in production
+        if (process.env.NODE_ENV === 'production') {
+          console.error('API Response validation failed:', {
+            errors: error.errors.map(err => ({ path: err.path, message: err.message }))
+          })
+        } else {
+          console.error('API Response validation failed:', {
+            errors: error.errors,
+            data: JSON.stringify(data, null, 2)
+          })
+        }
         
         return { 
           success: false, 

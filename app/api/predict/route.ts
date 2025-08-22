@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { generatePredictionForMarket } from "@/lib/services/generate-single-prediction"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from "@/lib/rate-limit"
-import { validatePredictionResponseSafe } from "@/lib/validation/response-validator"
+
 import type { ApiResponse } from "@/lib/types"
 
 export async function POST(request: NextRequest) {

@@ -3,7 +3,7 @@ import { marketQueries, NewMarket } from '@/lib/db/queries'
 import type { ApiResponse } from '@/lib/types'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
 import { serializeDecimals } from '@/lib/serialization'
-import { validateSingleMarketResponseSafe, validateMarketListResponseSafe } from '@/lib/validation/response-validator'
+
 
 export async function GET(request: NextRequest) {
   try {

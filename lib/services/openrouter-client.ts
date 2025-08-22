@@ -134,8 +134,13 @@ export async function fetchPredictionFromOpenRouter(
   // Validate the OpenRouter API response structure first
   const validationResult = validateOpenRouterResponseSafe(data);
   if (!validationResult.success) {
-    console.error('OpenRouter API response validation failed:', validationResult.error);
-    console.error('Raw response:', JSON.stringify(data, null, 2));
+    // Filter sensitive logging in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('OpenRouter API response validation failed:', validationResult.error);
+    } else {
+      console.error('OpenRouter API response validation failed:', validationResult.error);
+      console.error('Raw response:', JSON.stringify(data, null, 2));
+    }
     throw new Error(`OpenRouter API returned invalid response structure: ${validationResult.error}`);
   }
   
@@ -143,7 +148,12 @@ export async function fetchPredictionFromOpenRouter(
   
   // Log the full response for debugging empty responses
   if (!validatedData.choices || validatedData.choices.length === 0) {
-    console.error('OpenRouter API returned no choices:', JSON.stringify(validatedData, null, 2));
+    // Filter sensitive logging in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('OpenRouter API returned no choices');
+    } else {
+      console.error('OpenRouter API returned no choices:', JSON.stringify(validatedData, null, 2));
+    }
     throw new Error(`OpenRouter API returned no choices. Full response: ${JSON.stringify(validatedData)}`);
   }
   
@@ -153,7 +163,12 @@ export async function fetchPredictionFromOpenRouter(
   
   // Handle empty responses
   if (!text || text.trim() === '') {
-    console.error('OpenRouter API returned empty content:', JSON.stringify(validatedData.choices[0], null, 2));
+    // Filter sensitive logging in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('OpenRouter API returned empty content');
+    } else {
+      console.error('OpenRouter API returned empty content:', JSON.stringify(validatedData.choices[0], null, 2));
+    }
     throw new Error(`OpenRouter API returned empty content. Choice data: ${JSON.stringify(validatedData.choices[0])}`);
   }
 
@@ -242,8 +257,13 @@ export async function fetchStructuredFromOpenRouter<T>(
   // Validate OpenRouter response structure
   const validationResult = validateOpenRouterResponseSafe(data);
   if (!validationResult.success) {
-    console.error('OpenRouter structured API response validation failed:', validationResult.error);
-    console.error('Raw response:', JSON.stringify(data, null, 2));
+    // Filter sensitive logging in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('OpenRouter structured API response validation failed:', validationResult.error);
+    } else {
+      console.error('OpenRouter structured API response validation failed:', validationResult.error);
+      console.error('Raw response:', JSON.stringify(data, null, 2));
+    }
     throw new Error(`OpenRouter API returned invalid response structure: ${validationResult.error}`);
   }
   

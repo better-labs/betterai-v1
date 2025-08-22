@@ -62,6 +62,27 @@ function formatDateYYYYMMDD(input: Date | string): string {
   return input;
 }
 
+// Convert DTO (with string dates) to server types (with Date objects)
+function convertPolymarketEventDTOToServerType(eventDTO: any): PolymarketEvent {
+  const toDateOrNull = (value: string | null | undefined): Date | null | undefined => {
+    if (value === undefined) return undefined;
+    if (value === null) return null;
+    if (typeof value === 'string') return new Date(value);
+    return value as Date | null | undefined;
+  };
+
+  return {
+    ...eventDTO,
+    startDate: toDateOrNull(eventDTO.startDate),
+    endDate: toDateOrNull(eventDTO.endDate),
+    markets: (eventDTO.markets || []).map((market: any) => ({
+      ...market,
+      startDate: toDateOrNull(market.startDate),
+      endDate: toDateOrNull(market.endDate),
+    })),
+  };
+}
+
 export async function fetchPolymarketEvents(
   offset: number,
   limit: number,
@@ -92,7 +113,12 @@ export async function fetchPolymarketEvents(
   const data = await response.json();
 
   if (!Array.isArray(data)) {
-    console.error('Polymarket API returned non-array response:', JSON.stringify(data, null, 2));
+    // Filter sensitive logging in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Polymarket API returned non-array response');
+    } else {
+      console.error('Polymarket API returned non-array response:', JSON.stringify(data, null, 2));
+    }
     throw new Error("Invalid response format from Polymarket API - expected array");
   }
 
@@ -105,13 +131,20 @@ export async function fetchPolymarketEvents(
     const validationResult = validatePolymarketEventSafe(eventData);
     
     if (validationResult.success) {
-      validatedEvents.push(validationResult.data);
+      // Convert DTO (strings) to server types (Dates)
+      const convertedEvent = convertPolymarketEventDTOToServerType(validationResult.data);
+      validatedEvents.push(convertedEvent);
     } else {
       const errorMsg = `Event ${i}: ${validationResult.error}`;
       validationErrors.push(errorMsg);
-      console.warn('Polymarket event validation failed:', errorMsg);
-      // Log the problematic event data for debugging
-      console.warn('Problematic event data:', JSON.stringify(eventData, null, 2));
+      
+      // Filter sensitive logging in production
+      if (process.env.NODE_ENV === 'production') {
+        console.warn('Polymarket event validation failed:', errorMsg);
+      } else {
+        console.warn('Polymarket event validation failed:', errorMsg);
+        console.warn('Problematic event data:', JSON.stringify(eventData, null, 2));
+      }
     }
   }
 

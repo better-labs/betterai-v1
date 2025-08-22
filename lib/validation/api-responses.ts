@@ -60,7 +60,8 @@ export const PolymarketTagSchema = z.object({
   updatedAt: z.string()
 })
 
-export const PolymarketMarketSchema = z.object({
+// DTO schemas for validated API responses (with strings)
+export const PolymarketMarketDTOSchema = z.object({
   id: z.string(),
   question: z.string(),
   description: z.string().optional(),
@@ -79,7 +80,7 @@ export const PolymarketMarketSchema = z.object({
   eventId: z.string().optional()
 })
 
-export const PolymarketEventSchema = z.object({
+export const PolymarketEventDTOSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
@@ -90,9 +91,13 @@ export const PolymarketEventSchema = z.object({
   volume: z.number(),
   startDate: z.string().datetime().nullable().optional(),
   endDate: z.string().datetime().nullable().optional(),
-  markets: z.array(PolymarketMarketSchema),
+  markets: z.array(PolymarketMarketDTOSchema),
   category: z.string()
 })
+
+// Legacy schemas for backward compatibility
+export const PolymarketMarketSchema = PolymarketMarketDTOSchema
+export const PolymarketEventSchema = PolymarketEventDTOSchema
 
 // Prediction API response schemas
 export const PredictionResultSchema = z.object({

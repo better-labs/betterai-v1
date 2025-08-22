@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { predictionQueries } from "@/lib/db/queries"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
 import { serializeDecimals } from "@/lib/serialization"
-import { validateSingleMarketResponseSafe } from "@/lib/validation/response-validator"
+
 import type { ApiResponse } from "@/lib/types"
 
 export async function GET(
