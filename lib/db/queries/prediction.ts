@@ -1,7 +1,7 @@
 import { prisma } from "../prisma"
 import type { Prediction, Market, Event } from '../../../lib/generated/prisma';
 import { serializeDecimals, type SerializeDecimals } from "@/lib/serialization"
-import type { PredictionDTO } from "@/lib/types"
+import type { PredictionOutput } from "@/lib/trpc/schemas"
 
 // Prediction queries
 export const predictionQueries = {
@@ -20,7 +20,7 @@ export const predictionQueries = {
   /** Serialized wrappers returning DTO-safe shapes */
   getPredictionWithRelationsByIdSerialized: async (
     id: number
-  ): Promise<(PredictionDTO & { market: (ReturnType<typeof serializeDecimals> & any) | null }) | null> => {
+  ): Promise<(PredictionOutput & { market: (ReturnType<typeof serializeDecimals> & any) | null }) | null> => {
     const row = await predictionQueries.getPredictionWithRelationsById(id)
     if (!row) return null
     const s = serializeDecimals(row) as any
@@ -29,16 +29,16 @@ export const predictionQueries = {
       userMessage: s.userMessage,
       marketId: s.marketId,
       predictionResult: s.predictionResult,
-      modelName: s.modelName ?? null,
-      systemPrompt: s.systemPrompt ?? null,
-      aiResponse: s.aiResponse ?? null,
+      modelName: s.modelName,
+      systemPrompt: s.systemPrompt,
+      aiResponse: s.aiResponse,
       createdAt: s.createdAt,
-      outcomes: s.outcomes ?? [],
-      outcomesProbabilities: s.outcomesProbabilities ?? [],
-      userId: s.userId ?? null,
-      experimentTag: s.experimentTag ?? null,
-      experimentNotes: s.experimentNotes ?? null,
-      market: s.market ?? null,
+      outcomes: s.outcomes || [],
+      outcomesProbabilities: s.outcomesProbabilities || [],
+      userId: s.userId,
+      experimentTag: s.experimentTag,
+      experimentNotes: s.experimentNotes,
+      market: s.market,
     }
   },
   getPredictionsByMarketIdSerialized: async (
@@ -51,15 +51,15 @@ export const predictionQueries = {
       userMessage: p.userMessage,
       marketId: p.marketId,
       predictionResult: p.predictionResult,
-      modelName: p.modelName ?? null,
-      systemPrompt: p.systemPrompt ?? null,
-      aiResponse: p.aiResponse ?? null,
+      modelName: p.modelName,              // Keep as-is (already null if missing)
+      systemPrompt: p.systemPrompt,        // Keep as-is (already null if missing)
+      aiResponse: p.aiResponse,            // Keep as-is (already null if missing)
       createdAt: p.createdAt,
-      outcomes: p.outcomes ?? [],
-      outcomesProbabilities: p.outcomesProbabilities ?? [],
-      userId: p.userId ?? null,
-      experimentTag: p.experimentTag ?? null,
-      experimentNotes: p.experimentNotes ?? null,
+      outcomes: p.outcomes || [],          // Default to empty array if missing
+      outcomesProbabilities: p.outcomesProbabilities || [], // Default to empty array if missing
+      userId: p.userId,                    // Keep as-is (already null if missing)
+      experimentTag: p.experimentTag,      // Keep as-is (already null if missing)
+      experimentNotes: p.experimentNotes,  // Keep as-is (already null if missing)
     }))
   },
   getMostRecentPredictionByMarketIdSerialized: async (
@@ -73,15 +73,15 @@ export const predictionQueries = {
       userMessage: p.userMessage,
       marketId: p.marketId,
       predictionResult: p.predictionResult,
-      modelName: p.modelName ?? null,
-      systemPrompt: p.systemPrompt ?? null,
-      aiResponse: p.aiResponse ?? null,
+      modelName: p.modelName,
+      systemPrompt: p.systemPrompt,
+      aiResponse: p.aiResponse,
       createdAt: p.createdAt,
-      outcomes: p.outcomes ?? [],
-      outcomesProbabilities: p.outcomesProbabilities ?? [],
-      userId: p.userId ?? null,
-      experimentTag: p.experimentTag ?? null,
-      experimentNotes: p.experimentNotes ?? null,
+      outcomes: p.outcomes || [],
+      outcomesProbabilities: p.outcomesProbabilities || [],
+      userId: p.userId,
+      experimentTag: p.experimentTag,
+      experimentNotes: p.experimentNotes,
     }
   },
   getPredictionsByMarketId: async (marketId: string): Promise<Array<Prediction & { market: Market | null }>> => {

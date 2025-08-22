@@ -1,4 +1,5 @@
 import { prisma } from '../db/prisma'
+import { predictionQueries } from '../db/queries'
 import { predictionCheckQueries } from '../db/queries'
 
 export type CheckerConfig = {

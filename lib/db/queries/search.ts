@@ -56,7 +56,7 @@ export const searchQueries = {
     const totalResults = marketsResult.items.length + events.length + tags.length
 
     return {
-      markets: marketsResult.items,
+      markets: marketsResult.items as Array<Market & { event: Event | null, predictions: Prediction[] }>,
       events,
       tags,
       totalResults,

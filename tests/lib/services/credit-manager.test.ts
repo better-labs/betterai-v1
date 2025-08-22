@@ -65,11 +65,11 @@ describe('CreditManager', () => {
     })
   })
 
-  describe('consumeCredits', () => {
+  describe('spendCredits', () => {
     it('should return false when user not found', async () => {
       vi.mocked(userQueries.getUserById).mockResolvedValue(null)
 
-      const result = await creditManager.consumeCredits('user-123', 10, 'test')
+      const result = await creditManager.spendCredits('user-123', 10, 'test')
 
       expect(result).toBe(false)
     })
@@ -90,7 +90,7 @@ describe('CreditManager', () => {
       }
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
 
-      const result = await creditManager.consumeCredits('user-123', 10, 'test')
+      const result = await creditManager.spendCredits('user-123', 10, 'test')
 
       expect(result).toBe(false)
       expect(userQueries.updateUserCredits).not.toHaveBeenCalled()
@@ -113,7 +113,7 @@ describe('CreditManager', () => {
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
       vi.mocked(userQueries.updateUserCredits).mockResolvedValue(mockUser)
 
-      const result = await creditManager.consumeCredits('user-123', 10, 'test')
+      const result = await creditManager.spendCredits('user-123', 10, 'test')
 
       expect(result).toBe(true)
       expect(userQueries.updateUserCredits).toHaveBeenCalledWith(
@@ -143,7 +143,7 @@ describe('CreditManager', () => {
       vi.mocked(userQueries.getUserById).mockResolvedValue(mockUser)
       vi.mocked(prisma.user.update).mockResolvedValue(mockUser)
 
-      const result = await creditManager.consumeCredits('user-123', 10, 'test')
+      const result = await creditManager.spendCredits('user-123', 10, 'test')
 
       expect(result).toBe(true)
     })

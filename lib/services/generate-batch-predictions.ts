@@ -1,7 +1,7 @@
 import { generatePredictionForMarket } from './generate-single-prediction';
 import { prisma } from '../db/prisma'
+import { marketQueries } from '../db/queries'
 import { Category } from '../generated/prisma';
-import * as marketQueries from '../db/market-queries';
 
 export interface BatchPredictionConfig {
   topMarketsCount: number

@@ -1,6 +1,6 @@
 import { prisma } from "../prisma"
 import type { User, UserWatchlist, Market, Prediction } from '../../../lib/generated/prisma';
-import type { CreditBalance } from '@/lib/services/credit-manager';
+import { CreditBalanceServer } from '../../types'
 
 // User queries
 export const userQueries = {
@@ -68,7 +68,7 @@ export const userQueries = {
   },
 
   // Credit-related queries
-  getUserCredits: async (id: string): Promise<CreditBalance | null> => {
+  getUserCredits: async (id: string): Promise<CreditBalanceServer | null> => {
     const user = await prisma.user.findUnique({
       where: { id },
       select: {

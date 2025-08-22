@@ -72,21 +72,22 @@ export const PredictionResultSchema = z.object({
   outcome_probabilities: z.record(z.string(), z.number()).optional(),
 }).nullable().or(z.any()) // Allow any shape or null for flexibility
 
+// Prediction schema that matches DB exactly (after serialization)
 export const PredictionSchema = z.object({
-  id: z.union([z.string(), z.number()]).transform((val) => String(val)), // Accept both string and number IDs
+  id: z.number().transform(String), // DB: Int -> serialize to string for client
   userMessage: z.string(),
-  marketId: z.string(),
-  predictionResult: z.any().nullable(), // More permissive for now
-  modelName: z.string().nullable(),
-  systemPrompt: z.string().nullable(),
-  aiResponse: z.string().nullable(),
-  createdAt: z.any(), // More permissive for dates
-  outcomes: z.array(z.string()).optional().default([]), // Default to empty array
-  outcomesProbabilities: z.array(z.union([z.number(), z.any()])).optional().default([]), // Accept both numbers and any (for Decimal)
-  userId: z.string().nullable(),
-  experimentTag: z.string().nullable(),
-  experimentNotes: z.string().nullable(),
-}).passthrough() // Allow any additional fields
+  marketId: z.string(), 
+  predictionResult: z.any(), // JSON field - can be any shape
+  modelName: z.string().nullable(), // DB: String?
+  systemPrompt: z.string().nullable(), // DB: String?
+  aiResponse: z.string().nullable(), // DB: String?
+  createdAt: DateSchema.nullable(), // DB: DateTime? 
+  outcomes: z.array(z.string()), // DB: String[]
+  outcomesProbabilities: z.array(z.number()), // DB: Decimal[] -> serialized to number[]
+  userId: z.string().nullable(), // DB: String?
+  experimentTag: z.string().nullable(), // DB: String?
+  experimentNotes: z.string().nullable(), // DB: String?
+})
 
 export const PredictionWithMarketSchema = PredictionSchema.extend({
   market: MarketWithEventSchema.nullable(),
@@ -99,12 +100,12 @@ export const PredictionCheckSchema = z.object({
   id: z.number(),
   predictionId: z.number().nullable(),
   marketId: IdSchema.nullable(),
-  aiProbability: DecimalSchema.nullable(), // Decimal -> number
-  marketProbability: DecimalSchema.nullable(), // Decimal -> number
-  delta: DecimalSchema.nullable(), // Decimal -> number
-  absDelta: DecimalSchema.nullable(), // Decimal -> number
+  aiProbability: z.number().nullable(), // Serialized Decimal -> number  
+  marketProbability: z.number().nullable(), // Serialized Decimal -> number
+  delta: z.number().nullable(), // Serialized Decimal -> number
+  absDelta: z.number().nullable(), // Serialized Decimal -> number
   marketClosed: z.boolean().nullable(),
-  createdAt: DateSchema,
+  createdAt: DateSchema, // Proper date handling
 })
 
 /**
@@ -143,7 +144,7 @@ export const MarketFilterInputSchema = z.object({
 }).merge(PaginationInputSchema)
 
 /**
- * Output types for client consumption
+ * tRPC inferred types - use these instead of manual DTOs
  */
 export type EventOutput = z.infer<typeof EventSchema>
 export type MarketOutput = z.infer<typeof MarketSchema>
@@ -151,3 +152,8 @@ export type MarketWithEventOutput = z.infer<typeof MarketWithEventSchema>
 export type PredictionOutput = z.infer<typeof PredictionSchema>
 export type PredictionWithMarketOutput = z.infer<typeof PredictionWithMarketSchema>
 export type PredictionCheckOutput = z.infer<typeof PredictionCheckSchema>
+
+// Re-export for convenience - these replace the old DTO types
+export type PredictionClientSafe = PredictionOutput
+export type MarketClientSafe = MarketOutput
+export type EventClientSafe = EventOutput

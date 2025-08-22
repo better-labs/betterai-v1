@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate and consume credits
     const totalCredits = calculateTotalCredits(selectedModels)
-    const success = await creditManager.consumeCredits(
+    const success = await creditManager.spendCredits(
       userId,
       totalCredits,
       'multi_model_prediction',

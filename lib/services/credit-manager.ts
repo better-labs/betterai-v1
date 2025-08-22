@@ -35,7 +35,7 @@ export class CreditManager {
   /**
    * Add credits to a user's account
    */
-  async addCredits(userId: string, credits: number, reason: string, predictionId?: number): Promise<boolean> {
+  async addCredits(userId: string, credits: number, reason: string, metadata?: { marketId?: string; predictionId?: number }): Promise<boolean> {
     try {
       const user = await userQueries.getUserById(userId)
       if (!user) {
@@ -59,7 +59,7 @@ export class CreditManager {
   /**
    * Spend credits from a user's account
    */
-  async spendCredits(userId: string, credits: number, reason: string, predictionId?: number): Promise<boolean> {
+  async spendCredits(userId: string, credits: number, reason: string, metadata?: { marketId?: string; predictionId?: number }): Promise<boolean> {
     try {
       const user = await userQueries.getUserById(userId)
       if (!user) {
@@ -169,6 +169,31 @@ export class CreditManager {
       }
     } catch (error) {
       console.error('Error getting credit stats:', error)
+      throw error
+    }
+  }
+
+
+
+  /**
+   * Reset daily credits for a user (ensures user gets at least 100 credits)
+   */
+  async resetDailyCredits(userId: string): Promise<void> {
+    try {
+      const user = await userQueries.getUserById(userId)
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      const newCredits = Math.max(user.credits, 100)
+      const creditsAdded = newCredits - user.credits
+
+      if (creditsAdded > 0) {
+        await userQueries.updateUserCredits(userId, newCredits, user.totalCreditsEarned + creditsAdded)
+        console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${newCredits}`)
+      }
+    } catch (error) {
+      console.error('Error resetting daily credits:', error)
       throw error
     }
   }

@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: 'Valid amount is required for consume action' }, { status: 400 })
         }
 
-        const success = await creditManager.consumeCredits(
+        const success = await creditManager.spendCredits(
           userId,
           amount,
           reason || 'prediction_generated',

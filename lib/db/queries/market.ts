@@ -298,15 +298,8 @@ export const marketQueries = {
       where: whereClause,
       orderBy: { volume: 'desc' },
       take: limit,
-      select: {
-        id: true,
-        question: true,
-        volume: true,
-        event: {
-          select: {
-            endDate: true,
-          },
-        },
+      include: {
+        event: true,
       },
     })
   },

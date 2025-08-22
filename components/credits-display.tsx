@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CreditCard, AlertTriangle } from "lucide-react"
 import Link from "next/link"
-import { CreditBalance } from "@/lib/services/credit-manager"
+import { CreditBalanceClient } from "@/lib/types"
 import { usePrivy } from "@privy-io/react-auth"
 import { authenticatedFetch } from "@/lib/utils"
 
@@ -22,7 +22,7 @@ export function CreditsDisplay({ showAddButton = true, compact = false }: Credit
 	// Fetch user credits
 	const { data: creditsData, isLoading } = useQuery({
 		queryKey: ['user-credits', user?.id],
-		queryFn: async (): Promise<{ credits: CreditBalance | null; isAuthenticated: boolean; message?: string }> => {
+		queryFn: async (): Promise<{ credits: CreditBalanceClient | null; isAuthenticated: boolean; message?: string }> => {
 			if (!isAuthenticated) {
 				return {
 					credits: null,
