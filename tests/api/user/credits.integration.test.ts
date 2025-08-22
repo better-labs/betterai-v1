@@ -61,19 +61,19 @@ describe('/api/user/credits Integration', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.isAuthenticated).toBe(true)
-      expect(data.credits).toBeDefined()
+      expect(data.data.isAuthenticated).toBe(true)
+      expect(data.data.credits).toBeDefined()
       
       // ✅ CRITICAL TEST: Ensure dates are serialized as strings, not Date objects
-      expect(typeof data.credits.creditsLastReset).toBe('string')
-      expect(data.credits.creditsLastReset).toBe('2024-01-01T00:00:00.000Z')
+      expect(typeof data.data.credits.creditsLastReset).toBe('string')
+      expect(data.data.credits.creditsLastReset).toBe('2024-01-01T00:00:00.000Z')
       
       // ✅ Ensure the string can be safely converted back to Date
-      expect(() => new Date(data.credits.creditsLastReset)).not.toThrow()
+      expect(() => new Date(data.data.credits.creditsLastReset)).not.toThrow()
       
       // ✅ Verify it's a valid ISO string
-      const parsedDate = new Date(data.credits.creditsLastReset)
-      expect(parsedDate.toISOString()).toBe(data.credits.creditsLastReset)
+      const parsedDate = new Date(data.data.credits.creditsLastReset)
+      expect(parsedDate.toISOString()).toBe(data.data.credits.creditsLastReset)
     })
   })
 
@@ -90,9 +90,9 @@ describe('/api/user/credits Integration', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.isAuthenticated).toBe(false)
-      expect(data.credits).toBeNull()
-      expect(data.message).toBe('User not authenticated')
+      expect(data.data.isAuthenticated).toBe(false)
+      expect(data.data.credits).toBeNull()
+      expect(data.data.message).toBe('User not authenticated')
     })
   })
 
@@ -131,11 +131,11 @@ describe('/api/user/credits Integration', () => {
 
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
-      expect(data.credits).toBeDefined()
+      expect(data.data.credits).toBeDefined()
       
       // ✅ Ensure POST also returns properly serialized dates
-      expect(typeof data.credits.creditsLastReset).toBe('string')
-      expect(() => new Date(data.credits.creditsLastReset)).not.toThrow()
+      expect(typeof data.data.credits.creditsLastReset).toBe('string')
+      expect(() => new Date(data.data.credits.creditsLastReset)).not.toThrow()
     })
   })
 })

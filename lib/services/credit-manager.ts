@@ -64,14 +64,12 @@ export class CreditManager {
       }
 
       // Update user credits in transaction
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: user.credits - amount,
-          totalCreditsSpent: user.totalCreditsSpent + amount,
-          updatedAt: new Date()
-        }
-      })
+      await userQueries.updateUserCredits(
+        userId,
+        user.credits - amount, // new credits value
+        undefined, // earnedAmount stays the same
+        user.totalCreditsSpent + amount // spentAmount
+      )
 
       // Log the transaction (we can add this later if needed)
       console.log(`Credit consumed: ${userId}, amount: ${amount}, reason: ${reason}`)
@@ -98,14 +96,12 @@ export class CreditManager {
         throw new Error('User not found')
       }
 
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: user.credits + amount,
-          totalCreditsEarned: user.totalCreditsEarned + amount,
-          updatedAt: new Date()
-        }
-      })
+      await userQueries.updateUserCredits(
+        userId,
+        user.credits + amount,
+        user.totalCreditsEarned + amount,
+        undefined // spentAmount stays the same
+      )
 
       // Log the transaction
       console.log(`Credits added: ${userId}, amount: ${amount}, reason: ${reason}`)
@@ -129,15 +125,7 @@ export class CreditManager {
       const newCredits = Math.max(user.credits, CreditManager.DAILY_CREDIT_RESET)
       const creditsAdded = newCredits - user.credits
 
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: newCredits,
-          creditsLastReset: new Date(),
-          totalCreditsEarned: user.totalCreditsEarned + Math.max(0, creditsAdded),
-          updatedAt: new Date()
-        }
-      })
+      await userQueries.resetUserDailyCredits(userId, newCredits)
 
       console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${newCredits}`)
     } catch (error) {

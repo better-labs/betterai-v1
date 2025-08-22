@@ -118,9 +118,9 @@ describe('CreditManager', () => {
       expect(result).toBe(true)
       expect(userQueries.updateUserCredits).toHaveBeenCalledWith(
         'user-123',
-        10,
-        undefined,
-        20
+        10, // new credits value (20 - 10)
+        undefined, // earnedAmount stays the same
+        20 // new totalCreditsSpent (10 + 10)
       )
     })
 
@@ -177,9 +177,9 @@ describe('CreditManager', () => {
 
       expect(userQueries.updateUserCredits).toHaveBeenCalledWith(
         'user-123',
-        30,
-        40,
-        undefined
+        30, // new credits value (20 + 10)
+        40, // new totalCreditsEarned (30 + 10)
+        undefined // spentAmount stays the same
       )
     })
   })
