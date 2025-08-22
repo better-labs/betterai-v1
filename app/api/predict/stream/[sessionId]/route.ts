@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/services/generate-user-prediction'
+import { requireAuth } from '@/lib/auth'
 
 interface RouteParams {
   params: Promise<{
@@ -14,19 +15,31 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: 'Session ID is required' }, { status: 400 })
   }
 
+  // Require authentication
+  const authResult = await requireAuth(request)
+  const userId = authResult.userId
+
+  // Get session and verify ownership
+  const session = getSession(sessionId)
+  if (!session) {
+    return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+  }
+
+  if (session.userId !== userId) {
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+  }
+
   // Set up SSE headers
   const headers = new Headers({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Cache-Control'
+    'Connection': 'keep-alive'
   })
 
   // Create a ReadableStream for SSE
   const stream = new ReadableStream({
     start(controller) {
-      const sendEvent = (data: any) => {
+      const sendEvent = (data: object) => {
         const message = `data: ${JSON.stringify(data)}\n\n`
         controller.enqueue(new TextEncoder().encode(message))
       }
@@ -94,14 +107,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   return new Response(stream, { headers })
 }
 
-// Handle CORS preflight requests
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  })
-}

@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { initiatePredictionSession, generateSessionId } from "@/lib/services/generate-user-prediction"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from "@/lib/rate-limit"
-import { userQueries } from "@/lib/db/queries"
+import { creditManager } from "@/lib/services/credit-manager"
 
 import type { ApiResponse, UserPredictionRequest } from "@/lib/types"
 
@@ -48,17 +48,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(errorResponse, { status: 400 })
     }
 
-    // Check if user has enough credits
+    // Calculate and consume credits
     const totalCredits = calculateTotalCredits(selectedModels)
-    const creditBalance = await userQueries.getUserCredits(userId)
+    const success = await creditManager.consumeCredits(
+      userId,
+      totalCredits,
+      'multi_model_prediction',
+      { marketId }
+    )
     
-    if (!creditBalance || creditBalance.credits < totalCredits) {
+    if (!success) {
+      const creditBalance = await creditManager.getUserCredits(userId)
       const errorResponse: ApiResponse = {
         success: false,
         error: `Insufficient credits. Required: ${totalCredits}, Available: ${creditBalance?.credits || 0}`,
         timestamp: new Date().toISOString()
       }
-      return NextResponse.json(errorResponse, { status: 402 }) // Payment Required
+      return NextResponse.json(errorResponse, { status: 400 })
     }
 
     // Generate session ID and create prediction request
@@ -72,11 +78,6 @@ export async function POST(request: NextRequest) {
 
     // Initiate the prediction session
     const session = await initiatePredictionSession(predictionRequest)
-
-    // Deduct credits from user account
-    const newCreditBalance = creditBalance.credits - totalCredits
-    const newTotalSpent = creditBalance.totalCreditsSpent + totalCredits
-    await userQueries.updateUserCredits(userId, newCreditBalance, undefined, newTotalSpent)
 
     // Prepare the response data
     const responseData: ApiResponse = {

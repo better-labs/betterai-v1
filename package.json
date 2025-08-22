@@ -2,6 +2,7 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "prisma generate && pnpm run lint && pnpm run typecheck && next build",
     "build:ci": "prisma generate && next build",

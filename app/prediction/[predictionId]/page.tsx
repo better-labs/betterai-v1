@@ -41,10 +41,14 @@ export default async function PredictionDetailPage({ params }: PageProps) {
 
   // Optional history: recent checks and past predictions for this market
   const marketId = market?.id
-  const [checks, pastPredictions] = await Promise.all([
+  const [checksRaw, pastPredictionsRaw] = await Promise.all([
     marketId ? predictionCheckQueries.getRecentByMarketSerialized(marketId, 25) : Promise.resolve([]),
     marketId ? pq.getPredictionsByMarketIdSerialized(marketId) : Promise.resolve([]),
   ])
+
+  // Filter out entries with null createdAt to match component expectations
+  const checks = checksRaw.filter((check): check is typeof check & { createdAt: NonNullable<typeof check.createdAt> } => check.createdAt !== null)
+  const pastPredictions = pastPredictionsRaw.filter((pred): pred is typeof pred & { createdAt: NonNullable<typeof pred.createdAt> } => pred.createdAt !== null)
 
   return (
     <div className="container mx-auto px-4 py-10">

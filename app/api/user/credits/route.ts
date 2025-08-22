@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth, createAuthErrorResponse } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { creditManager } from '@/lib/services/credit-manager'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
 import { serializeDecimals } from '@/lib/serialization'
@@ -11,20 +11,26 @@ export async function GET(request: NextRequest) {
     try {
       const authResult = await requireAuth(request)
       userId = authResult.userId
-    } catch (authError) {
+    } catch {
       // User is not authenticated, return guest response
       return NextResponse.json({
-        credits: null,
-        isAuthenticated: false,
-        message: 'User not authenticated'
+        success: true,
+        data: {
+          credits: null,
+          isAuthenticated: false,
+          message: 'User not authenticated'
+        }
       })
     }
 
     if (!userId) {
       return NextResponse.json({
-        credits: null,
-        isAuthenticated: false,
-        message: 'User not authenticated'
+        success: true,
+        data: {
+          credits: null,
+          isAuthenticated: false,
+          message: 'User not authenticated'
+        }
       })
     }
 
@@ -47,17 +53,23 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      credits: serializeDecimals(credits),
-      isAuthenticated: true
+      success: true,
+      data: {
+        credits: serializeDecimals(credits),
+        isAuthenticated: true
+      }
     })
   } catch (error) {
     console.error('Get user credits error:', error)
 
     if (error instanceof Error && error.message.includes('authentication')) {
       return NextResponse.json({
-        credits: null,
-        isAuthenticated: false,
-        message: 'User not authenticated'
+        success: false,
+        data: {
+          credits: null,
+          isAuthenticated: false,
+          message: 'User not authenticated'
+        }
       })
     }
 
@@ -72,7 +84,7 @@ export async function POST(request: NextRequest) {
     try {
       const authResult = await requireAuth(request)
       userId = authResult.userId
-    } catch (authError) {
+    } catch {
       // User is not authenticated
       return NextResponse.json({
         error: 'Authentication required',
@@ -132,8 +144,10 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          credits: serializeDecimals(updatedCredits),
-          isAuthenticated: true
+          data: {
+            credits: serializeDecimals(updatedCredits),
+            isAuthenticated: true
+          }
         })
       }
 
@@ -154,8 +168,10 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          credits: serializeDecimals(updatedCredits),
-          isAuthenticated: true
+          data: {
+            credits: serializeDecimals(updatedCredits),
+            isAuthenticated: true
+          }
         })
       }
 
@@ -167,8 +183,10 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          credits: serializeDecimals(updatedCredits),
-          isAuthenticated: true
+          data: {
+            credits: serializeDecimals(updatedCredits),
+            isAuthenticated: true
+          }
         })
       }
 
