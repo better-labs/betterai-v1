@@ -69,6 +69,10 @@
     "@solana/spl-token": "^0.4.13",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-query": "^5.85.5",
+    "@trpc/client": "^11.5.0",
+    "@trpc/next": "^11.5.0",
+    "@trpc/react-query": "^11.5.0",
+    "@trpc/server": "^11.5.0",
     "@upstash/ratelimit": "^2.0.6",
     "@vercel/kv": "^3.0.0",
     "ai": "latest",
@@ -102,11 +106,12 @@
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "sonner": "latest",
+    "superjson": "^2.2.2",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "use-debounce": "^10.0.5",
     "vaul": "latest",
-    "zod": "^3.24.1"
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@eslint/compat": "^1.3.2",
@@ -114,7 +119,7 @@
     "@testing-library/jest-dom": "^6.7.0",
     "@testing-library/react": "^16.3.0",
     "@types/d3-format": "^3.0.4",
-    "@types/node": "^22",
+    "@types/node": "^24.3.0",
     "@types/pg": "^8.15.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -131,7 +136,7 @@
     "tailwindcss": "^3.4.17",
     "ts-prune": "^0.10.3",
     "tsx": "^4.20.3",
-    "typescript": "^5",
+    "typescript": "^5.9.2",
     "vitest": "^3.2.4",
     "whatwg-fetch": "^3.6.20"
   }

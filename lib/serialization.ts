@@ -13,44 +13,78 @@ function isPrismaDecimal(obj: any): boolean {
          typeof obj.toNumber === 'function'
 }
 
+// Type to recursively convert Decimals to numbers in type definitions
+export type SerializeDecimals<T> = T extends any[] 
+  ? SerializeDecimals<T[number]>[]
+  : T extends Date
+  ? string
+  : T extends { constructor: { name: 'Decimal' } }
+  ? number
+  : T extends object
+  ? { [K in keyof T]: SerializeDecimals<T[K]> }
+  : T
+
 /**
  * Convert Prisma Decimal objects to numbers recursively
  * Handles nested objects, arrays, and edge cases
  */
-export function serializeDecimals<T>(obj: T): T {
-  if (obj === null || obj === undefined) return obj
+export function serializeDecimals<T>(obj: T): SerializeDecimals<T> {
+  if (obj === null || obj === undefined) return obj as SerializeDecimals<T>
 
   // Handle Prisma Decimal objects (check without importing Decimal class)
   if (isPrismaDecimal(obj)) {
-    return Number(obj.toString()) as T
+    return Number(obj.toString()) as SerializeDecimals<T>
   }
 
   // Handle arrays
   if (Array.isArray(obj)) {
-    return obj.map(serializeDecimals) as T
+    return obj.map(serializeDecimals) as SerializeDecimals<T>
   }
 
   // Handle Date objects
   if (obj instanceof Date) {
-    return obj.toISOString() as T
+    return obj.toISOString() as SerializeDecimals<T>
   }
 
-  // Handle plain objects
-  if (typeof obj === 'object' && obj.constructor === Object) {
+  // Handle plain objects (be more inclusive of object types)
+  if (typeof obj === 'object' && obj !== null) {
     const serialized: any = {}
     for (const [key, value] of Object.entries(obj)) {
       serialized[key] = serializeDecimals(value)
     }
-    return serialized
+    return serialized as SerializeDecimals<T>
   }
 
-  return obj
+  return obj as SerializeDecimals<T>
+}
+
+/**
+ * Validates that an object contains no Decimal instances
+ * Useful for runtime checks before passing data to Client Components
+ */
+export function validateNoDecimals(obj: any, path = 'root'): void {
+  if (obj === null || obj === undefined) return
+
+  if (isPrismaDecimal(obj)) {
+    throw new Error(`Found unserialized Decimal at ${path}. Use serializeDecimals() before passing to Client Components.`)
+  }
+
+  if (Array.isArray(obj)) {
+    obj.forEach((item, index) => validateNoDecimals(item, `${path}[${index}]`))
+    return
+  }
+
+  if (typeof obj === 'object') {
+    Object.entries(obj).forEach(([key, value]) => 
+      validateNoDecimals(value, `${path}.${key}`)
+    )
+  }
 }
 
 /**
  * Higher-order function to automatically serialize server component props
  */
-export function withSerialization<T extends Record<string, any>>(props: T): T {
+export function withSerialization<T extends Record<string, any>>(props: T): SerializeDecimals<T> {
   return serializeDecimals(props)
 }
 

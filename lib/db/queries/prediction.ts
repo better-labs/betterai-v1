@@ -1,6 +1,6 @@
 import { prisma } from "../prisma"
 import type { Prediction, Market, Event } from '../../../lib/generated/prisma';
-import { serializeDecimals } from "@/lib/serialization"
+import { serializeDecimals, type SerializeDecimals } from "@/lib/serialization"
 import type { PredictionDTO } from "@/lib/types"
 
 // Prediction queries

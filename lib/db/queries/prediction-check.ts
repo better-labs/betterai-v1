@@ -1,6 +1,7 @@
 import { prisma } from "../prisma"
 import { Prisma } from '../../../lib/generated/prisma'
 import type { PredictionCheck } from '../../../lib/generated/prisma';
+import { serializeDecimals, type SerializeDecimals } from '../../serialization'
 
 // Prediction Check queries
 export const predictionCheckQueries = {
@@ -39,8 +40,7 @@ export const predictionCheckQueries = {
     })
   },
 
-  getRecentByMarketSerialized: async (marketId: string, limit = 50) => {
-    const { serializeDecimals } = await import('../../serialization')
+  getRecentByMarketSerialized: async (marketId: string, limit = 50): Promise<SerializeDecimals<PredictionCheck[]>> => {
     const checks = await prisma.predictionCheck.findMany({
       where: { marketId },
       orderBy: { createdAt: 'desc' },
