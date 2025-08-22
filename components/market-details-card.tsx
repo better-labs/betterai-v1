@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { Event, Market, Prediction } from '@/lib/types'
+import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { PredictionProbabilityGrid } from '@/components/prediction-probability-grid'
 
 interface MarketDetailsCardProps {

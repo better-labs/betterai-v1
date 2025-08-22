@@ -3,7 +3,33 @@
  * Handles Prisma Decimals, Dates, and other non-serializable objects
  */
 
-import { Decimal } from '@prisma/client/runtime/library'
+// Dynamic import to avoid Prisma client during build
+let Decimal: any
+
+// Check if we're in build mode or if Prisma is available
+const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL
+const isPrismaAvailable = (() => {
+  try {
+    require.resolve('@prisma/client/runtime/library')
+    return true
+  } catch {
+    return false
+  }
+})()
+
+if (!isBuildTime && isPrismaAvailable) {
+  Decimal = require('@prisma/client/runtime/library').Decimal
+} else {
+  // Fallback for build time when Prisma isn't available
+  Decimal = class {
+    constructor(value: any) {
+      return value
+    }
+    toString() {
+      return String(this)
+    }
+  }
+}
 
 /**
  * Convert Prisma Decimal objects to numbers recursively

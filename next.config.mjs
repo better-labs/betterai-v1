@@ -8,6 +8,45 @@ const nextConfig = {
     // Reduce memory usage in development
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
+  webpack: (config, { webpack, isServer }) => {
+    // Handle Node.js modules for Prisma
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      dns: false,
+      child_process: false,
+      tls: false,
+      os: false,
+      module: false,
+      'node:fs': false,
+      'node:fs/promises': false,
+      'node:child_process': false,
+      'node:module': false,
+      'node:os': false,
+    };
+
+    // Add alias for Node.js modules
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'node:fs': false,
+      'node:fs/promises': false,
+      'node:child_process': false,
+      'node:module': false,
+      'node:os': false,
+    };
+
+    // Add Node.js polyfills
+    if (!isServer) {
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^node:/,
+        })
+      );
+    }
+
+    return config;
+  },
   // Optimize images
   images: {
     // Use Next.js image optimizer and allow S3/Polymarket hosts

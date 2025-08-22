@@ -105,6 +105,79 @@ export interface DatabaseMetadata {
   requestId: string
 }
 
+/**
+ * DTOs: Serialized shapes safe for Client Components.
+ * - All numbers are native JS numbers
+ * - All dates are ISO strings
+ * - Decimals are converted to numbers
+ */
+export type ISODateString = string
+
+export interface EventDTO {
+  id: string
+  title: string
+  description?: string | null
+  slug?: string | null
+  icon?: string | null
+  image?: string | null
+  tags?: unknown | null
+  volume?: number | null
+  endDate?: ISODateString | null
+  marketProvider?: string | null
+  updatedAt?: ISODateString | null
+  startDate?: ISODateString | null
+  category?: string | null
+  providerCategory?: string | null
+}
+
+export interface MarketDTO {
+  id: string
+  question: string
+  eventId: string
+  outcomePrices: number[]
+  volume?: number | null
+  liquidity?: number | null
+  description?: string | null
+  active?: boolean | null
+  closed?: boolean | null
+  endDate?: ISODateString | null
+  updatedAt?: ISODateString | null
+  slug?: string | null
+  startDate?: ISODateString | null
+  resolutionSource?: string | null
+  outcomes: string[]
+  icon?: string | null
+  image?: string | null
+}
+
+export interface PredictionDTO {
+  id: string
+  userMessage: string
+  marketId: string
+  predictionResult: PredictionResult
+  modelName?: string | null
+  systemPrompt?: string | null
+  aiResponse?: string | null
+  createdAt: ISODateString
+  outcomes: string[]
+  outcomesProbabilities: number[]
+  userId?: string | null
+  experimentTag?: string | null
+  experimentNotes?: string | null
+}
+
+export interface PredictionCheckDTO {
+  id: string
+  predictionId?: string | null
+  marketId?: string | null
+  aiProbability?: number | null
+  marketProbability?: number | null
+  delta?: number | null
+  absDelta?: number | null
+  marketClosed?: boolean | null
+  createdAt: ISODateString
+}
+
 // Re-export all database types from Prisma for convenience
 export type { 
   Event, 

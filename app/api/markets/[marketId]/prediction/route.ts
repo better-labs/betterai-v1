@@ -17,19 +17,17 @@ export async function GET(
       return NextResponse.json({ error: "Market ID is required" }, { status: 400 })
     }
 
-    const prediction = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
+    const prediction = await predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId)
 
     if (!prediction) {
       return NextResponse.json({ prediction: null }, { status: 200 })
     }
 
     // Serialize the prediction to handle Decimal objects
-    const serializedPrediction = serializeDecimals(prediction)
-
     return NextResponse.json({
-      prediction: serializedPrediction.predictionResult,
-      createdAt: serializedPrediction.createdAt,
-      modelName: serializedPrediction.modelName,
+      prediction: prediction.predictionResult,
+      createdAt: prediction.createdAt,
+      modelName: prediction.modelName,
       authenticatedUser: userId
     })
   } catch (error) {

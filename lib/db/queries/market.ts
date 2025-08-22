@@ -1,6 +1,8 @@
 import { prisma } from "../prisma"
 import { Prisma } from '../../../lib/generated/prisma'
 import type { Market, Event, Prediction } from '../../../lib/generated/prisma';
+import { serializeDecimals } from "@/lib/serialization"
+import type { MarketDTO, EventDTO, PredictionDTO } from "@/lib/types"
 
 // Market queries
 export const marketQueries = {
@@ -15,12 +17,60 @@ export const marketQueries = {
       where: { id }
     })
   },
+  /** Serialized wrappers returning DTO-safe shapes */
+  getMarketByIdSerialized: async (id: string): Promise<MarketDTO | null> => {
+    const m = await marketQueries.getMarketById(id)
+    if (!m) return null
+    const s = serializeDecimals(m) as any
+    return {
+      id: s.id,
+      question: s.question,
+      eventId: s.eventId,
+      outcomePrices: s.outcomePrices ?? [],
+      volume: s.volume ?? null,
+      liquidity: s.liquidity ?? null,
+      description: s.description ?? null,
+      active: s.active ?? null,
+      closed: s.closed ?? null,
+      endDate: s.endDate ?? null,
+      updatedAt: s.updatedAt ?? null,
+      slug: s.slug ?? null,
+      startDate: s.startDate ?? null,
+      resolutionSource: s.resolutionSource ?? null,
+      outcomes: s.outcomes ?? [],
+      icon: s.icon ?? null,
+      image: s.image ?? null,
+    }
+  },
   getHighVolumeMarkets: async (limit: number = 20): Promise<Market[]> => {
     return await prisma.market.findMany({
       where: { volume: { gt: 10000 } },
       orderBy: { volume: 'desc' },
       take: limit
     })
+  },
+  getMarketsByEventIdSerialized: async (eventId: string): Promise<MarketDTO[]> => {
+    const rows = await marketQueries.getMarketsByEventId(eventId)
+    const s = serializeDecimals(rows) as any[]
+    return s.map((m) => ({
+      id: m.id,
+      question: m.question,
+      eventId: m.eventId,
+      outcomePrices: m.outcomePrices ?? [],
+      volume: m.volume ?? null,
+      liquidity: m.liquidity ?? null,
+      description: m.description ?? null,
+      active: m.active ?? null,
+      closed: m.closed ?? null,
+      endDate: m.endDate ?? null,
+      updatedAt: m.updatedAt ?? null,
+      slug: m.slug ?? null,
+      startDate: m.startDate ?? null,
+      resolutionSource: m.resolutionSource ?? null,
+      outcomes: m.outcomes ?? [],
+      icon: m.icon ?? null,
+      image: m.image ?? null,
+    }))
   },
   createMarket: async (marketData: any): Promise<Market> => {
     const marketWithId = {

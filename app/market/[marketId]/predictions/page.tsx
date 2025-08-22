@@ -4,6 +4,7 @@ import { MarketEventHeader } from '@/components/market-event-header'
 import { PredictionSummaryCard } from '@/components/prediction-summary-card'
 import type { PredictionResult } from '@/lib/types'
 import { serializeDecimals } from '@/lib/serialization'
+import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 
 type PageParams = { marketId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -11,16 +12,15 @@ type PageProps = { params: Promise<PageParams> }
 export default async function MarketPredictionsPage({ params }: PageProps) {
   const { marketId } = await params
 
-  const market = await marketQueries.getMarketById(marketId)
+  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketDTO | null
   if (!market) return notFound()
 
-  const event = market.eventId ? await eventQueries.getEventById(market.eventId) : null
-  const predictions = await predictionQueries.getPredictionsByMarketId(marketId)
+  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventDTO | null : null
+  const predictions = await predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as PredictionDTO[]
 
-  // Serialize all data to handle Decimal objects
-  const serializedMarket = serializeDecimals(market)
-  const serializedEvent = event ? serializeDecimals(event) : null
-  const serializedPredictions = serializeDecimals(predictions)
+  const serializedMarket = market
+  const serializedEvent = event
+  const serializedPredictions = predictions
 
   return (
     <div className="container mx-auto px-4 py-10">

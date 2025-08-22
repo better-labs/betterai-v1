@@ -1,6 +1,8 @@
 import { prisma } from "../prisma"
 import type { Event, Market, Category } from '../../../lib/generated/prisma';
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
+import { serializeDecimals } from "@/lib/serialization"
+import type { EventDTO, MarketDTO } from "@/lib/types"
 
 // Event queries
 export const eventQueries = {
@@ -27,6 +29,28 @@ export const eventQueries = {
     return await prisma.event.findUnique({
       where: { id }
     })
+  },
+  /** Serialized wrappers returning DTO-safe shapes */
+  getEventByIdSerialized: async (id: string): Promise<EventDTO | null> => {
+    const e = await eventQueries.getEventById(id)
+    if (!e) return null
+    const s = serializeDecimals(e) as any
+    return {
+      id: s.id,
+      title: s.title,
+      description: s.description ?? null,
+      slug: s.slug ?? null,
+      icon: s.icon ?? null,
+      image: s.image ?? null,
+      tags: s.tags ?? null,
+      volume: s.volume ?? null,
+      endDate: s.endDate ?? null,
+      marketProvider: s.marketProvider ?? null,
+      updatedAt: s.updatedAt ?? null,
+      startDate: s.startDate ?? null,
+      category: s.category ?? null,
+      providerCategory: s.providerCategory ?? null,
+    }
   },
   getEventBySlug: async (slug: string): Promise<Event | null> => {
     return await prisma.event.findFirst({

@@ -11,6 +11,7 @@ import { MarketEventHeader } from '@/components/market-event-header'
 import { PredictionReasoningCard } from '@/components/prediction-reasoning-card'
 import { PredictionHistoryList } from '@/components/prediction-history-list'
 import { serializePredictionData, serializeDecimals } from '@/lib/serialization'
+import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 
 interface MarketDetailPageProps {
   params: Promise<{
@@ -22,25 +23,24 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   const { marketId } = await params
 
   // Fetch market data
-  const market = await marketQueries.getMarketById(marketId)
+  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketDTO | null
   if (!market) {
     notFound()
   }
 
   // Fetch event data if market has an eventId
-  const event = market.eventId ? await eventQueries.getEventById(market.eventId) : null
+  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventDTO | null : null
 
   // Fetch most recent prediction and all predictions for history
   const [prediction, allPredictions] = await Promise.all([
-    predictionQueries.getMostRecentPredictionByMarketId(marketId),
-    predictionQueries.getPredictionsByMarketId(marketId)
+    predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId) as unknown as Promise<PredictionDTO | null>,
+    predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as Promise<PredictionDTO[]>
   ])
 
-  // Serialize all data to handle Decimal objects
-  const serializedMarket = serializeDecimals(market)
-  const serializedEvent = event ? serializeDecimals(event) : null
-  const serializedPrediction = prediction ? serializeDecimals(prediction) : null
-  const serializedAllPredictions = serializeDecimals(allPredictions)
+  const serializedMarket = market
+  const serializedEvent = event
+  const serializedPrediction = prediction
+  const serializedAllPredictions = allPredictions
 
   const predictionResult = serializedPrediction?.predictionResult as PredictionResult | null
   const externalMarketUrl = await generateMarketURL(marketId)
@@ -65,10 +65,10 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
         <div className="space-y-6">
           {/* Market Details Card */}
           <MarketDetailsCard
-            market={serializedMarket}
-            event={serializedEvent}
+            market={serializedMarket as any}
+            event={serializedEvent as any}
             externalMarketUrl={externalMarketUrl}
-            latestPrediction={serializedPrediction}
+            latestPrediction={serializedPrediction as any}
           />
 
           {/* Most Recent Prediction */}
@@ -129,7 +129,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                   {serializedPrediction && (
                     <div className="pt-4 border-t">
                       <p className="text-xs text-muted-foreground">
-                        Prediction made on {new Date(serializedPrediction.createdAt as Date).toLocaleString()}
+                        Prediction made on {new Date(serializedPrediction.createdAt as unknown as string).toLocaleString()}
                       </p>
                     </div>
                   )}

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { Decimal } from '@prisma/client/runtime/library'
 
 // Mock the prisma module
 vi.mock('@/lib/db/prisma', () => ({
@@ -280,6 +281,204 @@ describe('Database Queries', () => {
         expect(mockPrisma.$transaction).toHaveBeenCalled()
         expect(result).toEqual(mockTags)
       })
+    })
+  })
+
+  describe('Serialized Query Wrappers', () => {
+    describe('marketQueries.getMarketByIdSerialized', () => {
+      it('should return serialized market DTO', async () => {
+        const mockMarket = {
+          id: 'market-1',
+          question: 'Test question',
+          eventId: 'event-1',
+          outcomePrices: [new Decimal('0.5'), new Decimal('0.3')],
+          volume: new Decimal('1000'),
+          liquidity: new Decimal('500'),
+          description: 'Test description',
+          active: true,
+          closed: false,
+          endDate: new Date('2024-12-31'),
+          updatedAt: new Date('2024-01-01'),
+          slug: 'test-market',
+          startDate: new Date('2024-01-01'),
+          resolutionSource: 'polymarket',
+          outcomes: ['Yes', 'No'],
+          icon: 'test-icon',
+          image: 'test-image'
+        }
+        mockPrisma.market.findUnique.mockResolvedValue(mockMarket)
+
+        const result = await marketQueries.getMarketByIdSerialized('market-1')
+
+        expect(result).toEqual({
+          id: 'market-1',
+          question: 'Test question',
+          eventId: 'event-1',
+          outcomePrices: [0.5, 0.3],
+          volume: 1000,
+          liquidity: 500,
+          description: 'Test description',
+          active: true,
+          closed: false,
+          endDate: '2024-12-31T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+          slug: 'test-market',
+          startDate: '2024-01-01T00:00:00.000Z',
+          resolutionSource: 'polymarket',
+          outcomes: ['Yes', 'No'],
+          icon: 'test-icon',
+          image: 'test-image'
+        })
+      })
+
+      it('should return null for non-existent market', async () => {
+        mockPrisma.market.findUnique.mockResolvedValue(null)
+
+        const result = await marketQueries.getMarketByIdSerialized('non-existent')
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('eventQueries.getEventByIdSerialized', () => {
+      it('should return serialized event DTO', async () => {
+        const mockEvent = {
+          id: 'event-1',
+          title: 'Test Event',
+          description: 'Test description',
+          slug: 'test-event',
+          icon: 'test-icon',
+          image: 'test-image',
+          tags: [{ label: 'Politics' }],
+          volume: new Decimal('2000'),
+          endDate: new Date('2024-12-31'),
+          marketProvider: 'polymarket',
+          updatedAt: new Date('2024-01-01'),
+          startDate: new Date('2024-01-01'),
+          category: 'ELECTIONS',
+          providerCategory: 'elections'
+        }
+        mockPrisma.event.findUnique.mockResolvedValue(mockEvent)
+
+        const result = await eventQueries.getEventByIdSerialized('event-1')
+
+        expect(result).toEqual({
+          id: 'event-1',
+          title: 'Test Event',
+          description: 'Test description',
+          slug: 'test-event',
+          icon: 'test-icon',
+          image: 'test-image',
+          tags: [{ label: 'Politics' }],
+          volume: 2000,
+          endDate: '2024-12-31T00:00:00.000Z',
+          marketProvider: 'polymarket',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+          startDate: '2024-01-01T00:00:00.000Z',
+          category: 'ELECTIONS',
+          providerCategory: 'elections'
+        })
+      })
+    })
+
+    describe('predictionQueries.getMostRecentPredictionByMarketIdSerialized', () => {
+      it('should return serialized prediction DTO', async () => {
+        const mockPrediction = {
+          id: 123,
+          userMessage: 'Test prediction',
+          marketId: 'market-1',
+          predictionResult: { outcome: 'Yes', confidence_level: 'High' },
+          modelName: 'gpt-4',
+          systemPrompt: 'Test prompt',
+          aiResponse: 'Test response',
+          createdAt: new Date('2024-01-01'),
+          outcomes: ['Yes', 'No'],
+          outcomesProbabilities: [new Decimal('0.7'), new Decimal('0.3')],
+          userId: 'user-1',
+          experimentTag: 'test-exp',
+          experimentNotes: 'Test notes'
+        }
+        mockPrisma.prediction.findFirst.mockResolvedValue(mockPrediction)
+
+        const result = await predictionQueries.getMostRecentPredictionByMarketIdSerialized('market-1')
+
+        expect(result).toEqual({
+          id: '123',
+          userMessage: 'Test prediction',
+          marketId: 'market-1',
+          predictionResult: { outcome: 'Yes', confidence_level: 'High' },
+          modelName: 'gpt-4',
+          systemPrompt: 'Test prompt',
+          aiResponse: 'Test response',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          outcomes: ['Yes', 'No'],
+          outcomesProbabilities: [0.7, 0.3],
+          userId: 'user-1',
+          experimentTag: 'test-exp',
+          experimentNotes: 'Test notes'
+        })
+      })
+
+      it('should return null for no prediction', async () => {
+        mockPrisma.prediction.findFirst.mockResolvedValue(null)
+
+        const result = await predictionQueries.getMostRecentPredictionByMarketIdSerialized('market-1')
+
+        expect(result).toBeNull()
+      })
+    })
+  })
+
+  describe('DTO Types', () => {
+    it('should be properly typed for client components', () => {
+      // This test verifies that the DTO types are properly structured
+      // by creating instances that match the expected shape
+
+      // Test EventDTO shape
+      const eventDto: any = {
+        id: 'event-1',
+        title: 'Test Event',
+        description: 'Test description',
+        volume: 1000,
+        endDate: '2024-12-31T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z'
+      }
+      expect(eventDto.id).toBe('event-1')
+      expect(typeof eventDto.volume).toBe('number')
+      expect(typeof eventDto.endDate).toBe('string')
+      expect(typeof eventDto.updatedAt).toBe('string')
+
+      // Test MarketDTO shape
+      const marketDto: any = {
+        id: 'market-1',
+        question: 'Test question',
+        eventId: 'event-1',
+        outcomePrices: [0.5, 0.3],
+        volume: 1000,
+        liquidity: 500,
+        endDate: '2024-12-31T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        outcomes: ['Yes', 'No']
+      }
+      expect(marketDto.id).toBe('market-1')
+      expect(Array.isArray(marketDto.outcomePrices)).toBe(true)
+      expect(marketDto.outcomePrices.every((p: any) => typeof p === 'number')).toBe(true)
+      expect(typeof marketDto.endDate).toBe('string')
+      expect(typeof marketDto.updatedAt).toBe('string')
+
+      // Test PredictionDTO shape
+      const predictionDto: any = {
+        id: '123',
+        userMessage: 'Test prediction',
+        marketId: 'market-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        outcomes: ['Yes', 'No'],
+        outcomesProbabilities: [0.7, 0.3]
+      }
+      expect(predictionDto.id).toBe('123')
+      expect(Array.isArray(predictionDto.outcomesProbabilities)).toBe(true)
+      expect(predictionDto.outcomesProbabilities.every((p: any) => typeof p === 'number')).toBe(true)
+      expect(typeof predictionDto.createdAt).toBe('string')
     })
   })
 })

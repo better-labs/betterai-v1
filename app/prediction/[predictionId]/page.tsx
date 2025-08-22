@@ -9,6 +9,7 @@ import { PredictionHistoryList } from "@/components/prediction-history-list"
 import { MarketEventHeader } from "@/components/market-event-header"
 import { PredictionUserMessageCard } from "@/components/prediction-user-message-card"
 import { serializePredictionData, serializePredictionChecks, serializeDecimals } from "@/lib/serialization"
+import type { PredictionDTO } from "@/lib/types"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -18,11 +19,10 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const id = Number(predictionId)
   if (!Number.isFinite(id)) return notFound()
 
-  const prediction = await predictionQueries.getPredictionWithRelationsById(id)
+  const prediction = await predictionQueries.getPredictionWithRelationsByIdSerialized(id) as unknown as (PredictionDTO & { market: any | null }) | null
   if (!prediction) return notFound()
 
-  // Serialize the prediction data to handle Decimal objects
-  const serializedPrediction = serializeDecimals(prediction)
+  const serializedPrediction = prediction
   const market = serializedPrediction.market
   const event = market?.event || null
 
