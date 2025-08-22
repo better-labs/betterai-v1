@@ -8,6 +8,7 @@ import { LoadingCard } from "@/components/ui/loading"
 import { PaginatedRecentPredictions } from "@/components/paginated-recent-predictions"
 import { useUser } from "@/hooks/use-user"
 import { WelcomeBanner } from "@/components/welcome-banner"
+import { PageTransition } from "@/components/page-transition"
 import { TrendingUp, Activity, Target, Trophy } from "lucide-react"
 
 export function HomePageWrapper() {
@@ -23,7 +24,9 @@ export function HomePageWrapper() {
     return (
       <div className="min-h-screen bg-background" >
         <main className="container mx-auto px-4 py-8">
-          <LoadingCard />
+          <PageTransition>
+            <LoadingCard />
+          </PageTransition>
         </main>
       </div>
     )
@@ -39,18 +42,20 @@ export function HomePageWrapper() {
     return (
       <div className="min-h-screen bg-background">
         <main className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-destructive mb-2">Account Setup Error</h2>
-            <p className="text-muted-foreground mb-4">
-              There was an issue setting up your account. Please try refreshing the page.
-            </p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-            >
-              Refresh Page
-            </button>
-          </div>
+          <PageTransition>
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-destructive mb-2">Account Setup Error</h2>
+              <p className="text-muted-foreground mb-4">
+                There was an issue setting up your account. Please try refreshing the page.
+              </p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Refresh Page
+              </button>
+            </div>
+          </PageTransition>
         </main>
       </div>
     )
@@ -61,23 +66,25 @@ export function HomePageWrapper() {
     <div className="min-h-screen bg-background">
       <WelcomeBanner />
       <main className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
-              <TrendingUp className="text-primary" />
-              Today's Top AI Market Predictions
-            </h1>
-            <p className="text-muted-foreground text-lg  mx-auto mb-6">
-              AI-powered predictions on trending markets. Get insights from multiple models with enriched data analysis.
-            </p>
-          </div>
-            
+        <PageTransition>
+          <div className="space-y-8">
+            {/* Header */}
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
+                <TrendingUp className="text-primary" />
+                Today's Top AI Market Predictions
+              </h1>
+              <p className="text-muted-foreground text-lg  mx-auto mb-6">
+                AI-powered predictions on trending markets. Get insights from multiple models with enriched data analysis.
+              </p>
+            </div>
+              
 
-          {/* Hide trending events table for now */}
-          {/* <TrendingEventsTable /> */}
-          <PaginatedRecentPredictions defaultPageSize={15} />
-        </div>
+            {/* Hide trending events table for now */}
+            {/* <TrendingEventsTable /> */}
+            <PaginatedRecentPredictions defaultPageSize={15} />
+          </div>
+        </PageTransition>
       </main>
     </div>
   )

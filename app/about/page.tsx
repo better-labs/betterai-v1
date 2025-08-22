@@ -6,32 +6,19 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section with Background */}
-        <div className="relative overflow-hidden rounded-xl mb-16">
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: 'url("/betterai-background.png")'
-            }}
-          />
-          {/* Dark Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-black/40" />
-          
-          {/* Content */}
-          <div className="relative z-10 text-center py-24 px-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 flex items-center justify-center gap-2">
-              <TrendingUp className="text-blue-300" />
-              What is BetterAI?
-            </h1>
-            <p className="text-blue-100 text-lg max-w-3xl mx-auto">
-              Democratizing access to world-class AI predictions for everyone
-            </p>
-          </div>
-        </div>
+        {/* Hero Section */}
+        <section className="text-center py-16 mb-24">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6 flex items-center justify-center gap-2">
+            <TrendingUp className="text-primary" />
+            What is BetterAI?
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+            Democratizing access to world-class AI predictions for everyone
+          </p>
+        </section>
 
         {/* Better Definition 1 */}
-        <div className="mb-20" data-testid="better-definition-1">
+        <section className="mb-24" data-testid="better-definition-1">
           <div className="text-center mb-12">
             <h2 className="mb-4 flex items-baseline justify-center text-foreground">
               <span className="text-sm sm:text-base font-medium mr-2">[bet-er]¹ (noun)</span>
@@ -78,13 +65,14 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </div>
-          <div className="border-t border-border/40 my-12 max-w-4xl mx-auto" />
+        </section>
+        
+        <div className="border-t border-border/40 my-16 max-w-4xl mx-auto" />
 
 
-        <div className="mb-20" data-testid="better-definition-2">
+        <section className="mb-24" data-testid="better-definition-2">
           <div className="text-center mb-12">
-            <h2 className="mb-4 flex items-baseline justify-center text-foreground">
+            <h2 className="mb-6 flex items-baseline justify-center text-foreground">
               <span className="text-sm sm:text-base font-medium mr-2">[bet-er]<sup>2</sup> (adjective)</span>
               <span className="text-3xl sm:text-4xl font-bold">improved in accuracy or performance</span>
             </h2>
@@ -92,10 +80,10 @@ export default function AboutPage() {
               <a href="https://hai.stanford.edu/ai-index/2025-ai-index-report" className="hover:underline">Leading AI models are close to beating our most difficult benchmarks. The world needs better, infinitely difficult benchmarks, to properly measure the AI model's intelligence growth beyond super intelligence.</a>
             </p>
           </div>
-          <div className="max-w-5xl mx-auto rounded-lg border bg-card p-4 shadow-sm">
+          <div className="max-w-5xl mx-auto rounded-lg border bg-card p-6 shadow-sm">
             <AiVsHumanAccuracyChart />
           </div>
-        </div>
+        </section>
 
 
         {/* How it Works Section */}

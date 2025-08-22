@@ -2,6 +2,7 @@
 
 import { format } from "date-fns"
 import Link from "next/link"
+import { motion } from "framer-motion"
 import type { Prediction, Market, Event, Tag } from "@/lib/types"
 import { EventIcon } from "@/components/event-icon"
 import { PredictionProbabilityGrid } from "@/components/prediction-probability-grid"
@@ -124,8 +125,13 @@ export function RecentPredictions({
           />
         )}
       </div>
-      <div className="divide-y rounded-lg border bg-card">
-        {items.map((p) => {
+      <motion.div 
+        className="divide-y rounded-lg border bg-card"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        {items.map((p, index) => {
           const market = p.market
           const event = market?.event || null
 
@@ -151,11 +157,24 @@ export function RecentPredictions({
           const eventImage = event?.image ?? null
 
           return (
-            <Link
+            <motion.div
               key={p.id as any}
-              href={`/prediction/${p.id as any}`}
-              className="block p-2 sm:p-3 hover:bg-muted/30 hover:shadow-lg hover:shadow-muted/20 hover:-translate-y-0.5 rounded-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring border-b border-border/50 hover:border-transparent"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.2, 
+                delay: index * 0.05,
+                ease: "easeOut"
+              }}
+              whileHover={{ 
+                y: -2,
+                transition: { duration: 0.15 }
+              }}
             >
+              <Link
+                href={`/prediction/${p.id as any}`}
+                className="block p-2 sm:p-3 hover:bg-muted/30 hover:shadow-lg hover:shadow-muted/20 rounded-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring border-b border-border/50 hover:border-transparent"
+              >
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-12 sm:items-start sm:gap-4">
                 {/* Event image - 1 column */}
                 <div className="flex col-span-1 items-center justify-start pl-1 sm:col-span-1 sm:justify-center sm:pl-2">
@@ -204,10 +223,11 @@ export function RecentPredictions({
                   </div>
                 </div>
               </div>
-            </Link>
+              </Link>
+            </motion.div>
           )
         })}
-      </div>
+      </motion.div>
     </section>
   )
 }

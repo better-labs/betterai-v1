@@ -15,10 +15,13 @@ export const predictionQueries = {
       },
     })
   },
-  getPredictionsByMarketId: async (marketId: string): Promise<Prediction[]> => {
+  getPredictionsByMarketId: async (marketId: string): Promise<Array<Prediction & { market: Market | null }>> => {
     return await prisma.prediction.findMany({
       where: { marketId },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      include: {
+        market: true
+      }
     })
   },
   getPredictionById: async (id: number): Promise<Prediction | null> => {

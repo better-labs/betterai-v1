@@ -50,7 +50,7 @@ export function Header() {
         <div className="flex items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105 duration-200">
               <TrendingUp className="h-10 w-10 text-primary" />
               <span className="text-2xl font-bold text-foreground">BetterAI</span>
             </Link>

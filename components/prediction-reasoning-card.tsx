@@ -3,51 +3,74 @@
 import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface PredictionReasoningCardProps {
   reasoning?: string | null
   className?: string
-  collapsedLines?: number
+  collapsedHeight?: string
+  showHeader?: boolean
 }
 
-export function PredictionReasoningCard({ reasoning, className, collapsedLines = 6 }: PredictionReasoningCardProps) {
+export function PredictionReasoningCard({ 
+  reasoning, 
+  className, 
+  collapsedHeight = '6rem',
+  showHeader = true 
+}: PredictionReasoningCardProps) {
   const [expanded, setExpanded] = useState(false)
   const text = reasoning?.trim() || '—'
 
   const needsCollapse = useMemo(() => {
     if (!text || text === '—') return false
-    const lineCount = text.split(/\r?\n/).length
-    return lineCount > collapsedLines
-  }, [text, collapsedLines])
-
-  const displayText = useMemo(() => {
-    if (expanded || !needsCollapse) return text
-    const lines = text.split(/\r?\n/)
-    return lines.slice(0, collapsedLines).join('\n') + '…'
-  }, [text, expanded, needsCollapse, collapsedLines])
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(reasoning || '')
-    } catch {}
-  }
+    return text.length > 200 // Collapse if text is longer than 200 characters
+  }, [text])
 
   return (
     <Card className={cn(className)}>
-      <CardHeader>
-        <CardTitle>Reasoning</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground">{displayText}</div>
-        <div className="mt-3 flex items-center gap-2">
-          {needsCollapse && (
-            <Button variant="ghost" size="sm" onClick={() => setExpanded((v) => !v)}>
-              {expanded ? 'Show less' : 'Show more'}
-            </Button>
+      {showHeader && (
+        <CardHeader>
+          <CardTitle>Reasoning</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent className={showHeader ? '' : 'p-0'}>
+        <div 
+          className={cn(
+            "whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground relative",
+            !expanded && needsCollapse && "overflow-hidden",
           )}
-          
+          style={{ 
+            maxHeight: !expanded && needsCollapse ? collapsedHeight : 'none'
+          }}
+        >
+          {text}
+          {!expanded && needsCollapse && (
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent" />
+          )}
         </div>
+        {needsCollapse && (
+          <div className="mt-3 flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setExpanded((v) => !v)}
+              className="text-xs h-auto p-1"
+            >
+              {expanded ? (
+                <>
+                  <ChevronUp className="h-3 w-3 mr-1" />
+                  Show less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-3 w-3 mr-1" />
+                  Show more
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

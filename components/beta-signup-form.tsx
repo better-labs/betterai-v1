@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -90,57 +91,87 @@ export function BetaSignupForm({ variant = "default", className = "" }: BetaSign
   
   return (
     <div className={`max-w-md mx-auto ${className}`}>
-      {!isSubmitted && !errorMessage ? (
-        <form onSubmit={handleBetaSignup} className="space-y-4">
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="email"
-              placeholder="Enter your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10"
-              required
-            />
-          </div>
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={isSubmitting}
-            size={isCompact ? "sm" : "default"}
+      <AnimatePresence mode="wait">
+        {!isSubmitted && !errorMessage ? (
+          <motion.form 
+            key="form"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            onSubmit={handleBetaSignup} 
+            className="space-y-4"
           >
-            {isSubmitting ? "Signing up..." : "Join Waitlist"}
-          </Button>
-        </form>
-      ) : isSubmitted ? (
-        <div className="text-center p-6 bg-card border border-border rounded-lg">
-          <Mail className="h-8 w-8 text-primary mx-auto mb-2" />
-          <h3 className="text-lg font-semibold text-foreground mb-1">Thanks! We'll be in touch!</h3>
-          <p className="text-muted-foreground">
-            You've been added to our beta waitlist. We'll notify you when it's ready!
-          </p>
-          <button
-            onClick={handleReset}
-            className="mt-4 text-sm text-muted-foreground hover:text-foreground underline bg-transparent border-none cursor-pointer"
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10"
+                required
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting}
+              size={isCompact ? "sm" : "default"}
+            >
+              {isSubmitting ? "Signing up..." : "Join Waitlist"}
+            </Button>
+          </motion.form>
+        ) : isSubmitted ? (
+          <motion.div 
+            key="success"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="text-center p-6 bg-card border border-border rounded-lg"
           >
-            ← Back
-          </button>
-        </div>
-      ) : (
-        <div className="text-center p-6 bg-card border border-destructive/20 rounded-lg">
-          <Mail className="h-8 w-8 text-destructive mx-auto mb-2" />
-          <h3 className="text-lg font-semibold text-foreground mb-1">Oops! Something went wrong</h3>
-          <p className="text-destructive mb-4">
-            {errorMessage}
-          </p>
-          <button
-            onClick={handleReset}
-            className="text-sm text-muted-foreground hover:text-foreground underline bg-transparent border-none cursor-pointer"
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+            >
+              <Mail className="h-8 w-8 text-primary mx-auto mb-2" />
+            </motion.div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Thanks! We'll be in touch!</h3>
+            <p className="text-muted-foreground">
+              You've been added to our beta waitlist. We'll notify you when it's ready!
+            </p>
+            <button
+              onClick={handleReset}
+              className="mt-4 text-sm text-muted-foreground hover:text-foreground underline bg-transparent border-none cursor-pointer transition-colors duration-200"
+            >
+              ← Back
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="error"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="text-center p-6 bg-card border border-destructive/20 rounded-lg"
           >
-            ← Back
-          </button>
-        </div>
-      )}
+            <Mail className="h-8 w-8 text-destructive mx-auto mb-2" />
+            <h3 className="text-lg font-semibold text-foreground mb-1">Oops! Something went wrong</h3>
+            <p className="text-destructive mb-4">
+              {errorMessage}
+            </p>
+            <button
+              onClick={handleReset}
+              className="text-sm text-muted-foreground hover:text-foreground underline bg-transparent border-none cursor-pointer transition-colors duration-200"
+            >
+              ← Back
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
