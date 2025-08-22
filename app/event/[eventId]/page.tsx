@@ -8,6 +8,7 @@ import { TrendingUp, BarChart2, ArrowRight, Calendar, ArrowLeft, DollarSign, Tag
 import Link from 'next/link'
 import type { Market } from '@/lib/types'
 import { formatVolume } from '@/lib/utils'
+import { serializeDecimals } from '@/lib/serialization'
 
 interface EventDetailPageProps {
   params: Promise<{
@@ -27,6 +28,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   // Fetch markets for the event
   const markets = await marketQueries.getMarketsByEventId(eventId)
 
+  // Serialize all data to handle Decimal objects
+  const serializedEvent = serializeDecimals(event)
+  const serializedMarkets = serializeDecimals(markets)
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -43,24 +48,24 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         {/* Event Header */}
         <div className="mb-8">
           <div className="flex items-start gap-4 mb-6">
-            <EventIcon 
-              icon={event.icon} 
-              title={event.title} 
-              size="lg" 
+            <EventIcon
+              icon={serializedEvent.icon}
+              title={serializedEvent.title}
+              size="lg"
               className="flex-shrink-0"
             />
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-foreground mb-2">
-                {event.title}
+                {serializedEvent.title}
               </h1>
-              {event.description && (
+              {serializedEvent.description && (
                 <p className="text-muted-foreground mb-4">
-                  {event.description}
+                  {serializedEvent.description}
                 </p>
               )}
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="font-mono text-xs">
-                  ID: {event.id}
+                  ID: {serializedEvent.id}
                 </Badge>
                 
               </div>
@@ -73,23 +78,23 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm text-muted-foreground">Total Volume</p>
-                <p className="font-semibold">{formatVolume(Number(event.volume) || 0)}</p>
+                <p className="font-semibold">{formatVolume(Number(serializedEvent.volume) || 0)}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-lg">
               <BarChart2 className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm text-muted-foreground">Markets</p>
-                <p className="font-semibold">{markets.length}</p>
+                <p className="font-semibold">{serializedMarkets.length}</p>
               </div>
             </div>
-            {event.endDate && (
+            {serializedEvent.endDate && (
               <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-lg">
                 <Calendar className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">End Date</p>
                   <p className="font-semibold">
-                    {new Date(event.endDate).toLocaleDateString()}
+                    {new Date(serializedEvent.endDate).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -112,24 +117,24 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             <div>
               <h4 className="font-medium mb-2">Event ID</h4>
               <p className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
-                {event.id}
+                {serializedEvent.id}
               </p>
             </div>
-            
-            {event.slug && (
+
+            {serializedEvent.slug && (
               <div>
                 <h4 className="font-medium mb-2">Slug</h4>
                 <p className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
-                  {event.slug}
+                  {serializedEvent.slug}
                 </p>
               </div>
             )}
 
-            {event.tags && Array.isArray(event.tags) && event.tags.length > 0 ? (
+            {serializedEvent.tags && Array.isArray(serializedEvent.tags) && serializedEvent.tags.length > 0 ? (
               <div>
                 <h4 className="font-medium mb-2">Tags</h4>
                 <div className="flex flex-wrap gap-1">
-                  {event.tags.map((tag: unknown, index: number) => {
+                  {serializedEvent.tags.map((tag: unknown, index: number) => {
                     let tagText = 'Unknown'
                     if (typeof tag === 'string') {
                       tagText = tag
@@ -150,7 +155,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             <div>
               <h4 className="font-medium mb-2">Last Updated</h4>
               <p className="text-sm text-muted-foreground">
-                {event.updatedAt ? new Date(event.updatedAt).toLocaleString() : 'Unknown'}
+                {serializedEvent.updatedAt ? new Date(serializedEvent.updatedAt).toLocaleString() : 'Unknown'}
               </p>
             </div>
           </CardContent>
@@ -161,16 +166,16 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart2 className="h-5 w-5" />
-              Markets ({markets.length})
+              Markets ({serializedMarkets.length})
             </CardTitle>
             <CardDescription>
               All markets associated with this event
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {markets.length > 0 ? (
+            {serializedMarkets.length > 0 ? (
               <div className="space-y-4">
-                {markets.map((market) => (
+                {serializedMarkets.map((market) => (
                   <div key={market.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-medium">{market.question}</h3>
@@ -226,7 +231,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               Back to Events
             </Link>
           </Button>
-          {markets.length > 0 && (
+          {serializedMarkets.length > 0 && (
             <Button variant="outline" asChild>
               <Link href="/">
                 View All Markets

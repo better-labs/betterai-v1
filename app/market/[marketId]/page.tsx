@@ -10,7 +10,7 @@ import MarketDetailsCard from '@/components/market-details-card'
 import { MarketEventHeader } from '@/components/market-event-header'
 import { PredictionReasoningCard } from '@/components/prediction-reasoning-card'
 import { PredictionHistoryList } from '@/components/prediction-history-list'
-import { serializePredictionData } from '@/lib/serialization'
+import { serializePredictionData, serializeDecimals } from '@/lib/serialization'
 
 interface MarketDetailPageProps {
   params: Promise<{
@@ -35,7 +35,14 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
     predictionQueries.getMostRecentPredictionByMarketId(marketId),
     predictionQueries.getPredictionsByMarketId(marketId)
   ])
-  const predictionResult = prediction?.predictionResult as PredictionResult | null
+
+  // Serialize all data to handle Decimal objects
+  const serializedMarket = serializeDecimals(market)
+  const serializedEvent = event ? serializeDecimals(event) : null
+  const serializedPrediction = prediction ? serializeDecimals(prediction) : null
+  const serializedAllPredictions = serializeDecimals(allPredictions)
+
+  const predictionResult = serializedPrediction?.predictionResult as PredictionResult | null
   const externalMarketUrl = await generateMarketURL(marketId)
 
   return (
@@ -46,22 +53,22 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
         <MarketEventHeader
           className="mb-6"
           size="lg"
-          eventId={event?.id ?? null}
-          eventTitle={event?.title ?? null}
-          eventImage={event?.image ?? null}
-          eventIcon={event?.icon ?? null}
-          marketId={market.id}
-          marketQuestion={market.question}
+          eventId={serializedEvent?.id ?? null}
+          eventTitle={serializedEvent?.title ?? null}
+          eventImage={serializedEvent?.image ?? null}
+          eventIcon={serializedEvent?.icon ?? null}
+          marketId={serializedMarket.id}
+          marketQuestion={serializedMarket.question}
         />
 
         {/* Prediction Section */}
         <div className="space-y-6">
           {/* Market Details Card */}
           <MarketDetailsCard
-            market={market}
-            event={event}
+            market={serializedMarket}
+            event={serializedEvent}
             externalMarketUrl={externalMarketUrl}
-            latestPrediction={prediction}
+            latestPrediction={serializedPrediction}
           />
 
           {/* Most Recent Prediction */}
@@ -119,10 +126,10 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
 
 
 
-                  {prediction && (
+                  {serializedPrediction && (
                     <div className="pt-4 border-t">
                       <p className="text-xs text-muted-foreground">
-                        Prediction made on {new Date(prediction.createdAt as Date).toLocaleString()}
+                        Prediction made on {new Date(serializedPrediction.createdAt as Date).toLocaleString()}
                       </p>
                     </div>
                   )}
@@ -143,9 +150,9 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           </Card>
 
           {/* Past Predictions */}
-          {allPredictions.length > 1 && (
+          {serializedAllPredictions.length > 1 && (
             <PredictionHistoryList
-              predictions={serializePredictionData(allPredictions)}
+              predictions={serializePredictionData(serializedAllPredictions)}
               marketId={marketId}
               showChecks={false}
               showPredictions={true}
@@ -157,7 +164,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
        
 
         {/* Market Description */}
-        {market.description && (
+        {serializedMarket.description && (
           <Card className="mt-8">
             <CardHeader>
               <CardTitle>Market Description</CardTitle>
@@ -167,21 +174,21 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               <div className="flex items-center gap-6 mb-4">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Volume {formatVolume(Number(market.volume) || 0)}</span>
+                  <span className="text-xs text-muted-foreground">Volume {formatVolume(Number(serializedMarket.volume) || 0)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <BarChart2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Liquidity {formatVolume(Number(market.liquidity) || 0)}</span>
+                  <span className="text-xs text-muted-foreground">Liquidity {formatVolume(Number(serializedMarket.liquidity) || 0)}</span>
                 </div>
-                {market.endDate && (
+                {serializedMarket.endDate && (
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Market Close Date {new Date(market.endDate).toLocaleDateString()}</span>
+                    <span className="text-xs text-muted-foreground">Market Close Date {new Date(serializedMarket.endDate).toLocaleDateString()}</span>
                   </div>
                 )}
               </div>
               <p className="text-muted-foreground">
-                {market.description}
+                {serializedMarket.description}
               </p>
             </CardContent>
           </Card>
@@ -194,7 +201,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               Back to Markets
             </Link>
           </Button>
-          {prediction && (
+          {serializedPrediction && (
             <Button variant="outline" asChild>
               <Link href={`/market/${marketId}/predictions`}>
                 View All Predictions

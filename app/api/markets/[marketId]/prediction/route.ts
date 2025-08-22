@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { predictionQueries } from "@/lib/db/queries"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
+import { serializeDecimals } from "@/lib/serialization"
 
 export async function GET(
   request: NextRequest,
@@ -22,10 +23,13 @@ export async function GET(
       return NextResponse.json({ prediction: null }, { status: 200 })
     }
 
-    return NextResponse.json({ 
-      prediction: prediction.predictionResult,
-      createdAt: prediction.createdAt,
-      modelName: prediction.modelName,
+    // Serialize the prediction to handle Decimal objects
+    const serializedPrediction = serializeDecimals(prediction)
+
+    return NextResponse.json({
+      prediction: serializedPrediction.predictionResult,
+      createdAt: serializedPrediction.createdAt,
+      modelName: serializedPrediction.modelName,
       authenticatedUser: userId
     })
   } catch (error) {
