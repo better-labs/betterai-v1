@@ -3,7 +3,15 @@
  * Handles Prisma Decimals, Dates, and other non-serializable objects
  */
 
-import { Decimal } from '@prisma/client/runtime/library'
+// Check if an object is a Prisma Decimal by looking at its constructor and methods
+function isPrismaDecimal(obj: any): boolean {
+  return obj != null && 
+         typeof obj === 'object' && 
+         obj.constructor && 
+         obj.constructor.name === 'Decimal' && 
+         typeof obj.toString === 'function' &&
+         typeof obj.toNumber === 'function'
+}
 
 /**
  * Convert Prisma Decimal objects to numbers recursively
@@ -12,8 +20,8 @@ import { Decimal } from '@prisma/client/runtime/library'
 export function serializeDecimals<T>(obj: T): T {
   if (obj === null || obj === undefined) return obj
 
-  // Handle Prisma Decimal objects
-  if (obj instanceof Decimal) {
+  // Handle Prisma Decimal objects (check without importing Decimal class)
+  if (isPrismaDecimal(obj)) {
     return Number(obj.toString()) as T
   }
 

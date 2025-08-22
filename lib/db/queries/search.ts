@@ -2,6 +2,8 @@ import type { Market, Event, Tag, Prediction } from '../../../lib/generated/pris
 import { marketQueries } from './market'
 import { eventQueries } from './event'
 import { tagQueries } from './tag'
+import { serializeDecimals } from '../../serialization'
+import type { MarketDTO, EventDTO, PredictionDTO } from '../../types'
 
 // Unified search functionality
 export const searchQueries = {
@@ -60,6 +62,29 @@ export const searchQueries = {
       totalResults,
       suggestions: totalResults === 0 ? await generateSearchSuggestions(searchTerm) : undefined
     }
+  },
+
+  /**
+   * Unified search across all entity types - Serialized version
+   */
+  searchAllSerialized: async (
+    searchTerm: string,
+    options?: {
+      includeMarkets?: boolean
+      includeEvents?: boolean  
+      includeTags?: boolean
+      limit?: number
+      marketOptions?: Parameters<typeof marketQueries.searchMarkets>[1]
+    }
+  ): Promise<{
+    markets: Array<MarketDTO & { event: EventDTO | null, predictions: PredictionDTO[] }>
+    events: Array<EventDTO & { markets?: MarketDTO[] }>
+    tags: Array<Tag & { eventCount?: number }>
+    totalResults: number
+    suggestions?: string[]
+  }> => {
+    const result = await searchQueries.searchAll(searchTerm, options)
+    return serializeDecimals(result) as any
   }
 }
 

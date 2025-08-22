@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { predictionQueries } from "@/lib/db/queries"
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
+import { serializeDecimals } from "@/lib/serialization"
 
 export async function GET(
   request: NextRequest,
@@ -16,13 +17,14 @@ export async function GET(
       return NextResponse.json({ error: "Market ID is required" }, { status: 400 })
     }
 
-    const prediction = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
+    const prediction = await predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId)
 
     if (!prediction) {
       return NextResponse.json({ prediction: null }, { status: 200 })
     }
 
-    return NextResponse.json({ 
+    // Serialize the prediction to handle Decimal objects
+    return NextResponse.json({
       prediction: prediction.predictionResult,
       createdAt: prediction.createdAt,
       modelName: prediction.modelName,

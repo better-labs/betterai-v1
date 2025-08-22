@@ -3,11 +3,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Memory optimization for development
+  // Memory optimization and Prisma externalization for Next.js 15
   experimental: {
     // Reduce memory usage in development
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
+  // Externalize Prisma for server components (Next.js 15 best practice)
+  serverExternalPackages: ['@prisma/client'],
   // Optimize images
   images: {
     // Use Next.js image optimizer and allow S3/Polymarket hosts

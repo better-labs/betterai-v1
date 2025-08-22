@@ -8,7 +8,8 @@ import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/querie
 import { PredictionHistoryList } from "@/components/prediction-history-list"
 import { MarketEventHeader } from "@/components/market-event-header"
 import { PredictionUserMessageCard } from "@/components/prediction-user-message-card"
-import { serializePredictionData, serializePredictionChecks } from "@/lib/serialization"
+import { serializePredictionData, serializePredictionChecks, serializeDecimals } from "@/lib/serialization"
+import type { PredictionDTO } from "@/lib/types"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -18,23 +19,24 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const id = Number(predictionId)
   if (!Number.isFinite(id)) return notFound()
 
-  const prediction = await predictionQueries.getPredictionWithRelationsById(id)
+  const prediction = await predictionQueries.getPredictionWithRelationsByIdSerialized(id) as unknown as (PredictionDTO & { market: any | null }) | null
   if (!prediction) return notFound()
 
-  const market = prediction.market
+  const serializedPrediction = prediction
+  const market = serializedPrediction.market
   const event = market?.event || null
 
   const { aiProbability, reasoning, marketProbability } = getPredictionDisplayData(
-    prediction as any
+    serializedPrediction as any
   )
 
   // const eventExternalUrl = event?.id ? await generateEventURL(event.id) : null
   // const marketExternalUrl = market?.id ? await generateMarketURL(market.id) : null
 
   // Derive AI outcomes/probabilities and confidence from stored data
-  const aiOutcomes = (prediction as any).outcomes ?? null
-  const aiOutcomesProbabilities = (prediction as any).outcomesProbabilities ?? null
-  const predictionResult = (prediction as any).predictionResult as PredictionResult | null
+  const aiOutcomes = (serializedPrediction as any).outcomes ?? null
+  const aiOutcomesProbabilities = (serializedPrediction as any).outcomesProbabilities ?? null
+  const predictionResult = (serializedPrediction as any).predictionResult as PredictionResult | null
   const confidenceLevel = predictionResult?.confidence_level ?? null
 
   // Optional history: recent checks and past predictions for this market
@@ -56,7 +58,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         eventImage={event?.image ?? null}
         eventIcon={event?.icon ?? null}
         marketId={market?.id ?? null}
-        marketQuestion={market?.question ?? prediction.userMessage}
+        marketQuestion={market?.question ?? serializedPrediction.userMessage}
       />
 
       <div className="space-y-6">
@@ -66,15 +68,15 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           aiOutcomes={aiOutcomes}
           aiOutcomesProbabilities={aiOutcomesProbabilities}
           confidenceLevel={confidenceLevel}
-          modelName={prediction.modelName ?? null}
-          createdAt={prediction.createdAt as any}
+          modelName={serializedPrediction.modelName ?? null}
+          createdAt={serializedPrediction.createdAt}
         />
 
         <PredictionReasoningCard reasoning={reasoning} />
 
 
         {/* First: Prompt message */}
-        <PredictionUserMessageCard userMessage={prediction.userMessage} />
+        <PredictionUserMessageCard userMessage={serializedPrediction.userMessage} />
 
         {/* Then: Past predictions only */}
         <PredictionHistoryList

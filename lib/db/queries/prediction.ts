@@ -1,5 +1,7 @@
 import { prisma } from "../prisma"
 import type { Prediction, Market, Event } from '../../../lib/generated/prisma';
+import { serializeDecimals } from "@/lib/serialization"
+import type { PredictionDTO } from "@/lib/types"
 
 // Prediction queries
 export const predictionQueries = {
@@ -14,6 +16,73 @@ export const predictionQueries = {
         },
       },
     })
+  },
+  /** Serialized wrappers returning DTO-safe shapes */
+  getPredictionWithRelationsByIdSerialized: async (
+    id: number
+  ): Promise<(PredictionDTO & { market: (ReturnType<typeof serializeDecimals> & any) | null }) | null> => {
+    const row = await predictionQueries.getPredictionWithRelationsById(id)
+    if (!row) return null
+    const s = serializeDecimals(row) as any
+    return {
+      id: String(s.id),
+      userMessage: s.userMessage,
+      marketId: s.marketId,
+      predictionResult: s.predictionResult,
+      modelName: s.modelName ?? null,
+      systemPrompt: s.systemPrompt ?? null,
+      aiResponse: s.aiResponse ?? null,
+      createdAt: s.createdAt,
+      outcomes: s.outcomes ?? [],
+      outcomesProbabilities: s.outcomesProbabilities ?? [],
+      userId: s.userId ?? null,
+      experimentTag: s.experimentTag ?? null,
+      experimentNotes: s.experimentNotes ?? null,
+      market: s.market ?? null,
+    }
+  },
+  getPredictionsByMarketIdSerialized: async (
+    marketId: string
+  ): Promise<PredictionDTO[]> => {
+    const rows = await predictionQueries.getPredictionsByMarketId(marketId)
+    const s = serializeDecimals(rows) as any[]
+    return s.map((p) => ({
+      id: String(p.id),
+      userMessage: p.userMessage,
+      marketId: p.marketId,
+      predictionResult: p.predictionResult,
+      modelName: p.modelName ?? null,
+      systemPrompt: p.systemPrompt ?? null,
+      aiResponse: p.aiResponse ?? null,
+      createdAt: p.createdAt,
+      outcomes: p.outcomes ?? [],
+      outcomesProbabilities: p.outcomesProbabilities ?? [],
+      userId: p.userId ?? null,
+      experimentTag: p.experimentTag ?? null,
+      experimentNotes: p.experimentNotes ?? null,
+    }))
+  },
+  getMostRecentPredictionByMarketIdSerialized: async (
+    marketId: string
+  ): Promise<PredictionDTO | null> => {
+    const row = await predictionQueries.getMostRecentPredictionByMarketId(marketId)
+    if (!row) return null
+    const p = serializeDecimals(row) as any
+    return {
+      id: String(p.id),
+      userMessage: p.userMessage,
+      marketId: p.marketId,
+      predictionResult: p.predictionResult,
+      modelName: p.modelName ?? null,
+      systemPrompt: p.systemPrompt ?? null,
+      aiResponse: p.aiResponse ?? null,
+      createdAt: p.createdAt,
+      outcomes: p.outcomes ?? [],
+      outcomesProbabilities: p.outcomesProbabilities ?? [],
+      userId: p.userId ?? null,
+      experimentTag: p.experimentTag ?? null,
+      experimentNotes: p.experimentNotes ?? null,
+    }
   },
   getPredictionsByMarketId: async (marketId: string): Promise<Array<Prediction & { market: Market | null }>> => {
     return await prisma.prediction.findMany({

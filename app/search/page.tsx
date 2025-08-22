@@ -19,9 +19,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q, cursor, sort = 'trending', status = 'active' } = await searchParams
   const query = (q || "").trim()
   
-  // Use unified search for all entity types
+  // Use unified search for all entity types (serialized version)
   const results = query
-    ? await searchQueries.searchAll(query, {
+    ? await searchQueries.searchAllSerialized(query, {
         includeMarkets: true,
         includeEvents: true,
         includeTags: true,
