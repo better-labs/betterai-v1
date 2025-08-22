@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
+  jsonProtocol = "true"
 }
 
 // GitHub Actions Migration Test - This comment triggers workflow

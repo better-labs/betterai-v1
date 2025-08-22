@@ -8,6 +8,7 @@ import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/querie
 import { PredictionHistoryList } from "@/components/prediction-history-list"
 import { MarketEventHeader } from "@/components/market-event-header"
 import { PredictionUserMessageCard } from "@/components/prediction-user-message-card"
+import { serializePredictionData, serializePredictionChecks } from "@/lib/serialization"
 
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
@@ -78,19 +79,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         {/* Then: Past predictions only */}
         <PredictionHistoryList
           className="mt-2"
-          checks={checks?.map((c) => ({
-            createdAt: c.createdAt as any,
-            aiProbability: (c as any).aiProbability,
-            marketProbability: (c as any).marketProbability,
-            delta: (c as any).absDelta ?? (c as any).delta,
-            marketClosed: c.marketClosed ?? null,
-          }))}
-          predictions={pastPredictions?.map((p) => ({
-            id: p.id?.toString() ?? null,
-            createdAt: p.createdAt as any,
-            modelName: p.modelName ?? null,
-            outcomesProbabilities: (p as any).outcomesProbabilities ?? null,
-          }))}
+          checks={checks ? serializePredictionChecks(checks) : null}
+          predictions={pastPredictions ? serializePredictionData(pastPredictions) : null}
           marketId={marketId ?? null}
           showChecks={false}
           showPredictions={true}
