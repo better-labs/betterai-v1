@@ -1,0 +1,104 @@
+# tRPC + Zod Migration Plan for BetterAI
+
+## Phase 1: Analysis & Setup
+
+### 1. Current API Analysis
+- [ ] Audit existing API routes (`/api/*`)
+- [ ] Document current DTOs and serialization points
+- [ ] Identify breaking changes needed for client components
+
+### 2. Infrastructure Setup
+- [ ] Install dependencies: `@trpc/server`, `@trpc/client`, `@trpc/next`, `@trpc/react-query`, `zod`
+- [ ] Configure tRPC router in `app/api/trpc/[trpc]/route.ts`
+- [ ] Set up tRPC provider with React Query integration
+- [ ] Configure middleware for authentication and error handling
+
+## Phase 2: Schema Design
+
+### 3. Zod Schema Creation
+- [ ] Base schemas: User, Event, Market, Prediction models
+- [ ] Input/Output schemas: Separate schemas for API inputs vs outputs
+- [ ] Validation schemas: Request validation with proper error messages
+- [ ] Transform schemas: Handle Prisma Decimal → number conversions
+
+## Phase 3: Testing Foundation
+
+### 4. Pre-Migration Tests
+- [ ] API endpoint tests: Cover all existing `/api/*` routes
+- [ ] Integration tests: Key user flows (auth, predictions, markets)
+- [ ] Serialization tests: Ensure current DTOs work correctly
+- [ ] Performance baselines: Response times for comparison
+
+## Phase 4: Incremental Migration
+
+### 5. Authentication Layer
+- [ ] Auth procedures: Protected vs public tRPC procedures
+- [ ] User context: Integrate Privy authentication
+- [ ] Error handling: Consistent auth error responses
+
+### 6. Core Data Endpoints
+- [ ] Markets API: Search, filtering, single market queries
+- [ ] Events API: Event listings with market relationships  
+- [ ] Predictions API: CRUD operations with user context
+
+### 7. Specialized Endpoints
+- [ ] Cron jobs: Maintain webhook-style endpoints for Vercel Cron
+- [ ] File uploads: Handle any non-JSON endpoints
+- [ ] External webhooks: Keep REST endpoints where needed
+
+## Phase 5: Client Migration
+
+### 8. Frontend Updates
+- [ ] Replace API calls: Convert `fetch()` to tRPC client calls
+- [ ] Update components: Remove manual serialization calls
+- [ ] Type integration: Leverage auto-generated tRPC types
+- [ ] Error boundaries: Update error handling patterns
+
+## Phase 6: Validation & Cleanup
+
+### 9. Post-Migration Testing
+- [ ] Functionality tests: Verify all features work identically
+- [ ] Performance tests: Compare against baselines
+- [ ] Type safety tests: Ensure end-to-end type safety
+- [ ] Edge case tests: Error conditions and validation
+
+### 10. Cleanup & Documentation
+- [ ] Remove old code: DTOs, serialization utilities, old API routes
+- [ ] Update CLAUDE.md: New development patterns and guidelines
+- [ ] Code comments: Document tRPC patterns for future AI development
+
+## Key Implementation Details
+
+**File Structure:**
+```
+lib/
+├── trpc/
+│   ├── routers/
+│   │   ├── auth.ts
+│   │   ├── markets.ts
+│   │   ├── predictions.ts
+│   │   └── events.ts
+│   ├── schemas/
+│   │   ├── market.ts
+│   │   ├── prediction.ts
+│   │   └── user.ts
+│   ├── context.ts
+│   └── server.ts
+app/
+├── api/trpc/[trpc]/route.ts
+└── providers/trpc-provider.tsx
+```
+
+**Migration Strategy:**
+- **Parallel implementation**: Keep old endpoints during migration
+- **Feature flags**: Toggle between old/new implementations
+- **Gradual rollout**: Migrate one feature area at a time
+- **Rollback plan**: Maintain old code until fully validated
+
+**Testing Approach:**
+- **Contract tests**: Ensure tRPC matches old API behavior
+- **Property-based tests**: Generate test cases with Zod schemas
+- **Integration tests**: Full user workflows end-to-end
+- **Performance tests**: Monitor response times and bundle size
+
+This plan prioritizes the "simpler for AI agent" principle while ensuring zero functionality loss during migration.

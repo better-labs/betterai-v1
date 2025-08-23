@@ -1,45 +1,16 @@
 # Cursor AI Configuration for BetterAI Project
 
-## Project Overview
-This is a Next.js prediction market application built by a **solo founder** that integrates with Polymarket and Colosseum APIs. The app uses Prisma with PostgreSQL for data management.
-
-**Infrastructure:** The entire application runs on Vercel infrastructure, including hosting, serverless functions, and database connections. Please see RUNBOOK.md for more information.
 
 
 
-## High level guidance to Claude on coding and design
-**Solo Founder Context**: This project is built and maintained by a single developer. Prioritize:
-- **Simplicity over complexity** - Choose straightforward solutions that are easy to maintain
-- **Less code is better** - Choose solutions that involve less custom code where possible.
-- **Proven technologies** - Use well-established libraries and patterns
-- **Minimal dependencies** - Avoid over-engineering for a 1-person team
-- **Clear documentation** - Write code that's easy to understand and modify later
-- **Gradual scaling** - Start simple, optimize later when needed
 
 
 ## Code Style & Patterns
-- Use TypeScript with strict typing
-- Follow Next.js 14+ App Router patterns
-- Use Prisma for database operations
-- Prefer functional components with hooks
-- Use shadcn/ui components for UI consistency
-- Follow the existing file structure and naming conventions
-- **Keep it simple** - Avoid over-engineering for a solo founder project
 
-### UI/UX Patterns
-- **Collapsible Content with Gradient Fade**: For long text content that needs to be collapsed, use gradient fade effects to indicate there's more content below:
-  ```jsx
-  // Collapsed content with fade effect
-  <div className={cn(
-    "relative overflow-hidden",
-    !expanded && "max-h-[5rem]"
-  )}>
-    {content}
-    {!expanded && (
-      <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent" />
-    )}
-  </div>
-  ```
+
+
+
+
 - **Show More/Less Controls**: Use chevron icons (ChevronDown/ChevronUp) with descriptive text for expand/collapse actions
 - **Consistent Collapsed Heights**: Match collapsed heights to related UI sections (e.g., prediction summary height)
 

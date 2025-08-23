@@ -1,6 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -8,8 +7,11 @@ BetterAI is a Next.js 15 prediction market application built by a **solo founder
 
 **Core Value Proposition**: Everyone should be able to access world-class AI models with enriched data through a single click to enhance their prediction market decisions.
 
+**Infrastructure:** The entire application runs on Vercel infrastructure, including hosting, serverless functions, and database connections. Please see RUNBOOK.md for more information.
+
 
 ## High level guidance to Claude on coding and design
+**Simpler for AI Agent**: choose solutions that are simpler for the AI agent, less likely for it to make mistakes.
 **Solo Founder Context**: This project is built and maintained by a single developer. Prioritize:
 - **Simplicity over complexity** - Choose straightforward solutions that are easy to maintain
 - **Less code is better** - Choose solutions that involve less custom code where possible.
@@ -20,9 +22,12 @@ BetterAI is a Next.js 15 prediction market application built by a **solo founder
 - Prefer simpler solutions with minimal code and/or reducing code where possible.
 
 **Key Files for Context**:
-- Read `TODO.md` for current implementation tasks and project goals
-- Read `system-docs/DESIGN.md` for detailed product vision and user experience design
-- Read `system-docs/DATA-STRUCTURES.md` for understanding the data relationships
+- Read `README.md` for more context on the project.
+
+
+
+
+
 
 ## Architecture Overview
 
@@ -48,11 +53,6 @@ Key data relationships:
 
 ### AI Integration
 - **OpenRouter** API for multiple AI model access
-- **Multi-step prediction pipeline**:
-  1. Fetch market data from database
-  2. AI identifies valuable data sources for the market
-  3. Market research service gathers web data
-  4. Final AI synthesis with all context for prediction
 
 ## Development Commands
 
@@ -63,21 +63,18 @@ Key data relationships:
 See package.json for the most recent commands.
 
 ### Database Development Pattern
-- Use query functions from `lib/db/queries.ts` for all database operations
-- Add new queries to appropriate query object (e.g., `marketQueries`, `eventQueries`)
+- Prefer to use and write queries in `lib/db/queries/*..*` for all database operations.
 - Follow existing patterns: snake_case for DB columns, camelCase for TypeScript
 - Use transactions for multi-step operations
 - Store raw API responses in separate `_raw` tables with metadata
+- Never make direct Prisma calls in components or API routes
+- Use database indexes for common query patterns
 
-### Prisma & Serialization Best Practices
-- **Prisma JSON Protocol**: Uses `jsonProtocol = "true"` in `schema.prisma` to return plain JSON objects instead of Decimal instances
-- **Server-to-Client Serialization**: Use `serializeDecimals()` from `lib/serialization.ts` when passing Prisma data to Client Components
-- **API Routes**: Always serialize Prisma responses using `serializeDecimals()` before returning JSON
+
+### Prisma Best Practices
+
 - **Migration Pattern**: After schema changes, run `pnpm prisma generate` to regenerate the client with JSON protocol
-- **Common Issue**: "Only plain objects can be passed to Client Components" errors indicate missing serialization
-- **Centralized Pattern**: Use `*Serialized` query wrappers (e.g., `getMarketByIdSerialized`) instead of manual serialization calls
-- **Type Safety**: Define DTO interfaces in `lib/types.ts` with JSON-safe types (numbers, ISO date strings) for client components
-- **Build Safety**: Avoid importing from `@prisma/client/runtime/library` at build time - use runtime detection for Decimal objects
+
 
 
 ## Code Style & Patterns
@@ -89,7 +86,7 @@ Follow the project's `.cursorrules` for consistent development:
 - Functional components with hooks preferred
 - Follow Next.js 15 App Router patterns
 - Use shadcn/ui components for consistency
-- **Keep it simple** - Avoid over-engineering for a solo founder project
+
 
 ### UI/UX Patterns
 - **Collapsible Content with Gradient Fade**: For long text content that needs to be collapsed, use gradient fade effects to indicate there's more content below:
@@ -163,13 +160,7 @@ Follow these consistent spacing patterns for professional, polished layouts:
 - Validate all inputs and implement proper authentication
 - **Start simple** - Use basic patterns that are easy to debug and maintain
 
-### Database Guidelines
-- Always use Prisma queries from `lib/db/queries.ts`
-- Never make direct Prisma calls in components or API routes
-- Use database indexes for common query patterns
-- Clean up old raw data periodically
-- Store raw API responses with metadata (marketId, eventId, apiEndpoint, responseStatus, fetchedAt)
-- **Prefer simple queries** - Complex joins can be hard to debug for a solo developer
+
 
 ### Database Migrations
 - Use `pnpm run db:migrate:dev` for development migrations
