@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { decimalToNumberSchema, decimalArraySchema, paginatedResponseSchema, apiResponseSchema } from './common'
 
 // Input schemas
 export const marketSearchSchema = z.object({
@@ -45,14 +46,14 @@ export const marketDeleteSchema = z.object({
   id: z.string().min(1),
 })
 
-// Output schemas  
+// Output schemas with Decimal transformation
 export const marketSchema = z.object({
   id: z.string(),
   question: z.string(),
   eventId: z.string(),
-  outcomePrices: z.array(z.number()),
-  volume: z.number().nullable(),
-  liquidity: z.number().nullable(),
+  outcomePrices: decimalArraySchema,
+  volume: decimalToNumberSchema.nullable(),
+  liquidity: decimalToNumberSchema.nullable(),
   description: z.string().nullable(),
   active: z.boolean().nullable(),
   closed: z.boolean().nullable(),
@@ -66,13 +67,20 @@ export const marketSchema = z.object({
   image: z.string().nullable(),
 })
 
-export const marketListResponseSchema = z.object({
+// Response schemas using common patterns
+export const marketListResponseSchema = paginatedResponseSchema(z.array(marketSchema))
+
+export const marketCreateResponseSchema = apiResponseSchema(marketSchema)
+
+export const marketUpdateResponseSchema = apiResponseSchema(marketSchema)
+
+export const marketDeleteResponseSchema = z.object({
   success: z.boolean(),
-  data: z.object({
-    markets: z.array(marketSchema),
-    totalCount: z.number(),
-    page: z.number(),
-    totalPages: z.number(),
-  }),
+  message: z.string(),
+})
+
+export const marketTrendingResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.array(marketSchema),
   message: z.string().optional(),
 })
