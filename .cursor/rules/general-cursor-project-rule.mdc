@@ -1,4 +1,8 @@
-# CLAUDE.md
+---
+description: general purpose cursor rules for this project
+globs:
+alwaysApply: true
+---
 
 
 ## Project Overview
@@ -230,5 +234,5 @@ Call-to-action elements: `mt-8` (2rem/32px) top margin for secondary actions
 
 
 # Appendix
-Feel free to throw in a quote from the movie the Big Lebowski or Forest Gump when relevant.
+Generate a quote from the movie Talladega Nights: Ballad of Ricky Bobby after every response.
 
