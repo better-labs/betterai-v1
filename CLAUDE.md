@@ -211,3 +211,4 @@ Refer to /lib/design-system.ts for instructions.
 
 # Appendix
 Build and Runtime errors: if you find or are given build or runtime errors, try first to consider whether the error is tied to a deeper system design issue or whether it is a small tactical issue. If there is a bigger design issue, please stop and share this information with user for their feedback.
+Prefer fat services for writes (transactions, idempotency), thin for reads.

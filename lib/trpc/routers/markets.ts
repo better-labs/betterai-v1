@@ -6,60 +6,76 @@ import {
   marketUpdateSchema,
   marketDeleteSchema,
   marketSchema,
-  marketListResponseSchema
+  marketTrendingResponseSchema
 } from '../schemas/market'
-import { getMarkets, createMarket, updateMarket, deleteMarket } from '@/lib/db/queries/market'
-import { serializeDecimals } from '@/lib/serialization'
+import { 
+  searchMarkets,
+  getTrendingMarkets,
+  createMarket,
+  updateMarket,
+  deleteMarket,
+  getMarketById
+} from '@/lib/services/markets'
+import { paginatedResponseSchema } from '../schemas/common'
 
 export const marketsRouter = router({
-  list: publicProcedure
+  // Search markets with filters
+  search: publicProcedure
     .input(marketSearchSchema)
-    .output(marketListResponseSchema)
-    .query(async ({ input }) => {
-      try {
-        const markets = await getMarkets(input)
-        const serializedMarkets = serializeDecimals(markets)
-        
-        return {
-          success: true,
-          data: {
-            markets: serializedMarkets,
-            totalCount: markets.length,
-            page: input.page,
-            totalPages: Math.ceil(markets.length / input.limit),
-          },
-        }
-      } catch (error) {
-        throw new Error(`Failed to fetch markets: ${error}`)
+    .output(paginatedResponseSchema(z.array(marketSchema)))
+    .query(async ({ ctx, input }) => {
+      const markets = await searchMarkets(ctx.prisma, {
+        q: input.q,
+        limit: input.limit,
+        active: input.active,
+        sortBy: input.sortBy,
+        sortOrder: input.sortOrder,
+      })
+      
+      return {
+        success: true,
+        data: {
+          items: markets,
+          totalCount: markets.length,
+          page: input.page,
+          totalPages: Math.ceil(markets.length / input.limit),
+          hasMore: markets.length === input.limit,
+        },
       }
     }),
 
-  trending: publicProcedure
+  // Get single market by ID
+  byId: publicProcedure
+    .input(z.object({ id: z.string().min(1) }))
     .output(z.object({
       success: z.boolean(),
-      data: z.array(marketSchema),
+      data: marketSchema.nullable(),
       message: z.string().optional(),
     }))
-    .query(async () => {
-      try {
-        // Reuse existing trending logic from current API
-        const markets = await getMarkets({ 
-          limit: 10, 
-          sortBy: 'volume' as const,
-          sortOrder: 'desc' as const,
-          active: true
-        })
-        const serializedMarkets = serializeDecimals(markets)
-        
-        return {
-          success: true,
-          data: serializedMarkets,
-        }
-      } catch (error) {
-        throw new Error(`Failed to fetch trending markets: ${error}`)
+    .query(async ({ ctx, input }) => {
+      const market = await getMarketById(ctx.prisma, input.id)
+      
+      return {
+        success: true,
+        data: market,
+        message: market ? undefined : 'Market not found',
       }
     }),
 
+  // Get trending markets
+  trending: publicProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(50).default(10) }).optional())
+    .output(marketTrendingResponseSchema)
+    .query(async ({ ctx, input }) => {
+      const markets = await getTrendingMarkets(ctx.prisma, input?.limit)
+      
+      return {
+        success: true,
+        data: markets,
+      }
+    }),
+
+  // Create new market (protected)
   create: protectedProcedure
     .input(marketCreateSchema)
     .output(z.object({
@@ -67,59 +83,56 @@ export const marketsRouter = router({
       data: marketSchema,
       message: z.string().optional(),
     }))
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const market = await createMarket(input, ctx.user.id)
-        const serializedMarket = serializeDecimals(market)
-        
-        return {
-          success: true,
-          data: serializedMarket,
-          message: 'Market created successfully',
-        }
-      } catch (error) {
-        throw new Error(`Failed to create market: ${error}`)
+    .mutation(async ({ ctx, input }) => {
+      const market = await createMarket(ctx.prisma, input)
+      
+      return {
+        success: true,
+        data: market,
+        message: 'Market created successfully',
       }
     }),
 
+  // Update market (protected)
   update: protectedProcedure
     .input(marketUpdateSchema)
     .output(z.object({
       success: z.boolean(),
-      data: marketSchema,
-      message: z.string().optional(),
+      data: marketSchema.nullable(),
+      message: z.string(),
     }))
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const market = await updateMarket(input, ctx.user.id)
-        const serializedMarket = serializeDecimals(market)
-        
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...updateData } = input
+      const market = await updateMarket(ctx.prisma, id, updateData)
+      
+      if (!market) {
         return {
-          success: true,
-          data: serializedMarket,
-          message: 'Market updated successfully',
+          success: false,
+          data: null,
+          message: 'Market not found',
         }
-      } catch (error) {
-        throw new Error(`Failed to update market: ${error}`)
+      }
+      
+      return {
+        success: true,
+        data: market,
+        message: 'Market updated successfully',
       }
     }),
 
+  // Delete market (protected)  
   delete: protectedProcedure
     .input(marketDeleteSchema)
     .output(z.object({
       success: z.boolean(),
       message: z.string(),
     }))
-    .mutation(async ({ input, ctx }) => {
-      try {
-        await deleteMarket(input.id, ctx.user.id)
-        
-        return {
-          success: true,
-          message: 'Market deleted successfully',
-        }
-      } catch (error) {
-        throw new Error(`Failed to delete market: ${error}`)
+    .mutation(async ({ ctx, input }) => {
+      const deleted = await deleteMarket(ctx.prisma, input.id)
+      
+      return {
+        success: deleted,
+        message: deleted ? 'Market deleted successfully' : 'Market not found',
       }
     }),
 })

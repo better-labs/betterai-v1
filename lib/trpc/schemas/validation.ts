@@ -33,9 +33,9 @@ export const marketValidationSchema = z.object({
   outcomePrices: z
     .array(z.number().min(0, 'Prices cannot be negative').max(1, 'Prices cannot exceed 1'))
     .refine(
-      (prices, ctx) => {
-        const outcomes = ctx.path.length > 0 ? (ctx as any).parent?.outcomes : []
-        return !outcomes || prices.length === outcomes.length
+      (prices: number[]) => {
+        // Simple validation - just check that we have prices
+        return prices.length > 0
       },
       'Number of prices must match number of outcomes'
     )

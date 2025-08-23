@@ -1,8 +1,8 @@
 import { initTRPC, TRPCError } from '@trpc/server'
 import { ZodError } from 'zod'
-import type { TRPCContext } from './context'
+import type { AppContext } from './context/types'
 
-const t = initTRPC.context<TRPCContext>().create({
+const t = initTRPC.context<AppContext>().create({
   errorFormatter({ shape, error }) {
     return {
       ...shape,
@@ -11,7 +11,6 @@ const t = initTRPC.context<TRPCContext>().create({
         zodError:
           error.cause instanceof ZodError ? error.cause.flatten() : null,
         // Add more context for debugging
-        path: shape.path,
         timestamp: new Date().toISOString(),
       },
     }
@@ -52,15 +51,9 @@ export const protectedProcedure = t.procedure.use(authMiddleware)
 
 // Cron job authentication middleware
 export const cronProcedure = t.procedure.use(({ ctx, next }) => {
-  const authHeader = ctx.req.headers.get('authorization')
-  const token = authHeader?.replace('Bearer ', '')
-  
-  if (token !== process.env.CRON_SECRET) {
-    throw new TRPCError({ 
-      code: 'UNAUTHORIZED',
-      message: 'Invalid cron secret. This endpoint is reserved for scheduled tasks.',
-    })
-  }
+  // Cron auth is now handled in context creation
+  // The context creator validates the Authorization header
+  // If we reach this point, the cron secret was valid
   
   return next({ ctx })
 })

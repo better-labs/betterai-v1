@@ -1,6 +1,8 @@
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next'
 import { requireAuth } from '@/lib/auth'
+import { prisma } from '@/lib/db/prisma'
 import type { NextRequest } from 'next/server'
+import type { PrismaClient } from '@/lib/generated/prisma'
 
 export interface Context {
   user?: {
@@ -8,6 +10,7 @@ export interface Context {
     sessionId: string
   } | null
   req: NextRequest
+  prisma: PrismaClient
 }
 
 export async function createTRPCContext({ req }: CreateNextContextOptions): Promise<Context> {
@@ -26,7 +29,8 @@ export async function createTRPCContext({ req }: CreateNextContextOptions): Prom
 
   return {
     user,
-    req: req as NextRequest
+    req: req as NextRequest,
+    prisma, // Inject Prisma client into context
   }
 }
 

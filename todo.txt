@@ -35,12 +35,17 @@ Analysis written to: PHASE3_TESTING_BASELINE.md
 
 ## Phase 4: Incremental Migration
 
-### 5. Authentication Layer
-- [ ] Auth procedures: Protected vs public tRPC procedures
-- [ ] User context: Integrate Privy authentication
-- [ ] Error handling: Consistent auth error responses
+### 5. Authentication Layer - ARCHITECTURAL REDESIGN REQUIRED
+- [x] Auth procedures: Protected vs public tRPC procedures
+- [x] Database service layer: Clean named exports with dependency injection
+- [x] Transport-agnostic Privy auth: Core functions decouple from Next.js req/res
+- [x] Fetch context creator: For tRPC API routes (/api/trpc)
+- [ ] RSC context creator: For Server Components
+- [ ] Update tRPC handler: Use fetch context instead of Next.js context
+- [ ] Server caller: Direct tRPC access in RSC (no HTTP hop)
+- [ ] Test auth flow: Verify protected procedures work
 
-### 6. Core Data Endpoints
+### 6. Core Data Endpoints (Ready after Auth Resolution)
 - [ ] Markets API: Search, filtering, single market queries
 - [ ] Events API: Event listings with market relationships  
 - [ ] Predictions API: CRUD operations with user context
@@ -49,6 +54,18 @@ Analysis written to: PHASE3_TESTING_BASELINE.md
 - [ ] Cron jobs: Maintain webhook-style endpoints for Vercel Cron
 - [ ] File uploads: Handle any non-JSON endpoints
 - [ ] External webhooks: Keep REST endpoints where needed
+
+## ARCHITECTURAL DECISION: Transport-Agnostic Authentication
+
+**Problem Identified**: Fundamental incompatibility between Pages Router Privy auth and App Router tRPC fetch adapter.
+
+**Solution Chosen**: Option A - Full modernization with transport-agnostic authentication
+
+**Key Changes Made**:
+- Database queries refactored to clean service layer with dependency injection
+- Privy auth decoupled from Next.js req/res objects  
+- Dual context system: fetch context (API routes) + RSC context (Server Components)
+- Core auth functions work with raw cookie/header strings
 
 ## Phase 5: Client Migration
 
@@ -106,3 +123,91 @@ app/
 - **Performance tests**: Monitor response times and bundle size
 
 This plan prioritizes the "simpler for AI agent" principle while ensuring zero functionality loss during migration.
+
+## Major Lessons Learned
+
+### 1. Authentication Architecture Mismatch
+**Discovery**: Pages Router auth patterns (CreateNextContextOptions) are fundamentally incompatible with App Router tRPC patterns (FetchCreateContextFnOptions).
+
+**Impact**: Cannot simply "port" existing auth to tRPC - requires full architectural modernization.
+
+**Lesson**: When migrating between framework generations, authentication systems often need complete redesign, not just adaptation.
+
+### 2. Database Query Pattern Evolution  
+**Discovery**: Object-based query exports (`marketQueries.functionName`) don't align well with tRPC's preference for named function imports.
+
+**Solution**: Refactored to clean service layer with dependency injection - services accept `PrismaClient | TransactionClient`.
+
+**Lesson**: Modern tRPC projects prefer thin routers calling pure service functions over object-based query namespaces.
+
+### 3. Build Errors Reveal System Design Issues
+**Pattern**: Persistent build errors often indicate deeper architectural misalignments, not just import/type fixes.
+
+**Application**: The `CreateNextContextOptions` vs `FetchCreateContextFnOptions` error revealed the entire auth system needed modernization.
+
+**Lesson**: When build errors persist through multiple fix attempts, step back and analyze for fundamental architectural incompatibilities.
+
+### 4. Progressive Enhancement Strategy
+**Approach**: Keep working systems in place while building new architecture alongside.
+
+**Benefits**: 
+- Service layer refactor reusable regardless of tRPC adoption
+- Testing baselines established before breaking changes
+- Clear rollback path if needed
+
+**Lesson**: For major architectural changes, build the new system alongside the old rather than trying to transform in-place.
+
+### 5. Transport-Agnostic Design Principles
+**Discovery**: Modern full-stack requires auth systems that work across multiple contexts (API routes, Server Components, Client Components).
+
+**Implementation**: Core auth functions accept raw strings (cookies, headers) rather than framework-specific request objects.
+
+**Lesson**: Design for multiple transport layers from the start - Web API Request, Next.js headers(), React Query, etc.
+
+
+
+
+# Lessons Learned - Wes
+
+## Core Principles
+- **Thin Routers, Fat Services (when needed)**  
+  - Routers: input validation (Zod), auth, delegate.  
+  - Services: domain rules, transactions, idempotency, DTO mapping.  
+- **DTOs + Zod Outputs**  
+  - Never expose raw Prisma models.  
+  - Use DTOs for stable, serializable contracts.  
+
+## Data Strategy
+- **Reads → RSC** (React Server Components)  
+  - Direct DB/tRPC server caller, cached with `revalidateTag`/`cache()`.  
+- **Writes → tRPC Mutations**  
+  - Client components call `api.*.useMutation()`.  
+  - Ensures validation + auth.  
+- **SSR is expensive**  
+  - Use only when data must be fresh on every request.  
+
+## Auth & Context
+- Use **fetch adapter** (`fetchRequestHandler`) with dual context creators:  
+  - **Fetch context** for `/api/trpc`.  
+  - **RSC context** for server components.  
+- Privy auth must be **transport-agnostic** (headers/cookies only).
+
+## Database Layer
+- **Named service functions**, not one giant `marketQueries` object.  
+- Services accept `PrismaClient | TransactionClient`.  
+- Reads: thin services.  
+- Writes: fat services with idempotency + side-effects.
+
+## Safety & Ops
+- **Zod everywhere**: input + output validation.  
+- **Idempotency keys** for user actions.  
+- **Observability**: logs, tracing, metrics.  
+- **Rate limiting + feature flags + kill switch** baked in.
+
+---
+
+**Golden Rule:**  
+_Reads via RSC, writes via tRPC, keep SSR intentional.  
+Routers are thin, services own domain logic, DTOs define the contract._
+
+# Lessons Learned - Claude

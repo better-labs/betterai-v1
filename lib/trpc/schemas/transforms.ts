@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Decimal } from '@prisma/client/runtime/library'
+import { Decimal } from '@/lib/generated/prisma/runtime/library'
 
 /**
  * Transform schemas to handle Prisma-specific data types and conversions

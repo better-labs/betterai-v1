@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { router, publicProcedure, protectedProcedure } from '../server'
 import { userSchema, userProfileResponseSchema } from '../schemas/user'
-import { userQueries } from '@/lib/db/queries/user'
+import { getUserCredits, getUserById } from '@/lib/services/users'
 
 export const authRouter = router({
   // Public endpoint - check auth status without requiring authentication
@@ -20,7 +20,7 @@ export const authRouter = router({
 
       try {
         // Fetch user details from database
-        const userCredits = await userQueries.getUserCredits(ctx.user.id)
+        const userCredits = await getUserCredits(ctx.prisma, ctx.user.id)
         
         if (!userCredits) {
           return {
@@ -59,7 +59,7 @@ export const authRouter = router({
     .output(userProfileResponseSchema)
     .query(async ({ ctx }) => {
       try {
-        const userCredits = await userQueries.getUserCredits(ctx.user.id)
+        const userCredits = await getUserCredits(ctx.prisma, ctx.user.id)
         
         if (!userCredits) {
           return {

@@ -8,7 +8,7 @@ import {
   userProfileResponseSchema
 } from '../schemas/user'
 import { creditManager } from '@/lib/services/credit-manager'
-import { userQueries } from '@/lib/db/queries/user'
+import { getUserCredits, updateUserCredits, resetUserDailyCredits, getUserById, updateUserProfile } from '@/lib/services/users'
 
 export const usersRouter = router({
   // Get user credits
