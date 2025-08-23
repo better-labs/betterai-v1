@@ -479,4 +479,27 @@ export const predictionQueries = {
       take: limit
     })
   },
+  
+  /**
+   * Get predictions to check for accuracy against market values
+   */
+  getPredictionsForChecking: async (
+    sinceDate: Date,
+    maxPredictions: number = 200
+  ): Promise<Array<Prediction & { market: (Market & { event: Event | null }) | null }>> => {
+    return await prisma.prediction.findMany({
+      where: {
+        createdAt: { gte: sinceDate },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: maxPredictions,
+      include: {
+        market: {
+          include: {
+            event: true,
+          },
+        },
+      },
+    })
+  },
 }

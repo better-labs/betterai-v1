@@ -1,4 +1,3 @@
-import { prisma } from '@/lib/db/prisma'
 import { userQueries } from '@/lib/db/queries'
 
 export interface CreditTransaction {
@@ -64,14 +63,12 @@ export class CreditManager {
       }
 
       // Update user credits in transaction
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: user.credits - amount,
-          totalCreditsSpent: user.totalCreditsSpent + amount,
-          updatedAt: new Date()
-        }
-      })
+      await userQueries.updateUserCredits(
+        userId,
+        user.credits - amount,
+        undefined,
+        user.totalCreditsSpent + amount
+      )
 
       // Log the transaction (we can add this later if needed)
       console.log(`Credit consumed: ${userId}, amount: ${amount}, reason: ${reason}`)
@@ -98,14 +95,12 @@ export class CreditManager {
         throw new Error('User not found')
       }
 
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: user.credits + amount,
-          totalCreditsEarned: user.totalCreditsEarned + amount,
-          updatedAt: new Date()
-        }
-      })
+      await userQueries.updateUserCredits(
+        userId,
+        user.credits + amount,
+        user.totalCreditsEarned + amount,
+        undefined
+      )
 
       // Log the transaction
       console.log(`Credits added: ${userId}, amount: ${amount}, reason: ${reason}`)
@@ -129,15 +124,7 @@ export class CreditManager {
       const newCredits = Math.max(user.credits, CreditManager.DAILY_CREDIT_RESET)
       const creditsAdded = newCredits - user.credits
 
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: newCredits,
-          creditsLastReset: new Date(),
-          totalCreditsEarned: user.totalCreditsEarned + Math.max(0, creditsAdded),
-          updatedAt: new Date()
-        }
-      })
+      await userQueries.resetUserDailyCredits(userId, CreditManager.DAILY_CREDIT_RESET)
 
       console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${newCredits}`)
     } catch (error) {
@@ -168,11 +155,7 @@ export class CreditManager {
    */
   async getUsersCredits(userIds: string[]): Promise<Record<string, CreditBalance | null>> {
     try {
-      const users = await prisma.user.findMany({
-        where: {
-          id: { in: userIds }
-        }
-      })
+      const users = await userQueries.getUsersCredits(userIds)
 
       const result: Record<string, CreditBalance | null> = {}
 
@@ -221,28 +204,9 @@ export class CreditManager {
     usersWithLowCredits: number
   }> {
     try {
-      const stats = await prisma.user.aggregate({
-        _count: { id: true },
-        _sum: {
-          credits: true,
-          totalCreditsEarned: true,
-          totalCreditsSpent: true
-        }
-      })
+      return await userQueries.getCreditStats(CreditManager.LOW_CREDIT_THRESHOLD)
 
-      const usersWithLowCredits = await prisma.user.count({
-        where: {
-          credits: { lt: CreditManager.LOW_CREDIT_THRESHOLD }
-        }
-      })
-
-      return {
-        totalUsers: stats._count.id,
-        totalCreditsInCirculation: stats._sum.credits || 0,
-        totalCreditsEarned: stats._sum.totalCreditsEarned || 0,
-        totalCreditsSpent: stats._sum.totalCreditsSpent || 0,
-        usersWithLowCredits
-      }
+    }
     } catch (error) {
       console.error('Error getting credit stats:', error)
       throw error

@@ -9,6 +9,7 @@ export { predictionCheckQueries } from './prediction-check'
 export { userQueries, userWatchlistQueries } from './user'
 export { leaderboardQueries } from './leaderboard'
 export { searchQueries } from './search'
+export { experimentQueries } from './experiment'
 
 // Re-export types for backward compatibility
 export type { 

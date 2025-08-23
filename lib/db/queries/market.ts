@@ -3,6 +3,7 @@ import { Prisma } from '../../../lib/generated/prisma'
 import type { Market, Event, Prediction } from '../../../lib/generated/prisma';
 import { serializeDecimals } from "@/lib/serialization"
 import type { MarketDTO } from "@/lib/types"
+import { Category } from "@/lib/generated/prisma"
 
 // Market queries
 export const marketQueries = {
@@ -139,6 +140,85 @@ export const marketQueries = {
    * - event → tags.label
    * Returns markets with the related event included for UI context.
    */
+  /**
+   * Get top markets by volume whose events end within a specified time range
+   */
+  getMarketsByVolumeAndEndDate: async (
+    rangeStart: Date,
+    rangeEnd: Date,
+    topMarketsCount: number = 10,
+    categoryMix: boolean = false,
+    excludeCategories?: Category[]
+  ): Promise<Market[]> => {
+    if (categoryMix) {
+      const query = {
+        where: {
+          event: {
+            endDate: {
+              gte: rangeStart,
+              lte: rangeEnd,
+            },
+          },
+        },
+        orderBy: { volume: 'desc' } as const,
+        include: {
+          event: {
+            select: { category: true, endDate: true },
+          },
+        },
+      }
+      
+      const marketsInRange = await prisma.market.findMany(query)
+      return marketsInRange
+    }
+
+    // Otherwise: Query the top markets by volume in the range
+    const whereClause: {
+      event: {
+        endDate: {
+          gte: Date;
+          lte: Date;
+        };
+        category?: {
+          notIn: Category[];
+        };
+      };
+    } = {
+      event: {
+        endDate: {
+          gte: rangeStart,
+          lte: rangeEnd,
+        },
+      },
+    }
+
+    if (excludeCategories && excludeCategories.length > 0) {
+      whereClause.event = {
+        endDate: {
+          gte: rangeStart,
+          lte: rangeEnd,
+        },
+        category: { notIn: excludeCategories },
+      }
+    }
+
+    return await prisma.market.findMany({
+      where: whereClause,
+      orderBy: { volume: 'desc' },
+      take: topMarketsCount,
+      select: {
+        id: true,
+        question: true,
+        volume: true,
+        event: {
+          select: {
+            endDate: true,
+          },
+        },
+      },
+    })
+  },
+  
   searchMarkets: async (
     searchTerm: string,
     options?: {

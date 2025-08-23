@@ -1,5 +1,5 @@
 import { generatePredictionForMarket } from './generate-single-prediction';
-import { prisma } from '../db/prisma'
+import { marketQueries } from '../db/queries'
 import { Category } from '../generated/prisma';
 
 export interface BatchPredictionConfig {
@@ -62,10 +62,9 @@ export async function getTopMarketsByVolumeAndEndDate(
         },
       }
       
-      console.log('Prisma query structure:', JSON.stringify(query, null, 2))
-      console.log(`Query date range: ${rangeStart.toISOString()} to ${rangeEnd.toISOString()}`)
+      console.log('Query date range:', `${rangeStart.toISOString()} to ${rangeEnd.toISOString()}`)
       
-      const marketsInRange = await prisma.market.findMany(query)
+      const marketsInRange = await marketQueries.getMarketsByVolumeAndEndDate(rangeStart, rangeEnd, config.topMarketsCount, true, config.excludeCategories)
       console.log(`Found ${marketsInRange.length} markets in range`)
       const seenCategories = new Set<Category>()
       const selected: MarketWithEndDate[] = []
@@ -109,31 +108,13 @@ export async function getTopMarketsByVolumeAndEndDate(
       },
     }
 
-    if (config.excludeCategories && config.excludeCategories.length > 0) {
-      whereClause.event = {
-        endDate: {
-          gte: rangeStart,
-          lte: rangeEnd,
-        },
-        category: { notIn: config.excludeCategories },
-      }
-    }
-
-    const topMarkets = await prisma.market.findMany({
-      where: whereClause,
-      orderBy: { volume: 'desc' },
-      take: config.topMarketsCount,
-      select: {
-        id: true,
-        question: true,
-        volume: true,
-        event: {
-          select: {
-            endDate: true,
-          },
-        },
-      },
-    })
+    const topMarkets = await marketQueries.getMarketsByVolumeAndEndDate(
+      rangeStart,
+      rangeEnd,
+      config.topMarketsCount,
+      false,
+      config.excludeCategories
+    )
 
     // Convert volume from Decimal to number and filter out null values
     const processedMarkets: MarketWithEndDate[] = topMarkets

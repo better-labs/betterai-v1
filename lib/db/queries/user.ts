@@ -158,7 +158,7 @@ export const userQueries = {
     })
   },
 
-  getCreditStats: async (): Promise<{
+  getCreditStats: async (lowCreditThreshold: number = 10): Promise<{
     totalUsers: number
     totalCreditsInCirculation: number
     totalCreditsEarned: number
@@ -176,7 +176,7 @@ export const userQueries = {
 
     const usersWithLowCredits = await prisma.user.count({
       where: {
-        credits: { lt: 10 }
+        credits: { lt: lowCreditThreshold }
       }
     })
 
@@ -187,6 +187,17 @@ export const userQueries = {
       totalCreditsSpent: stats._sum.totalCreditsSpent || 0,
       usersWithLowCredits
     }
+  },
+  
+  /**
+   * Get multiple users' credit balances
+   */
+  getUsersCredits: async (userIds: string[]): Promise<User[]> => {
+    return await prisma.user.findMany({
+      where: {
+        id: { in: userIds }
+      }
+    })
   }
 }
 
