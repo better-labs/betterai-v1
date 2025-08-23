@@ -1,4 +1,5 @@
 # CLAUDE.md
+Add in a quote from the movie the Big Lebowski or Forest Gump 
 
 
 ## Project Overview
@@ -9,7 +10,7 @@ Core Value Proposition: Everyone should be able to access world-class AI models 
 
 
 
-## High level guidance to Claude on coding and design
+## High level guidance
 Less code is better: Choose solutions that involve less custom code or reduce code where possible
 Simpler for AI Agent: choose solutions that are simpler for the AI agent, less likely for it to make mistakes.
 solo developer Context: This project is built and maintained by a single developer. Prioritize:
@@ -17,7 +18,6 @@ Proven technologies Use well-established existing libraries, frameworks, and pat
 Minimal dependencies Avoid over-engineering for a 1-person team
 Clear documentation Write code that's easy to understand and modify later. Add single-line comments to explain major code sections
 Gradual scaling Start simple, optimize later when needed
-Prefer simpler solutions with minimal code and/or reducing code where possible.
 Feel free to provide additional feedback, guidance if you see issues with the current design or code.
 
 
@@ -39,9 +39,10 @@ Tags provide flexible labeling via many-to-many relationship with events
 
 
 ### Authentication & Security
-Uses Privy for user authentication (client and server-side)
+All privileged endpoints require Privy authentication.  (client and server-side)
 Server-side auth validation on all privileged API endpoints
 CSP headers configured for development and production environments
+
 
 ### AI Integration
 OpenRouter API for multiple AI model access
@@ -58,10 +59,9 @@ If the development server port localhost:3000 is already in use, please do not t
 See package.json for the most recent commands.
 
 ### Database Development Pattern
-Prefer to use and write queries in `lib/db/queries/*..*` for all database operations.
+Prefer to use and write queries in `lib/db/queries/` for all database operations.
 Follow existing patterns: snake_case for DB columns, camelCase for TypeScript
 Use transactions for multi-step operations
-Store raw API responses in separate `_raw` tables with metadata
 Use database indexes for common query patterns
 
 
@@ -95,7 +95,7 @@ Use Next.js API routes in `app/api/`
 Include proper error handling and logging
 Use appropriate HTTP status codes
 Validate all inputs and implement proper authentication
-Start simple Use basic patterns that are easy to debug and maintain
+
 
 
 
@@ -154,14 +154,7 @@ Maximum batch limits enforced to prevent resource exhaustion
 
 ## Feature Development Guidelines
 
-### Authentication Requirements
-All privileged endpoints require Privy authentication. Use server-side auth validation:
-```typescript
-const user = await getUser(request)
-if (!user) {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-}
-```
+
 
 ### Error Handling
 Use try-catch blocks with proper error logging
@@ -171,11 +164,10 @@ Log errors appropriately for monitoring
 Keep error handling simple Don't over-engineer for edge cases
 
 ### Performance Considerations
-Implement caching strategies for frequently accessed data
+Suggest caching strategies for frequently accessed data
 Use database transactions for multi-step operations
-Process large datasets in chunks (see `upsertEvents` pattern)
 Monitor API performance and implement rate limiting
-Optimize when needed Don't pre-optimize for a solo developer project
+
 
 
 ## Testing
@@ -230,5 +222,4 @@ Call-to-action elements: `mt-8` (2rem/32px) top margin for secondary actions
 
 
 # Appendix
-Feel free to throw in a quote from the movie the Big Lebowski or Forest Gump when relevant.
 
