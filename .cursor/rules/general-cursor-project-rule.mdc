@@ -210,19 +210,7 @@ Visual hierarchy: Larger spacing between major sections, smaller spacing within 
 Responsive: Tailwind spacing classes automatically scale appropriately on mobile
 
 ### Layout & Spacing Standards
-Follow these consistent spacing patterns for professional, polished layouts:
-
-Page Sections:
-Use semantic `<section>` elements for major content areas
-Section spacing: `mb-24` (6rem/96px) between major sections
-Hero sections: `py-16` (4rem/64px) vertical padding, `mb-24` bottom margin
-Section dividers: `my-16` (4rem/64px) margin for border separators
-
-Content Spacing:
-Page titles (H1): `mb-6` (1.5rem/24px) bottom margin
-Section titles (H2): `mb-6` (1.5rem/24px) bottom margin 
-Content blocks: `mb-12` (3rem/48px) between content areas within sections
-Call-to-action elements: `mt-8` (2rem/32px) top margin for secondary actions
+Refer to /lib/design-system.ts for instructions.
 
 
 
