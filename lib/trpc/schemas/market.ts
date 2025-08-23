@@ -9,7 +9,7 @@ export const marketSearchSchema = z.object({
   closed: z.boolean().optional(),
   page: z.number().int().positive().optional().default(1),
   limit: z.number().int().positive().max(100).optional().default(20),
-  sortBy: z.enum(['createdAt', 'volume', 'liquidity']).optional().default('createdAt'),
+  sortBy: z.enum(['updatedAt', 'volume', 'liquidity']).optional().default('volume'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 })
 

@@ -32,7 +32,7 @@ export const eventSearchSchema = z.object({
   active: z.boolean().optional(),
   page: z.number().int().positive().optional().default(1),
   limit: z.number().int().positive().max(100).optional().default(20),
-  sortBy: z.enum(['createdAt', 'volume', 'endDate', 'startDate']).optional().default('volume'),
+  sortBy: z.enum(['updatedAt', 'volume', 'endDate', 'startDate']).optional().default('volume'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 })
 
