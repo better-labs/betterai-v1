@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { TrendingUp, Menu, Search, X, Twitter, Sun, Moon, Monitor } from "lucide-react"
+import { TrendingUp, Menu, Search, X, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
@@ -192,22 +192,26 @@ export function Header() {
                 
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>
-                  <Link href="/" className={`w-full ${isActive("/") ? "bg-accent" : ""}`}>
+                  <Link href="/" className={`w-full flex items-center space-x-2 ${isActive("/") ? "bg-accent" : ""}`}>
+                    <Home className="h-4 w-4" />
                     <span>Home</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/leaderboard" className={`w-full ${isActive("/leaderboard") ? "bg-accent" : ""}`}>
+                  <Link href="/leaderboard" className={`w-full flex items-center space-x-2 ${isActive("/leaderboard") ? "bg-accent" : ""}`}>
+                    <Trophy className="h-4 w-4" />
                     <span>AI Leaderboard</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/about" className={`w-full ${isActive("/about") ? "bg-accent" : ""}`}>
+                  <Link href="/about" className={`w-full flex items-center space-x-2 ${isActive("/about") ? "bg-accent" : ""}`}>
+                    <Info className="h-4 w-4" />
                     <span>About</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/docs" className={`w-full ${isActive("/docs") ? "bg-accent" : ""}`}>
+                  <Link href="/docs" className={`w-full flex items-center space-x-2 ${isActive("/docs") ? "bg-accent" : ""}`}>
+                    <BookOpen className="h-4 w-4" />
                     <span>Docs</span>
                   </Link>
                 </DropdownMenuItem>
@@ -232,7 +236,8 @@ export function Header() {
                 )}
                 {authenticated && (
                   <DropdownMenuItem asChild>
-                    <Link href="/credits" className={`w-full ${isActive("/credits") ? "bg-accent" : ""}`}>
+                    <Link href="/credits" className={`w-full flex items-center space-x-2 ${isActive("/credits") ? "bg-accent" : ""}`}>
+                      <CreditCard className="h-4 w-4" />
                       <span>Credits</span>
                     </Link>
                   </DropdownMenuItem>
@@ -240,7 +245,8 @@ export function Header() {
                 
                 {/* Support & Social Section */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center space-x-2">
+                  <Mail className="h-4 w-4" />
                   <span>Contact Us</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
