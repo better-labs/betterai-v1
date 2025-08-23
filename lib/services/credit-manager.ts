@@ -205,8 +205,6 @@ export class CreditManager {
   }> {
     try {
       return await userQueries.getCreditStats(CreditManager.LOW_CREDIT_THRESHOLD)
-
-    }
     } catch (error) {
       console.error('Error getting credit stats:', error)
       throw error

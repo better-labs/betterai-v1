@@ -149,7 +149,7 @@ export const marketQueries = {
     topMarketsCount: number = 10,
     categoryMix: boolean = false,
     excludeCategories?: Category[]
-  ): Promise<Market[]> => {
+  ) => {
     if (categoryMix) {
       const query = {
         where: {

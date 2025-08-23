@@ -45,23 +45,6 @@ export async function getTopMarketsByVolumeAndEndDate(
 
     // If categoryMix is true, pick the top market by volume for each category (via related event.category)
     if (config.categoryMix) {
-      const query = {
-        where: {
-          event: {
-            endDate: {
-              gte: rangeStart,
-              lte: rangeEnd,
-            },
-          },
-        },
-        orderBy: { volume: 'desc' } as const,
-        include: {
-          event: {
-            select: { category: true, endDate: true },
-          },
-        },
-      }
-      
       console.log('Query date range:', `${rangeStart.toISOString()} to ${rangeEnd.toISOString()}`)
       
       const marketsInRange = await marketQueries.getMarketsByVolumeAndEndDate(rangeStart, rangeEnd, config.topMarketsCount, true, config.excludeCategories)
@@ -70,17 +53,22 @@ export async function getTopMarketsByVolumeAndEndDate(
       const selected: MarketWithEndDate[] = []
 
       for (const m of marketsInRange) {
-        const category = (m.event?.category as unknown as Category) || null
+        // Safe access to potentially missing category property
+        const eventCategory = m.event && typeof m.event === 'object' && 'category' in m.event ? m.event.category : null
+        const category = eventCategory as unknown as Category || null
+        
         if (!category) continue
         if (config.excludeCategories && config.excludeCategories.includes(category)) continue
         if (seenCategories.has(category)) continue
+        
         seenCategories.add(category)
         selected.push({
           id: m.id,
           question: m.question,
-          volume: m.volume ? m.volume.toNumber() : null,
+          volume: m.volume ? (typeof m.volume.toNumber === 'function' ? m.volume.toNumber() : Number(m.volume)) : null,
           endDate: m.event?.endDate ?? null,
         })
+        
         if (selected.length >= config.topMarketsCount) break
       }
       console.log(`Selected ${selected.length} markets`)
@@ -89,25 +77,6 @@ export async function getTopMarketsByVolumeAndEndDate(
     }
 
     // Otherwise: Query the top markets by volume in the range
-    const whereClause: {
-      event: {
-        endDate: {
-          gte: Date;
-          lte: Date;
-        };
-        category?: {
-          notIn: Category[];
-        };
-      };
-    } = {
-      event: {
-        endDate: {
-          gte: rangeStart,
-          lte: rangeEnd,
-        },
-      },
-    }
-
     const topMarkets = await marketQueries.getMarketsByVolumeAndEndDate(
       rangeStart,
       rangeEnd,
@@ -121,7 +90,7 @@ export async function getTopMarketsByVolumeAndEndDate(
       .map((market) => ({
         id: market.id,
         question: market.question,
-        volume: market.volume ? market.volume.toNumber() : null,
+        volume: market.volume ? (typeof market.volume.toNumber === 'function' ? market.volume.toNumber() : Number(market.volume)) : null,
         endDate: market.event?.endDate ?? null,
       }))
       .filter((market) => market.volume !== null) as MarketWithEndDate[]
@@ -129,7 +98,6 @@ export async function getTopMarketsByVolumeAndEndDate(
     // Log the results
     console.log(`Found ${processedMarkets.length} markets meeting criteria:`)
     
-
     return processedMarkets
   } catch (error) {
     console.error('Error getting top markets by volume and end date:', error)
