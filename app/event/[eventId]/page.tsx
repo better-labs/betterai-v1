@@ -11,6 +11,9 @@ import { formatVolume } from '@/lib/utils'
 import { serializeDecimals } from '@/lib/serialization'
 import type { EventDTO, MarketDTO } from '@/lib/types'
 
+// Force dynamic rendering to avoid build-time database queries
+export const dynamic = 'force-dynamic'
+
 interface EventDetailPageProps {
   params: Promise<{
     eventId: string

@@ -11,6 +11,9 @@ import { PredictionUserMessageCard } from "@/components/prediction-user-message-
 import { serializePredictionData, serializePredictionChecks, serializeDecimals } from "@/lib/serialization"
 import type { PredictionDTO } from "@/lib/types"
 
+// Force dynamic rendering to avoid build-time database queries
+export const dynamic = 'force-dynamic'
+
 type PageParams = { predictionId: string }
 type PageProps = { params: Promise<PageParams> }
 

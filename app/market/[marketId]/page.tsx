@@ -13,6 +13,9 @@ import { PredictionHistoryList } from '@/components/prediction-history-list'
 import { serializePredictionData, serializeDecimals } from '@/lib/serialization'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 
+// Force dynamic rendering to avoid build-time database queries
+export const dynamic = 'force-dynamic'
+
 interface MarketDetailPageProps {
   params: Promise<{
     marketId: string

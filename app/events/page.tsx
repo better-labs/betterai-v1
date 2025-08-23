@@ -8,6 +8,9 @@ import Link from 'next/link'
 import type { Event, Market } from '@/lib/types'
 import { formatVolume } from '@/lib/utils'
 
+// Force dynamic rendering to avoid build-time database queries
+export const dynamic = 'force-dynamic'
+
 // Server Component - Direct data function usage
 export default async function EventsPage() {
   const events = await eventQueries.getTrendingEvents()
