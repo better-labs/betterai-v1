@@ -86,11 +86,14 @@ export function CreditsDisplay({ showAddButton = true, compact = false }: Credit
 
   return (
     <div className="flex items-center space-x-3">
-      <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+      <Link 
+        href="/credits"
+        className="flex items-center space-x-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
         <CreditCard className="h-4 w-4" />
         <span>Credits:</span>
         <span className="font-medium text-foreground">{credits.credits}</span>
-      </div>
+      </Link>
 
       {credits.credits < 10 && (
         <Badge variant="destructive" className="text-xs">
