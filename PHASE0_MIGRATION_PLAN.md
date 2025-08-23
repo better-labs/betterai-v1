@@ -252,7 +252,7 @@ This revised plan incorporates all lessons learned from the initial migration at
    - Clean up unused dependencies
 
 3. **Documentation & Guidelines**
-   - Update `CLAUDE.md` with new development patterns
+   - Update `CLAUDE.md` and .cursor/rules/general-cursor-project-rule.mdc with new development patterns from this project.
    - Document tRPC patterns for future AI development
    - Code comments explaining key architectural decisions
 
@@ -260,6 +260,10 @@ This revised plan incorporates all lessons learned from the initial migration at
 - Final cleanup deployment
 - Legacy endpoints removed
 - Full tRPC migration complete
+
+
+
+
 
 ---
 
@@ -325,23 +329,3 @@ This revised plan incorporates all lessons learned from the initial migration at
 - **Observability**: Logs, tracing, metrics throughout
 - **Rate Limiting**: Built into tRPC procedures
 - **Kill Switches**: Feature flags enable instant rollback
-
----
-
-## Timeline & Resource Planning
-
-**Total Estimated Time**: 25-35 days
-- **Phase 1**: 1-2 days (Analysis)
-- **Phase 2**: 2-3 days (Schemas)  
-- **Phase 3**: 3-4 days (Auth)
-- **Phase 4**: 3-4 days (Services)
-- **Phase 5**: 4-5 days (tRPC Endpoints)
-- **Phase 6**: 2-3 days (Specialized)
-- **Phase 7**: 5-7 days (Client Migration)
-- **Phase 8**: 3-4 days (Cleanup)
-
-**Resource Requirements**: 1 developer, with ability to pause/rollback at any phase
-
-**Production Impact**: Minimal throughout, zero downtime, maintained performance
-
-This revised plan ensures each phase delivers independent value while building toward the complete tRPC migration, with lessons learned from the initial implementation fully integrated.
