@@ -3,14 +3,19 @@
  * Handles Prisma Decimals, Dates, and other non-serializable objects
  */
 
-// Check if an object is a Prisma Decimal by looking at its constructor and methods
+// Check if an object is a Prisma Decimal by looking at its methods and properties
+// This is more robust than checking constructor.name which gets mangled in production
 function isPrismaDecimal(obj: any): boolean {
   return obj != null && 
          typeof obj === 'object' && 
-         obj.constructor && 
-         obj.constructor.name === 'Decimal' && 
+         // Check for the specific combination of methods that Prisma Decimal has
          typeof obj.toString === 'function' &&
-         typeof obj.toNumber === 'function'
+         typeof obj.toNumber === 'function' &&
+         typeof obj.toFixed === 'function' &&
+         typeof obj.valueOf === 'function' &&
+         // Prisma Decimals have a 'd' property that contains the actual decimal data
+         obj.d != null &&
+         Array.isArray(obj.d)
 }
 
 /**

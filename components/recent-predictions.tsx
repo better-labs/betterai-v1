@@ -135,9 +135,6 @@ export function RecentPredictions({
           const market = p.market
           const event = market?.event || null
 
-          
-
-
           // Extract reasoning from aiResponse if available
           let reasoning: string | null = null
           if (p.aiResponse) {
