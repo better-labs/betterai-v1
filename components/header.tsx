@@ -56,9 +56,10 @@ export function Header() {
             </Link>
 
             {/* Navigation Section */}
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden md:flex items-center space-x-6" data-testid="main-navigation">
               <Link 
                 href="/" 
+                data-testid="nav-home"
                 className={`text-sm font-medium transition-colors ${
                   isActive("/") 
                     ? "text-foreground border-b-2 border-primary pb-1" 
@@ -69,6 +70,7 @@ export function Header() {
               </Link>
               <Link 
                 href="/leaderboard" 
+                data-testid="nav-leaderboard"
                 className={`text-sm font-medium transition-colors ${
                   isActive("/leaderboard") 
                     ? "text-foreground border-b-2 border-primary pb-1" 
@@ -79,6 +81,7 @@ export function Header() {
               </Link>
               <Link 
                 href="/about" 
+                data-testid="nav-about"
                 className={`text-sm font-medium transition-colors ${
                   isActive("/about") 
                     ? "text-foreground border-b-2 border-primary pb-1" 
@@ -89,6 +92,7 @@ export function Header() {
               </Link>
               <Link 
                 href="/docs" 
+                data-testid="nav-docs"
                 className={`text-sm font-medium transition-colors ${
                   isActive("/docs") 
                     ? "text-foreground border-b-2 border-primary pb-1" 

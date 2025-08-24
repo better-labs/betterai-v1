@@ -68,7 +68,7 @@ export function HomePageWrapper() {
         <PageTransition>
           <div className="space-y-8">
             {/* Header */}
-            <div className="text-center">
+            <div className="text-center" data-testid="home-page-header">
               <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
                 <TrendingUp className="text-primary" />
                 Today's Top AI Market Predictions
@@ -81,7 +81,9 @@ export function HomePageWrapper() {
 
             {/* Hide trending events table for now */}
             {/* <TrendingEventsTable /> */}
-            <PaginatedRecentPredictions defaultPageSize={15} />
+            <div data-testid="predictions-section">
+              <PaginatedRecentPredictions defaultPageSize={15} />
+            </div>
           </div>
         </PageTransition>
       </main>

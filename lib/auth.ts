@@ -6,6 +6,8 @@ const privy = new PrivyClient(process.env.NEXT_PUBLIC_PRIVY_APP_ID!, process.env
 /**
  * Extracts and verifies the Privy access token from a request
  * Following Privy's documentation: https://docs.privy.io/authentication/user-authentication/access-tokens
+ * 
+ * In test mode (E2E_TEST_MODE=1), accepts test tokens from the test-login endpoint
  */
 export async function requireAuth(request: Request): Promise<{ userId: string; sessionId: string }> {
   // Extract token from Authorization header (Bearer token approach)
@@ -15,6 +17,21 @@ export async function requireAuth(request: Request): Promise<{ userId: string; s
   }
   
   const accessToken = authHeader.replace('Bearer ', '')
+  
+  // Test mode: Accept mock tokens for E2E testing
+  if (process.env.E2E_TEST_MODE === '1') {
+    try {
+      const decoded = JSON.parse(Buffer.from(accessToken, 'base64').toString())
+      if (decoded.userId && decoded.sessionId) {
+        return {
+          userId: decoded.userId,
+          sessionId: decoded.sessionId
+        }
+      }
+    } catch (error) {
+      // If test token parsing fails, continue with normal Privy verification
+    }
+  }
   
   try {
     // Verify the token using Privy's server SDK

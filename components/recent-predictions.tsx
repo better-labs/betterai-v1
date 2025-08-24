@@ -133,6 +133,7 @@ export function RecentPredictions({
       </div>
       <motion.div 
         className="divide-y rounded-lg border bg-card"
+        data-testid="predictions-list"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -221,6 +222,7 @@ export function RecentPredictions({
             >
               <Link
                 href={`/prediction/${p.id as any}`}
+                data-testid={`prediction-item-${p.id}`}
                 className="block p-2 sm:p-3 hover:bg-muted/30 hover:shadow-lg hover:shadow-muted/20 rounded-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring border-b border-border/50 hover:border-transparent"
               >
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-12 sm:items-start sm:gap-4">

@@ -35,6 +35,7 @@ export function LandingPage() {
             <div className="mt-8">
               <a 
                 href="/leaderboard" 
+                data-testid="landing-leaderboard-link"
                 className="text-primary hover:text-primary/80 underline text-sm font-medium"
               >
                 View AI model performance leaderboard →

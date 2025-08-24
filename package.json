@@ -21,6 +21,9 @@
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:e2e": "E2E_TEST_MODE=1 playwright test",
+    "test:e2e:headed": "E2E_TEST_MODE=1 playwright test --headed",
+    "test:e2e:report": "playwright show-report",
     "cron:daily-generate-batch-predictions": "dotenv -e .env.local -- node scripts/cron/cron-daily-generate-batch-predictions.js",
     "cron:prediction-check": "dotenv -e .env.local -- node scripts/cron/cron-prediction-check.js",
     "cron:update-ai-models": "dotenv -e .env.local -- node scripts/cron/cron-update-ai-models.js",
@@ -109,6 +112,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@testing-library/jest-dom": "^6.7.0",
     "@testing-library/react": "^16.3.0",
     "@types/d3-format": "^3.0.4",
@@ -124,6 +128,7 @@
     "execa": "^9.6.0",
     "jsdom": "^26.1.0",
     "knip": "^5.62.0",
+    "playwright": "^1.55.0",
     "postcss": "^8.5",
     "prisma": "^6.13.0",
     "tailwindcss": "^3.4.17",

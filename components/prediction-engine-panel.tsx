@@ -58,6 +58,7 @@ export function PredictionEnginePanel({
               onClick={onPredict}
               disabled={isLoading}
               size="sm"
+              data-testid="launch-prediction-button"
               className="absolute top-4 right-4 shadow-sm hover:shadow-md transition-shadow"
             >
               {isLoading ? (
@@ -173,7 +174,7 @@ export function PredictionEnginePanel({
 
         {/* Prediction Results */}
         {prediction && (
-          <Card className="border-primary mt-6 shadow-sm max-w-3xl mx-auto">
+          <Card className="border-primary mt-6 shadow-sm max-w-3xl mx-auto" data-testid="prediction-result-card">
             <CardHeader>
               <CardTitle className="flex items-center justify-center space-x-2 text-primary">
                 <Brain className="h-5 w-5" />
@@ -181,7 +182,7 @@ export function PredictionEnginePanel({
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" data-testid="prediction-result-content">
 
 
               <Separator />

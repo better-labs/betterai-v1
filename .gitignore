@@ -37,3 +37,10 @@ GEMINI.md
 .env.prod
 .env*.local
 .DS_Store
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+tmp/
