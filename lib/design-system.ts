@@ -3,6 +3,17 @@
  * 
  * This file contains consistent spacing, typography, and layout patterns
  * used throughout the application for professional, polished layouts.
+ * 
+ * COMPONENT ORGANIZATION:
+ * - components/client/   : Interactive components with "use client" directive
+ * - components/server/   : Data-fetching server components (SSR)
+ * - components/shared/   : Pure presentational components (no data deps)
+ * - components/providers/: React context providers and wrappers
+ * - components/ui/       : shadcn/ui design system components
+ * - components/docs/     : Documentation-specific components
+ * 
+ * ESLint rules enforce this structure to prevent mixing concerns and
+ * ensure proper separation between client/server boundaries.
  */
 
 // ============================================================================
