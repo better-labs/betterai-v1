@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { leaderboardQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as leaderboardService from '@/lib/services/leaderboard-service'
 import type { ApiResponse } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
@@ -8,8 +9,8 @@ export async function GET(request: NextRequest) {
     const tag = searchParams.get('tag')
     
     const leaderboard = tag 
-      ? await leaderboardQueries.getAIModelLeaderboardByTag(tag)
-      : await leaderboardQueries.getAIModelLeaderboard()
+      ? await leaderboardService.getAIModelLeaderboardByTag(prisma, tag)
+      : await leaderboardService.getAIModelLeaderboard(prisma)
 
     const response: ApiResponse<{ leaderboard: typeof leaderboard }> = {
       success: true,

@@ -113,14 +113,14 @@ This revised plan incorporates all lessons learned from the initial migration at
 - Create standardized DTO mappers in `lib/dtos/`
 - Update 2-3 API routes to use new services
 
-#### Phase 4B: User & Prediction Services 🔄 IN PROGRESS
+#### Phase 4B: User & Prediction Services ✅ COMPLETE
 *Target: 1-2 days*
 - Convert `predictionQueries` → `lib/services/prediction-service.ts`
 - Convert `userQueries` → `lib/services/user-service.ts` 
 - Integrate with existing `CreditManager` class patterns
 - Update remaining API routes
 
-#### Phase 4C: Supporting Services (Search, Leaderboard, etc.)
+#### Phase 4C: Supporting Services (Search, Leaderboard, etc.) 🔄 IN PROGRESS
 *Target: 1 day*
 - Convert remaining query files: `search`, `leaderboard`, `ai-model`, etc.
 - Ensure all services follow consistent patterns

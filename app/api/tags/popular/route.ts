@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { tagQueries } from "@/lib/db/queries"
+import { prisma } from '@/lib/db/prisma'
+import * as tagService from '@/lib/services/tag-service'
 
 // Memory-efficient cache for popular tags
 type CachedTag = {
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Cache miss or expired - fetch from database
-    const popularTags = await tagQueries.getPopularTagsByMarketVolume(limit)
+    const popularTags = await tagService.getPopularTagsByMarketVolume(prisma, limit)
     
     // Store in cache with memory management
     if (tagCache.size >= MAX_CACHE_ENTRIES) {

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
-import { searchQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as searchService from '@/lib/services/search-service'
 import type { ApiResponse } from '@/lib/types'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
 
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     const includeTags = type === 'all' || type === 'tags' || !type
 
     // Search with unified query
-    const results = await searchQueries.searchAll(q, {
+    const results = await searchService.searchAllSerialized(prisma, q, {
       includeMarkets,
       includeEvents,
       includeTags,

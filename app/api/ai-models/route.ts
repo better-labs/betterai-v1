@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
-import { aiModelQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as aiModelService from '@/lib/services/ai-model-service'
 import type { ApiResponse } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     if (id) {
       // Get specific AI model by ID
-      const model = await aiModelQueries.getAIModelById(id)
+      const model = await aiModelService.getAIModelById(prisma, id)
       if (!model) {
         return new Response(
           JSON.stringify({ success: false, error: 'AI model not found' } as ApiResponse),
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all AI models
-    const models = await aiModelQueries.getAllAIModels()
+    const models = await aiModelService.getAllAIModels(prisma)
     return new Response(
       JSON.stringify({
         success: true,
