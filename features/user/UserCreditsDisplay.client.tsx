@@ -1,14 +1,11 @@
 'use client'
 
-import { useQuery } from "@tanstack/react-query"
 import { useUser } from "@/hooks/use-user"
 import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
 import { CreditCard, AlertTriangle } from "lucide-react"
 import Link from "next/link"
-import { CreditBalance } from "@/lib/services/credit-manager"
-import { usePrivy } from "@privy-io/react-auth"
-import { authenticatedFetch } from "@/lib/utils"
+import { trpc } from "@/shared/providers/trpc-provider"
 
 interface UserCreditsDisplayProps {
   showAddButton?: boolean
@@ -17,39 +14,19 @@ interface UserCreditsDisplayProps {
 
 export function UserCreditsDisplay({ showAddButton = true, compact = false }: UserCreditsDisplayProps) {
   const { user, isAuthenticated, isReady } = useUser()
-  const { getAccessToken } = usePrivy()
 
-	// Fetch user credits
-	const { data: creditsData, isLoading } = useQuery({
-		queryKey: ['user-credits', user?.id],
-		queryFn: async (): Promise<{ credits: CreditBalance | null; isAuthenticated: boolean; message?: string }> => {
-			if (!isAuthenticated) {
-				return {
-					credits: null,
-					isAuthenticated: false,
-					message: 'User not authenticated'
-				}
-			}
+  // Use tRPC to fetch user credits
+  const { data: creditsData, isLoading } = trpc.users.getCredits.useQuery(
+    {},
+    {
+      enabled: isReady && isAuthenticated,
+      refetchInterval: 60000, // Refetch every minute
+      staleTime: 30000, // Consider data stale after 30 seconds
+      refetchOnWindowFocus: false,
+    }
+  )
 
-			const accessToken = await getAccessToken()
-			if (!accessToken) {
-				throw new Error('No access token available')
-			}
-
-			const getToken = () => Promise.resolve(accessToken)
-			const response = await authenticatedFetch('/api/user/credits', { method: 'GET' }, getToken)
-			
-			if (!response.ok) {
-				throw new Error('Failed to fetch credits')
-			}
-			return response.json()
-		},
-		enabled: isReady && isAuthenticated, // Only fetch when authenticated
-		refetchInterval: 60000, // Refetch every minute
-		staleTime: 30000, // Consider data stale after 30 seconds
-	})
-
-	const credits = creditsData?.credits
+  const credits = creditsData?.credits
 
   if (!user?.id || !isAuthenticated) {
     return null
