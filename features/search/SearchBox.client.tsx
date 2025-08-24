@@ -76,5 +76,3 @@ export function SearchBox({ defaultQuery, sort, status, className }: SearchBoxPr
     </div>
   )
 }
-
-

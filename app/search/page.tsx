@@ -1,13 +1,13 @@
 import Link from "next/link"
 import { Button } from "@/shared/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Card, CardContent } from "@/shared/ui/card"
 import { Separator } from "@/shared/ui/separator"
 import { Badge } from "@/shared/ui/badge"
 import { TrendingUp, Calendar, Tag } from "lucide-react"
 import { searchQueries } from "@/lib/db/queries"
 import MarketDetailsCard from "@/features/market/MarketCard"
 import { generateMarketURL } from "@/lib/utils"
-import { SearchInput } from "@/components/search-input"
+import { SearchInput } from "@/features/search/SearchInput.client"
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
