@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import { prisma } from '@/lib/db/prisma'
 import * as predictionService from '@/lib/services/prediction-service'
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
-import { serializeDecimals } from "@/lib/serialization"
 
 export async function GET(request: Request) {
   try {
@@ -33,7 +32,7 @@ export async function GET(request: Request) {
     const { items, nextCursor } = result
 
     return NextResponse.json({ 
-      items: serializeDecimals(items),
+      items,
       nextCursor,
       pageSize: limit,
       filteredByTags: tagIds || null,

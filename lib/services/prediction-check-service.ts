@@ -1,4 +1,5 @@
-import type { PrismaClient, Prisma, PredictionCheck } from '@/lib/generated/prisma'
+import type { PrismaClient, PredictionCheck } from '@/lib/generated/prisma'
+import { Prisma } from '@/lib/generated/prisma'
 import { mapPredictionCheckToDTO, mapPredictionChecksToDTO } from '@/lib/dtos/prediction-check-dto'
 import type { PredictionCheckDTO } from '@/lib/types'
 

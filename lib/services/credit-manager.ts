@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/db/prisma'
-import { userQueries } from '@/lib/db/queries'
 import * as userService from './user-service'
 
 export interface CreditTransaction {
