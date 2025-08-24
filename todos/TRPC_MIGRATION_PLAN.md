@@ -379,6 +379,10 @@ const searchResults = await trpc.markets.list.query({ search: "election" })
    - Update TypeScript types to reflect removed procedures
 
 5. Resolve open lint errors if simple. If not, explain the error to user and suggest a tactical fix and more comprehensive best practice fix.
+6. Resolve any TODOs like "TODO: Fix types after tRPC migration complete" and similar
+
+
+
 
 **Production Deployment**: 
 - Final cleanup deployment

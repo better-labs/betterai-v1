@@ -1,11 +1,10 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { usePrivy } from "@privy-io/react-auth"
 import { RecentPredictions } from "@/components/recent-predictions"
 import { LoadingCard } from "@/shared/ui/loading"
 import { type SortMode } from "@/components/trending-selector"
-import { useQuery } from "@tanstack/react-query"
+import { trpc } from "@/shared/providers/trpc-provider"
 import {
   Pagination,
   PaginationContent,
@@ -28,7 +27,6 @@ type PaginatedRecentPredictionsProps = {
 }
 
 export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRecentPredictionsProps) {
-  const { getAccessToken } = usePrivy()
   const [pageSize, setPageSize] = useState<number>(defaultPageSize)
   const [cursorHistory, setCursorHistory] = useState<Array<number | null>>([null])
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
@@ -55,54 +53,27 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
     }
   }, [])
 
-  // Build query key for TanStack Query
-  const queryKey = useMemo(() => [
-    'recent-predictions',
-    currentCursor,
-    pageSize,
-    selectedTagIds.join(','),
-    sortMode
-  ], [currentCursor, pageSize, selectedTagIds, sortMode])
-
-  // Fetch function for TanStack Query
-  const fetchPredictions = useCallback(async () => {
-    const accessToken = await getAccessToken()
-    const url = new URL("/api/predictions/recent", window.location.origin)
-    url.searchParams.set("limit", String(pageSize))
-    if (currentCursor != null) url.searchParams.set("cursor", String(currentCursor))
-    if (selectedTagIds.length > 0) url.searchParams.set("tagIds", selectedTagIds.join(','))
-    if (sortMode) url.searchParams.set("sort", sortMode)
-
-    const response = await fetch(url.toString(), {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-
-    return response.json()
-  }, [getAccessToken, pageSize, currentCursor, selectedTagIds, sortMode])
-
-  // Use TanStack Query
+  // Use tRPC query instead of manual fetch
   const {
     data,
     isLoading: loading,
     error,
     refetch
-  } = useQuery({
-    queryKey,
-    queryFn: fetchPredictions,
-    staleTime: 30 * 1000, // 30 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    retry: false, // Don't retry auth errors
-  })
+  } = trpc.predictions.recent.useQuery(
+    {
+      limit: pageSize,
+      cursor: currentCursor ?? undefined,
+      tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined,
+      sortMode: sortMode,
+    },
+    {
+      staleTime: 30 * 1000, // 30 seconds
+      gcTime: 5 * 60 * 1000, // 5 minutes
+      retry: false, // Don't retry auth errors
+    }
+  )
 
-  const items = data?.items || []
+  const items = (data?.items || []) as any[] // TODO: Fix types after tRPC migration complete
   const nextCursor = data?.nextCursor || null
   const isFiltered = selectedTagIds.length > 0
   const canGoBack = cursorHistory.length > 1
