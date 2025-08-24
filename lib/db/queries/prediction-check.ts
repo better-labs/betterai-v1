@@ -1,6 +1,9 @@
 import { prisma } from "../prisma"
 import { Prisma } from '../../../lib/generated/prisma'
 import type { PredictionCheck } from '../../../lib/generated/prisma';
+import { serializeDecimals } from "@/lib/serialization"
+import type { PredictionCheckDTO } from "@/lib/types"
+import { toNumberOrNull } from "@/lib/utils"
 
 // Prediction Check queries
 export const predictionCheckQueries = {
@@ -37,5 +40,24 @@ export const predictionCheckQueries = {
       orderBy: { createdAt: 'desc' },
       take: limit,
     })
+  },
+  getRecentByMarketSerialized: async (marketId: string, limit = 50): Promise<PredictionCheckDTO[]> => {
+    const checks = await prisma.predictionCheck.findMany({
+      where: { marketId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+    const s = serializeDecimals(checks) as Array<Record<string, unknown>>
+    return s.map((c) => ({
+      id: String(c.id),
+      predictionId: c.predictionId == null ? null : String(c.predictionId),
+      marketId: (c.marketId as string) ?? null,
+      aiProbability: toNumberOrNull(c.aiProbability),
+      marketProbability: toNumberOrNull(c.marketProbability),
+      delta: toNumberOrNull(c.delta),
+      absDelta: toNumberOrNull(c.absDelta),
+      marketClosed: (c.marketClosed as boolean) ?? null,
+      createdAt: typeof c.createdAt === 'string' ? (c.createdAt as string) : new Date(c.createdAt as any).toISOString(),
+    }))
   },
 }

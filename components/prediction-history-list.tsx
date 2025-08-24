@@ -6,20 +6,11 @@ import { formatPercent, toUnitProbability } from '@/lib/utils'
 import Link from 'next/link'
 import { Sparkline } from '@/components/sparkline'
 import { useRouter } from 'next/navigation'
+import type { PredictionCheckDTO, PredictionDTO } from '@/lib/types'
 
-type CheckItem = {
-  createdAt: Date | string
-  aiProbability?: unknown | null
-  marketProbability?: unknown | null
-  delta?: unknown | null
-  marketClosed?: boolean | null
-}
+type CheckItem = Pick<PredictionCheckDTO, 'createdAt' | 'aiProbability' | 'marketProbability' | 'delta' | 'marketClosed'>
 
-type PredictionItem = {
-  id?: string | null
-  createdAt: Date | string
-  modelName?: string | null
-  outcomesProbabilities?: Array<unknown> | null
+type PredictionItem = Pick<PredictionDTO, 'id' | 'createdAt' | 'modelName' | 'outcomesProbabilities'> & {
   marketOutcomePrices?: Array<unknown> | null
 }
 

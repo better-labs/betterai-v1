@@ -62,6 +62,28 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      spacing: {
+        // Design system spacing values
+        'section': '6rem',      // 96px - major section spacing
+        'content': '3rem',      // 48px - content block spacing
+        'hero': '4rem',         // 64px - hero section padding
+        'divider': '4rem',      // 64px - section divider spacing
+        'title': '1.5rem',      // 24px - title bottom margin
+        'heading': '1.5rem',    // 24px - heading bottom margin
+        'cta': '2rem',          // 32px - call-to-action top margin
+        'card': '1.5rem',       // 24px - card padding
+        'button': '1rem',       // 16px - button horizontal padding
+        'input': '0.75rem',     // 12px - input horizontal padding
+      },
+      maxWidth: {
+        'page': '80rem',        // 1280px - page container max width
+        'content': '64rem',     // 1024px - content area max width
+        'narrow': '48rem',      // 768px - narrow content area
+      },
+      minHeight: {
+        'hero': '32rem',        // 512px - minimum hero section height
+        'section': '16rem',     // 256px - minimum section height
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

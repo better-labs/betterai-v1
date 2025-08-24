@@ -1,5 +1,10 @@
-# CLAUDE.md
-Add in a quote from the movie the Big Lebowski or Forest Gump 
+---
+description: general purpose cursor rules for this project
+globs:
+alwaysApply: true
+---
+
+Generate a quote from the movie Talladega Nights: Ballad of Ricky Bobby after every response.
 
 
 ## Project Overview
@@ -207,6 +212,9 @@ Responsive: Tailwind spacing classes automatically scale appropriately on mobile
 ### Layout & Spacing Standards
 Refer to /lib/design-system.ts for instructions.
 
+
+
+# Appendix
 
 
 # Appendix

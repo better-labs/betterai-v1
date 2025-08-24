@@ -2,6 +2,7 @@ import { prisma } from "../prisma"
 import type { Prediction, Market, Event } from '../../../lib/generated/prisma';
 import { serializeDecimals } from "@/lib/serialization"
 import type { PredictionDTO } from "@/lib/types"
+import { toNumberOrNull } from "@/lib/utils"
 
 // Prediction queries
 export const predictionQueries = {
@@ -33,8 +34,8 @@ export const predictionQueries = {
       systemPrompt: s.systemPrompt ?? null,
       aiResponse: s.aiResponse ?? null,
       createdAt: s.createdAt,
-      outcomes: s.outcomes ?? [],
-      outcomesProbabilities: s.outcomesProbabilities ?? [],
+      outcomes: Array.isArray(s.outcomes) ? s.outcomes : [],
+      outcomesProbabilities: Array.isArray(s.outcomesProbabilities) ? s.outcomesProbabilities.map((prob: unknown) => toNumberOrNull(prob) ?? 0) : [],
       userId: s.userId ?? null,
       experimentTag: s.experimentTag ?? null,
       experimentNotes: s.experimentNotes ?? null,
@@ -55,8 +56,8 @@ export const predictionQueries = {
       systemPrompt: p.systemPrompt ?? null,
       aiResponse: p.aiResponse ?? null,
       createdAt: p.createdAt,
-      outcomes: p.outcomes ?? [],
-      outcomesProbabilities: p.outcomesProbabilities ?? [],
+      outcomes: Array.isArray(p.outcomes) ? p.outcomes : [],
+      outcomesProbabilities: Array.isArray(p.outcomesProbabilities) ? p.outcomesProbabilities.map((prob: unknown) => toNumberOrNull(prob) ?? 0) : [],
       userId: p.userId ?? null,
       experimentTag: p.experimentTag ?? null,
       experimentNotes: p.experimentNotes ?? null,
@@ -77,8 +78,8 @@ export const predictionQueries = {
       systemPrompt: p.systemPrompt ?? null,
       aiResponse: p.aiResponse ?? null,
       createdAt: p.createdAt,
-      outcomes: p.outcomes ?? [],
-      outcomesProbabilities: p.outcomesProbabilities ?? [],
+      outcomes: Array.isArray(p.outcomes) ? p.outcomes : [],
+      outcomesProbabilities: Array.isArray(p.outcomesProbabilities) ? p.outcomesProbabilities.map((prob: unknown) => toNumberOrNull(prob) ?? 0) : [],
       userId: p.userId ?? null,
       experimentTag: p.experimentTag ?? null,
       experimentNotes: p.experimentNotes ?? null,
@@ -188,7 +189,17 @@ export const predictionQueries = {
             orderBy: { createdAt: 'desc' },
             include: {
               market: {
-                include: { event: true },
+                include: { 
+                  event: {
+                    include: {
+                      eventTags: {
+                        include: {
+                          tag: true
+                        }
+                      }
+                    }
+                  }
+                },
               },
             },
           })
@@ -231,7 +242,17 @@ export const predictionQueries = {
         ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
         include: {
           market: {
-            include: { event: true },
+            include: { 
+              event: {
+                include: {
+                  eventTags: {
+                    include: {
+                      tag: true
+                    }
+                  }
+                }
+              }
+            },
           },
         },
       })

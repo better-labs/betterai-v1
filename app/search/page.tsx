@@ -11,6 +11,9 @@ import MarketDetailsCard from "@/components/market-details-card"
 import { generateMarketURL } from "@/lib/utils"
 import { SearchInput } from "@/components/search-input"
 
+// Force dynamic rendering to avoid build-time database queries
+export const dynamic = 'force-dynamic'
+
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; cursor?: string; sort?: string; status?: string }>
 }
