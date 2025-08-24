@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import posthog from "posthog-js"
 import { usePrivy } from "@privy-io/react-auth"
 
-export function AnalyticsIdentify() {
+export function UserAnalyticsIdentify() {
   const { ready, user, authenticated } = usePrivy()
 
   useEffect(() => {
@@ -42,5 +42,3 @@ export function AnalyticsIdentify() {
 
   return null
 }
-
-

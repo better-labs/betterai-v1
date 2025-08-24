@@ -5,12 +5,12 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Loader2 } from "lucide-react"
 import { usePrivy } from "@privy-io/react-auth"
 
-interface AuthButtonsProps {
+interface UserAuthButtonsProps {
   variant?: "desktop" | "mobile"
   className?: string
 }
 
-export function AuthButtons({ variant = "desktop", className = "" }: AuthButtonsProps) {
+export function UserAuthButtons({ variant = "desktop", className = "" }: UserAuthButtonsProps) {
   const { ready, login } = usePrivy()
 
   const handleLogin = async () => {

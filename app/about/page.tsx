@@ -1,5 +1,4 @@
-import { TrendingUp, Brain, Target, BarChart3, Zap, Shield, Users, Globe } from "lucide-react"
-import { CTASection } from "@/components/cta-section"
+import { TrendingUp, Brain, BarChart3, Zap } from "lucide-react"
 import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
 
 export default function AboutPage() {
@@ -77,7 +76,7 @@ export default function AboutPage() {
               <span className="text-3xl sm:text-4xl font-bold">improved in accuracy or performance</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              <a href="https://hai.stanford.edu/ai-index/2025-ai-index-report" className="hover:underline">Leading AI models are close to beating our most difficult benchmarks. The world needs better, infinitely difficult benchmarks, to properly measure the AI model's intelligence growth beyond super intelligence.</a>
+              <a href="https://hai.stanford.edu/ai-index/2025-ai-index-report" className="hover:underline">Leading AI models are close to beating our most difficult benchmarks. The world needs better, infinitely difficult benchmarks, to properly measure the AI model&apos;s intelligence growth beyond super intelligence.</a>
             </p>
           </div>
           <div className="max-w-5xl mx-auto rounded-lg border bg-card p-6 shadow-sm">

@@ -94,14 +94,19 @@ Repeat Phase 1 steps for `features/prediction/`.
 - `pnpm eslint .` ✅
 - `pnpm next build` ✅
 
-## Phase 3: User
+## Phase 3: User ✅
 Repeat for `features/user/`.
 
-**Gate: Test/Build/Fix**
-- `pnpm test`
-- `pnpm tsc --noEmit`
-- `pnpm eslint .`
-- `pnpm next build`
+**Completed Migration:**
+- `credits-display.tsx` → `features/user/UserCreditsDisplay.client.tsx` (Client)
+- `ui/auth-buttons.tsx` → `features/user/UserAuthButtons.client.tsx` (Client)
+- `analytics-identify.tsx` → `features/user/UserAnalyticsIdentify.client.tsx` (Client)
+
+**Gate: Test/Build/Fix** ✅
+- `pnpm test` ✅
+- `pnpm tsc --noEmit` ✅
+- `pnpm eslint .` ✅ 
+- `pnpm build` ✅
 
 ## Phase 4: Shared UI (Later)
 Move `components/ui/` → `shared/ui/` and `components/providers/` → `shared/providers/` as a separate focused effort when feature migrations are stable.

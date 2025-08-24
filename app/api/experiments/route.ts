@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get experiment summary with accuracy metrics
     const experiments = await prisma.prediction.findMany({

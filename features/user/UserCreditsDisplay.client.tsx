@@ -10,12 +10,12 @@ import { CreditBalance } from "@/lib/services/credit-manager"
 import { usePrivy } from "@privy-io/react-auth"
 import { authenticatedFetch } from "@/lib/utils"
 
-interface CreditsDisplayProps {
+interface UserCreditsDisplayProps {
   showAddButton?: boolean
   compact?: boolean
 }
 
-export function CreditsDisplay({ showAddButton = true, compact = false }: CreditsDisplayProps) {
+export function UserCreditsDisplay({ showAddButton = true, compact = false }: UserCreditsDisplayProps) {
   const { user, isAuthenticated, isReady } = useUser()
   const { getAccessToken } = usePrivy()
 
