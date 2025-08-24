@@ -5,12 +5,13 @@
 
 import { router } from '../trpc'
 import { marketsRouter } from './markets'
+import { eventsRouter } from './events'
 
 // Main application router - combines all sub-routers
 export const appRouter = router({
   markets: marketsRouter,
+  events: eventsRouter,
   // Future routers will be added here:
-  // events: eventsRouter,
   // predictions: predictionsRouter,
   // users: usersRouter,
 })
