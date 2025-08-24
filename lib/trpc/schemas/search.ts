@@ -13,6 +13,6 @@ export const SearchAllInput = z.object({
   includeEvents: z.boolean().optional().default(true),
   includeTags: z.boolean().optional().default(true),
   // Market-specific search options
-  marketSort: z.enum(['volume', 'created', 'updated']).optional(),
+  marketSort: z.enum(['trending', 'liquidity', 'volume', 'newest', 'ending', 'competitive']).optional(),
   marketStatus: z.enum(['active', 'resolved', 'all']).optional(),
 })
