@@ -104,6 +104,34 @@ This revised plan incorporates all lessons learned from the initial migration at
 - Enable dependency injection for better testing
 - Create reusable service layer regardless of tRPC adoption
 
+### Sub-phases (deployable independently):
+
+#### Phase 4A: Core Data Services (Markets & Events) 🔄 IN PROGRESS
+*Target: 2 days*
+- Convert `marketQueries` → `lib/services/market-service.ts` 
+- Convert `eventQueries` → `lib/services/event-service.ts`
+- Create standardized DTO mappers in `lib/dtos/`
+- Update 2-3 API routes to use new services
+
+#### Phase 4B: User & Prediction Services
+*Target: 1-2 days*
+- Convert `predictionQueries` → `lib/services/prediction-service.ts`
+- Convert `userQueries` → `lib/services/user-service.ts` 
+- Integrate with existing `CreditManager` class patterns
+- Update remaining API routes
+
+#### Phase 4C: Supporting Services (Search, Leaderboard, etc.)
+*Target: 1 day*
+- Convert remaining query files: `search`, `leaderboard`, `ai-model`, etc.
+- Ensure all services follow consistent patterns
+- Complete API route migrations
+
+#### Phase 4D: Pattern Validation & Documentation
+*Target: 0.5 day*
+- Validate dependency injection works with tRPC
+- Document service patterns for Phase 5
+- Update project documentation
+
 ### Tasks
 1. **Service Function Pattern**
    - Convert `marketQueries.functionName()` → `functionName(db, params)`
@@ -316,6 +344,8 @@ Migration notes:
    - Update `CLAUDE.md` and .cursor/rules/general-cursor-project-rule.mdc with new development patterns from this project.
    - Document tRPC patterns for future AI development
    - Code comments explaining key architectural decisions
+
+4. Resolve open lint errors if simple. If not, explain the error to user and suggest a tactical fix and more comprehensive best practice fix.
 
 **Production Deployment**: 
 - Final cleanup deployment

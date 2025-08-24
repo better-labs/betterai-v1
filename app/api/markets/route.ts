@@ -1,8 +1,9 @@
 import { NextRequest } from 'next/server'
-import { marketQueries, NewMarket } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as marketService from '@/lib/services/market-service'
+import { mapMarketToDTO } from '@/lib/dtos'
 import type { ApiResponse } from '@/lib/types'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
-import { serializeDecimals } from '@/lib/serialization'
 
 
 export async function GET(request: NextRequest) {
@@ -12,8 +13,8 @@ export async function GET(request: NextRequest) {
     const eventId = searchParams.get('eventId')
 
     if (id) {
-      const market = await marketQueries.getMarketById(id)
-      if (!market) {
+      const marketDto = await marketService.getMarketByIdSerialized(prisma, id)
+      if (!marketDto) {
         const errorResponse: ApiResponse = {
           success: false,
           error: 'Market not found',
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
       
       const responseData: ApiResponse = {
         success: true,
-        data: serializeDecimals(market),
+        data: marketDto,
         timestamp: new Date().toISOString()
       }
       
@@ -38,10 +39,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (eventId) {
-      const markets = await marketQueries.getMarketsByEventId(eventId)
+      const marketDtos = await marketService.getMarketsByEventIdSerialized(prisma, eventId)
       const responseData: ApiResponse = {
         success: true,
-        data: serializeDecimals(markets),
+        data: marketDtos,
         timestamp: new Date().toISOString()
       }
       return new Response(
@@ -50,11 +51,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Default: get all markets
-    const markets = await marketQueries.getMarketsByEventId('')
+    // Default: get all markets (using empty eventId filter)
+    const marketDtos = await marketService.getMarketsByEventIdSerialized(prisma, '')
     const responseData: ApiResponse = {
       success: true,
-      data: serializeDecimals(markets),
+      data: marketDtos,
       timestamp: new Date().toISOString()
     }
     return new Response(
@@ -77,10 +78,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const marketData: NewMarket = await request.json()
-    const market = await marketQueries.createMarket(marketData)
+    const marketData = await request.json()
+    const market = await marketService.createMarket(prisma, marketData)
+    const marketDto = mapMarketToDTO(market)
     return new Response(
-      JSON.stringify({ success: true, data: market } as ApiResponse),
+      JSON.stringify({ success: true, data: marketDto } as ApiResponse),
       { status: 201, headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
@@ -116,7 +118,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const marketData = await request.json()
-    const market = await marketQueries.updateMarket(id, marketData)
+    const market = await marketService.updateMarket(prisma, id, marketData)
     
     if (!market) {
       return new Response(
@@ -125,8 +127,9 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    const marketDto = mapMarketToDTO(market)
     return new Response(
-      JSON.stringify({ success: true, data: market } as ApiResponse),
+      JSON.stringify({ success: true, data: marketDto } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
@@ -161,7 +164,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const success = await marketQueries.deleteMarket(id)
+    const success = await marketService.deleteMarket(prisma, id)
     
     if (!success) {
       return new Response(
