@@ -2,7 +2,7 @@
 
 import { Moon, Sun, Monitor } from "lucide-react"
 import { useTheme } from "next-themes"
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { DropdownMenuItem } from "@/shared/ui/dropdown-menu"
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme()

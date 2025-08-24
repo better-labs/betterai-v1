@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { RecentPredictions } from "@/components/recent-predictions"
-import { LoadingCard } from "@/components/ui/loading"
+import { LoadingCard } from "@/shared/ui/loading"
 import { type SortMode } from "@/components/trending-selector"
 import { useQuery } from "@tanstack/react-query"
 import {
@@ -14,14 +14,14 @@ import {
   PaginationPrevious,
   PaginationLink,
   PaginationEllipsis,
-} from "@/components/ui/pagination"
+} from "@/shared/ui/pagination"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/shared/ui/select"
 
 type PaginatedRecentPredictionsProps = {
   defaultPageSize?: number

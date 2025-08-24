@@ -1,4 +1,4 @@
-import { LeaderboardWrapper } from "@/components/leaderboard-wrapper"
+import { LeaderboardWrapper } from "@/features/leaderboard/LeaderboardWrapper.client"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {

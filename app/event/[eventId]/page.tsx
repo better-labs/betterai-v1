@@ -1,14 +1,12 @@
 import { notFound } from 'next/navigation'
 import { eventQueries, marketQueries } from '@/lib/db/queries'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Badge } from "@/shared/ui/badge"
+import { Button } from "@/shared/ui/button"
 import { EventIcon } from '@/components/event-icon'
-import { TrendingUp, BarChart2, ArrowRight, Calendar, ArrowLeft, DollarSign, Tag } from 'lucide-react'
+import { BarChart2, Calendar, ArrowLeft, DollarSign, Tag } from 'lucide-react'
 import Link from 'next/link'
-import type { Market } from '@/lib/types'
 import { formatVolume } from '@/lib/utils'
-import { serializeDecimals } from '@/lib/serialization'
 import type { EventDTO, MarketDTO } from '@/lib/types'
 
 // Force dynamic rendering to avoid build-time database queries

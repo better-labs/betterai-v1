@@ -1,13 +1,13 @@
 
 import type { Metadata } from "next"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/shared/providers/theme-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { PrivyClientProvider } from "@/components/privy-client-provider"
 import { PostHogProvider } from "@/components/PostHogProvider"
-import { AnalyticsIdentify } from "@/components/analytics-identify"
-import { QueryProvider } from "@/components/providers/query-provider"
+import { UserAnalyticsIdentify } from "@/features/user/UserAnalyticsIdentify.client"
+import { QueryProvider } from "@/shared/providers/query-provider"
 
 export const metadata: Metadata = {
   title: "BetterAI - AI-Powered Market Predictions",
@@ -51,7 +51,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <PrivyClientProvider>
-                <AnalyticsIdentify />
+                <UserAnalyticsIdentify />
                 <div className="min-h-screen flex flex-col">
                   <Header />
                   <main className="flex-1">

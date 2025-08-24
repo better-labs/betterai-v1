@@ -46,8 +46,11 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 					accentColor: '#3B82F6',
 					logo: '/betterai-logo-vertical.png'
 				},
-				// Keep login simple while we debug network issues
+				// Keep login simple and disable embedded wallets for all environments
 				loginMethods: ['email','google'],
+				embeddedWallets: {
+					createOnLogin: 'off'
+				},
 				// Disable WalletConnect in development to prevent double initialization warnings
 				...(process.env.NODE_ENV === "development" && {
 					walletConnect: {

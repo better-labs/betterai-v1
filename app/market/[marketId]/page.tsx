@@ -1,16 +1,16 @@
 import { notFound } from 'next/navigation'
 import { marketQueries, predictionQueries, eventQueries } from '@/lib/db/queries'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Button } from "@/shared/ui/button"
 import { Calendar, DollarSign, BarChart2 } from 'lucide-react'
 import Link from 'next/link'
 import { formatVolume, generateMarketURL } from '@/lib/utils'
 import type { PredictionResult } from '@/lib/types'
-import MarketDetailsCard from '@/components/market-details-card'
-import { MarketEventHeader } from '@/components/market-event-header'
-import { PredictionReasoningCard } from '@/components/prediction-reasoning-card'
-import { PredictionHistoryList } from '@/components/prediction-history-list'
-import { serializePredictionData, serializeDecimals } from '@/lib/serialization'
+import MarketDetailsCard from '@/features/market/MarketCard'
+import { MarketEventHeader } from '@/features/market/MarketEventHeader'
+import { PredictionReasoningCard } from '@/features/prediction/PredictionReasoningCard.client'
+import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
+import { serializePredictionData } from '@/lib/serialization'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 
 // Force dynamic rendering to avoid build-time database queries
@@ -68,10 +68,10 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
         <div className="space-y-6">
           {/* Market Details Card */}
           <MarketDetailsCard
-            market={serializedMarket as any}
-            event={serializedEvent as any}
+            market={serializedMarket}
+            event={serializedEvent}
             externalMarketUrl={externalMarketUrl}
-            latestPrediction={serializedPrediction as any}
+            latestPrediction={serializedPrediction}
           />
 
           {/* Most Recent Prediction */}

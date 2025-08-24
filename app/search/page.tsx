@@ -1,15 +1,13 @@
 import Link from "next/link"
-import { Suspense } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Search, TrendingUp, Calendar, Tag } from "lucide-react"
-import { searchQueries, marketQueries } from "@/lib/db/queries"
-import MarketDetailsCard from "@/components/market-details-card"
+import { Button } from "@/shared/ui/button"
+import { Card, CardContent } from "@/shared/ui/card"
+import { Separator } from "@/shared/ui/separator"
+import { Badge } from "@/shared/ui/badge"
+import { TrendingUp, Calendar, Tag } from "lucide-react"
+import { searchQueries } from "@/lib/db/queries"
+import MarketDetailsCard from "@/features/market/MarketCard"
 import { generateMarketURL } from "@/lib/utils"
-import { SearchInput } from "@/components/search-input"
+import { SearchInput } from "@/features/search/SearchInput.client"
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -30,8 +28,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         includeTags: true,
         limit: 20,
         marketOptions: {
-          sort: (sort as any) ?? 'trending',
-          status: (status as any) ?? 'active',
+          sort: (sort as "volume" | "liquidity" | "trending" | "newest" | "ending" | "competitive" | undefined) ?? 'trending',
+          status: (status as "active" | "resolved" | "all" | undefined) ?? 'active',
           cursorId: cursor ?? null,
           limit: 20
         }

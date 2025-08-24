@@ -1,11 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
+import { Separator } from "@/shared/ui/separator"
+import { Checkbox } from "@/shared/ui/checkbox"
+import { Label } from "@/shared/ui/label"
 import { Brain, Zap, Database } from "lucide-react"
 import { Market, PredictionResult } from "@/lib/types"
 

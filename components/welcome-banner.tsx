@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/shared/ui/alert"
+import { Button } from "@/shared/ui/button"
 import { X, Info } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "@/hooks/use-user"

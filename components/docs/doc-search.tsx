@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Search } from 'lucide-react'
 import Fuse from 'fuse.js'
 import { usePostHog } from 'posthog-js/react'
-import { Input } from '@/components/ui/input'
+import { Input } from "@/shared/ui/input"
 import { DocNavItem, docsNavigation } from '@/lib/docs-data'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'

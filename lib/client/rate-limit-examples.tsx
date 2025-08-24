@@ -3,8 +3,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { RateLimitWarning, RateLimitBadge } from '@/components/ui/rate-limit-warning';
+import { Button } from "@/shared/ui/button";
+import { RateLimitWarning, RateLimitBadge } from "@/shared/ui/rate-limit-warning";
 import { apiPost } from './api-handler';
 import { useRateLimit } from './use-rate-limit';
 

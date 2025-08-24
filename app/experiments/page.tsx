@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Badge } from "@/shared/ui/badge"
 
 interface ExperimentStat {
   experimentTag: string
@@ -39,7 +39,7 @@ export default function ExperimentsPage() {
       } else {
         setError('Failed to fetch experiments')
       }
-    } catch (err) {
+    } catch {
       setError('Network error fetching experiments')
     } finally {
       setLoading(false)

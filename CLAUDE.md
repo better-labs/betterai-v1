@@ -19,7 +19,7 @@ Minimal dependencies Avoid over-engineering for a 1-person team
 Clear documentation Write code that's easy to understand and modify later. Add single-line comments to explain major code sections
 Gradual scaling Start simple, optimize later when needed
 Feel free to provide additional feedback, guidance if you see issues with the current design or code.
-
+If you are unable to fix and error or problem after two attempts, stop to give me (user) a recap of the problem, your tactical attempts to fix it and potential systemic issues.
 
 
 

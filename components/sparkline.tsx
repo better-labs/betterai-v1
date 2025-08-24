@@ -1,6 +1,6 @@
 "use client"
 
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/shared/ui/chart"
 import { cn, toUnitProbability, formatPercent } from '@/lib/utils'
 import { Line, LineChart } from 'recharts'
 
