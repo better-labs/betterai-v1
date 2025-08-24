@@ -1,9 +1,9 @@
 "use client"
 
 import { TrendingUp, Shield } from "lucide-react"
-import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
-import { BetaSignupForm } from "@/components/beta-signup-form"
-import { PageTransition } from "@/components/page-transition"
+import AiVsHumanAccuracyChart from "@/components/client/ai-vs-human-accuracy-chart"
+import { BetaSignupForm } from "@/components/client/beta-signup-form"
+import { PageTransition } from "@/components/shared/page-transition"
 
 export function LandingPage() {
   return (

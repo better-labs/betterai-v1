@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { LeaderboardTable } from "@/components/leaderboard-table"
-import { TagFilter } from "@/components/tag-filter"
+import { LeaderboardTable } from "@/components/client/leaderboard-table"
+import { TagFilter } from "@/components/client/tag-filter"
 import { LoadingCard } from "@/components/ui/loading"
 import { TrendingUp, Trophy, Target, Activity } from "lucide-react"
 import { Badge } from "@/components/ui/badge"

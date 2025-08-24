@@ -24,7 +24,7 @@ A reusable component for displaying event icons with proper fallback handling.
 ### Usage
 
 ```tsx
-import { EventIcon } from '@/components/event-icon'
+import { EventIcon } from '@/components/shared/event-icon'
 
 // Basic usage
 <EventIcon icon={event.icon} title={event.title} />

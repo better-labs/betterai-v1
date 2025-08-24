@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePrivy } from "@privy-io/react-auth"
-import { RecentPredictions } from "@/components/recent-predictions"
+import { RecentPredictions } from "@/components/client/recent-predictions"
 import { LoadingCard } from "@/components/ui/loading"
-import { type SortMode } from "@/components/trending-selector"
+import { type SortMode } from "@/components/client/trending-selector"
 import { useQuery } from "@tanstack/react-query"
 import {
   Pagination,

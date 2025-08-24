@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Event, ApiResponse } from "@/lib/types"
-import { EventIcon } from "@/components/event-icon"
+import { EventIcon } from "@/components/shared/event-icon"
 import { formatVolume } from "@/lib/utils"
 
 export function EventList() {

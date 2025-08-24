@@ -1,6 +1,6 @@
 import { TrendingUp, Brain, Target, BarChart3, Zap, Shield, Users, Globe } from "lucide-react"
-import { CTASection } from "@/components/cta-section"
-import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
+import { CTASection } from "@/components/shared/cta-section"
+import AiVsHumanAccuracyChart from "@/components/client/ai-vs-human-accuracy-chart"
 
 export default function AboutPage() {
   return (

@@ -1,14 +1,14 @@
 "use client"
 
 import { usePrivy } from "@privy-io/react-auth"
-import { LandingPage } from "@/components/landing-page"
-import { TrendingEventsTable } from "@/components/trending-events-table"
+import { LandingPage } from "@/components/shared/landing-page"
+import { TrendingEventsTable } from "@/components/client/trending-events-table"
 import { useEffect } from "react"
 import { LoadingCard } from "@/components/ui/loading"
-import { PaginatedRecentPredictions } from "@/components/paginated-recent-predictions"
+import { PaginatedRecentPredictions } from "@/components/client/paginated-recent-predictions"
 import { useUser } from "@/hooks/use-user"
-import { WelcomeBanner } from "@/components/welcome-banner"
-import { PageTransition } from "@/components/page-transition"
+import { WelcomeBanner } from "@/components/shared/welcome-banner"
+import { PageTransition } from "@/components/shared/page-transition"
 import { TrendingUp, Activity, Target, Trophy } from "lucide-react"
 
 export function HomePageWrapper() {

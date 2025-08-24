@@ -11,7 +11,7 @@ import { useTheme } from "next-themes"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
-import { CreditsDisplay } from "@/components/credits-display"
+import { CreditsDisplay } from "@/components/client/credits-display"
 
 const PrivyUserPill = dynamic(
   () => import("@privy-io/react-auth/ui").then((m) => m.UserPill),

@@ -7,9 +7,9 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Search, TrendingUp, Calendar, Tag } from "lucide-react"
 import { searchQueries, marketQueries } from "@/lib/db/queries"
-import MarketDetailsCard from "@/components/market-details-card"
+import MarketDetailsCard from "@/components/shared/market-details-card"
 import { generateMarketURL } from "@/lib/utils"
-import { SearchInput } from "@/components/search-input"
+import { SearchInput } from "@/components/client/search-input"
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'

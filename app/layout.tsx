@@ -1,12 +1,12 @@
 
 import type { Metadata } from "next"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { PrivyClientProvider } from "@/components/privy-client-provider"
-import { PostHogProvider } from "@/components/PostHogProvider"
-import { AnalyticsIdentify } from "@/components/analytics-identify"
+import { ThemeProvider } from "@/components/providers/theme-provider"
+import { Header } from "@/components/shared/header"
+import { Footer } from "@/components/shared/footer"
+import { PrivyClientProvider } from "@/components/providers/privy-client-provider"
+import { PostHogProvider } from "@/components/providers/PostHogProvider"
+import { AnalyticsIdentify } from "@/components/providers/analytics-identify"
 import { QueryProvider } from "@/components/providers/query-provider"
 
 export const metadata: Metadata = {

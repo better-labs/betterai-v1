@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { PredictionProbabilityGrid } from '@/components/prediction-probability-grid'
+import { PredictionProbabilityGrid } from '@/components/shared/prediction-probability-grid'
 import { cn, formatPercent, toUnitProbability } from '@/lib/utils'
-import { PredictionMeta } from '@/components/prediction-meta'
+import { PredictionMeta } from '@/components/shared/prediction-meta'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Info } from "lucide-react"
 
