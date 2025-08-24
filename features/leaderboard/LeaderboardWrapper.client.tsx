@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { LeaderboardTable } from "@/features/leaderboard/LeaderboardTable"
 import { TagFilter } from "@/components/tag-filter"
 import { LoadingCard } from "@/shared/ui/loading"
 import { TrendingUp, Trophy, Target, Activity } from "lucide-react"
 import { Badge } from "@/shared/ui/badge"
+import { trpc } from "@/shared/providers/trpc-provider"
 
 interface LeaderboardEntry {
   modelName: string
@@ -25,64 +26,46 @@ interface LeaderboardStats {
 }
 
 export function LeaderboardWrapper() {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
-  const [stats, setStats] = useState<LeaderboardStats | null>(null)
-  const [loading, setLoading] = useState(true)
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
-  const fetchLeaderboard = async (tagLabel?: string) => {
-    try {
-      setLoading(true)
-      const url = tagLabel 
-        ? `/api/leaderboard?tag=${encodeURIComponent(tagLabel)}`
-        : '/api/leaderboard'
-      
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error('Failed to fetch leaderboard')
-      }
-      
-      const data = await response.json()
-      const leaderboardData = data.data?.leaderboard || []
-      setLeaderboard(leaderboardData)
-      
-      // Calculate stats from leaderboard data
-      const totalModels = leaderboardData.length || 0
-      const totalPredictions = leaderboardData.reduce((sum: number, model: LeaderboardEntry) => 
-        sum + model.totalPredictions, 0) || 0
-      const averageAccuracy = totalModels > 0 
-        ? leaderboardData.reduce((sum: number, model: LeaderboardEntry) => 
-            sum + model.accuracyRate, 0) / totalModels
-        : 0
-      const resolvedMarkets = leaderboardData.reduce((sum: number, model: LeaderboardEntry) => 
-        sum + model.resolvedPredictions, 0) || 0
-      
-      setStats({
-        totalModels,
-        totalPredictions,
-        averageAccuracy,
-        resolvedMarkets
-      })
-      
-      setError(null)
-    } catch (err) {
-      console.error('Leaderboard fetch error:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load leaderboard')
-    } finally {
-      setLoading(false)
+  // Use tRPC to fetch leaderboard data
+  const { data, isLoading, error, refetch } = trpc.leaderboard.getLeaderboard.useQuery(
+    { tag: selectedTag || undefined },
+    {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     }
-  }
+  )
 
-  useEffect(() => {
-    fetchLeaderboard(selectedTag || undefined)
-  }, [selectedTag])
+  // Extract leaderboard data and calculate stats
+  const leaderboard = data?.data?.leaderboard || []
+  
+  const stats = useMemo((): LeaderboardStats | null => {
+    if (!leaderboard.length) return null
+    
+    const totalModels = leaderboard.length
+    const totalPredictions = leaderboard.reduce((sum, model) => 
+      sum + model.totalPredictions, 0)
+    const averageAccuracy = totalModels > 0 
+      ? leaderboard.reduce((sum, model) => 
+          sum + model.accuracyRate, 0) / totalModels
+      : 0
+    const resolvedMarkets = leaderboard.reduce((sum, model) => 
+      sum + model.resolvedPredictions, 0)
+    
+    return {
+      totalModels,
+      totalPredictions,
+      averageAccuracy,
+      resolvedMarkets
+    }
+  }, [leaderboard])
 
   const handleTagChange = (tagLabel: string | null) => {
     setSelectedTag(tagLabel)
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <main className="container mx-auto px-4 py-8">
@@ -98,9 +81,9 @@ export function LeaderboardWrapper() {
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-destructive mb-2">Error Loading Leaderboard</h2>
-            <p className="text-muted-foreground mb-4">{error}</p>
+            <p className="text-muted-foreground mb-4">{error.message}</p>
             <button 
-              onClick={() => fetchLeaderboard(selectedTag || undefined)}
+              onClick={() => refetch()}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
             >
               Try Again
