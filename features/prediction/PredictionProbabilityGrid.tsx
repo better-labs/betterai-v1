@@ -52,40 +52,40 @@ export function PredictionProbabilityGrid({
   }
 
   return (
-    <div className={cn('grid grid-cols-1 gap-6 sm:grid-cols-5', className)}>
+    <div className={cn('flex flex-col gap-2 sm:flex-row sm:gap-4', className)}>
       {/* Market Probability */}
-      <div className="sm:col-span-2">
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">Market Probability</div>
-        <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
-          <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
+      <div className="flex-1">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">Market Probability</div>
+        <div className="mt-1 space-y-1">
+          <div className="flex items-center justify-between text-sm">
             <div className="text-muted-foreground">{mo0}</div>
-            <div className="text-right font-semibold tabular-nums">{formatPercent(mp0)}</div>
+            <div className="font-semibold tabular-nums">{formatPercent(mp0)}</div>
           </div>
-          <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
+          <div className="flex items-center justify-between text-sm">
             <div className="text-muted-foreground">{mo1}</div>
-            <div className="text-right font-semibold tabular-nums">{formatPercent(mp1)}</div>
+            <div className="font-semibold tabular-nums">{formatPercent(mp1)}</div>
           </div>
         </div>
       </div>
 
       {/* AI Prediction */}
-      <div className="sm:col-span-2">
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-right">AI Prediction</div>
-        <div className="mt-1 rounded-md border bg-muted/30 shadow-sm">
-          <div className="grid grid-cols-2 items-center px-2 py-1 text-sm">
+      <div className="flex-1">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">AI Prediction</div>
+        <div className="mt-1 space-y-1">
+          <div className="flex items-center justify-between text-sm">
             <div className="text-muted-foreground">{ao0}</div>
-            <div className="text-right font-semibold tabular-nums">{formatPercent(ap0)}</div>
+            <div className="font-semibold tabular-nums">{formatPercent(ap0)}</div>
           </div>
-          <div className="grid grid-cols-2 items-center px-2 py-1 text-sm border-t">
+          <div className="flex items-center justify-between text-sm">
             <div className="text-muted-foreground">{ao1}</div>
-            <div className="text-right font-semibold tabular-nums">{formatPercent(ap1)}</div>
+            <div className="font-semibold tabular-nums">{formatPercent(ap1)}</div>
           </div>
         </div>
       </div>
 
       {/* Delta */}
-      <div className="sm:col-span-1">
-        <div className="flex items-center justify-end gap-1">
+      <div className="flex-shrink-0 sm:w-20">
+        <div className="flex items-center justify-center gap-1">
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Delta</div>
           <TooltipProvider>
             <Tooltip>
@@ -100,7 +100,7 @@ export function PredictionProbabilityGrid({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="mt-1 text-right">
+        <div className="mt-1 text-center">
           <div className={`${getDeltaColor(difference0)} ${getDeltaSize(difference0)} tabular-nums`}>
             {difference0 == null ? '—' : formatPercent(difference0)}
           </div>

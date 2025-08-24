@@ -196,9 +196,9 @@ export function RecentPredictions({
                   )}
                 </div>
 
-                {/* Probability Grid (Market, AI, Difference) - spans 8 columns */}
+                {/* Probability Grid (Market, AI, Difference) - spans 6 columns */}
                 <PredictionProbabilityGrid
-                  className="sm:col-span-8"
+                  className="sm:col-span-6"
                   marketOutcomes={market?.outcomes ?? null}
                   marketOutcomePrices={market?.outcomePrices ?? null}
                   aiOutcomes={p?.outcomes ?? null}
@@ -208,7 +208,7 @@ export function RecentPredictions({
                  
 
                 {/* Reasoning + Timestamp -  (link to prediction detail) */}
-                <div className="sm:col-span-1 min-w-0">
+                <div className="sm:col-span-3 min-w-0">
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground/70">Reasoning</div>
                   <div className="flex flex-col gap-1">
                     <div className="text-xs text-muted-foreground/80 line-clamp-2">
