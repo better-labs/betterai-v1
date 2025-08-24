@@ -3,12 +3,14 @@
 import { format } from "date-fns"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { Info } from "lucide-react"
 import type { Prediction, Market, Event, Tag } from "@/lib/types"
 import { EventIcon } from "@/components/event-icon"
 import { PredictionProbabilityGrid } from "@/features/prediction/PredictionProbabilityGrid"
 import { PopularTagsList } from "@/components/popular-tags-list"
 import { TrendingSelector, type SortMode } from "@/components/trending-selector"
 import { useApiQuery } from "@/lib/client/api-handler"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 
@@ -131,6 +133,51 @@ export function RecentPredictions({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
+        {/* Header Row */}
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-12 sm:items-center sm:gap-4 p-2 sm:p-3 bg-muted/20 border-b">
+          {/* Event Icon Header - 1 column */}
+          <div className="sm:col-span-1"></div>
+          
+          {/* Market Title Header - 2 columns */}
+          <div className="sm:col-span-2">
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Market</div>
+          </div>
+          
+          {/* Probability Headers - 6 columns */}
+          <div className="sm:col-span-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+              <div className="flex-1 text-center">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Market Probability</div>
+              </div>
+              <div className="flex-1 text-center">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">AI Prediction</div>
+              </div>
+              <div className="flex-shrink-0 sm:w-20 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Delta</div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-64">
+                        <p className="text-xs">
+                          Delta is the difference between the Market Probability and AI Prediction
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Reasoning Header - 3 columns */}
+          <div className="sm:col-span-3">
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Reasoning</div>
+          </div>
+        </div>
+        
         {items.map((p, index) => {
           const market = p.market
           const event = market?.event || null

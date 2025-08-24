@@ -55,8 +55,7 @@ export function PredictionProbabilityGrid({
     <div className={cn('flex flex-col gap-2 sm:flex-row sm:gap-4', className)}>
       {/* Market Probability */}
       <div className="flex-1">
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">Market Probability</div>
-        <div className="mt-1 space-y-1 flex flex-col items-center">
+        <div className="space-y-1 flex flex-col items-center">
           <div className="flex gap-3 text-sm">
             <div className="text-muted-foreground">{mo0}</div>
             <div className="font-semibold tabular-nums">{formatPercent(mp0)}</div>
@@ -70,8 +69,7 @@ export function PredictionProbabilityGrid({
 
       {/* AI Prediction */}
       <div className="flex-1">
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">AI Prediction</div>
-        <div className="mt-1 space-y-1 flex flex-col items-center">
+        <div className="space-y-1 flex flex-col items-center">
           <div className="flex gap-3 text-sm">
             <div className="text-muted-foreground">{ao0}</div>
             <div className="font-semibold tabular-nums">{formatPercent(ap0)}</div>
@@ -85,22 +83,7 @@ export function PredictionProbabilityGrid({
 
       {/* Delta */}
       <div className="flex-shrink-0 sm:w-20">
-        <div className="flex items-center justify-center gap-1">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Delta</div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-64">
-                <p className="text-xs">
-                  Delta is the difference between the Market Probability and AI Prediction
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-        <div className="mt-1 text-center">
+        <div className="text-center">
           <div className={`${getDeltaColor(difference0)} ${getDeltaSize(difference0)} tabular-nums`}>
             {difference0 == null ? '—' : formatPercent(difference0)}
           </div>
