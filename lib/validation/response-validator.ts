@@ -17,15 +17,12 @@ export function createResponseValidator<T extends z.ZodSchema>(schema: T) {
       return schema.parse(data)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        // Filter sensitive logging in production
-        if (process.env.NODE_ENV === 'production') {
+        // Minimal logging to reduce noise
+        if (process.env.NODE_ENV !== 'production') {
           console.error('API Response validation failed:', {
-            errors: error.errors.map(err => ({ path: err.path, message: err.message }))
-          })
-        } else {
-          console.error('API Response validation failed:', {
-            errors: error.errors,
-            data: JSON.stringify(data, null, 2)
+            errors: error.errors.slice(0, 5), // Only log first 5 errors
+            totalErrors: error.errors.length,
+            data: typeof data === 'object' ? `[Object with ${Object.keys(data as any).length} properties]` : typeof data
           })
         }
         
@@ -57,15 +54,12 @@ export function createSafeResponseValidator<T extends z.ZodSchema>(schema: T) {
           `${err.path.join('.')}: ${err.message}`
         ).join(', ')
         
-        // Filter sensitive logging in production
-        if (process.env.NODE_ENV === 'production') {
+        // Minimal logging to reduce noise
+        if (process.env.NODE_ENV !== 'production') {
           console.error('API Response validation failed:', {
-            errors: error.errors.map(err => ({ path: err.path, message: err.message }))
-          })
-        } else {
-          console.error('API Response validation failed:', {
-            errors: error.errors,
-            data: JSON.stringify(data, null, 2)
+            errors: error.errors.slice(0, 5), // Only log first 5 errors
+            totalErrors: error.errors.length,
+            data: typeof data === 'object' ? `[Object with ${Object.keys(data as any).length} properties]` : typeof data
           })
         }
         

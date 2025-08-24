@@ -49,6 +49,14 @@ export const rateLimitedProcedure = authenticatedProcedure.use(async ({ ctx, nex
   return next()
 })
 
+// Admin procedure - currently same as authenticated until admin system is implemented
+// TODO: Add admin role checking when user roles are implemented
+export const adminProcedure = authenticatedProcedure.use(async ({ ctx, next }) => {
+  // Future: check if user has admin role
+  // For now, require authentication only
+  return next()
+})
+
 // Utility to create tRPC error from existing error patterns
 export const createTRPCError = (error: unknown): TRPCError => {
   if (error instanceof TRPCError) {

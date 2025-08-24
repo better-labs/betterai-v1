@@ -311,11 +311,33 @@ Migration notes:
 2. **Type integration**: Remove manual DTOs, use generated types
 3. **Error boundaries**: Update error handling for tRPC patterns
 4. **Remove serialization**: Eliminate manual `serializeDecimals` calls
+5. **API Consolidation**: Migrate deprecated tRPC procedures to modern equivalents
+
+### tRPC API Migration Patterns
+
+#### Markets API Migration:
+- ❌ **Remove**: `trpc.markets.getByEventId()` → ✅ **Use**: `trpc.markets.list({ eventId })`
+- ❌ **Remove**: `trpc.markets.search()` → ✅ **Use**: `trpc.markets.list({ search })`
+- ✅ **Keep**: `trpc.markets.getById()` (single market queries)
+- ✅ **Keep**: `trpc.markets.trending()` (different data structure with event context)
+- ✅ **Primary**: `trpc.markets.list()` (unified endpoint for all market querying)
+
+#### Component Migration Examples:
+```typescript
+// ❌ OLD: Multiple endpoints
+const marketsByEvent = await trpc.markets.getByEventId.query({ eventId })
+const searchResults = await trpc.markets.search.query({ query: "election" })
+
+// ✅ NEW: Unified endpoint
+const marketsByEvent = await trpc.markets.list.query({ eventId })
+const searchResults = await trpc.markets.list.query({ search: "election" })
+```
 
 **Production Deployment**:
 - Feature flags enable gradual rollout
 - Real user testing with immediate rollback capability
 - Component-by-component validation
+- Deprecated procedures marked with `.meta({ deprecated: true })`
 
 ---
 
@@ -335,22 +357,41 @@ Migration notes:
    - Edge case validation: Error conditions and boundary cases
 
 2. **Legacy Code Removal**
-   - Remove old API routes (after client migration complete)
-   - Remove old query objects and DTOs
-   - Remove manual serialization utilities
-   - Clean up unused dependencies
+   - Remove old REST API routes (after client migration complete)
+   - Remove deprecated tRPC procedures:
+     - `markets.getByEventId` → replaced by `markets.list({ eventId })`
+     - `markets.search` → replaced by `markets.list({ search })`
+   - Remove old query objects (`lib/db/queries/`)
+   - Remove old DTOs and manual serialization utilities
+   - Clean up unused dependencies and imports
 
 3. **Documentation & Guidelines**
    - Update `CLAUDE.md` and .cursor/rules/general-cursor-project-rule.mdc with new development patterns from this project.
    - Document tRPC patterns for future AI development
    - Code comments explaining key architectural decisions
 
-4. Resolve open lint errors if simple. If not, explain the error to user and suggest a tactical fix and more comprehensive best practice fix.
+4. **Deprecated Procedure Cleanup**
+   - Search codebase for usage of deprecated procedures:
+     - `trpc.markets.getByEventId` usage
+     - `trpc.markets.search` usage
+   - Verify all clients migrated to `trpc.markets.list`
+   - Remove deprecated procedures from router
+   - Update TypeScript types to reflect removed procedures
+
+5. Resolve open lint errors if simple. If not, explain the error to user and suggest a tactical fix and more comprehensive best practice fix.
 
 **Production Deployment**: 
 - Final cleanup deployment
-- Legacy endpoints removed
+- Deprecated tRPC procedures removed
+- Legacy REST endpoints removed
 - Full tRPC migration complete
+
+**Validation Checklist**:
+- [ ] No usage of `markets.getByEventId` in codebase
+- [ ] No usage of `markets.search` in codebase  
+- [ ] All components use `markets.list` for market querying
+- [ ] TypeScript compilation succeeds after procedure removal
+- [ ] End-to-end tests pass with new API patterns
 
 
 

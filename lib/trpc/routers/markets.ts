@@ -1,162 +1,287 @@
 /**
- * Markets tRPC router
- * This demonstrates how existing API endpoints can be migrated to tRPC
- * WITHOUT replacing the existing REST endpoints initially
+ * Markets tRPC router - Phase 5A implementation
+ * Implements comprehensive market search, filtering, and CRUD operations
+ * Uses new service layer pattern with proper DTOs
  */
 
-import { z } from 'zod'
-import { router, publicProcedure, authenticatedProcedure, createTRPCError } from '../trpc'
-import { marketQueries } from '@/lib/db/queries'
-import { serializeDecimals } from '@/lib/serialization'
-import type { ApiResponse } from '@/lib/types'
+import { router, publicProcedure, authenticatedProcedure, adminProcedure } from '../trpc'
+import { TRPCError } from '@trpc/server'
+import { prisma } from '@/lib/db/prisma'
+import * as marketService from '@/lib/services/market-service'
+import * as eventService from '@/lib/services/event-service'
+import {
+  GetMarketsInput,
+  GetMarketByIdInput,
+  SearchMarketsInput,
+  CreateMarketInput,
+  UpdateMarketInput,
+  DeleteMarketInput,
+  GetTrendingMarketsInput,
+} from '../schemas/market'
 
 export const marketsRouter = router({
-  // GET /api/markets equivalent
-  getMarkets: publicProcedure
-    .input(z.object({
-      id: z.string().optional(),
-      eventId: z.string().optional(),
-    }))
+  // Single market query by ID
+  getById: publicProcedure
+    .input(GetMarketByIdInput)
     .query(async ({ input }) => {
-      try {
-        const { id, eventId } = input
+      const market = await marketService.getMarketByIdSerialized(prisma, input.id)
+      if (!market) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Market not found',
+        })
+      }
+      return market
+    }),
 
-        if (id) {
-          const market = await marketQueries.getMarketById(id)
-          if (!market) {
-            throw createTRPCError(new Error('Market not found'))
-          }
-          return {
-            success: true,
-            data: serializeDecimals(market),
-            timestamp: new Date().toISOString(),
-          } as ApiResponse
-        }
+  // ❌ DEPRECATED: Markets by event ID (backwards compatibility)
+  // TODO Phase 7: Migrate clients to use `list({ eventId })` instead
+  // TODO Phase 8: Remove this procedure entirely
+  getByEventId: publicProcedure
+    .meta({ deprecated: true })
+    .input(GetMarketsInput)
+    .query(async ({ input }) => {
+      if (input.eventId) {
+        return await marketService.getMarketsByEventIdSerialized(prisma, input.eventId)
+      }
+      
+      // If no eventId provided, get all markets (limited)
+      const markets = await marketService.getTopMarkets(prisma, input.limit)
+      return markets.map(market => ({
+        ...market,
+        volume: market.volume?.toString() || '0',
+        liquidity: market.liquidity?.toString() || '0',
+        outcomePrices: Array.isArray(market.outcomePrices) 
+          ? market.outcomePrices 
+          : typeof market.outcomePrices === 'string' 
+            ? JSON.parse(market.outcomePrices) 
+            : [],
+      }))
+    }),
 
-        if (eventId) {
-          const markets = await marketQueries.getMarketsByEventId(eventId)
-          return {
-            success: true,
-            data: serializeDecimals(markets),
-            timestamp: new Date().toISOString(),
-          } as ApiResponse
-        }
+  // ❌ DEPRECATED: Dedicated search endpoint (backwards compatibility)
+  // TODO Phase 7: Migrate clients to use `list({ search })` instead  
+  // TODO Phase 8: Remove this procedure entirely
+  search: publicProcedure
+    .meta({ deprecated: true })
+    .input(SearchMarketsInput)
+    .query(async ({ input }) => {
+      const result = await marketService.searchMarkets(prisma, input.query, {
+        limit: input.limit,
+        sort: input.sort,
+        status: input.status,
+        cursorId: input.cursor,
+      })
 
-        // Default: get all markets
-        const markets = await marketQueries.getMarketsByEventId('')
-        return {
-          success: true,
-          data: serializeDecimals(markets),
-          timestamp: new Date().toISOString(),
-        } as ApiResponse
-      } catch (error) {
-        throw createTRPCError(error)
+      return {
+        items: result.items.map(item => ({
+          ...item,
+          // Ensure DTOs are returned, not raw Prisma models
+          predictions: item.predictions?.slice(0, 3) || [],
+        })),
+        nextCursor: result.nextCursor,
+        hasMore: !!result.nextCursor,
       }
     }),
 
-  // GET /api/markets/trending equivalent  
-  getTrendingMarkets: publicProcedure
-    .query(async () => {
-      try {
-        // This would implement the same logic as the trending endpoint
-        const markets = await marketQueries.getMarketsByEventId('')
+  // List markets with various filters (main endpoint)
+  list: publicProcedure
+    .input(GetMarketsInput)
+    .query(async ({ input }) => {
+      // If search query provided, use search functionality
+      if (input.search) {
+        const result = await marketService.searchMarkets(prisma, input.search, {
+          limit: input.limit,
+          sort: input.sort,
+          status: input.status,
+          cursorId: input.cursor,
+        })
+
         return {
-          success: true,
-          data: serializeDecimals(markets),
-          timestamp: new Date().toISOString(),
-        } as ApiResponse
-      } catch (error) {
-        throw createTRPCError(error)
+          items: result.items,
+          nextCursor: result.nextCursor,
+          hasMore: !!result.nextCursor,
+        }
+      }
+
+      // Single market by ID
+      if (input.id) {
+        const market = await marketService.getMarketByIdSerialized(prisma, input.id)
+        if (!market) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Market not found',
+          })
+        }
+        return {
+          items: [market],
+          nextCursor: null,
+          hasMore: false,
+        }
+      }
+
+      // Markets by event ID
+      if (input.eventId) {
+        const markets = await marketService.getMarketsByEventIdSerialized(prisma, input.eventId)
+        return {
+          items: markets,
+          nextCursor: null,
+          hasMore: false,
+        }
+      }
+
+      // Default: get high volume markets
+      const markets = await marketService.getHighVolumeMarkets(prisma, input.limit)
+      const marketDTOs = markets.map(market => ({
+        ...market,
+        volume: market.volume?.toString() || '0',
+        liquidity: market.liquidity?.toString() || '0',
+        outcomePrices: Array.isArray(market.outcomePrices) 
+          ? market.outcomePrices 
+          : typeof market.outcomePrices === 'string' 
+            ? JSON.parse(market.outcomePrices) 
+            : [],
+      }))
+      
+      return {
+        items: marketDTOs,
+        nextCursor: null,
+        hasMore: false,
       }
     }),
 
-  // POST /api/markets equivalent (authenticated)
-  createMarket: authenticatedProcedure
-    .input(z.object({
-      question: z.string().min(10),
-      eventId: z.string(),
-      outcomes: z.array(z.string()).min(2),
-      description: z.string().optional(),
-      // Add other market creation fields as needed
-    }))
+  // Trending markets endpoint (kept separate due to different data structure)
+  // This returns markets with event context, different from regular market list
+  trending: publicProcedure
+    .input(GetTrendingMarketsInput)
+    .query(async ({ input }) => {
+      // Get events with markets using the event service
+      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma)
+      
+      // Extract markets from events and flatten
+      const trendingMarkets = eventsWithMarkets.flatMap(event => 
+        event.markets?.map(market => ({
+          ...market,
+          // Serialize Decimal fields properly
+          volume: market.volume?.toString() || '0',
+          liquidity: market.liquidity?.toString() || '0',
+          outcomePrices: Array.isArray(market.outcomePrices) 
+            ? market.outcomePrices 
+            : typeof market.outcomePrices === 'string' 
+              ? JSON.parse(market.outcomePrices) 
+              : [],
+          event: {
+            id: event.id,
+            title: event.title,
+            category: event.category,
+          },
+        })) || []
+      )
+
+      return {
+        items: trendingMarkets.slice(0, input.limit),
+        nextCursor: null,
+        hasMore: false,
+      }
+    }),
+
+  // Create market (admin only)
+  create: adminProcedure
+    .input(CreateMarketInput)
     .mutation(async ({ input, ctx }) => {
       try {
-        const marketData = {
-          ...input,
-          // Convert outcomes to JSON string to match existing schema
-          outcomes: JSON.stringify(input.outcomes),
-          outcomePrices: JSON.stringify([0.5, 0.5]), // Default 50/50 odds
-          volume: '0',
-          liquidity: '0',
-          active: true,
-          closed: false,
+        // Validate event exists
+        const event = await eventService.getEventById(prisma, input.eventId)
+        if (!event) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Event not found',
+          })
         }
 
-        const market = await marketQueries.createMarket(marketData)
-        return {
-          success: true,
-          data: serializeDecimals(market),
-          timestamp: new Date().toISOString(),
-        } as ApiResponse
+        // Prepare market data with proper serialization
+        const marketData = {
+          id: crypto.randomUUID(),
+          question: input.question,
+          description: input.description,
+          eventId: input.eventId,
+          outcomes: JSON.stringify(input.outcomes),
+          outcomePrices: JSON.stringify(input.outcomePrices || [0.5, 0.5]),
+          volume: input.volume || 0,
+          liquidity: input.liquidity || 0,
+          active: input.active,
+          closed: input.closed,
+          endDate: input.endDate,
+          image: input.image,
+          category: input.category,
+        }
+
+        const market = await marketService.createMarket(prisma, marketData)
+        return await marketService.getMarketByIdSerialized(prisma, market.id)
       } catch (error) {
-        throw createTRPCError(error)
+        console.error('Create market error:', error)
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create market',
+          cause: error,
+        })
       }
     }),
 
-  // PUT /api/markets equivalent (authenticated)
-  updateMarket: authenticatedProcedure
-    .input(z.object({
-      id: z.string(),
-      question: z.string().optional(),
-      description: z.string().optional(),
-      outcomes: z.array(z.string()).optional(),
-      active: z.boolean().optional(),
-      closed: z.boolean().optional(),
-    }))
+  // Update market (admin only)
+  update: adminProcedure
+    .input(UpdateMarketInput)
     .mutation(async ({ input, ctx }) => {
       try {
         const { id, outcomes, ...updateData } = input
         
+        // Prepare update data with proper serialization
         const marketData = {
           ...updateData,
-          // Convert outcomes to JSON string if provided
           ...(outcomes && { outcomes: JSON.stringify(outcomes) }),
+          updatedAt: new Date(),
         }
 
-        const market = await marketQueries.updateMarket(id, marketData)
+        const market = await marketService.updateMarket(prisma, id, marketData)
         if (!market) {
-          throw createTRPCError(new Error('Market not found'))
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Market not found',
+          })
         }
 
-        return {
-          success: true,
-          data: serializeDecimals(market),
-          timestamp: new Date().toISOString(),
-        } as ApiResponse
+        return await marketService.getMarketByIdSerialized(prisma, market.id)
       } catch (error) {
-        throw createTRPCError(error)
+        console.error('Update market error:', error)
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update market',
+          cause: error,
+        })
       }
     }),
 
-  // DELETE /api/markets equivalent (authenticated)
-  deleteMarket: authenticatedProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
+  // Delete market (admin only)
+  delete: adminProcedure
+    .input(DeleteMarketInput)
     .mutation(async ({ input, ctx }) => {
       try {
-        const success = await marketQueries.deleteMarket(input.id)
+        const success = await marketService.deleteMarket(prisma, input.id)
         if (!success) {
-          throw createTRPCError(new Error('Market not found'))
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Market not found',
+          })
         }
 
-        return {
-          success: true,
-          message: 'Market deleted',
-          timestamp: new Date().toISOString(),
-        } as ApiResponse
+        return { success: true, message: 'Market deleted' }
       } catch (error) {
-        throw createTRPCError(error)
+        console.error('Delete market error:', error)
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete market',
+          cause: error,
+        })
       }
     }),
 })

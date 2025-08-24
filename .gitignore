@@ -36,3 +36,4 @@ GEMINI.md
 **/.DS_Store
 .env.prod
 .env*.local
+.DS_Store
