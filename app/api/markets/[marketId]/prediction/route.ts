@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { predictionQueries } from "@/lib/db/queries"
+import { prisma } from '@/lib/db/prisma'
+import * as predictionService from '@/lib/services/prediction-service'
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
-import { serializeDecimals } from "@/lib/serialization"
 
 import type { ApiResponse } from "@/lib/types"
 
@@ -24,7 +24,7 @@ export async function GET(
       return NextResponse.json(errorResponse, { status: 400 })
     }
 
-    const prediction = await predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId)
+    const prediction = await predictionService.getMostRecentPredictionByMarketIdSerialized(prisma, marketId)
 
     if (!prediction) {
       const responseData: ApiResponse = {

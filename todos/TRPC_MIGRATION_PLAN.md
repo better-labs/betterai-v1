@@ -106,14 +106,14 @@ This revised plan incorporates all lessons learned from the initial migration at
 
 ### Sub-phases (deployable independently):
 
-#### Phase 4A: Core Data Services (Markets & Events) 🔄 IN PROGRESS
+#### Phase 4A: Core Data Services (Markets & Events) ✅ COMPLETE
 *Target: 2 days*
 - Convert `marketQueries` → `lib/services/market-service.ts` 
 - Convert `eventQueries` → `lib/services/event-service.ts`
 - Create standardized DTO mappers in `lib/dtos/`
 - Update 2-3 API routes to use new services
 
-#### Phase 4B: User & Prediction Services
+#### Phase 4B: User & Prediction Services 🔄 IN PROGRESS
 *Target: 1-2 days*
 - Convert `predictionQueries` → `lib/services/prediction-service.ts`
 - Convert `userQueries` → `lib/services/user-service.ts` 

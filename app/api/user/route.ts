@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth, createAuthErrorResponse } from '@/lib/auth'
-import { userQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as userService from '@/lib/services/user-service'
+import { mapUserToDTO } from '@/lib/dtos'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
@@ -8,13 +10,13 @@ export async function GET(request: NextRequest) {
     const { userId } = await requireAuth(request)
     
     // Get user from database
-    const user = await userQueries.getUserById(userId)
+    const userDto = await userService.getUserByIdSerialized(prisma, userId)
     
-    if (!user) {
+    if (!userDto) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
     
-    return NextResponse.json({ user })
+    return NextResponse.json({ user: userDto })
   } catch (error) {
     console.error('Get user error:', error)
     
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
     const userData = await request.json()
     
     // Upsert user with provided data
-    const user = await userQueries.upsertUser({
+    const user = await userService.upsertUser(prisma, {
       id: userId,
       email: userData.email,
       walletAddress: userData.walletAddress,
@@ -52,7 +54,8 @@ export async function POST(request: NextRequest) {
       avatar: userData.avatar
     })
     
-    return NextResponse.json({ user })
+    const userDto = mapUserToDTO(user)
+    return NextResponse.json({ user: userDto })
   } catch (error) {
     console.error('Create/update user error:', error)
     

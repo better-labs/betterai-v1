@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { predictionQueries } from "@/lib/db/queries"
+import { prisma } from '@/lib/db/prisma'
+import * as predictionService from '@/lib/services/prediction-service'
 import { requireAuth, createAuthErrorResponse } from "@/lib/auth"
 import { serializeDecimals } from "@/lib/serialization"
 
@@ -23,10 +24,10 @@ export async function GET(request: Request) {
     let result
     if (tagIds && tagIds.length > 0) {
       // Filtered predictions by tags
-      result = await predictionQueries.getRecentPredictionsWithRelationsFilteredByTags(tagIds, limit, cursorId ?? undefined, sortMode)
+      result = await predictionService.getRecentPredictionsWithRelationsFilteredByTags(prisma, tagIds, limit, cursorId ?? undefined, sortMode)
     } else {
       // All recent predictions
-      result = await predictionQueries.getRecentPredictionsWithRelationsPaginated(limit, cursorId ?? undefined, sortMode)
+      result = await predictionService.getRecentPredictionsWithRelationsPaginated(prisma, limit, cursorId ?? undefined, sortMode)
     }
 
     const { items, nextCursor } = result
