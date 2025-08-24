@@ -45,14 +45,14 @@ export default function RootLayout({
       <body>
         <PostHogProvider>
           <QueryProvider>
-            <TRPCProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="dark"
-                enableSystem
-                disableTransitionOnChange
-              >
-                <PrivyClientProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <PrivyClientProvider>
+                <TRPCProvider>
                   <UserAnalyticsIdentify />
                   <div className="min-h-screen flex flex-col">
                     <Header />
@@ -61,9 +61,9 @@ export default function RootLayout({
                     </main>
                     <Footer />
                   </div>
-                </PrivyClientProvider>
-              </ThemeProvider>
-            </TRPCProvider>
+                </TRPCProvider>
+              </PrivyClientProvider>
+            </ThemeProvider>
           </QueryProvider>
         </PostHogProvider>
       </body>

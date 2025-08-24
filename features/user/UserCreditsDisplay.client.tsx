@@ -15,11 +15,11 @@ interface UserCreditsDisplayProps {
 export function UserCreditsDisplay({ showAddButton = true, compact = false }: UserCreditsDisplayProps) {
   const { user, isAuthenticated, isReady } = useUser()
 
-  // Use tRPC to fetch user credits
+  // Use tRPC to fetch user credits - wait for both Privy and user to be ready
   const { data: creditsData, isLoading } = trpc.users.getCredits.useQuery(
     {},
     {
-      enabled: isReady && isAuthenticated,
+      enabled: isReady && isAuthenticated && !!user?.id,
       refetchInterval: 60000, // Refetch every minute
       staleTime: 30000, // Consider data stale after 30 seconds
       refetchOnWindowFocus: false,
