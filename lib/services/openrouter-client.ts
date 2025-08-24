@@ -21,6 +21,13 @@ export interface OpenRouterPredictionResult {
   confidence_level: "High" | "Medium" | "Low";
 }
 
+export class EmptyContentError extends Error {
+  constructor(message: string, public choiceData: unknown) {
+    super(message);
+    this.name = 'EmptyContentError';
+  }
+}
+
 export async function fetchPredictionFromOpenRouter(
   model: string,
   systemMessage: string,
@@ -163,13 +170,13 @@ export async function fetchPredictionFromOpenRouter(
   
   // Handle empty responses
   if (!text || text.trim() === '') {
-    // Filter sensitive logging in production
+    // Log as console message instead of throwing error to allow batch job to continue
     if (process.env.NODE_ENV === 'production') {
-      console.error('OpenRouter API returned empty content');
+      console.log('⚠️  OpenRouter API returned empty content - skipping this prediction');
     } else {
-      console.error('OpenRouter API returned empty content:', JSON.stringify(validatedData.choices[0], null, 2));
+      console.log('⚠️  OpenRouter API returned empty content - skipping this prediction:', JSON.stringify(validatedData.choices[0], null, 2));
     }
-    throw new Error(`OpenRouter API returned empty content. Choice data: ${JSON.stringify(validatedData.choices[0])}`);
+    throw new EmptyContentError(`OpenRouter API returned empty content`, validatedData.choices[0]);
   }
 
   const parsed = parseAIResponse<unknown>(text);

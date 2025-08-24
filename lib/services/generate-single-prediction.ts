@@ -1,5 +1,5 @@
 import { marketQueries, predictionQueries, DEFAULT_MODEL } from '../db/queries'
-import { fetchPredictionFromOpenRouter, type OpenRouterPredictionResult } from './openrouter-client'
+import { fetchPredictionFromOpenRouter, type OpenRouterPredictionResult, EmptyContentError } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
 import { Decimal } from '@prisma/client/runtime/library'
 import { USER_MESSAGE_PREFIX } from '@/lib/utils'
@@ -200,20 +200,30 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
       console.error(`Error generating prediction for market ${marketId}:`, error)
       
       // If it's a JSON parsing error or empty response, try with a fallback model
-      if (error instanceof Error && (error.message.includes('invalid JSON response') || error.message.includes('empty content'))) {
-        console.log(`Retrying with fallback model for market ${marketId}`)
+      if ((error instanceof Error && (error.message.includes('invalid JSON response') || error.message.includes('empty content'))) || 
+          error instanceof EmptyContentError) {
+        console.log(`📝 Empty response from primary model for market ${marketId}, trying fallback model...`)
         
         try {
           // Retry with Claude which tends to be more reliable with JSON
           const fallbackModel = 'anthropic/claude-3-haiku:beta'
           await new Promise(resolve => setTimeout(resolve, 1000)) // Additional delay for retry
           predictionResult = await fetchPredictionFromOpenRouter(fallbackModel, systemMessage, userMessage)
-          console.log(`Fallback model succeeded for market ${marketId}`)
+          console.log(`✅ Fallback model succeeded for market ${marketId}`)
         } catch (fallbackError) {
-          console.error(`Fallback model also failed for market ${marketId}:`, fallbackError)
-          return { 
-            success: false, 
-            message: `Both primary (${model}) and fallback (anthropic/claude-3-haiku) models failed for market ${marketId}. Primary error: ${error.message}` 
+          // If fallback also fails with empty content, log and return gracefully
+          if (fallbackError instanceof EmptyContentError) {
+            console.log(`📝 Both primary and fallback models returned empty content for market ${marketId} - skipping this market`)
+            return { 
+              success: false,
+              message: 'Skipped: Both models returned empty content'
+            }
+          } else {
+            console.error(`❌ Fallback model also failed for market ${marketId}:`, fallbackError)
+            return { 
+              success: false, 
+              message: `Both primary (${model}) and fallback (anthropic/claude-3-haiku) models failed for market ${marketId}. Primary error: ${error.message}` 
+            }
           }
         }
       } else {
