@@ -1,5 +1,5 @@
 import { prisma } from '../db/prisma'
-import { predictionCheckQueries } from '../db/queries'
+import * as predictionCheckService from './prediction-check-service'
 
 export type CheckerConfig = {
   daysLookback?: number
@@ -165,7 +165,7 @@ export async function generatePredictionVsMarketDelta(
     })
     // save the results to the database
     try {
-      await predictionCheckQueries.create({
+      await predictionCheckService.create(prisma, {
         predictionId: p.id,
         marketId: market.id,
         // Pass values allowing the DB layer to normalize to Decimal

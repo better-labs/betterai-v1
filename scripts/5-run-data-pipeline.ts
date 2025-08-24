@@ -1,5 +1,4 @@
 
-import { marketQueries } from '../lib/db/queries';
 import { runDataPipeline } from '../lib/services/run-data-pipeline';
 import { getTopMarketsByVolumeAndEndDate } from '../lib/services/generate-batch-predictions';
 

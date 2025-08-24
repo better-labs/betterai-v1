@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation'
-import { eventQueries, marketQueries, predictionQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as eventService from '@/lib/services/event-service'
+import * as marketService from '@/lib/services/market-service'
+import * as predictionService from '@/lib/services/prediction-service'
 import { MarketEventHeader } from '@/features/market/MarketEventHeader'
 import { PredictionSummaryCard } from '@/features/prediction/PredictionSummaryCard'
 import type { PredictionResult } from '@/lib/types'
@@ -15,11 +18,11 @@ type PageProps = { params: Promise<PageParams> }
 export default async function MarketPredictionsPage({ params }: PageProps) {
   const { marketId } = await params
 
-  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketDTO | null
+  const market = await marketService.getMarketByIdSerialized(prisma, marketId) as unknown as MarketDTO | null
   if (!market) return notFound()
 
-  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventDTO | null : null
-  const predictions = await predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as PredictionDTO[]
+  const event = market.eventId ? await eventService.getEventByIdSerialized(prisma, market.eventId) as unknown as EventDTO | null : null
+  const predictions = await predictionService.getPredictionsByMarketIdSerialized(prisma, marketId) as unknown as PredictionDTO[]
 
   const serializedMarket = market
   const serializedEvent = event

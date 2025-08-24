@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation"
-import { predictionQueries } from "@/lib/db/queries"
+import { prisma } from '@/lib/db/prisma'
+import * as predictionService from '@/lib/services/prediction-service'
 import { getPredictionDisplayData } from "@/lib/utils"
 import { PredictionSummaryCard } from "@/features/prediction/PredictionSummaryCard"
 import { PredictionReasoningCard } from "@/features/prediction/PredictionReasoningCard.client"
 import type { PredictionResult } from "@/lib/types"
-import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/queries"
+import * as predictionCheckService from '@/lib/services/prediction-check-service'
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
 import { MarketEventHeader } from "@/features/market/MarketEventHeader"
 import { PredictionUserMessageCard } from "@/features/prediction/PredictionUserMessageCard.client"
@@ -21,7 +22,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const id = Number(predictionId)
   if (!Number.isFinite(id)) return notFound()
 
-  const prediction = await predictionQueries.getPredictionWithRelationsByIdSerialized(id) as unknown as (PredictionDTO & { market: any | null }) | null
+  const prediction = await predictionService.getPredictionWithRelationsByIdSerialized(prisma, id) as unknown as (PredictionDTO & { market: any | null }) | null
   if (!prediction) return notFound()
 
   const serializedPrediction = prediction
@@ -44,8 +45,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   // Optional history: recent checks and past predictions for this market
   const marketId = market?.id
   const [checks, pastPredictions]: [PredictionCheckDTO[], PredictionDTO[]] = await Promise.all([
-    marketId ? predictionCheckQueries.getRecentByMarketSerialized(marketId, 25) : Promise.resolve([]),
-    marketId ? pq.getPredictionsByMarketIdSerialized(marketId) : Promise.resolve([]),
+    marketId ? predictionCheckService.getRecentByMarketSerialized(prisma, marketId, 25) : Promise.resolve([]),
+    marketId ? predictionService.getPredictionsByMarketIdSerialized(prisma, marketId) : Promise.resolve([]),
   ])
 
   return (

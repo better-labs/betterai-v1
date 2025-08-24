@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { CreditManager } from '@/lib/services/credit-manager'
-import { userQueries } from '@/lib/db/queries'
+import * as userService from '@/lib/services/user-service'
 
 // Mock the entire db module
 vi.mock('@/lib/db/queries', () => ({

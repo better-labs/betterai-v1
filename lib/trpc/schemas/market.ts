@@ -20,13 +20,6 @@ export const GetMarketByIdInput = z.object({
   id: z.string().min(1, 'Market ID is required'),
 })
 
-export const SearchMarketsInput = z.object({
-  query: z.string().min(1, 'Search query is required'),
-  limit: z.number().int().positive().max(100).optional().default(50),
-  cursor: z.string().optional(),
-  sort: z.enum(['trending', 'liquidity', 'volume', 'newest', 'ending', 'competitive']).optional().default('trending'),
-  status: z.enum(['active', 'resolved', 'all']).optional().default('all'),
-})
 
 export const CreateMarketInput = z.object({
   question: z.string().min(10, 'Question must be at least 10 characters'),

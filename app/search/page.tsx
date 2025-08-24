@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/shared/ui/card"
 import { Separator } from "@/shared/ui/separator"
 import { Badge } from "@/shared/ui/badge"
 import { TrendingUp, Calendar, Tag } from "lucide-react"
-import { searchQueries } from "@/lib/db/queries"
+import { prisma } from '@/lib/db/prisma'
+import * as searchService from '@/lib/services/search-service'
 import MarketDetailsCard from "@/features/market/MarketCard"
 import { generateMarketURL } from "@/lib/utils"
 import { SearchInput } from "@/features/search/SearchInput.client"
@@ -22,7 +23,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   
   // Use unified search for all entity types (serialized version)
   const results = query
-    ? await searchQueries.searchAllSerialized(query, {
+    ? await searchService.searchAllSerialized(prisma, query, {
         includeMarkets: true,
         includeEvents: true,
         includeTags: true,
