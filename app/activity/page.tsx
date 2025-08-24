@@ -1,8 +1,8 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/shared/ui/card"
+import { Badge } from "@/src/shared/ui/badge"
+import { Button } from "@/src/shared/ui/button"
 import { ArrowLeft, Brain, DollarSign, Calendar } from "lucide-react"
 import Link from "next/link"
 

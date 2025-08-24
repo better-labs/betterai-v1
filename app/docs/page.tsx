@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { AuthGuard } from '@/components/docs/auth-guard'
+import { AuthGuard } from '@/src/features/docs/auth-guard'
 
 export default function DocsPage() {
   const router = useRouter()

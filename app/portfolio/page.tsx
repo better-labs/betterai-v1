@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/shared/ui/card"
+import { Badge } from "@/src/shared/ui/badge"
 
 export default function PortfolioPage() {
   return (

@@ -1,13 +1,13 @@
 
 import type { Metadata } from "next"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { PrivyClientProvider } from "@/components/privy-client-provider"
-import { PostHogProvider } from "@/components/PostHogProvider"
-import { AnalyticsIdentify } from "@/components/analytics-identify"
-import { QueryProvider } from "@/components/providers/query-provider"
+import { ThemeProvider } from "@/src/shared/providers/theme-provider"
+import { Header } from "@/src/shared/layout/Header"
+import { Footer } from "@/src/shared/layout/Footer"
+import { PrivyClientProvider } from "@/src/shared/providers/PrivyClientProvider"
+import { PostHogProvider } from "@/src/shared/providers/PostHogProvider"
+import { AnalyticsIdentify } from "@/src/features/user/AnalyticsIdentify"
+import { QueryProvider } from "@/src/shared/providers/query-provider"
 
 export const metadata: Metadata = {
   title: "BetterAI - AI-Powered Market Predictions",

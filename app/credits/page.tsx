@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/src/shared/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/src/shared/ui/card"
+import { Badge } from "@/src/shared/ui/badge"
+import { Separator } from "@/src/shared/ui/separator"
 import { useUser } from "@/hooks/use-user"
 import { useQuery } from "@tanstack/react-query"
 import { CreditBalance } from "@/lib/services/credit-manager"

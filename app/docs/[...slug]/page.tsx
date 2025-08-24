@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getDocBySlugAsync, getAllDocSlugs } from '@/lib/mdx'
-import { DocLayout } from '@/components/docs/doc-layout'
-import { AuthGuard } from '@/components/docs/auth-guard'
+import { DocLayout } from '@/src/features/docs/doc-layout'
+import { AuthGuard } from '@/src/features/docs/auth-guard'
 
 interface DocsPageProps {
   params: Promise<{
