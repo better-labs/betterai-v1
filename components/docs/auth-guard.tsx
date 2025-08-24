@@ -1,7 +1,7 @@
 'use client'
 
 import { usePrivy } from '@privy-io/react-auth'
-import { Button } from '@/components/ui/button'
+import { Button } from "@/shared/ui/button"
 import { FileText, Lock } from 'lucide-react'
 
 interface AuthGuardProps {

@@ -1,7 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
 import { formatPercent, toUnitProbability } from '@/lib/utils'
 import Link from 'next/link'
 import { Sparkline } from '@/components/sparkline'

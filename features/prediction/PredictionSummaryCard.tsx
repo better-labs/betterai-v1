@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { PredictionProbabilityGrid } from '@/features/prediction/PredictionProbabilityGrid'
 import { cn, formatPercent, toUnitProbability } from '@/lib/utils'
 import { PredictionMeta } from '@/features/prediction/PredictionMeta'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
 import { Info } from "lucide-react"
 
 interface PredictionSummaryCardProps {

@@ -140,6 +140,22 @@ This revised plan incorporates all lessons learned from the initial migration at
 Adopt this structure during Phases 2–5 to keep concerns clear and migration incremental:
 
 ```text
+app/                         # Next.js App Router pages and layouts
+features/                    # Business domains (✅ COMPLETED MIGRATION)
+  market/                    # Market-related components and logic
+    MarketCard.tsx           # RSC components
+    MarketList.client.tsx    # Interactive components
+    types.ts                 # Domain-specific types
+  prediction/                # Prediction components and logic
+    PredictionModal.client.tsx
+    PredictionSummaryCard.tsx
+  user/                      # User authentication and profile
+    UserCreditsDisplay.client.tsx
+    UserAuthButtons.client.tsx
+shared/                      # Design system + generic utils
+  ui/                        # Reusable UI components
+  providers/                 # React providers
+  utils/                     # Generic utilities
 lib/
   services/                  # Domain logic. Accepts PrismaClient | TransactionClient.
   dtos/                      # DTO mappers and response shapes; no Prisma types leak.
@@ -152,15 +168,17 @@ lib/
 ```
 
 Conventions:
-- No Prisma usage in `trpc/routers` or client code; Prisma is confined to `lib/services/`.
+- No Prisma usage in `trpc/routers`, `features/`, or `shared/` code; Prisma is confined to `lib/services/`.
 - Services return DTOs (never raw Prisma models); map via `lib/dtos/` as needed.
 - Zod validates inputs only; response types are inferred from services.
 - Feature flags gate client migrations; keep legacy REST until Phase 8 cleanup.
+- Feature components use `.client.tsx` suffix for interactive components, RSC by default.
 - Existing `lib/trpc/routers/*`, `lib/trpc/context.ts`, and `lib/trpc/trpc.ts` remain valid; add `schemas/` (Phase 2), and `server.ts` for server caller (Phase 3).
 
 Migration notes:
 - New services live in `lib/services/` and can be adopted incrementally by existing REST endpoints before tRPC.
 - `lib/db/queries/` remains during migration for rollback; deprecate and remove in Phase 8.
+- Feature-based architecture is complete: components organized by business domain rather than technical layer.
 
 ---
 
@@ -237,18 +255,27 @@ Migration notes:
 
 ### Sub-phases (by feature area):
 
-#### 7A: Market Browsing Components
-- Market search and listing pages
-- Single market detail views
-- **Deploy**: New market pages with tRPC
+#### 7A: Market Feature Components
+- Update `features/market/` components to use tRPC
+- Market search, listing, and detail views 
+- Leverage existing RSC/client patterns
+- **Deploy**: Market features with tRPC
 
-#### 7B: Prediction Components
-- Prediction creation flows
-- User prediction history
+#### 7B: Prediction Feature Components  
+- Update `features/prediction/` components to use tRPC
+- Prediction creation flows and history displays
+- Modal interactions and reasoning cards
 - **Deploy**: Prediction features with tRPC
 
-#### 7C: Event
-- Event browsing and filtering
+#### 7C: User Feature Components
+- Update `features/user/` components to use tRPC
+- Authentication flows and credit displays  
+- User profile and analytics integration
+- **Deploy**: User features with tRPC
+
+#### 7D: Event Feature Components (Future)
+- Create `features/event/` and migrate event components
+- Event browsing and category filtering
 - **Deploy**: Event features with tRPC
 
 ### Migration Strategy per Component

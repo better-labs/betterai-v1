@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/shared/ui/button"
+import { Input } from "@/shared/ui/input"
 import { Search } from 'lucide-react'
 
 interface SearchBoxProps {

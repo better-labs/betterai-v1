@@ -8,7 +8,6 @@ import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/querie
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
 import { MarketEventHeader } from "@/features/market/MarketEventHeader"
 import { PredictionUserMessageCard } from "@/features/prediction/PredictionUserMessageCard.client"
-import { serializeDecimals } from "@/lib/serialization"
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
 
 // Force dynamic rendering to avoid build-time database queries

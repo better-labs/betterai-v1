@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useUser } from "@/hooks/use-user"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
 import { CreditCard, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { CreditBalance } from "@/lib/services/credit-manager"

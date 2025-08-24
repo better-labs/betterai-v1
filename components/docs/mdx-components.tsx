@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Check, Copy, AlertTriangle, Info, Lightbulb } from 'lucide-react'
 import { usePostHog } from 'posthog-js/react'
-import { Button } from '@/components/ui/button'
+import { Button } from "@/shared/ui/button"
 import { cn } from '@/lib/utils'
 
 interface CalloutProps {

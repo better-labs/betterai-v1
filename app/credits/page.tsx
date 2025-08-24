@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/shared/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Badge } from "@/shared/ui/badge"
+import { Separator } from "@/shared/ui/separator"
 import { useUser } from "@/hooks/use-user"
 import { useQuery } from "@tanstack/react-query"
 import { CreditBalance } from "@/lib/services/credit-manager"
@@ -186,7 +186,7 @@ export default function CreditsPage() {
 									<CardHeader>
 										<CardTitle className="text-orange-800">Low Credit Warning</CardTitle>
 										<CardDescription className="text-orange-700">
-											You're running low on credits. Consider adding more credits to continue generating predictions.
+											You&apos;re running low on credits. Consider adding more credits to continue generating predictions.
 										</CardDescription>
 									</CardHeader>
 									<CardContent>

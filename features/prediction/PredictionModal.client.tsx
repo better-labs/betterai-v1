@@ -1,10 +1,10 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
+import { Separator } from "@/shared/ui/separator"
+import { Progress } from "@/shared/ui/progress"
 import { Brain, Zap, TrendingUp, AlertTriangle, CheckCircle, X } from "lucide-react"
 import { PredictionResult } from "@/lib/types"
 

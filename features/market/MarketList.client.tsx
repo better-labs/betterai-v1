@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
 import { ChevronDown, ChevronRight, DollarSign, Calendar, BarChart2 } from "lucide-react"
 import { Market, PredictionResult } from "@/lib/types"
 import { formatVolume } from "@/lib/utils"

@@ -10,8 +10,8 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandItem,
-} from '@/components/ui/command'
-import { Badge } from '@/components/ui/badge'
+} from "@/shared/ui/command"
+import { Badge } from "@/shared/ui/badge"
 import { Clock, TrendingUp, Calendar, Tag } from 'lucide-react'
 
 interface SearchResult {

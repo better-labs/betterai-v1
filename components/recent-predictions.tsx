@@ -10,7 +10,7 @@ import { PredictionProbabilityGrid } from "@/features/prediction/PredictionProba
 import { PopularTagsList } from "@/components/popular-tags-list"
 import { TrendingSelector, type SortMode } from "@/components/trending-selector"
 import { useApiQuery } from "@/lib/client/api-handler"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
 
 type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
 

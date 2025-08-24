@@ -108,8 +108,20 @@ Repeat for `features/user/`.
 - `pnpm eslint .` ✅ 
 - `pnpm build` ✅
 
-## Phase 4: Shared UI (Later)
+## Phase 4: Shared UI ✅
 Move `components/ui/` → `shared/ui/` and `components/providers/` → `shared/providers/` as a separate focused effort when feature migrations are stable.
+
+**Completed Migration:**
+- Created `shared/` directory structure with `ui/`, `layout/`, `providers/`, `utils/` subdirectories
+- Moved all components from `components/ui/` → `shared/ui/`
+- Moved all components from `components/providers/` → `shared/providers/`
+- Updated all import paths across the codebase to reference new locations
+- Updated `components.json` configuration to point to `@/shared/ui`
+
+**Gate: Test/Build/Fix** ✅
+- `pnpm tsc --noEmit` ✅
+- `pnpm build` ✅ (Build completed successfully)
+- All import paths correctly updated and functional
 
 ## Phase 5: Remaining
 Continue as needed for search, leaderboard

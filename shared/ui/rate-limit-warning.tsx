@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { AlertTriangle, Clock } from 'lucide-react';
 import { formatTimeUntilReset } from '@/lib/client/rate-limit-utils';
 

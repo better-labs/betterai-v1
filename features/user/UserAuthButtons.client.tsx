@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { Button } from "@/shared/ui/button"
+import { DropdownMenuItem } from "@/shared/ui/dropdown-menu"
 import { Loader2 } from "lucide-react"
 import { usePrivy } from "@privy-io/react-auth"
 

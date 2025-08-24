@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/shared/ui/badge"
 import { Trophy, Medal, Award, Target, Activity, Clock } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 

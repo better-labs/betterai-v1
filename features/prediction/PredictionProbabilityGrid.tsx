@@ -1,6 +1,6 @@
 import React from 'react'
 import { cn, formatPercent, toUnitProbability } from '@/lib/utils'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
 import { Info } from "lucide-react"
 
 interface PredictionProbabilityGridProps {

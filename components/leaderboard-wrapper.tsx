@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react"
 import { LeaderboardTable } from "@/components/leaderboard-table"
 import { TagFilter } from "@/components/tag-filter"
-import { LoadingCard } from "@/components/ui/loading"
+import { LoadingCard } from "@/shared/ui/loading"
 import { TrendingUp, Trophy, Target, Activity } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/shared/ui/badge"
 
 interface LeaderboardEntry {
   modelName: string
