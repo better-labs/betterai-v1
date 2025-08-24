@@ -76,14 +76,23 @@ features/market/
 - Build: `pnpm next build`
 - Resolve errors before proceeding.
 
-## Phase 2: Prediction
+## Phase 2: Prediction ✅
 Repeat Phase 1 steps for `features/prediction/`.
 
-**Gate: Test/Build/Fix**
-- `pnpm test`
-- `pnpm tsc --noEmit`
-- `pnpm eslint .`
-- `pnpm next build`
+**Completed Migration:**
+- `prediction-summary-card.tsx` → `features/prediction/PredictionSummaryCard.tsx` (RSC)
+- `prediction-reasoning-card.tsx` → `features/prediction/PredictionReasoningCard.client.tsx` (Client)
+- `prediction-probability-grid.tsx` → `features/prediction/PredictionProbabilityGrid.tsx` (RSC)
+- `prediction-meta.tsx` → `features/prediction/PredictionMeta.tsx` (RSC)
+- `prediction-modal.tsx` → `features/prediction/PredictionModal.client.tsx` (Client)
+- `prediction-user-message-card.tsx` → `features/prediction/PredictionUserMessageCard.client.tsx` (Client)
+- `prediction-history-list.tsx` → `features/prediction/PredictionHistoryList.client.tsx` (Client)
+
+**Gate: Test/Build/Fix** ✅
+- `pnpm test` ✅
+- `pnpm tsc --noEmit` ✅
+- `pnpm eslint .` ✅
+- `pnpm next build` ✅
 
 ## Phase 3: User
 Repeat for `features/user/`.
