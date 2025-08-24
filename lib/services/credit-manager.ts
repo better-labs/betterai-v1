@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma'
-import { userQueries } from '@/lib/db/queries'
+import * as userService from './user-service'
 
 export interface CreditTransaction {
   userId: string
@@ -25,17 +25,8 @@ export class CreditManager {
    */
   async getUserCredits(userId: string): Promise<CreditBalance | null> {
     try {
-      const user = await userQueries.getUserById(userId)
-      if (!user) {
-        return null
-      }
-
-      return {
-        credits: user.credits,
-        creditsLastReset: user.creditsLastReset || new Date(),
-        totalCreditsEarned: user.totalCreditsEarned,
-        totalCreditsSpent: user.totalCreditsSpent
-      }
+      // Use new service pattern
+      return await userService.getUserCredits(prisma, userId)
     } catch (error) {
       console.error('Error getting user credits:', error)
       return null
@@ -53,7 +44,7 @@ export class CreditManager {
     metadata?: { marketId?: string; predictionId?: number }
   ): Promise<boolean> {
     try {
-      const user = await userQueries.getUserById(userId)
+      const user = await userService.getUserById(prisma, userId)
       if (!user) {
         return false
       }
@@ -93,7 +84,7 @@ export class CreditManager {
     metadata?: { marketId?: string; predictionId?: number }
   ): Promise<void> {
     try {
-      const user = await userQueries.getUserById(userId)
+      const user = await userService.getUserById(prisma, userId)
       if (!user) {
         throw new Error('User not found')
       }
@@ -121,7 +112,7 @@ export class CreditManager {
    */
   async resetDailyCredits(userId: string): Promise<void> {
     try {
-      const user = await userQueries.getUserById(userId)
+      const user = await userService.getUserById(prisma, userId)
       if (!user) {
         throw new Error('User not found')
       }
@@ -151,7 +142,7 @@ export class CreditManager {
    */
   async shouldShowAddCreditsButton(userId: string): Promise<boolean> {
     try {
-      const user = await userQueries.getUserById(userId)
+      const user = await userService.getUserById(prisma, userId)
       if (!user) {
         return false
       }

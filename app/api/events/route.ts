@@ -1,8 +1,9 @@
 import { NextRequest } from 'next/server'
-import { eventQueries, NewEvent } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as eventService from '@/lib/services/event-service'
+import { mapEventToDTO, mapEventsToDTO } from '@/lib/dtos'
 import type { ApiResponse } from '@/lib/types'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
-import { serializeDecimals } from '@/lib/serialization'
 
 
 export async function GET(request: NextRequest) {
@@ -12,8 +13,8 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get('slug')
 
     if (id) {
-      const event = await eventQueries.getEventById(id)
-      if (!event) {
+      const eventDto = await eventService.getEventByIdSerialized(prisma, id)
+      if (!eventDto) {
         const errorResponse: ApiResponse = {
           success: false,
           error: 'Event not found',
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
       
       const responseData: ApiResponse = {
         success: true,
-        data: serializeDecimals(event),
+        data: eventDto,
         timestamp: new Date().toISOString()
       }
       return new Response(
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (slug) {
-      const event = await eventQueries.getEventBySlug(slug)
+      const event = await eventService.getEventBySlug(prisma, slug)
       if (!event) {
         const errorResponse: ApiResponse = {
           success: false,
@@ -50,9 +51,10 @@ export async function GET(request: NextRequest) {
         )
       }
       
+      const eventDto = mapEventToDTO(event)
       const responseData: ApiResponse = {
         success: true,
-        data: serializeDecimals(event),
+        data: eventDto,
         timestamp: new Date().toISOString()
       }
       return new Response(
@@ -62,10 +64,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Default: get trending events
-    const events = await eventQueries.getTrendingEvents()
+    const events = await eventService.getTrendingEvents(prisma)
+    const eventDtos = mapEventsToDTO(events)
     const responseData: ApiResponse = {
       success: true,
-      data: serializeDecimals(events),
+      data: eventDtos,
       timestamp: new Date().toISOString()
     }
     return new Response(
@@ -88,11 +91,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const eventData: NewEvent = body
-    const event = await eventQueries.createEvent(eventData)
+    const eventData = await request.json()
+    const event = await eventService.createEvent(prisma, eventData)
+    const eventDto = mapEventToDTO(event)
     return new Response(
-      JSON.stringify({ success: true, data: event } as ApiResponse),
+      JSON.stringify({ success: true, data: eventDto } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
@@ -128,7 +131,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const eventData = await request.json()
-    const event = await eventQueries.updateEvent(id, eventData)
+    const event = await eventService.updateEvent(prisma, id, eventData)
     
     if (!event) {
       return new Response(
@@ -137,8 +140,9 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    const eventDto = mapEventToDTO(event)
     return new Response(
-      JSON.stringify({ success: true, data: event } as ApiResponse),
+      JSON.stringify({ success: true, data: eventDto } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
@@ -173,7 +177,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const success = await eventQueries.deleteEvent(id)
+    const success = await eventService.deleteEvent(prisma, id)
     
     if (!success) {
       return new Response(

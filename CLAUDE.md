@@ -59,7 +59,13 @@ If the development server port localhost:3000 is already in use, please do not t
 See package.json for the most recent commands.
 
 ### Database Development Pattern
-Prefer to use and write queries in `lib/db/queries/` for all database operations.
+**SERVICE LAYER PATTERN (NEW - 2024)**: Use the new service layer for all database operations:
+- Services in `lib/services/` accept `db` parameter for dependency injection
+- All services return DTOs (never raw Prisma models) 
+- Use `lib/dtos/` mappers for consistent serialization
+- Example: `await userService.getUserById(prisma, userId)`
+
+**Legacy Pattern**: `lib/db/queries/` still available during migration for rollback
 Follow existing patterns: snake_case for DB columns, camelCase for TypeScript
 Use transactions for multi-step operations
 Use database indexes for common query patterns
@@ -85,8 +91,9 @@ Components: `components/` (reusable) and `app/` (page-specific)
   Client only code: `/components/client`
   Server only code: `/components/server`
   Shared: `/components/shared`
-Services: `lib/services/` for business logic
-Database: `lib/db/` for queries and schema
+Services: `lib/services/` for business logic (NEW PATTERN - use these!)
+DTOs: `lib/dtos/` for data serialization mappers 
+Database: `lib/db/` for legacy queries and schema
 Types: `lib/types.ts` for shared interfaces
 Utils: `lib/utils.ts` for helper functions
 
