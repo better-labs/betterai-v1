@@ -1,7 +1,9 @@
 /**
- * tRPC context configuration
- * This file defines the context that will be available to all tRPC procedures.
- * It includes user authentication, rate limiting identifiers, and other shared data.
+ * tRPC context configuration - Dual Context System
+ * This file defines contexts for both HTTP requests (fetch) and Server Components (RSC).
+ * 
+ * - Fetch Context: For /api/trpc routes with HTTP requests
+ * - RSC Context: For Server Components using server caller (no HTTP hop)
  */
 
 import { type NextRequest } from 'next/server'
@@ -15,8 +17,9 @@ export interface Context {
 }
 
 /**
- * Create context for tRPC procedures from Next.js request
- * This extracts user authentication and other context from the request
+ * Create fetch context for tRPC procedures from Next.js HTTP request
+ * This extracts user authentication and other context from HTTP requests
+ * Used by: /api/trpc routes
  */
 export const createContext = async (opts: {
   req?: NextRequest
@@ -58,3 +61,9 @@ export const createContext = async (opts: {
  * Use this to get proper TypeScript types for your context
  */
 export type ContextType = Awaited<ReturnType<typeof createContext>>
+
+/**
+ * Re-export RSC context creators from server.ts for convenience
+ * This enables: import { createRSCContext } from '@/lib/trpc/context'
+ */
+export { createRSCContext, createRSCContextWithAuth } from './server'
