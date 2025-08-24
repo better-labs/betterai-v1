@@ -8,8 +8,8 @@ import { predictionCheckQueries, predictionQueries as pq } from "@/lib/db/querie
 import { PredictionHistoryList } from "@/components/prediction-history-list"
 import { MarketEventHeader } from "@/components/market-event-header"
 import { PredictionUserMessageCard } from "@/components/prediction-user-message-card"
-import { serializePredictionData, serializeDecimals } from "@/lib/serialization"
-import type { PredictionDTO } from "@/lib/types"
+import { serializeDecimals } from "@/lib/serialization"
+import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -44,9 +44,9 @@ export default async function PredictionDetailPage({ params }: PageProps) {
 
   // Optional history: recent checks and past predictions for this market
   const marketId = market?.id
-  const [checks, pastPredictions] = await Promise.all([
+  const [checks, pastPredictions]: [PredictionCheckDTO[], PredictionDTO[]] = await Promise.all([
     marketId ? predictionCheckQueries.getRecentByMarketSerialized(marketId, 25) : Promise.resolve([]),
-    marketId ? pq.getPredictionsByMarketId(marketId) : Promise.resolve([]),
+    marketId ? pq.getPredictionsByMarketIdSerialized(marketId) : Promise.resolve([]),
   ])
 
   return (
@@ -84,8 +84,8 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         {/* Then: Past predictions only */}
         <PredictionHistoryList
           className="mt-2"
-          checks={checks as any}
-          predictions={pastPredictions ? serializePredictionData(pastPredictions) : null}
+          checks={checks}
+          predictions={pastPredictions}
           marketId={marketId ?? null}
           showChecks={false}
           showPredictions={true}

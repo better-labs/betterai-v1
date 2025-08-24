@@ -2,6 +2,7 @@ import { prisma } from "../prisma"
 import { Prisma } from '../../../lib/generated/prisma'
 import type { PredictionCheck } from '../../../lib/generated/prisma';
 import { serializeDecimals } from "@/lib/serialization"
+import type { PredictionCheckDTO } from "@/lib/types"
 
 // Prediction Check queries
 export const predictionCheckQueries = {
@@ -39,12 +40,23 @@ export const predictionCheckQueries = {
       take: limit,
     })
   },
-  getRecentByMarketSerialized: async (marketId: string, limit = 50) => {
+  getRecentByMarketSerialized: async (marketId: string, limit = 50): Promise<PredictionCheckDTO[]> => {
     const checks = await prisma.predictionCheck.findMany({
       where: { marketId },
       orderBy: { createdAt: 'desc' },
       take: limit,
     })
-    return serializeDecimals(checks)
+    const s = serializeDecimals(checks) as Array<Record<string, any>>
+    return s.map((c) => ({
+      id: String(c.id),
+      predictionId: c.predictionId ?? null,
+      marketId: c.marketId ?? null,
+      aiProbability: c.aiProbability ?? null,
+      marketProbability: c.marketProbability ?? null,
+      delta: c.delta ?? null,
+      absDelta: c.absDelta ?? null,
+      marketClosed: c.marketClosed ?? null,
+      createdAt: c.createdAt,
+    }))
   },
 }
