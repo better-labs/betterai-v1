@@ -9,12 +9,15 @@
 import { useState } from 'react'
 import { QueryClient } from '@tanstack/react-query'
 import { trpc, createTRPCClient, getBaseUrl } from '@/lib/trpc/client'
+import { usePrivy } from '@privy-io/react-auth'
 
 interface TRPCProviderProps {
   children: React.ReactNode
 }
 
 export function TRPCProvider({ children }: TRPCProviderProps) {
+  const { getAccessToken } = usePrivy()
+
   // Create stable instances to prevent re-initialization
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
@@ -25,7 +28,7 @@ export function TRPCProvider({ children }: TRPCProviderProps) {
     },
   }))
 
-  const [trpcClient] = useState(() => createTRPCClient(getBaseUrl()))
+  const [trpcClient] = useState(() => createTRPCClient(getBaseUrl(), getAccessToken))
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>

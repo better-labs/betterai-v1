@@ -37,7 +37,7 @@ async function fetchWithRetry(url: string, options: FetchOptions, attempt: numbe
 
     if (!response.ok) {
       if (response.status === 429 && attempt <= maxRetries) {
-        console.log(`Rate limited. Retrying in ${retryDelayMs * attempt}ms...`);
+        // Rate limited - retrying
         await new Promise(resolve => setTimeout(resolve, retryDelayMs * attempt));
         return fetchWithRetry(url, options, attempt + 1);
       }
@@ -47,7 +47,7 @@ async function fetchWithRetry(url: string, options: FetchOptions, attempt: numbe
   } catch (error) {
     clearTimeout(timeoutId);
     if (attempt <= maxRetries) {
-      console.error(`Fetch attempt ${attempt} failed: ${error}. Retrying in ${retryDelayMs * attempt}ms...`);
+      // Fetch failed - retrying
       await new Promise(resolve => setTimeout(resolve, retryDelayMs * attempt));
       return fetchWithRetry(url, options, attempt + 1);
     }
@@ -140,17 +140,14 @@ export async function fetchPolymarketEvents(
       
       // Only log first few validation failures to avoid spam
       if (validationErrors.length <= 3) {
-        console.warn('Polymarket event validation failed:', errorMsg);
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('Problematic event data:', JSON.stringify(eventData, null, 2));
-        }
+        // Suppress individual validation warnings - summary logged below
       }
     }
   }
 
   // If we have validation errors but some valid events, log summary but continue
   if (validationErrors.length > 0) {
-    console.warn(`Polymarket API: ${validationErrors.length}/${data.length} events failed validation. ${validationErrors.length > 3 ? `First 3 errors logged above.` : ''}`);
+    console.log(`Polymarket API: ${validationErrors.length}/${data.length} events failed validation.`);
     
     // If more than 50% of events failed validation, something might be seriously wrong
     if (validationErrors.length > data.length * 0.5) {

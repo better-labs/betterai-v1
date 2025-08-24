@@ -37,8 +37,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
     ...fetchOptions
   } = options
 
-  console.log("Starting throttled update of all Polymarket events with batch processing...")
-  console.log(`Processing events with batch limit: ${limit}, daysToFetchPast: ${daysToFetchPast}, daysToFetchFuture: ${daysToFetchFuture}, totalEventLimit: ${totalEventLimit || 'unlimited'}`)
+  console.log(`Starting Polymarket data sync (${limit} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future)`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
@@ -61,7 +60,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
       
       // Check if we've reached the total event limit
       if (totalEventLimit && totalFetched >= totalEventLimit) {
-        console.log(`Reached total event limit of ${totalEventLimit} events. Stopping fetch.`)
+        // Reached event limit - stopping
         hasMoreData = false
         break
       }
@@ -70,7 +69,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
       let adjustedLimit = limit
       if (totalEventLimit && (totalFetched + limit > totalEventLimit)) {
         adjustedLimit = totalEventLimit - totalFetched
-        console.log(`Adjusting final batch size to ${adjustedLimit} to respect total event limit`)
+        // Adjusting final batch size
       }
       
       const eventsData = await fetchPolymarketEvents(offset, adjustedLimit, startDateMin, endDateMax, fetchOptions, sortBy)
