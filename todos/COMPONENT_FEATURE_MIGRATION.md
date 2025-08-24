@@ -52,15 +52,22 @@ features/market/
 
 ---
 
-# Migration Plan (Phased)
+# Migration Plan (Phased) - UPDATED
 
 **Goal:** Refactor **only `/components`** into `features/*` now. Migrate `app/` later.
 
-## Phase 1: Market
-1. Create `features/market/` and move relevant components from `/components`.
+**Key Learning:** Keep UI components in `components/ui/` during feature migration to avoid massive scope creep. The shared UI reorganization should be a separate phase.
+
+## Phase 1: Market ✅ 
+1. Create `features/market/` and move **domain-specific** components from `/components`.
 2. Split interactive pieces into `.client.tsx` where needed; add `'use client'`.
 3. Extract DB/AI/services into `features/market/server/` or `lib/server/`; add `import 'server-only'`.
-4. Route mutations through **tRPC** server actions (no service logic in `.client.tsx`).
+4. Update import paths for moved components **only** (not entire UI system).
+
+**Completed Migration:**
+- `market-details-card.tsx` → `features/market/MarketCard.tsx` (RSC)
+- `market-event-header.tsx` → `features/market/MarketEventHeader.tsx` (RSC)  
+- `market-list.tsx` → `features/market/MarketList.client.tsx` (Client)
 
 **Gate: Test/Build/Fix**
 - Run unit tests: `pnpm test` (or `vitest run`)
@@ -87,6 +94,12 @@ Repeat for `features/user/`.
 - `pnpm eslint .`
 - `pnpm next build`
 
+## Phase 4: Shared UI (Later)
+Move `components/ui/` → `shared/ui/` and `components/providers/` → `shared/providers/` as a separate focused effort when feature migrations are stable.
+
+## Phase 5: Remaining
+Continue as needed for search, leaderboard
+
 ---
 
 # Enforcement (lightweight)
@@ -106,6 +119,3 @@ Repeat for `features/user/`.
 - Migrate `app/` pages/layouts to use the new feature modules.
 - Introduce per-feature barrels (`features/market/index.ts`) and forbid deep imports via ESLint.
 
---- 
-
-**Answer to your last question:** yes—migrating **only `/components`** into `features/*` first is a clean, low-risk path. Lock each phase with test/build gates, then tackle `app/` once the domains are stable.

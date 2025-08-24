@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { eventQueries, marketQueries, predictionQueries } from '@/lib/db/queries'
-import { MarketEventHeader } from '@/components/market-event-header'
+import { MarketEventHeader } from '@/features/market/MarketEventHeader'
 import { PredictionSummaryCard } from '@/components/prediction-summary-card'
 import type { PredictionResult } from '@/lib/types'
 import { serializeDecimals } from '@/lib/serialization'

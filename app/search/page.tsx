@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Search, TrendingUp, Calendar, Tag } from "lucide-react"
 import { searchQueries, marketQueries } from "@/lib/db/queries"
-import MarketDetailsCard from "@/components/market-details-card"
+import MarketDetailsCard from "@/features/market/MarketCard"
 import { generateMarketURL } from "@/lib/utils"
 import { SearchInput } from "@/components/search-input"
 
