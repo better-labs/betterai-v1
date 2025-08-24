@@ -120,12 +120,47 @@ This revised plan incorporates all lessons learned from the initial migration at
    - Writes: Fat services (validation + transactions + side effects)
    - Clear separation of concerns
 
+4. **Directory Structure Adoption**
+   - Establish target layout for services, DTOs, and tRPC
+   - Migrate incrementally without breaking existing imports
+   - Keep `lib/db/queries/` until Phase 8, prefer new `lib/services/`
+   - Align with Zod input-only schemas and inferred outputs
+
 **Production Deployment**:
 - New service functions available alongside old queries
 - Existing API routes can start using new services incrementally
 - Zero breaking changes to existing functionality
 
 **Rollback Plan**: Keep old query objects until Phase 7
+
+---
+
+## Target Directory Structure & Conventions
+
+Adopt this structure during Phases 2–5 to keep concerns clear and migration incremental:
+
+```text
+lib/
+  services/                  # Domain logic. Accepts PrismaClient | TransactionClient.
+  dtos/                      # DTO mappers and response shapes; no Prisma types leak.
+  trpc/
+    routers/                 # Thin procedures; import services + Zod inputs only.
+    schemas/                 # Zod input schemas only (no .output()).
+    client.ts                # tRPC client + React Query hooks.
+    server.ts                # createCallerFactory() server caller (RSC/SSR, no HTTP hop).
+    context/                 # Auth/context creators for fetch and RSC.
+```
+
+Conventions:
+- No Prisma usage in `trpc/routers` or client code; Prisma is confined to `lib/services/`.
+- Services return DTOs (never raw Prisma models); map via `lib/dtos/` as needed.
+- Zod validates inputs only; response types are inferred from services.
+- Feature flags gate client migrations; keep legacy REST until Phase 8 cleanup.
+- Existing `lib/trpc/routers/*`, `lib/trpc/context.ts`, and `lib/trpc/trpc.ts` remain valid; add `schemas/` (Phase 2), and `server.ts` for server caller (Phase 3).
+
+Migration notes:
+- New services live in `lib/services/` and can be adopted incrementally by existing REST endpoints before tRPC.
+- `lib/db/queries/` remains during migration for rollback; deprecate and remove in Phase 8.
 
 ---
 
@@ -212,9 +247,8 @@ This revised plan incorporates all lessons learned from the initial migration at
 - User prediction history
 - **Deploy**: Prediction features with tRPC
 
-#### 7C: Event & Category Pages
+#### 7C: Event
 - Event browsing and filtering
-- Category-based navigation
 - **Deploy**: Event features with tRPC
 
 ### Migration Strategy per Component
