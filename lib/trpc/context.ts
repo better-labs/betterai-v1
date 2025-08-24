@@ -35,10 +35,17 @@ export const createContext = async (opts: {
   let rateLimitId: string | undefined
 
   try {
+    // Debug: Log the Authorization header
+    const authHeader = req.headers.get('authorization')
+    console.log('tRPC Context: Authorization header:', authHeader ? 'Present' : 'Missing')
+    
     // Try to get user ID from Privy token (if present)
     const authResult = await optionalAuth(req)
     if (authResult) {
       userId = authResult.userId
+      console.log('tRPC Context: User authenticated:', userId)
+    } else {
+      console.log('tRPC Context: No authentication result')
     }
 
     // Get rate limit identifier for this request
@@ -46,7 +53,7 @@ export const createContext = async (opts: {
   } catch (error) {
     // Don't fail context creation if auth check fails
     // Individual procedures can handle auth as needed
-    console.warn('Context creation warning:', error)
+    console.warn('tRPC Context creation warning:', error)
   }
 
   return {

@@ -6,7 +6,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { QueryClient } from '@tanstack/react-query'
 import { trpc, createTRPCClient, getBaseUrl } from '@/lib/trpc/client'
 import { usePrivy } from '@privy-io/react-auth'
@@ -28,7 +28,10 @@ export function TRPCProvider({ children }: TRPCProviderProps) {
     },
   }))
 
-  const [trpcClient] = useState(() => createTRPCClient(getBaseUrl(), getAccessToken))
+  // Create trpcClient that can access the current getAccessToken function
+  const trpcClient = useMemo(() => {
+    return createTRPCClient(getBaseUrl(), getAccessToken)
+  }, [getAccessToken])
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>

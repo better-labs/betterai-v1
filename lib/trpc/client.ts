@@ -31,13 +31,18 @@ export const createTRPCClient = (baseUrl: string = '', getAccessToken?: () => Pr
             try {
               const token = await getAccessToken()
               if (token) {
+                console.log('tRPC: Adding Authorization header with token')
                 return {
                   Authorization: `Bearer ${token}`,
                 }
+              } else {
+                console.log('tRPC: No token available from getAccessToken()')
               }
             } catch (error) {
-              console.warn('Failed to get access token:', error)
+              console.warn('tRPC: Failed to get access token:', error)
             }
+          } else {
+            console.log('tRPC: No getAccessToken function provided')
           }
           return {}
         },
