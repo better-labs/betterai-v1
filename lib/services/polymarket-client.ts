@@ -138,19 +138,19 @@ export async function fetchPolymarketEvents(
       const errorMsg = `Event ${i}: ${validationResult.error}`;
       validationErrors.push(errorMsg);
       
-      // Filter sensitive logging in production
-      if (process.env.NODE_ENV === 'production') {
+      // Only log first few validation failures to avoid spam
+      if (validationErrors.length <= 3) {
         console.warn('Polymarket event validation failed:', errorMsg);
-      } else {
-        console.warn('Polymarket event validation failed:', errorMsg);
-        console.warn('Problematic event data:', JSON.stringify(eventData, null, 2));
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('Problematic event data:', JSON.stringify(eventData, null, 2));
+        }
       }
     }
   }
 
-  // If we have validation errors but some valid events, log warnings but continue
+  // If we have validation errors but some valid events, log summary but continue
   if (validationErrors.length > 0) {
-    console.warn(`Polymarket API: ${validationErrors.length}/${data.length} events failed validation:`, validationErrors);
+    console.warn(`Polymarket API: ${validationErrors.length}/${data.length} events failed validation. ${validationErrors.length > 3 ? `First 3 errors logged above.` : ''}`);
     
     // If more than 50% of events failed validation, something might be seriously wrong
     if (validationErrors.length > data.length * 0.5) {
