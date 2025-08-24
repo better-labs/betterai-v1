@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePrivy } from "@privy-io/react-auth"
-import { RecentPredictions } from "@/src/features/prediction/RecentPredictions"
-import { LoadingCard } from "@/src/shared/ui/loading"
-import { type SortMode } from "@/components/trending-selector"
+import { RecentPredictions } from "./RecentPredictions"
+import { LoadingCard } from "@/shared/ui/loading"
+import { type SortMode } from "@/features/event/trending-selector"
 import { useQuery } from "@tanstack/react-query"
 import {
   Pagination,
@@ -14,7 +14,7 @@ import {
   PaginationPrevious,
   PaginationLink,
   PaginationEllipsis,
-} from "@/src/shared/ui/pagination"
+} from "@/shared/ui/pagination"
 import {
   Select,
   SelectContent,

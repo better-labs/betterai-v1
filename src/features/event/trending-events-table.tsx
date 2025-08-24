@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "@/src/shared/ui/button"
-import { Badge } from "@/src/shared/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
 import { ChevronDown, ChevronRight, TrendingUp, DollarSign, Users, Calendar, BarChart2 } from "lucide-react"
-import { MarketList } from "@/components/market-list"
-import { EventIcon } from "@/components/event-icon"
+import { MarketList } from "@/features/market/MarketList.client"
+import { EventIcon } from "./event-icon"
 import { Market, PredictionResult } from "@/lib/types"
 import { formatVolume } from "@/lib/utils"
 

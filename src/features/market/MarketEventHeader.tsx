@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { EventIcon } from '@/components/event-icon'
+import { EventIcon } from '@/features/event/event-icon'
 
 interface MarketEventHeaderProps {
   eventId?: string | null
