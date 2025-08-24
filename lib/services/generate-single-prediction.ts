@@ -214,6 +214,16 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
           // If fallback also fails with empty content, log and return gracefully
           if (fallbackError instanceof EmptyContentError) {
             console.log(`📝 Both primary and fallback models returned empty content for market ${marketId} - skipping this market`)
+            console.log('🔍 Empty content debug - Primary model request data:')
+            if (error instanceof EmptyContentError) {
+              console.log('  Model:', error.requestData.model)
+              console.log('  System msg chars:', error.requestData.systemMessage.length)
+              console.log('  User msg chars:', error.requestData.userMessage.length)
+            }
+            console.log('🔍 Empty content debug - Fallback model request data:')
+            console.log('  Model:', fallbackError.requestData.model)
+            console.log('  System msg chars:', fallbackError.requestData.systemMessage.length)
+            console.log('  User msg chars:', fallbackError.requestData.userMessage.length)
             return { 
               success: false,
               message: 'Skipped: Both models returned empty content'

@@ -22,7 +22,15 @@ export interface OpenRouterPredictionResult {
 }
 
 export class EmptyContentError extends Error {
-  constructor(message: string, public choiceData: unknown) {
+  constructor(
+    message: string, 
+    public choiceData: unknown,
+    public requestData: {
+      model: string;
+      systemMessage: string;
+      userMessage: string;
+    }
+  ) {
     super(message);
     this.name = 'EmptyContentError';
   }
@@ -170,13 +178,38 @@ export async function fetchPredictionFromOpenRouter(
   
   // Handle empty responses
   if (!text || text.trim() === '') {
-    // Log as console message instead of throwing error to allow batch job to continue
+    // Log input parameters for debugging empty responses
+    console.log('🐛 DEBUGGING EMPTY RESPONSE:');
+    console.log('Model:', model);
+    console.log('System Message Length:', systemMessage.length);
+    console.log('User Message Length:', userMessage.length);
+    console.log('System Message Preview:', systemMessage.substring(0, 200) + '...');
+    console.log('User Message Preview:', userMessage.substring(0, 500) + '...');
+    
+    // In development, log full messages for detailed debugging
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔍 FULL SYSTEM MESSAGE:');
+      console.log(systemMessage);
+      console.log('🔍 FULL USER MESSAGE:');
+      console.log(userMessage);
+    }
+    
+    // Log API response details
     if (process.env.NODE_ENV === 'production') {
       console.log('⚠️  OpenRouter API returned empty content - skipping this prediction');
     } else {
       console.log('⚠️  OpenRouter API returned empty content - skipping this prediction:', JSON.stringify(validatedData.choices[0], null, 2));
     }
-    throw new EmptyContentError(`OpenRouter API returned empty content`, validatedData.choices[0]);
+    
+    throw new EmptyContentError(
+      `OpenRouter API returned empty content`, 
+      validatedData.choices[0],
+      {
+        model,
+        systemMessage,
+        userMessage
+      }
+    );
   }
 
   const parsed = parseAIResponse<unknown>(text);

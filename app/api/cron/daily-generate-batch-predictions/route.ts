@@ -3,7 +3,7 @@ import type { ApiResponse } from '@/lib/types'
 import { runBatchPredictionGeneration } from '@/lib/services/generate-batch-predictions'
 import { sendHeartbeatSafe, HeartbeatType } from '@/lib/services/heartbeat'
 import { requireCronAuth } from '@/lib/auth/cron-auth'
-import { createServerCaller } from '@/lib/trpc/server'
+// import { createServerCaller } from '@/lib/trpc/server'
 
 // Leave headroom under Vercel limit; our code should target < 240s
 export const maxDuration = 300
@@ -59,7 +59,8 @@ export async function GET(request: NextRequest) {
     }
 
     const modelList = [
-      'openai/gpt-oss-120b',
+      'anthropic/claude-3.7-sonnet',
+      'x-ai/grok-3-mini',
       'google/gemini-2.5-flash',
       'deepseek/deepseek-chat-v3-0324',
       'openai/gpt-4o-mini',
