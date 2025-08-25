@@ -21,7 +21,7 @@ export function PopularTagsList({
 }: PopularTagsListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
 
   if (!tags || tags.length === 0) {
     return null
@@ -31,8 +31,8 @@ export function PopularTagsList({
     const container = scrollContainerRef.current
     if (!container) return
 
-    const canScrollLeftValue = container.scrollLeft > 0
-    const canScrollRightValue = container.scrollLeft < (container.scrollWidth - container.clientWidth)
+    const canScrollLeftValue = container.scrollLeft > 5 // Add small buffer
+    const canScrollRightValue = container.scrollLeft < (container.scrollWidth - container.clientWidth - 5) // Add small buffer
     
     setCanScrollLeft(canScrollLeftValue)
     setCanScrollRight(canScrollRightValue)
@@ -72,73 +72,69 @@ export function PopularTagsList({
 
   return (
     <div className="hidden sm:block">
-      {/* Horizontal scrollable filter bar */}
-      <div className="bg-muted/30 rounded-lg border border-border/40 relative overflow-hidden">
-        {/* Left gradient shadow and scroll button */}
+      {/* Container with arrows outside */}
+      <div className="flex items-center gap-2">
+        {/* Left scroll button */}
         {canScrollLeft && (
-          <>
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background via-background/90 via-background/70 via-background/40 to-transparent z-[5] pointer-events-none" />
-            <button
-              onClick={scrollLeft}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-background backdrop-blur-sm border border-border rounded-lg p-2 hover:bg-muted/50 transition-colors shadow-lg"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="h-5 w-5 text-foreground" />
-            </button>
-          </>
+          <button
+            onClick={scrollLeft}
+            className="flex-shrink-0 bg-background border rounded p-1 hover:bg-muted shadow-sm"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
         )}
 
-        {/* Right gradient shadow and scroll button */}
-        {canScrollRight && (
-          <>
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background via-background/90 via-background/70 via-background/40 to-transparent z-[5] pointer-events-none" />
-            <button
-              onClick={scrollRight}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-background backdrop-blur-sm border border-border rounded-lg p-2 hover:bg-muted/50 transition-colors shadow-lg"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="h-5 w-5 text-foreground" />
-            </button>
-          </>
-        )}
-
-        {/* Scrollable container */}
-        <div 
-          ref={scrollContainerRef}
-          className="overflow-x-auto scrollbar-hide py-3 px-12"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          <div className="flex gap-2 items-center justify-start min-w-max">
-            <span className="text-xs font-medium text-muted-foreground mr-2 whitespace-nowrap">
-              Filter by:
-            </span>
-            {tags.map((tag) => {
-              const isSelected = selectedTagIds.includes(tag.id)
-              return (
+        {/* Scrollable filter bar */}
+        <div className="flex-1 bg-muted/30 rounded-lg border border-border/40 overflow-hidden">
+          <div 
+            ref={scrollContainerRef}
+            className="overflow-x-auto scrollbar-hide py-3 px-4"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <div className="flex gap-2 items-center justify-start min-w-max">
+              <span className="text-xs font-medium text-muted-foreground mr-2 whitespace-nowrap">
+                Filter by:
+              </span>
+              {tags.map((tag) => {
+                const isSelected = selectedTagIds.includes(tag.id)
+                return (
+                  <button
+                    key={tag.id}
+                    onClick={() => onTagSelect?.(tag.id)}
+                    disabled={!onTagSelect}
+                    className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md border transition-colors whitespace-nowrap ${
+                      isSelected
+                        ? 'text-primary-foreground bg-primary border-primary shadow-sm'
+                        : 'text-muted-foreground bg-background border-border hover:bg-muted/50 hover:text-foreground'
+                    } ${onTagSelect ? 'cursor-pointer' : 'cursor-default'} disabled:opacity-50`}
+                  >
+                    {tag.label}
+                  </button>
+                )
+              })}
+              {isFiltered && onClearFilters && (
                 <button
-                  key={tag.id}
-                  onClick={() => onTagSelect?.(tag.id)}
-                  disabled={!onTagSelect}
-                  className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md border transition-colors whitespace-nowrap ${
-                    isSelected
-                      ? 'text-primary-foreground bg-primary border-primary shadow-sm'
-                      : 'text-muted-foreground bg-background border-border hover:bg-muted/50 hover:text-foreground'
-                  } ${onTagSelect ? 'cursor-pointer' : 'cursor-default'} disabled:opacity-50`}
+                  onClick={onClearFilters}
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-muted-foreground bg-background border border-border rounded-md hover:bg-muted/50 hover:text-foreground transition-colors ml-2 whitespace-nowrap"
                 >
-                  {tag.label}
+                  Clear all
                 </button>
-              )
-            })}
-            {isFiltered && onClearFilters && (
-              <button
-                onClick={onClearFilters}
-                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-muted-foreground bg-background border border-border rounded-md hover:bg-muted/50 hover:text-foreground transition-colors ml-2 whitespace-nowrap"
-              >
-                Clear all
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Right scroll button */}
+        {canScrollRight && (
+          <button
+            onClick={scrollRight}
+            className="flex-shrink-0 bg-background border rounded p-1 hover:bg-muted shadow-sm"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   )

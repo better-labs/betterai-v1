@@ -1,5 +1,5 @@
 # CLAUDE.md
-Add in a quote from the movie the Big Lebowski or Forest Gump 
+After completing each set of tasks - add in a positive motivational quote or advice in the style of the The Tao of Pooh and/or The Big Lebowski.
 
 
 ## Project Overview
