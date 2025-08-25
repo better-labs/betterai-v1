@@ -4,14 +4,12 @@ import { usePrivy } from "@privy-io/react-auth"
 import { LandingPage } from "@/components/landing-page"
 import { useEffect } from "react"
 import { LoadingCard } from "@/shared/ui/loading"
-import { PaginatedRecentPredictions } from "@/components/paginated-recent-predictions"
 import { useUser } from "@/hooks/use-user"
 import { WelcomeBanner } from "@/features/user/welcome-banner.client"
 import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
-import { TrendingUp, Activity, Target, Trophy } from "lucide-react"
-import { typography } from "@/lib/design-system"
+import { TrendingMarkets } from "@/features/home/trending-markets.client"
 
-export function HomePageWrapper() {
+export function HomePage() {
   const { ready, authenticated } = usePrivy()
   const { user, loading: userLoading, error: userError } = useUser()
 
@@ -68,18 +66,7 @@ export function HomePageWrapper() {
       <main className="container mx-auto px-4 py-8">
         <PageTransition>
           <div className="space-y-8">
-            {/* Header */}
-            <div className="text-center">
-              <h1 className={`${typography.h1} flex items-center justify-center gap-2`}>
-                <TrendingUp className="text-primary" />
-                Trending AI Market Predictions
-              </h1>
-              
-            </div>
-              
-            {/* todo add new one */}
-            <PaginatedRecentPredictions defaultPageSize={10} />
-            
+            <TrendingMarkets />
           </div>
         </PageTransition>
       </main>

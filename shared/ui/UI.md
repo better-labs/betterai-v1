@@ -42,16 +42,16 @@ Search results page:
 .. todo
 
 market-card:
-- <event.title?>
+- EventIcon, event.title>
 - <market.groupItemTitle>
-- Label: Market Probability
-    - Outlined grid: outcomes x outcomePrices
+- StatsGroup: Label: Market Probability
+    - Stats: Outlined grid: outcomes x outcomePrices
     - Hover text: Last Updated: ___
-- Label: AI Prediction
+- StatsGroup: Label: AI Prediction
     - Outlined grid: ai outcomes x outcomePrices
     - Hover text: Last Generated: ___
-- Label: AI Delta
-    - <abs(mo0-p0)>
+- StatsGroup: Label: AI Delta
+    - Stats: absolute(market outcomes[0] - aiprobability[0])
 - Button: Generate New AI Prediction
 
 
