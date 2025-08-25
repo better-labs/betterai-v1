@@ -51,12 +51,15 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 				embeddedWallets: {
 					createOnLogin: 'off'
 				},
-				// Disable WalletConnect in development to prevent double initialization warnings
-				...(process.env.NODE_ENV === "development" && {
+				// Completely disable WalletConnect to prevent double initialization
+				walletConnect: {
+					projectId: null
+				},
+				externalWallets: {
 					walletConnect: {
-						projectId: null // Disable WalletConnect in dev
+						enabled: false
 					}
-				})
+				}
 			}}
 		>
 			{children}

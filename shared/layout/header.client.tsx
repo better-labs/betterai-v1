@@ -40,67 +40,56 @@ export function Header() {
   }
 
   return (
-    <header className="border-b bg-white shadow-sm" style={{ backgroundColor: 'white', color: 'black', minHeight: '80px' }}>
+    <header className="border-b bg-background shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo Section - DEBUG VERSION */}
+          {/* Logo Section */}
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2" style={{ color: 'black', textDecoration: 'none' }}>
-              <TrendingUp className="h-10 w-10" style={{ color: '#3B82F6' }} />
-              <span className="text-2xl font-bold" style={{ color: 'black', fontSize: '1.5rem', fontWeight: 'bold' }}>BetterAI</span>
+            <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105 duration-200">
+              <TrendingUp className="h-10 w-10 text-primary" />
+              <span className="text-2xl font-bold text-foreground">BetterAI</span>
             </Link>
 
-            {/* Navigation Section - DEBUG VERSION */}
-            <nav className="hidden md:flex items-center space-x-6">
+            {/* Navigation Section - DEBUG: Testing different breakpoint */}
+            <nav className="hidden sm:flex items-center space-x-6" style={{backgroundColor: 'red', padding: '4px'}}>
+              {/* DEBUG: This red background should help us see if nav is rendering but invisible */}
               <Link 
                 href="/" 
-                style={{ 
-                  color: isActive("/") ? 'black' : '#666',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 'medium',
-                  borderBottom: isActive("/") ? '2px solid #3B82F6' : 'none',
-                  paddingBottom: isActive("/") ? '4px' : '0'
-                }}
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 Home
               </Link>
               <Link 
                 href="/leaderboard" 
-                style={{ 
-                  color: isActive("/leaderboard") ? 'black' : '#666',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 'medium',
-                  borderBottom: isActive("/leaderboard") ? '2px solid #3B82F6' : 'none',
-                  paddingBottom: isActive("/leaderboard") ? '4px' : '0'
-                }}
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/leaderboard") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 AI Leaderboard
               </Link>
               <Link 
                 href="/about" 
-                style={{ 
-                  color: isActive("/about") ? 'black' : '#666',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 'medium',
-                  borderBottom: isActive("/about") ? '2px solid #3B82F6' : 'none',
-                  paddingBottom: isActive("/about") ? '4px' : '0'
-                }}
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/about") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 About
               </Link>
               <Link 
                 href="/docs" 
-                style={{ 
-                  color: isActive("/docs") ? 'black' : '#666',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 'medium',
-                  borderBottom: isActive("/docs") ? '2px solid #3B82F6' : 'none',
-                  paddingBottom: isActive("/docs") ? '4px' : '0'
-                }}
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/docs") 
+                    ? "text-foreground border-b-2 border-primary pb-1" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 Docs
               </Link>
