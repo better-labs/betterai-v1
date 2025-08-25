@@ -58,7 +58,7 @@
   display: flex;
   align-items: center;
   gap: 3rem;
-  min-width: 300px;
+  
   justify-content: flex-start;
 }
 

@@ -93,16 +93,7 @@ export function Header() {
               >
                 About
               </Link>
-              <Link 
-                href="/docs" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/docs") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Docs
-              </Link>
+            
               
 
               {/* {flags.showPortfolio && (
@@ -149,13 +140,13 @@ export function Header() {
               </div>
             )}
             {/* Credits Display */}
-            <div className="credit-display  md:flex ">
+            {/* <div className="credit-display  md:flex ">
               {ready && authenticated ? (
                 <UserCreditsDisplay />
               ) : (
                 <div className="w-20 h-6 bg-muted/30 rounded animate-pulse" />
               )}
-            </div>
+            </div> */}
 
             {/* Auth section */}
             <div className="flex items-center justify-center w-24 h-8">
@@ -223,7 +214,7 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/docs" className={`w-full flex items-center space-x-2 ${isActive("/docs") ? "bg-accent" : ""}`}>
+                  <Link href="https://docs.betterai.tools" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center space-x-2 ${isActive("/docs") ? "bg-accent" : ""}`}>
                     <BookOpen className="h-4 w-4" />
                     <span>Docs</span>
                   </Link>
