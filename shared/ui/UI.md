@@ -4,7 +4,6 @@ Header:
 * Logo
 * About
 * Search
-* [Comment out Credits]
 * Menu
 
 
