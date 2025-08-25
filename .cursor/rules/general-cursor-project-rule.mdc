@@ -74,6 +74,15 @@ See package.json for the most recent commands.
 - Thin tRPC procedures in `lib/trpc/routers/` delegate to services
 - Input-only Zod schemas in `lib/trpc/schemas/` (no output schemas)
 - Response types inferred from service returns
+- **Best Practice**: Use tRPC inferred types in components:
+  ```typescript
+  import type { AppRouter } from "@/lib/trpc/routers/_app"
+  import type { inferProcedureOutput } from "@trpc/server"
+  
+  type ApiResponse = inferProcedureOutput<AppRouter['predictions']['recent']>
+  type PredictionItem = ApiResponse['items'][number]
+  ```
+- **New Components**: Establish the pattern of using tRPC inferred types for new components instead of `/lib/types.ts`
 - Example: `const market = await trpc.markets.getById.query({ id })`
 
 Follow existing patterns: snake_case for DB columns, camelCase for TypeScript
