@@ -46,19 +46,10 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 					accentColor: '#3B82F6',
 					logo: '/betterai-logo-vertical.png'
 				},
-				// Keep login simple and disable embedded wallets for all environments
-				loginMethods: ['email','google'],
+				// Keep login simple - only email and Google, no wallets
+				loginMethods: ['email', 'google'],
 				embeddedWallets: {
 					createOnLogin: 'off'
-				},
-				// Completely disable WalletConnect to prevent double initialization
-				walletConnect: {
-					projectId: null
-				},
-				externalWallets: {
-					walletConnect: {
-						enabled: false
-					}
 				}
 			}}
 		>
