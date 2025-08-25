@@ -69,7 +69,7 @@ See package.json for the most recent commands.
 - Thin tRPC procedures in `lib/trpc/routers/` delegate to services
 - Input-only Zod schemas in `lib/trpc/schemas/` (no output schemas)
 - Response types inferred from service returns
-- **Best Practice**: Use tRPC inferred types in components:
+- **Best Practice**: Use tRPC inferred types:
   ```typescript
   import type { AppRouter } from "@/lib/trpc/routers/_app"
   import type { inferProcedureOutput } from "@trpc/server"
@@ -107,6 +107,7 @@ Components: Organized by feature domain in `features/` directory:
   - `features/user/` - User authentication and profile
   - `shared/ui/` - Design system components
   - `shared/providers/` - React providers
+  - Note: avoid putting new components in /components/ folder. Over time try to move elements to their respective /features or /shared folders.
 
 Services: `lib/services/` for business logic (CURRENT PATTERN - always use these!)
   - Accept `db` parameter for dependency injection
