@@ -26,7 +26,7 @@ type PaginatedRecentPredictionsProps = {
   defaultPageSize?: number
 }
 
-export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRecentPredictionsProps) {
+export function PaginatedRecentPredictions({ defaultPageSize = 10 }: PaginatedRecentPredictionsProps) {
   const [pageSize, setPageSize] = useState<number>(defaultPageSize)
   const [cursorHistory, setCursorHistory] = useState<Array<number | null>>([null])
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])

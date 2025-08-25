@@ -1,4 +1,4 @@
-import { HomePageWrapper } from "@/components/home-page-wrapper"
+import { HomePageWrapper } from "@/features/home/home-page.client"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {

@@ -77,10 +77,9 @@ export function HomePageWrapper() {
               
             </div>
               
-
-            {/* Hide trending events table for now */}
-            {/* <TrendingEventsTable /> */}
-            <PaginatedRecentPredictions defaultPageSize={15} />
+            {/* todo add new one */}
+            <PaginatedRecentPredictions defaultPageSize={10} />
+            
           </div>
         </PageTransition>
       </main>
