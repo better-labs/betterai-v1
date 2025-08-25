@@ -47,7 +47,7 @@ async function runBatchPredictions(dryRun = false) {
   const modelName = encodeURIComponent(process.env[`${configPrefix}MODEL`] || (use6MonthConfig ? 'google/gemini-2.0-flash-001' : 'google/gemini-2.5-flash-lite'))
   const concurrencyParam = Number(process.env[`${configPrefix}CONCURRENCY`] || 3)
 
-  const url = `${baseUrl}/api/cron/daily-generate-batch-predictions?topMarketsCount=${topMarketsCount}&endDateRangeHours=${endDateRangeHours}&targetDaysFromNow=${targetDaysFromNow}&modelName=${modelName}&concurrencyPerModel=${concurrencyParam}`
+  const url = `${baseUrl.replace(/\/$/, '')}/api/cron/daily-generate-batch-predictions?topMarketsCount=${topMarketsCount}&endDateRangeHours=${endDateRangeHours}&targetDaysFromNow=${targetDaysFromNow}&modelName=${modelName}&concurrencyPerModel=${concurrencyParam}`
   const options = {
     method: 'GET',
     headers: {
