@@ -3,7 +3,7 @@
 import { TrendingUp, Shield } from "lucide-react"
 import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
 import { BetaSignupForm } from "@/components/beta-signup-form"
-import { PageTransition } from "@/components/page-transition"
+import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
 
 export function LandingPage() {
   return (

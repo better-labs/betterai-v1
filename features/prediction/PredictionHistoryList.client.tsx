@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
 import { formatPercent, toUnitProbability } from '@/lib/utils'
 import Link from 'next/link'
-import { Sparkline } from '@/components/sparkline'
+import { Sparkline } from '@/shared/ui/charts/sparkline.client'
 import { useRouter } from 'next/navigation'
 import type { PredictionCheckDTO, PredictionDTO } from '@/lib/types'
 

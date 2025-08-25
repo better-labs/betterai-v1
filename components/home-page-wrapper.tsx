@@ -6,8 +6,8 @@ import { useEffect } from "react"
 import { LoadingCard } from "@/shared/ui/loading"
 import { PaginatedRecentPredictions } from "@/components/paginated-recent-predictions"
 import { useUser } from "@/hooks/use-user"
-import { WelcomeBanner } from "@/components/welcome-banner"
-import { PageTransition } from "@/components/page-transition"
+import { WelcomeBanner } from "@/features/user/welcome-banner.client"
+import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
 import { TrendingUp, Activity, Target, Trophy } from "lucide-react"
 
 export function HomePageWrapper() {
