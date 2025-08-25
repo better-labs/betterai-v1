@@ -56,7 +56,7 @@ export function Header() {
             </Link>
 
             {/* Navigation Section */}
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden md:flex items-center space-x-6" data-testid="navigation">
               <Link 
                 href="/" 
                 className={`text-sm font-medium transition-colors ${

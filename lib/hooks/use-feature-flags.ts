@@ -6,12 +6,12 @@ import { getFeatureFlags } from '@/lib/feature-flags';
  * Provides a consistent interface for checking feature flag states
  */
 export function useFeatureFlags() {
-  // Start with default false values to prevent hydration mismatch
+  // Start with default values - true for development features to prevent flashing
   const [flags, setFlags] = useState({
-    showMarketAlpha: false,
-    showPortfolio: false,
-    showSearch: false,
-    showActivity: false,
+    showMarketAlpha: true, // Show in development by default
+    showPortfolio: true,   // Show in development by default  
+    showSearch: true,      // Show in development by default
+    showActivity: true,    // Show in development by default
     showTermsOfService: false,
     showPrivacyPolicy: false,
     showLoginSignup: true

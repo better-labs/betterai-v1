@@ -23,10 +23,15 @@ const isEnabled = (envVar: string, defaultValue: boolean): boolean => {
     return envValue === '1' || envValue === 'true';
   }
   
-  return process.env.NODE_ENV === 'development' ? true : defaultValue;
+  // For development, always show features unless explicitly disabled
+  // This handles cases where NODE_ENV might not be set properly
+  const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+  return isDevelopment ? true : defaultValue;
 };
 
 // Page visibility flags - default to true for development, false for production
+
+
 export const showPortfolio: FeatureFlag = {
   key: 'show-portfolio', 
   description: 'Show Portfolio/My Portfolio page',
