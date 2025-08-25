@@ -10,8 +10,13 @@ import { useState } from "react"
 import { useTheme } from "next-themes"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
-import { UserPill } from "@privy-io/react-auth/ui"
+import dynamic from "next/dynamic"
 import { UserCreditsDisplay } from "@/features/user/UserCreditsDisplay.client"
+
+const PrivyUserPill = dynamic(
+  () => import("@privy-io/react-auth/ui").then((m) => m.UserPill),
+  { ssr: false }
+)
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -50,8 +55,8 @@ export function Header() {
               <span className="text-2xl font-bold text-foreground">BetterAI</span>
             </Link>
 
-            {/* Navigation Section - Fixed responsive breakpoint */}
-            <nav className="hidden lg:flex items-center space-x-6">
+            {/* Navigation Section */}
+            <nav className="hidden md:flex items-center space-x-6">
               <Link 
                 href="/" 
                 className={`text-sm font-medium transition-colors ${
@@ -147,7 +152,7 @@ export function Header() {
 
             {/* Login/Signup buttons removed; relying solely on Privy UserPill */}
 
-            {ready && <UserPill />}
+            <PrivyUserPill />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
