@@ -15,7 +15,7 @@
 .header-content {
   /* Grid layout provides more predictable spacing than flex */
   display: grid;
-  grid-template-columns: minmax(300px, auto) 1fr minmax(280px, auto);
+  grid-template-columns: minmax(300px, auto) 1fr;
   align-items: center;
   gap: 2rem;
   min-height: 48px;

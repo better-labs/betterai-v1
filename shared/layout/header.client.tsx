@@ -119,35 +119,34 @@ export function Header() {
             </nav>
           </div>
 
-          {/* Search Bar Section - Hidden on mobile */}
-          {flags.showSearch && (
-            <div className="header-search hidden md:flex">
-              <form onSubmit={handleSearch} className="relative w-full">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Search markets"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-10 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={clearSearch}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </form>
-            </div>
-          )}
-
           {/* Right side elements - directly in grid */}
           <div className="flex items-center justify-end gap-3">
+            {/* Search Bar Section - Hidden on mobile */}
+            {flags.showSearch && (
+              <div className="header-search hidden md:flex">
+                <form onSubmit={handleSearch} className="relative w-full">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search markets"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-10 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={clearSearch}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </form>
+              </div>
+            )}
             {/* Credits Display */}
             <div className="md:flex">
               {ready && authenticated && <UserCreditsDisplay />}
