@@ -48,7 +48,7 @@ export default function MarketDetailsCard({
         {/* Probability Grid */}
         <PredictionProbabilityGrid
           marketOutcomes={market.outcomes}
-          marketOutcomePrices={market.outcomePrices as unknown as number[]}
+          marketOutcomePrices={market.outcomePrices as number[]}
           aiOutcomes={latestPrediction?.outcomes ?? null}
           aiOutcomesProbabilities={latestPrediction?.outcomesProbabilities ?? null}
           className="mt-2"

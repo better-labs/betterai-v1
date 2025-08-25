@@ -43,12 +43,6 @@ export function MarketEventHeader({
         </div>
       )}
 
-      {showMarketLine && (
-        <Link href={marketId ? `/market/${marketId}` : '#'} className="block">
-          <div className="text-sm text-muted-foreground">Market</div>
-          <div className="text-lg font-medium">{marketQuestion ?? '—'}</div>
-        </Link>
-      )}
     </div>
   )
 }
