@@ -1,4 +1,8 @@
-import { marketQueries, DEFAULT_MODEL, researchCacheQueries } from '../db/queries';
+import { prisma } from '../db/prisma'
+import * as marketService from './market-service'
+import * as researchCacheService from './research-cache-service'
+
+const DEFAULT_MODEL = 'google/gemini-2.0-flash-thinking-exp'
 import { z } from 'zod';
 import { fetchStructuredFromOpenRouter } from './openrouter-client';
 
@@ -35,14 +39,14 @@ export async function performMarketResearch(
 
     const model = modelName || DEFAULT_MODEL;
 
-    const cachedEntry = await researchCacheQueries.getCachedResearch(marketId, model);
+    const cachedEntry = await researchCacheService.getCachedResearch(prisma, marketId, model);
 
     if (cachedEntry && cachedEntry.response) {
       return cachedEntry.response as unknown as MarketResearchResponse;
     }
 
     // Fetch market data from the database
-    const market = await marketQueries.getMarketById(marketId);
+    const market = await marketService.getMarketById(prisma, marketId);
 
     if (!market) {
       return {
@@ -117,7 +121,7 @@ Focus on recent news, developments, and any factors that could influence the out
       research: researchResult,
     };
 
-    await researchCacheQueries.createResearchCache({
+    await researchCacheService.createResearchCache(prisma, {
       marketId: marketId,
       modelName: model,
       systemMessage: systemMessage,

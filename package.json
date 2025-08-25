@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "prisma generate --no-hints && next build",
     "dev": "next dev",
     "env:pull:dev": "vercel env pull .env.local --environment=development",
     "db:seed": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/3-generate-market-research.ts && tsx scripts/4-generate-batch-predictions.ts && tsx scripts/5-run-data-pipeline.ts",
-    "db:prisma:generate": "prisma generate",
+    "db:prisma:generate": "prisma generate --no-hints",
     "db:migrate:deploy:dev": "dotenv -e .env.local -- sh -c 'DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate deploy'",
     "db:migrate:status:dev": "dotenv -e .env.local -- sh -c 'DATABASE_URL=$DATABASE_URL_UNPOOLED prisma migrate status'",
     "db:migrate:dev": "dotenv -e .env.local -- bash -c 'DATABASE_URL=$DATABASE_URL_UNPOOLED npx prisma migrate dev \"$@\"' --",
@@ -21,10 +21,10 @@
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "cron:daily-generate-batch-predictions": "node scripts/cron/cron-daily-generate-batch-predictions.js",
-    "cron:prediction-check": "node scripts/cron/cron-prediction-check.js",
-    "cron:update-ai-models": "node scripts/cron/cron-update-ai-models.js",
-    "cron:daily-update-polymarket-data": "node scripts/cron/cron-daily-update-polymarket-data.js"
+    "cron:daily-generate-batch-predictions": "dotenv -e .env.local -- node scripts/cron/cron-daily-generate-batch-predictions.js",
+    "cron:prediction-check": "dotenv -e .env.local -- node scripts/cron/cron-prediction-check.js",
+    "cron:update-ai-models": "dotenv -e .env.local -- node scripts/cron/cron-update-ai-models.js",
+    "cron:daily-update-polymarket-data": "dotenv -e .env.local -- node scripts/cron/cron-daily-update-polymarket-data.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",

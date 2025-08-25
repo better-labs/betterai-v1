@@ -15,7 +15,7 @@ async function updateAIModels(dryRun = false) {
     process.exit(1);
   }
 
-  const url = `${baseUrl}/api/cron/update-ai-models`;
+  const url = `${baseUrl.replace(/\/$/, '')}/api/cron/update-ai-models`;
   const options = {
     method: 'GET',
     headers: {

@@ -13,6 +13,7 @@ import {
 } from "@/shared/ui/command"
 import { Badge } from "@/shared/ui/badge"
 import { Clock, TrendingUp, Calendar, Tag } from 'lucide-react'
+import { trpc } from "@/shared/providers/trpc-provider"
 
 interface SearchResult {
   markets: Array<{
@@ -48,13 +49,30 @@ export function EnhancedSearchBox({
   autoFocus = false
 }: EnhancedSearchBoxProps) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const router = useRouter()
   
   // Debounce search query to avoid excessive API calls
   const [debouncedQuery] = useDebounce(query, 300)
+
+  // Use tRPC to search - only when we have a query of 2+ characters
+  const { data, isLoading } = trpc.search.searchAll.useQuery(
+    {
+      q: debouncedQuery,
+      limit: 8,
+      includeMarkets: true,
+      includeEvents: true,
+      includeTags: true,
+    },
+    {
+      enabled: debouncedQuery.length >= 2,
+      refetchOnWindowFocus: false,
+      staleTime: 30 * 1000, // 30 seconds
+    }
+  )
+
+  // Extract results from tRPC response
+  const results = data?.results || null
 
   // Load recent searches from localStorage on mount
   useEffect(() => {
@@ -67,34 +85,6 @@ export function EnhancedSearchBox({
       console.warn('Failed to load recent searches:', error)
     }
   }, [])
-
-  // Search function
-  const performSearch = useCallback(async (searchTerm: string) => {
-    if (!searchTerm.trim() || searchTerm.length < 2) {
-      setResults(null)
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}&limit=8`)
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success) {
-          setResults(data.data)
-        }
-      }
-    } catch (error) {
-      console.error('Search failed:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  // Perform search when debounced query changes
-  useEffect(() => {
-    performSearch(debouncedQuery)
-  }, [debouncedQuery, performSearch])
 
   // Save search to recent searches
   const saveSearch = useCallback((searchTerm: string) => {

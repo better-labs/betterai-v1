@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { eventQueries, marketQueries } from "./db/queries"
+import { prisma } from './db/prisma'
+import * as eventService from './services/event-service'
+import * as marketService from './services/market-service'
 import type { Prediction, Market } from "./types"
 import { z } from "zod"
 import type { PredictionResult, PolymarketEvent } from "./types"
@@ -351,7 +353,7 @@ export async function generateEventURL(eventId: string): Promise<string | null> 
   if (!eventId) return null
 
   // Fetch event to get slug and provider
-  const event = await eventQueries.getEventById(eventId)
+  const event = await eventService.getEventById(prisma, eventId)
   if (!event || !event.slug) return null
 
   const providerRaw = (event.marketProvider || 'polymarket').trim().toLowerCase()
@@ -384,7 +386,7 @@ export async function getEventURL(eventId: string): Promise<string | null> {
 export async function generateMarketURL(marketId: string): Promise<string | null> {
   if (!marketId) return null
 
-  const market = await marketQueries.getMarketById(marketId)
+  const market = await marketService.getMarketById(prisma, marketId)
   if (!market) return null
 
   const baseEventUrl = market.eventId ? await getEventURL(market.eventId) : null

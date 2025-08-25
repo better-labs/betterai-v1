@@ -28,7 +28,7 @@ async function runPredictionCheck(dryRun = false) {
   search.set('includeClosedMarkets', includeClosedMarkets ? 'true' : 'false')
   for (const cat of excludeCategories) search.append('excludeCategories', cat)
 
-  const url = `${baseUrl}/api/cron/prediction-check?${search.toString()}`
+  const url = `${baseUrl.replace(/\/$/, '')}/api/cron/prediction-check?${search.toString()}`
   const options = {
     method: 'GET',
     headers: {

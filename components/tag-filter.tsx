@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
 import { Filter, X } from "lucide-react"
+import { trpc } from "@/shared/providers/trpc-provider"
 
 interface Tag {
   id: string
@@ -17,28 +17,18 @@ interface TagFilterProps {
 }
 
 export function TagFilter({ selectedTag, onTagChange }: TagFilterProps) {
-  const [popularTags, setPopularTags] = useState<Tag[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchPopularTags = async () => {
-      try {
-        const response = await fetch('/api/tags/popular?limit=8')
-        if (response.ok) {
-          const data = await response.json()
-          setPopularTags(data.data || [])
-        }
-      } catch (error) {
-        console.error('Failed to fetch popular tags:', error)
-      } finally {
-        setLoading(false)
-      }
+  // Use tRPC to fetch popular tags
+  const { data, isLoading } = trpc.tags.getPopular.useQuery(
+    { limit: 8 },
+    {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     }
+  )
 
-    fetchPopularTags()
-  }, [])
+  const popularTags = data?.data || []
 
-  if (loading || popularTags.length === 0) {
+  if (isLoading || popularTags.length === 0) {
     return null
   }
 

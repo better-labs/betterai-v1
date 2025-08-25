@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
-import { eventQueries } from "@/lib/db/queries"
+import { prisma } from '@/lib/db/prisma'
+import * as eventService from '@/lib/services/event-service'
 
 export async function GET() {
   try {
-    const eventsWithMarkets = await eventQueries.getTrendingEventsWithMarkets()
+    const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma)
     
     return NextResponse.json({ events: eventsWithMarkets })
 

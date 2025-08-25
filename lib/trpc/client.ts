@@ -12,7 +12,7 @@ import type { AppRouter } from './routers/_app'
 export const trpc = createTRPCReact<AppRouter>()
 
 // Client configuration function
-export const createTRPCClient = (baseUrl: string = '') => {
+export const createTRPCClient = (baseUrl: string = '', getAccessToken?: () => Promise<string | null>) => {
   return trpc.createClient({
     links: [
       httpBatchLink({
@@ -25,8 +25,20 @@ export const createTRPCClient = (baseUrl: string = '') => {
             credentials: 'include',
           })
         },
-        headers: () => {
-          // Add any custom headers here
+        headers: async () => {
+          // Include Privy access token if available
+          if (getAccessToken) {
+            try {
+              const token = await getAccessToken()
+              if (token) {
+                return {
+                  Authorization: `Bearer ${token}`,
+                }
+              }
+            } catch (error) {
+              console.warn('Failed to get access token:', error)
+            }
+          }
           return {}
         },
       }),

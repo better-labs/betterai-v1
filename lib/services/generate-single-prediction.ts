@@ -1,4 +1,8 @@
-import { marketQueries, predictionQueries, DEFAULT_MODEL } from '../db/queries'
+import { prisma } from '../db/prisma'
+import * as marketService from './market-service'
+import * as predictionService from './prediction-service'
+
+const DEFAULT_MODEL = 'google/gemini-2.0-flash-thinking-exp'
 import { fetchPredictionFromOpenRouter, type OpenRouterPredictionResult, EmptyContentError } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
 import { Decimal } from '@prisma/client/runtime/library'
@@ -169,7 +173,7 @@ async function savePrediction(
     experimentNotes: experimentNotes || null,
   }
 
-  const createdPrediction = await predictionQueries.createPrediction(newPrediction)
+  const createdPrediction = await predictionService.createPrediction(prisma, newPrediction)
   if (!createdPrediction) {
     throw new Error("Failed to save prediction to database")
   }
@@ -182,7 +186,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
       return { success: false, message: "Market ID is required" }
     }
 
-    const market = await marketQueries.getMarketById(marketId)
+    const market = await marketService.getMarketById(prisma, marketId)
     if (!market) {
       return { success: false, message: `Market with ID ${marketId} not found in database` }
     }

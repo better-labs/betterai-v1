@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation'
-import { marketQueries, predictionQueries, eventQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as marketService from '@/lib/services/market-service'
+import * as predictionService from '@/lib/services/prediction-service'
+import * as eventService from '@/lib/services/event-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
 import { Calendar, DollarSign, BarChart2 } from 'lucide-react'
@@ -26,18 +29,18 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   const { marketId } = await params
 
   // Fetch market data
-  const market = await marketQueries.getMarketByIdSerialized(marketId) as unknown as MarketDTO | null
+  const market = await marketService.getMarketByIdSerialized(prisma, marketId) as unknown as MarketDTO | null
   if (!market) {
     notFound()
   }
 
   // Fetch event data if market has an eventId
-  const event = market.eventId ? await eventQueries.getEventByIdSerialized(market.eventId) as unknown as EventDTO | null : null
+  const event = market.eventId ? await eventService.getEventByIdSerialized(prisma, market.eventId) as unknown as EventDTO | null : null
 
   // Fetch most recent prediction and all predictions for history
   const [prediction, allPredictions] = await Promise.all([
-    predictionQueries.getMostRecentPredictionByMarketIdSerialized(marketId) as unknown as Promise<PredictionDTO | null>,
-    predictionQueries.getPredictionsByMarketIdSerialized(marketId) as unknown as Promise<PredictionDTO[]>
+    predictionService.getMostRecentPredictionByMarketIdSerialized(prisma, marketId) as unknown as Promise<PredictionDTO | null>,
+    predictionService.getPredictionsByMarketIdSerialized(prisma, marketId) as unknown as Promise<PredictionDTO[]>
   ])
 
   const serializedMarket = market

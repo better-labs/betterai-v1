@@ -12,7 +12,6 @@ import * as eventService from '@/lib/services/event-service'
 import {
   GetMarketsInput,
   GetMarketByIdInput,
-  SearchMarketsInput,
   CreateMarketInput,
   UpdateMarketInput,
   DeleteMarketInput,
@@ -34,55 +33,6 @@ export const marketsRouter = router({
       return market
     }),
 
-  // ❌ DEPRECATED: Markets by event ID (backwards compatibility)
-  // TODO Phase 7: Migrate clients to use `list({ eventId })` instead
-  // TODO Phase 8: Remove this procedure entirely
-  getByEventId: publicProcedure
-    .meta({ deprecated: true })
-    .input(GetMarketsInput)
-    .query(async ({ input }) => {
-      if (input.eventId) {
-        return await marketService.getMarketsByEventIdSerialized(prisma, input.eventId)
-      }
-      
-      // If no eventId provided, get all markets (limited)
-      const markets = await marketService.getTopMarkets(prisma, input.limit)
-      return markets.map(market => ({
-        ...market,
-        volume: market.volume?.toString() || '0',
-        liquidity: market.liquidity?.toString() || '0',
-        outcomePrices: Array.isArray(market.outcomePrices) 
-          ? market.outcomePrices 
-          : typeof market.outcomePrices === 'string' 
-            ? JSON.parse(market.outcomePrices) 
-            : [],
-      }))
-    }),
-
-  // ❌ DEPRECATED: Dedicated search endpoint (backwards compatibility)
-  // TODO Phase 7: Migrate clients to use `list({ search })` instead  
-  // TODO Phase 8: Remove this procedure entirely
-  search: publicProcedure
-    .meta({ deprecated: true })
-    .input(SearchMarketsInput)
-    .query(async ({ input }) => {
-      const result = await marketService.searchMarkets(prisma, input.query, {
-        limit: input.limit,
-        sort: input.sort,
-        status: input.status,
-        cursorId: input.cursor,
-      })
-
-      return {
-        items: result.items.map(item => ({
-          ...item,
-          // Ensure DTOs are returned, not raw Prisma models
-          predictions: item.predictions?.slice(0, 3) || [],
-        })),
-        nextCursor: result.nextCursor,
-        hasMore: !!result.nextCursor,
-      }
-    }),
 
   // List markets with various filters (main endpoint)
   list: publicProcedure

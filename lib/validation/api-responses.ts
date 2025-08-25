@@ -74,9 +74,9 @@ export const PolymarketMarketDTOSchema = z.object({
   slug: z.string().optional(),
   icon: z.string().optional(),
   image: z.string().optional(),
-  outcomePrices: z.string(), // JSON string
+  outcomePrices: z.string().optional(), // JSON string
   outcomes: z.string().optional(), // JSON string array
-  volume: z.string(),
+  volume: z.string().optional(),
   liquidity: z.string().optional(), // Not always provided
   active: z.boolean().optional(),
   closed: z.boolean().optional(),
@@ -155,16 +155,16 @@ export const PolymarketMarketDTOSchema = z.object({
 export const PolymarketEventDTOSchema = z.object({
   id: z.string(),
   title: z.string(),
-  description: z.string(),
-  slug: z.string(),
-  icon: z.string(),
+  description: z.string().optional(),
+  slug: z.string().optional(),
+  icon: z.string().optional(),
   image: z.string().optional(),
-  tags: z.array(PolymarketTagSchema),
-  volume: z.number(),
+  tags: z.array(PolymarketTagSchema).optional().default([]),
+  volume: z.number().optional().default(0),
   startDate: z.string().datetime().nullable().optional(),
   endDate: z.string().datetime().nullable().optional(),
   creationDate: z.string().datetime().optional(),
-  markets: z.array(PolymarketMarketDTOSchema),
+  markets: z.array(PolymarketMarketDTOSchema).optional().default([]),
   category: z.string().optional(), // Not always provided by API
   ticker: z.string().optional(),
   resolutionSource: z.string().optional(),

@@ -8,6 +8,7 @@ import { PrivyClientProvider } from "@/components/privy-client-provider"
 import { PostHogProvider } from "@/components/PostHogProvider"
 import { UserAnalyticsIdentify } from "@/features/user/UserAnalyticsIdentify.client"
 import { QueryProvider } from "@/shared/providers/query-provider"
+import { TRPCProvider } from "@/shared/providers/trpc-provider"
 
 export const metadata: Metadata = {
   title: "BetterAI - AI-Powered Market Predictions",
@@ -51,14 +52,16 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <PrivyClientProvider>
-                <UserAnalyticsIdentify />
-                <div className="min-h-screen flex flex-col">
-                  <Header />
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                  <Footer />
-                </div>
+                <TRPCProvider>
+                  <UserAnalyticsIdentify />
+                  <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex-1">
+                      {children}
+                    </main>
+                    <Footer />
+                  </div>
+                </TRPCProvider>
               </PrivyClientProvider>
             </ThemeProvider>
           </QueryProvider>

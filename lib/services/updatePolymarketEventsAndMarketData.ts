@@ -1,4 +1,8 @@
-import { eventQueries, marketQueries, tagQueries, type NewMarket, type NewEvent } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as eventService from '@/lib/services/event-service'
+import * as marketService from '@/lib/services/market-service'
+import * as tagService from '@/lib/services/tag-service'
+import type { NewMarket, NewEvent } from '@/lib/types/database'
 import type { Event, Market, PolymarketEvent, PolymarketMarket } from '@/lib/types'
 import { mapTagsToCategory } from '@/lib/categorize'
 import { fetchPolymarketEvents } from './polymarket-client'
@@ -37,8 +41,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
     ...fetchOptions
   } = options
 
-  console.log("Starting throttled update of all Polymarket events with batch processing...")
-  console.log(`Processing events with batch limit: ${limit}, daysToFetchPast: ${daysToFetchPast}, daysToFetchFuture: ${daysToFetchFuture}, totalEventLimit: ${totalEventLimit || 'unlimited'}`)
+  console.log(`Starting Polymarket data sync (${limit} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future)`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
@@ -61,7 +64,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
       
       // Check if we've reached the total event limit
       if (totalEventLimit && totalFetched >= totalEventLimit) {
-        console.log(`Reached total event limit of ${totalEventLimit} events. Stopping fetch.`)
+        // Reached event limit - stopping
         hasMoreData = false
         break
       }
@@ -70,7 +73,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
       let adjustedLimit = limit
       if (totalEventLimit && (totalFetched + limit > totalEventLimit)) {
         adjustedLimit = totalEventLimit - totalFetched
-        console.log(`Adjusting final batch size to ${adjustedLimit} to respect total event limit`)
+        // Adjusting final batch size
       }
       
       const eventsData = await fetchPolymarketEvents(offset, adjustedLimit, startDateMin, endDateMax, fetchOptions, sortBy)
@@ -171,7 +174,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
       slug: event.slug || null,
       icon: event.icon || null,
       image: event.image || null,
-      tags: event.tags || null,
+      tags: event.tags ? JSON.stringify(event.tags) : null,
       category: category,
       providerCategory: event.category,
       startDate: event.startDate ? new Date(event.startDate) : null,
@@ -229,10 +232,10 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
   // Upsert events and markets for this batch with timings for visibility
   console.log(`Upserting batch: ${eventsToInsert.length} events, ${marketsToInsert.length} markets...`)
   console.time('events-upsert')
-  const insertedEvents = await eventQueries.upsertEvents(eventsToInsert)
+  const insertedEvents = await eventService.upsertEvents(prisma, eventsToInsert)
   console.timeEnd('events-upsert')
   console.time('markets-upsert')
-  const insertedMarkets = await marketQueries.upsertMarkets(marketsToInsert)
+  const insertedMarkets = await marketService.upsertMarkets(prisma, marketsToInsert)
   console.timeEnd('markets-upsert')
 
   // Normalize and upsert tags, then link to events
@@ -255,14 +258,14 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
     }
     const tagsToUpsert = Array.from(uniqueTagsMap.values())
     if (tagsToUpsert.length > 0) {
-      await tagQueries.upsertTags(tagsToUpsert)
+      await tagService.upsertTags(prisma, tagsToUpsert)
     }
 
     // Refresh event-tag links to reflect current provider tags
     const eventIdsInBatch = sortedEvents.map(e => e.id)
     // Set-based delete: remove all existing links for this batch of events using a single SQL statement
     console.time('tags-unlink')
-    await tagQueries.unlinkAllTagsFromEvents(eventIdsInBatch)
+    await tagService.unlinkAllTagsFromEvents(prisma, eventIdsInBatch)
     console.timeEnd('tags-unlink')
     const links: Array<{ eventId: string; tagId: string }> = []
     for (const ev of sortedEvents) {
@@ -273,7 +276,7 @@ async function processAndUpsertBatch(eventsData: PolymarketEvent[]): Promise<{
     }
     if (links.length > 0) {
       console.time('tags-link')
-      await tagQueries.linkTagsToEvents(links)
+      await tagService.linkTagsToEvents(prisma, links)
       console.timeEnd('tags-link')
     }
   } catch (err) {

@@ -1,4 +1,6 @@
-import { aiModelQueries, NewAIModel } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as aiModelService from '@/lib/services/ai-model-service'
+import type { NewAIModel } from '@/lib/types/database'
 import type { OpenRouterModel } from '@/lib/types'
 
 export interface AIModelsUpdateStats {
@@ -49,7 +51,7 @@ export async function updateAIModels(): Promise<AIModelsUpdateStats> {
     }))
 
     console.log(`Upserting ${modelsToUpsert.length} AI models...`)
-    const insertedModels = await aiModelQueries.upsertAIModels(modelsToUpsert)
+    const insertedModels = await aiModelService.upsertAIModels(prisma, modelsToUpsert)
     
     console.log(`Successfully updated ${insertedModels.length} AI models`)
     

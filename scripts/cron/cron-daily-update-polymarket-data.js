@@ -61,7 +61,7 @@ async function runDailyPolymarketUpdate(dryRun = false) {
   }
 
   const qs = params.toString()
-  const url = `${baseUrl}/api/cron/daily-update-polymarket-data${qs ? `?${qs}` : ''}`
+  const url = `${baseUrl.replace(/\/$/, '')}/api/cron/daily-update-polymarket-data${qs ? `?${qs}` : ''}`
   const options = {
     method: 'GET',
     headers: {

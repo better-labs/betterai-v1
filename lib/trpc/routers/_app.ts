@@ -7,14 +7,20 @@ import { router } from '../trpc'
 import { marketsRouter } from './markets'
 import { eventsRouter } from './events'
 import { predictionsRouter } from './predictions'
+import { usersRouter } from './users'
+import { tagsRouter } from './tags'
+import { searchRouter } from './search'
+import { leaderboardRouter } from './leaderboard'
 
 // Main application router - combines all sub-routers
 export const appRouter = router({
   markets: marketsRouter,
   events: eventsRouter,
   predictions: predictionsRouter,
-  // Future routers will be added here:
-  // users: usersRouter,
+  users: usersRouter,
+  tags: tagsRouter,
+  search: searchRouter,
+  leaderboard: leaderboardRouter,
 })
 
 // Export the router type for client-side usage

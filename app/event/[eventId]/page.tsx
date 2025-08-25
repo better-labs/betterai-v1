@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
-import { eventQueries, marketQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as eventService from '@/lib/services/event-service'
+import * as marketService from '@/lib/services/market-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
@@ -22,13 +24,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const { eventId } = await params
 
   // Fetch event data
-  const event = await eventQueries.getEventByIdSerialized(eventId) as unknown as EventDTO | null
+  const event = await eventService.getEventByIdSerialized(prisma, eventId) as unknown as EventDTO | null
   if (!event) {
     notFound()
   }
 
   // Fetch markets for the event
-  const markets = await marketQueries.getMarketsByEventIdSerialized(eventId) as unknown as MarketDTO[]
+  const markets = await marketService.getMarketsByEventIdSerialized(prisma, eventId) as unknown as MarketDTO[]
 
   // Serialize all data to handle Decimal objects
   const serializedEvent = event

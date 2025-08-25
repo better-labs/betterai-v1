@@ -1,4 +1,6 @@
-import { eventQueries, marketQueries } from '@/lib/db/queries'
+import { prisma } from '@/lib/db/prisma'
+import * as eventService from '@/lib/services/event-service'
+import * as marketService from '@/lib/services/market-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
 import { EventIcon } from '@/components/event-icon'
@@ -12,12 +14,12 @@ export const dynamic = 'force-dynamic'
 
 // Server Component - Direct data function usage
 export default async function EventsPage() {
-  const events = await eventQueries.getTrendingEvents()
+  const events = await eventService.getTrendingEvents(prisma)
   
   // Fetch markets for all events
   const eventsWithMarkets = await Promise.all(
     events.map(async (event) => {
-      const markets = await marketQueries.getMarketsByEventId(event.id)
+      const markets = await marketService.getMarketsByEventId(prisma, event.id)
       return { event, markets }
     })
   )

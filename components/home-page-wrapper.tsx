@@ -2,7 +2,6 @@
 
 import { usePrivy } from "@privy-io/react-auth"
 import { LandingPage } from "@/components/landing-page"
-import { TrendingEventsTable } from "@/components/trending-events-table"
 import { useEffect } from "react"
 import { LoadingCard } from "@/shared/ui/loading"
 import { PaginatedRecentPredictions } from "@/components/paginated-recent-predictions"
