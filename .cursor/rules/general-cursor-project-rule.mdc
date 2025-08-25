@@ -24,7 +24,7 @@ Minimal dependencies Avoid over-engineering for a 1-person team
 Clear documentation Write code that's easy to understand and modify later. Add single-line comments to explain major code sections
 Gradual scaling Start simple, optimize later when needed
 Feel free to provide additional feedback, guidance if you see issues with the current design or code.
-**Output**: `PHASE1_ANALYSIS.md` with comprehensive system understanding
+If you are unable to fix and error or problem after two attempts, stop to give me (user) a recap of the problem, your tactical attempts to fix it and potential systemic issues.
 
 
 
@@ -64,7 +64,18 @@ If the development server port localhost:3000 is already in use, please do not t
 See package.json for the most recent commands.
 
 ### Database Development Pattern
-Prefer to use and write queries in `lib/db/queries/` for all database operations.
+**SERVICE LAYER PATTERN (CURRENT)**: All database operations use the service layer:
+- Services in `lib/services/` accept `db` parameter for dependency injection
+- All services return DTOs (never raw Prisma models) 
+- Use `lib/dtos/` mappers for consistent serialization
+- Example: `await userService.getUserById(prisma, userId)`
+
+**tRPC Integration**: Use tRPC for type-safe client-server communication:
+- Thin tRPC procedures in `lib/trpc/routers/` delegate to services
+- Input-only Zod schemas in `lib/trpc/schemas/` (no output schemas)
+- Response types inferred from service returns
+- Example: `const market = await trpc.markets.getById.query({ id })`
+
 Follow existing patterns: snake_case for DB columns, camelCase for TypeScript
 Use transactions for multi-step operations
 Use database indexes for common query patterns
@@ -86,19 +97,42 @@ Use shadcn/ui components for consistency
 
 
 ### File Organization
-Components: `components/` (reusable) and `app/` (page-specific)
-  Client only code: `/components/client`
-  Server only code: `/components/server`
-  Shared: `/components/shared`
-Services: `lib/services/` for business logic
-Database: `lib/db/` for queries and schema
-Types: `lib/types.ts` for shared interfaces
-Utils: `lib/utils.ts` for helper functions
+Components: Organized by feature domain in `features/` directory:
+  - `features/market/` - Market-related components
+  - `features/prediction/` - Prediction components  
+  - `features/user/` - User authentication and profile
+  - `shared/ui/` - Design system components
+  - `shared/providers/` - React providers
+
+Services: `lib/services/` for business logic (CURRENT PATTERN - always use these!)
+  - Accept `db` parameter for dependency injection
+  - Return DTOs (never raw Prisma models)
+  - Support both PrismaClient and TransactionClient
+  - Example: `await userService.getUserById(prisma, userId)`
+
+tRPC: `lib/trpc/` for type-safe APIs
+  - `routers/` - Thin procedures using services + Zod validation
+  - `schemas/` - Input-only Zod schemas (no output schemas)
+  - `client.ts` - Client-side hooks and utilities
+
+DTOs: `lib/dtos/` for consistent data serialization
+Database: `lib/db/prisma.ts` for database client
+Types: `lib/types.ts` and `lib/types/` for shared interfaces
 
 ### API Design
-Use Next.js API routes in `app/api/`
+**Modern Pattern (tRPC)**: Use type-safe tRPC procedures for all new APIs:
+- Input validation with Zod schemas
+- Automatic TypeScript type generation  
+- Built-in error handling and rate limiting
+- Authentication via context system
+
+**Legacy Pattern (REST)**: Maintain existing REST endpoints only for:
+- Cron jobs that require webhook-style endpoints
+- External integrations that need REST
+- File uploads and non-JSON responses
+
 Include proper error handling and logging
-Use appropriate HTTP status codes
+Use appropriate HTTP status codes  
 Validate all inputs and implement proper authentication
 
 
@@ -116,6 +150,15 @@ Test Both Build & Runtime: Always run `pnpm run build` and `pnpm test --run` aft
 Keep Config Simple: Prefer Next.js built-in externalization over complex webpack configurations
 Migration Pattern: After schema changes, run `pnpm prisma generate` to regenerate the client with JSON protocol
 Never make direct Prisma calls in components or API routes
+
+### tRPC Migration Status (Phase 8 Complete - 2025)
+✅ **COMPLETED**: Full tRPC migration with modern service layer
+- All core data operations use tRPC procedures
+- Deprecated procedures removed (`markets.getByEventId`, `markets.search`)
+- Service layer pattern established across codebase  
+- Feature-based component architecture implemented
+- Legacy REST endpoints removed (except cron jobs)
+- Type safety achieved end-to-end with Zod + tRPC
 
 ### Security Best Practices
 Validate all user inputs
@@ -138,10 +181,17 @@ Privy: User authentication
 `updatePolymarketEventsAndMarketData.ts`: Data synchronization
 
 ### Important API Endpoints
-`GET /api/markets` List markets with search/filtering
+
+#### tRPC Endpoints (Primary)
+- `trpc.markets.list` - Unified market search/filtering with event context
+- `trpc.markets.getById` - Single market queries  
+- `trpc.markets.trending` - Trending markets with event data
+- `trpc.events.list` - Event listings with optional market inclusion
+- `trpc.predictions.recent` - Recent predictions with pagination
+- `trpc.search.searchAll` - Unified search across markets, events, and tags
+
+#### Legacy REST Endpoints (Maintained)
 `POST /api/predict` Generate AI prediction (authenticated)
-`GET /api/predictions/recent` Recent predictions (authenticated)
-`GET /api/events` List events with markets
 `POST /api/run-data-pipeline` Manual data pipeline trigger (authenticated)
 
 ### Cron Job Endpoints (Authenticated)
@@ -215,8 +265,6 @@ Refer to /lib/design-system.ts for instructions.
 
 
 # Appendix
-
-
-# Appendix
 Build and Runtime errors: if you find or are given build or runtime errors, try first to consider whether the error is tied to a deeper system design issue or whether it is a small tactical issue. If there is a bigger design issue, please stop and share this information with user for their feedback.
 Prefer fat services for writes (transactions, idempotency), thin for reads.
+Any updates made to CLAUDE.md, please also update .cursor/rules/general-cursor-project-rule.mdc accordingly and vice versa.

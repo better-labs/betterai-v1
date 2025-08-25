@@ -143,7 +143,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <Card>
                 <CardContent className="p-6 text-center">
                   <p className="text-muted-foreground mb-4">
-                    No results found for "{query}"
+                    No results found for &quot;{query}&quot;
                   </p>
                   {results.suggestions && results.suggestions.length > 0 && (
                     <div>

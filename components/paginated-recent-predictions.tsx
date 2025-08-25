@@ -73,7 +73,7 @@ export function PaginatedRecentPredictions({ defaultPageSize = 15 }: PaginatedRe
     }
   )
 
-  const items = (data?.items || []) as any[] // TODO: Fix types after tRPC migration complete
+  const items = data?.items || []
   const nextCursor = data?.nextCursor || null
   const isFiltered = selectedTagIds.length > 0
   const canGoBack = cursorHistory.length > 1

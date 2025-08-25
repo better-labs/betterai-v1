@@ -199,8 +199,8 @@ export interface MarketDTO {
   question: string
   eventId: string
   outcomePrices: number[]
-  volume?: number | null
-  liquidity?: number | null
+  volume?: string | null  // Serialized Decimal from tRPC
+  liquidity?: string | null  // Serialized Decimal from tRPC
   description?: string | null
   active?: boolean | null
   closed?: boolean | null
@@ -228,6 +228,23 @@ export interface PredictionDTO {
   userId?: string | null
   experimentTag?: string | null
   experimentNotes?: string | null
+}
+
+export interface PredictionWithRelationsDTO {
+  id: string
+  userMessage: string
+  marketId: string
+  predictionResult: PredictionResult
+  modelName?: string | null
+  systemPrompt?: string | null
+  aiResponse?: string | null
+  createdAt: ISODateString
+  outcomes: string[]
+  outcomesProbabilities: number[]
+  userId?: string | null
+  experimentTag?: string | null
+  experimentNotes?: string | null
+  market: (MarketDTO & { event: EventDTO | null }) | null
 }
 
 export interface PredictionCheckDTO {

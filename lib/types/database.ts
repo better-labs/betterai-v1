@@ -3,15 +3,17 @@
  * Moved from old lib/db/queries during Phase 8 cleanup
  */
 
+import { Decimal } from '@prisma/client/runtime/library'
+
 export interface NewMarket {
   id: string
   question: string
   description?: string | null
   eventId: string
   outcomes?: string | null
-  outcomePrices?: string | number[] | null
-  volume?: number | null
-  liquidity?: number | null
+  outcomePrices?: string | number[] | Decimal[] | null
+  volume?: number | Decimal | null
+  liquidity?: number | Decimal | null
   active?: boolean | null
   closed?: boolean | null
   endDate?: Date | null
@@ -30,7 +32,7 @@ export interface NewEvent {
   image?: string | null
   category?: string | null
   providerCategory?: string | null
-  volume?: number | null
+  volume?: number | Decimal | null
   startDate?: Date | null
   endDate?: Date | null
   marketProvider?: string | null

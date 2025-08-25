@@ -4,7 +4,9 @@ import { format } from "date-fns"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Info } from "lucide-react"
-import type { Prediction, Market, Event, Tag } from "@/lib/types"
+import type { Tag } from "@/lib/types"
+import type { AppRouter } from "@/lib/trpc/routers/_app"
+import type { inferProcedureOutput } from "@trpc/server"
 import { EventIcon } from "@/components/event-icon"
 import { PredictionProbabilityGrid } from "@/features/prediction/PredictionProbabilityGrid"
 import { PopularTagsList } from "@/components/popular-tags-list"
@@ -12,10 +14,12 @@ import { TrendingSelector, type SortMode } from "@/components/trending-selector"
 import { useApiQuery } from "@/lib/client/api-handler"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
 
-type PredictionWithRelations = Prediction & { market: (Market & { event: Event | null }) | null }
+// Use tRPC's inferred types instead of manual DTOs
+type RecentPredictionsResponse = inferProcedureOutput<AppRouter['predictions']['recent']>
+type PredictionItem = RecentPredictionsResponse['items'][number]
 
 interface RecentPredictionsProps {
-  items: PredictionWithRelations[]
+  items: PredictionItem[]
   selectedTagIds?: string[]
   onTagSelect?: (tagId: string) => void
   onClearFilters?: () => void

@@ -165,7 +165,7 @@ export async function generatePredictionVsMarketDelta(
     })
     // save the results to the database
     try {
-      await predictionCheckService.create(prisma, {
+      await predictionCheckService.createPredictionCheck(prisma, {
         predictionId: p.id,
         marketId: market.id,
         // Pass values allowing the DB layer to normalize to Decimal

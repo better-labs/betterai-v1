@@ -29,7 +29,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const market = serializedPrediction.market
   const event = market?.event || null
 
-  const { aiProbability, reasoning, marketProbability } = getPredictionDisplayData(
+  const { reasoning } = getPredictionDisplayData(
     serializedPrediction as any
   )
 
