@@ -27,7 +27,8 @@
   justify-content: center;
   width: 100%;
   max-width: 400px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: 0;
 }
 
 @media (max-width: 768px) {
@@ -38,6 +39,15 @@
   
   .header-search {
     display: none;
+  }
+  
+  .header-nav {
+    display: none;
+  }
+  
+  .credit-display {
+    display: none;
+    
   }
 }
 

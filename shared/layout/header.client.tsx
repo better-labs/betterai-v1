@@ -30,6 +30,7 @@ export function Header() {
   const flags = useFeatureFlags()
   const { ready, authenticated } = usePrivy()
   const { setTheme, theme } = useTheme()
+ 
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -148,8 +149,12 @@ export function Header() {
               </div>
             )}
             {/* Credits Display */}
-            <div className="md:flex">
-              {ready && authenticated && <UserCreditsDisplay />}
+            <div className="credit-display  md:flex ">
+              {ready && authenticated ? (
+                <UserCreditsDisplay />
+              ) : (
+                <div className="w-20 h-6 bg-muted/30 rounded animate-pulse" />
+              )}
             </div>
 
             {/* Auth section */}
