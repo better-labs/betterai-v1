@@ -10,13 +10,8 @@ import { useState } from "react"
 import { useTheme } from "next-themes"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
-import dynamic from "next/dynamic"
+import { UserPill } from "@privy-io/react-auth/ui"
 import { UserCreditsDisplay } from "@/features/user/UserCreditsDisplay.client"
-
-const PrivyUserPill = dynamic(
-  () => import("@privy-io/react-auth/ui").then((m) => m.UserPill),
-  { ssr: false }
-)
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -45,55 +40,67 @@ export function Header() {
   }
 
   return (
-    <header className="border-b bg-background shadow-sm">
+    <header className="border-b bg-white shadow-sm" style={{ backgroundColor: 'white', color: 'black', minHeight: '80px' }}>
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo Section */}
+          {/* Logo Section - DEBUG VERSION */}
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105 duration-200">
-              <TrendingUp className="h-10 w-10 text-primary" />
-              <span className="text-2xl font-bold text-foreground">BetterAI</span>
+            <Link href="/" className="flex items-center space-x-2" style={{ color: 'black', textDecoration: 'none' }}>
+              <TrendingUp className="h-10 w-10" style={{ color: '#3B82F6' }} />
+              <span className="text-2xl font-bold" style={{ color: 'black', fontSize: '1.5rem', fontWeight: 'bold' }}>BetterAI</span>
             </Link>
 
-            {/* Navigation Section */}
+            {/* Navigation Section - DEBUG VERSION */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link 
                 href="/" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                style={{ 
+                  color: isActive("/") ? 'black' : '#666',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 'medium',
+                  borderBottom: isActive("/") ? '2px solid #3B82F6' : 'none',
+                  paddingBottom: isActive("/") ? '4px' : '0'
+                }}
               >
                 Home
               </Link>
               <Link 
                 href="/leaderboard" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/leaderboard") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                style={{ 
+                  color: isActive("/leaderboard") ? 'black' : '#666',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 'medium',
+                  borderBottom: isActive("/leaderboard") ? '2px solid #3B82F6' : 'none',
+                  paddingBottom: isActive("/leaderboard") ? '4px' : '0'
+                }}
               >
                 AI Leaderboard
               </Link>
               <Link 
                 href="/about" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/about") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                style={{ 
+                  color: isActive("/about") ? 'black' : '#666',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 'medium',
+                  borderBottom: isActive("/about") ? '2px solid #3B82F6' : 'none',
+                  paddingBottom: isActive("/about") ? '4px' : '0'
+                }}
               >
                 About
               </Link>
               <Link 
                 href="/docs" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/docs") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                style={{ 
+                  color: isActive("/docs") ? 'black' : '#666',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 'medium',
+                  borderBottom: isActive("/docs") ? '2px solid #3B82F6' : 'none',
+                  paddingBottom: isActive("/docs") ? '4px' : '0'
+                }}
               >
                 Docs
               </Link>
@@ -152,7 +159,7 @@ export function Header() {
 
             {/* Login/Signup buttons removed; relying solely on Privy UserPill */}
 
-            <PrivyUserPill />
+            {ready && <UserPill />}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
