@@ -9,6 +9,7 @@ import { useUser } from "@/hooks/use-user"
 import { WelcomeBanner } from "@/features/user/welcome-banner.client"
 import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
 import { TrendingUp, Activity, Target, Trophy } from "lucide-react"
+import { typography } from "@/lib/design-system"
 
 export function HomePageWrapper() {
   const { ready, authenticated } = usePrivy()
@@ -69,13 +70,11 @@ export function HomePageWrapper() {
           <div className="space-y-8">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
+              <h1 className={`${typography.h1} flex items-center justify-center gap-2`}>
                 <TrendingUp className="text-primary" />
-                Today's Top AI Market Predictions
+                Trending AI Market Predictions
               </h1>
-              <p className="text-muted-foreground text-lg  mx-auto mb-6">
-                AI-powered predictions on trending markets. Get insights from multiple models with enriched data analysis.
-              </p>
+              
             </div>
               
 
