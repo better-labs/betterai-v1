@@ -50,9 +50,8 @@ export function Header() {
               <span className="text-2xl font-bold text-foreground">BetterAI</span>
             </Link>
 
-            {/* Navigation Section - DEBUG: Testing different breakpoint */}
-            <nav className="hidden sm:flex items-center space-x-6" style={{backgroundColor: 'red', padding: '4px'}}>
-              {/* DEBUG: This red background should help us see if nav is rendering but invisible */}
+            {/* Navigation Section - Fixed responsive breakpoint */}
+            <nav className="hidden lg:flex items-center space-x-6">
               <Link 
                 href="/" 
                 className={`text-sm font-medium transition-colors ${
