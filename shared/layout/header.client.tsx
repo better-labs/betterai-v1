@@ -1,5 +1,6 @@
 "use client"
 
+import "./header.css"
 import { Button } from "@/shared/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu"
 import { Input } from "@/shared/ui/input"
@@ -13,9 +14,13 @@ import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
 import { UserCreditsDisplay } from "@/features/user/UserCreditsDisplay.client"
 
+// Standard Next.js dynamic import with loading state
 const PrivyUserPill = dynamic(
   () => import("@privy-io/react-auth/ui").then((m) => m.UserPill),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => <div className="h-8 w-24 bg-muted/50 rounded animate-pulse" />
+  }
 )
 
 export function Header() {
@@ -46,17 +51,17 @@ export function Header() {
 
   return (
     <header className="border-b bg-background shadow-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto header-container">
+        <div className="header-content">
           {/* Logo Section */}
-          <div className="flex items-center space-x-8">
+          <div className="header-logo-section">
             <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105 duration-200">
               <TrendingUp className="h-10 w-10 text-primary" />
               <span className="text-2xl font-bold text-foreground">BetterAI</span>
             </Link>
 
             {/* Navigation Section */}
-            <nav className="hidden md:flex items-center space-x-6" data-testid="navigation">
+            <nav className="header-nav hidden md:flex items-center space-x-6">
               <Link 
                 href="/" 
                 className={`text-sm font-medium transition-colors ${
@@ -116,7 +121,7 @@ export function Header() {
 
           {/* Search Bar Section - Hidden on mobile */}
           {flags.showSearch && (
-            <div className="hidden md:flex flex-1 max-w-2xl mx-12">
+            <div className="header-search hidden md:flex">
               <form onSubmit={handleSearch} className="relative w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -141,25 +146,29 @@ export function Header() {
             </div>
           )}
 
-          {/* Actions Section */}
-          <div className="flex items-center space-x-4" id="header-actions">
+          {/* Right side elements - directly in grid */}
+          <div className="flex items-center justify-end gap-3">
             {/* Credits Display */}
-            {authenticated && (
-              <div className="hidden md:flex">
-                <UserCreditsDisplay />
-              </div>
-            )}
+            <div className="md:flex">
+              {ready && authenticated && <UserCreditsDisplay />}
+            </div>
 
-            {/* Login/Signup buttons removed; relying solely on Privy UserPill */}
+            {/* Auth section */}
+            <div className="flex items-center justify-center w-24 h-8">
+              {ready ? (
+                <PrivyUserPill />
+              ) : (
+                <div className="w-full h-full bg-muted/50 rounded animate-pulse" />
+              )}
+            </div>
 
-            <PrivyUserPill />
-
+            {/* Menu */}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="shadow-sm hover:shadow-md transition-shadow">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="shadow-sm hover:shadow-md transition-shadow">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 shadow-lg">
                 {/* Mobile Search */}
                 {flags.showSearch && (
