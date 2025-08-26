@@ -116,8 +116,52 @@ export const components = {
   // Input patterns
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+    
+    // Flex-based search input with icons (RECOMMENDED PATTERN)
+    search: {
+      container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
+      iconLeft: 'flex items-center justify-center px-2', // Left icon container with horizontal padding
+      input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
+      iconRight: 'flex items-center justify-center pr-4',
+      button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
+    }
   }
 } as const;
+
+// ============================================================================
+// INPUT LAYOUT PATTERNS & BEST PRACTICES
+// ============================================================================
+
+/**
+ * FLEX-BASED SEARCH INPUT PATTERN (RECOMMENDED)
+ * 
+ * This pattern uses flexbox for predictable, accessible search inputs with icons.
+ * Preferred over absolute positioning for better browser compatibility and maintainability.
+ * 
+ * Structure:
+ * ```html
+ * <div className={components.input.search.container}>
+ *   <div className={components.input.search.iconLeft}>
+ *     <SearchIcon />
+ *   </div>
+ *   <input className={components.input.search.input} />
+ *   <div className={components.input.search.iconRight}>
+ *     <button className={components.input.search.button}>
+ *       <XIcon />
+ *     </button>
+ *   </div>
+ * </div>
+ * ```
+ * 
+ * Advantages:
+ * - Predictable left-to-right layout flow
+ * - No z-index or absolute positioning conflicts
+ * - Natural responsive behavior
+ * - Better accessibility and tab order
+ * - Standard pattern used by major web applications
+ * 
+ * Avoid: Absolute positioning with multiple overlapping elements
+ */
 
 // ============================================================================
 // UTILITY FUNCTIONS

@@ -266,6 +266,7 @@ Responsive: Tailwind spacing classes automatically scale appropriately on mobile
 
 ### Layout & Spacing Standards
 Refer to /lib/design-system.ts for instructions.
+Prefer flexbox layout instead of absolution positioning to ensure mobile first good UX.
 
 
 

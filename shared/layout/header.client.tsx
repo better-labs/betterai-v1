@@ -3,8 +3,8 @@
 import "./header.css"
 import { Button } from "@/shared/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu"
-import { Input } from "@/shared/ui/input"
-import { TrendingUp, Menu, Search, X, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail } from "lucide-react"
+import { TrendingUp, Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail } from "lucide-react"
+import { SearchInput } from "@/shared/ui/search-input"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
@@ -104,26 +104,13 @@ export function Header() {
             {/* Search Bar Section - Hidden on mobile */}
             
             <div className="header-search hidden md:flex">
-              <form onSubmit={handleSearch} className="relative w-full">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Search markets"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-10 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={clearSearch}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
+              <form onSubmit={handleSearch} className="w-full">
+                <SearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onClear={clearSearch}
+                  placeholder="Search markets"
+                />
               </form>
             </div>
             
@@ -296,26 +283,13 @@ export function Header() {
       </div>
              <div className="mobile-search" data-testid="mobile-search">
          <div className="container mx-auto">
-           <form onSubmit={handleSearch} className="relative w-full">
-             <div className="relative">
-               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-               <Input
-                 type="text"
-                 placeholder="Search markets"
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-                 className="pl-10 pr-10 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
-               />
-               {searchQuery && (
-                 <button
-                   type="button"
-                   onClick={clearSearch}
-                   className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
-                 >
-                   <X className="h-4 w-4" />
-                 </button>
-               )}
-             </div>
+           <form onSubmit={handleSearch} className="w-full">
+             <SearchInput
+               value={searchQuery}
+               onChange={setSearchQuery}
+               onClear={clearSearch}
+               placeholder="Search markets"
+             />
            </form>
          </div>
        </div>

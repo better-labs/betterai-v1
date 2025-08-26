@@ -271,6 +271,17 @@ Responsive: Tailwind spacing classes automatically scale appropriately on mobile
 
 ### Layout & Spacing Standards
 Refer to /lib/design-system.ts for instructions.
+Prefer flexbox layout instead of absolution positioning to ensure mobile first good UX.
+
+### Input Layout Best Practices
+**Flex-based Search Inputs (RECOMMENDED)**: Use flexbox layout for search inputs with icons instead of absolute positioning:
+- Container: `flex items-center` with consistent styling
+- Left icon: `flex items-center justify-center pl-3` for natural positioning
+- Input field: `flex-1` to fill remaining space with transparent background
+- Right icon/button: `flex items-center justify-center pr-3` for natural right alignment
+- Advantages: Predictable layout, no z-index conflicts, better accessibility, responsive by default
+- Avoid: Absolute positioning which can cause CSS inheritance issues and layout conflicts
+- Pattern used by major web applications (Google, GitHub, etc.) for reliability
 
 
 
