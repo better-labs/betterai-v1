@@ -12,6 +12,7 @@ import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent, toUnitProbability } from '@/lib/utils'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
+import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
 
 interface MarketDetailsCardProps {
@@ -205,11 +206,12 @@ export default function MarketDetailsCard({
         <div className="pt-2">
           <Button 
             onClick={handleGeneratePrediction}
-            className="w-full"
-            variant="outline"
+            disabled={authenticated && (userCreditsResponse?.credits?.credits || 0) < 1}
+            className="w-full flex items-center gap-2"
             data-debug-id="generate-prediction-btn"
           >
-            Generate New AI Prediction
+            <Brain className="h-4 w-4" />
+            Predict with AI
           </Button>
         </div>
 
