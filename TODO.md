@@ -14,8 +14,9 @@
   1. `/predict/[marketId]` → Generator
   2. `/predict/[marketId]/[sessionId]` → Results
 * **API:**
-  * `predictions.start` → mutation (creates session, consumes credits)
-  * `predictions.status` → query (polls session + predictions)
+  * `predictionSessions.start` → mutation (creates session, consumes credits)
+  * `predictionSessions.status` → query (polls session + predictions)
+  * `predictionSessions.recentByMarket` → query (gets recent sessions for "View last run")
 * **Worker:** sequential model execution; creates `Prediction` rows linked by `sessionId`
 * **Credits:** charged at start, refunded only if all models fail
 * **UX:** skeletons + spinner progress until finished/error
@@ -257,7 +258,8 @@ Add the button in **four surfaces**. All buttons route to `/predict/[marketId]`.
 * `app/predict/[marketId]/_client/Generator.client.tsx` → generator client
 * `app/predict/[marketId]/[sessionId]/page.tsx` → Results shell
 * `app/predict/[marketId]/[sessionId]/_client/Results.client.tsx` → poller client
-* `server/routers/predictions.ts` → start + status API
+* `server/routers/predictions.ts` → core prediction operations (CRUD)
+* `server/routers/prediction-sessions.ts` → session lifecycle (start + status + recentByMarket)
 * `server/jobs/predictions.ts` → worker logic
 * `lib/services/credit-manager.ts` → credit helpers
 

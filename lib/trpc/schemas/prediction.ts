@@ -118,3 +118,4 @@ export const DeletePredictionInput = z.object({
 export const BatchCreatePredictionsInput = z.object({
   predictions: z.array(CreatePredictionInput).min(1).max(50),
 })
+
