@@ -29,6 +29,7 @@ export function TrendingMarkets() {
     refetch: refetchMarkets,
   } = trpc.markets.trending.useQuery({
     limit: marketLimit,
+    withPredictions: true,
   })
 
   // Fetch popular tags using existing API
@@ -151,6 +152,7 @@ export function TrendingMarkets() {
               <MarketDetailsCard
                 market={market}
                 event={market.event}
+                latestPrediction={market.latestPrediction}
                 href={`/market/${market.id}`}
                 className="h-full"
               />
