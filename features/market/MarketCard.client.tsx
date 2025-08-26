@@ -114,9 +114,6 @@ export default function MarketDetailsCard({
         {/* Market Question */}
         <CardTitle className="text-base leading-tight mb-3">
           {market.question}
-          <Badge variant={market.active ? 'default' : 'secondary'} className="ml-3 px-3 py-1">
-            {market.active ? 'Active' : 'Closed'}
-          </Badge>
         </CardTitle>
       </CardHeader>
       
@@ -215,21 +212,35 @@ export default function MarketDetailsCard({
           </Button>
         </div>
 
-        {/* External Provider Link */}
-        {externalMarketUrl && (
-          <div className="pt-2 border-t border-border">
-            <p className="text-xs text-muted-foreground text-center">
+        {/* Footer Metadata */}
+        <div className={components.cardFooter.container}>
+          {/* Date metadata row */}
+          <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
+            <span className={components.cardFooter.timestamp}>
+              Last updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
+            </span>
+            {event?.endDate && (
+              <span className={components.cardFooter.timestamp}>
+                Ends: {new Date(event.endDate).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+          
+          {/* External link */}
+          {externalMarketUrl && (
+            <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single}`}>
               <a
-                className="text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
+                className={components.cardFooter.link}
                 href={externalMarketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-debug-id="market-external-link"
               >
                 Open Market on {event?.marketProvider ?? 'provider'}
               </a>
-            </p>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   )

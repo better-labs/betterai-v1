@@ -18,6 +18,7 @@ import {
   RefreshCw,
   ExternalLink
 } from 'lucide-react'
+import { formatPercent } from '@/lib/utils'
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
 
 interface PredictionResultsProps {
@@ -274,7 +275,7 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
                     <div key={outcome} className="flex justify-between text-sm">
                       <span>{outcome}</span>
                       <Badge variant="outline">
-                        {(prediction.predictionResult.probabilities?.[index] * 100 || 0).toFixed(1)}%
+                        {formatPercent(prediction.predictionResult.probabilities?.[index])}
                       </Badge>
                     </div>
                   ))}

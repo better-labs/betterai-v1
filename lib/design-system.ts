@@ -132,6 +132,36 @@ export const components = {
     trigger: 'cursor-help underline decoration-dotted decoration-muted-foreground underline-offset-4 hover:decoration-foreground transition-colors',
     content: 'text-sm bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 shadow-lg',
   },
+
+  // Card footer metadata patterns
+  cardFooter: {
+    // Container for metadata section at bottom of cards
+    container: 'pt-3 border-t border-border',
+    
+    // Individual metadata items
+    item: 'text-xs text-muted-foreground',
+    
+    // Layout patterns for metadata
+    layout: {
+      // Single centered item (e.g., just a link)
+      single: 'text-center',
+      // Two items side by side
+      split: 'flex justify-between items-center',
+      // Multiple items in a row with spacing
+      row: 'flex items-center gap-4 flex-wrap',
+      // Stacked items with small spacing
+      stack: 'space-y-1',
+    },
+    
+    // Link styling for metadata
+    link: 'underline underline-offset-4 hover:text-foreground transition-colors',
+    
+    // Badge styling for metadata tags
+    metadataBadge: 'px-2 py-1 bg-muted/50 text-muted-foreground rounded text-xs font-normal',
+    
+    // Timestamp styling
+    timestamp: 'tabular-nums',
+  },
   
   // Interactive area patterns
   interactive: {
@@ -183,6 +213,50 @@ export const components = {
  * - Standard pattern used by major web applications
  * 
  * Avoid: Absolute positioning with multiple overlapping elements
+ */
+
+/**
+ * CARD FOOTER METADATA PATTERN (RECOMMENDED)
+ * 
+ * Consistent system for displaying metadata in card footers.
+ * Maintains visual hierarchy while providing essential context.
+ * 
+ * Basic Structure:
+ * ```html
+ * <div className={components.cardFooter.container}>
+ *   <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single}`}>
+ *     <a href="..." className={components.cardFooter.link}>
+ *       View on Provider
+ *     </a>
+ *   </div>
+ * </div>
+ * ```
+ * 
+ * Multiple Items:
+ * ```html
+ * <div className={components.cardFooter.container}>
+ *   <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split}`}>
+ *     <span className={components.cardFooter.timestamp}>
+ *       Updated: 12/15/24 3:45 PM
+ *     </span>
+ *     <span className={components.cardFooter.metadataBadge}>
+ *       Trending
+ *     </span>
+ *   </div>
+ * </div>
+ * ```
+ * 
+ * Guidelines:
+ * - Always use border-t separator for visual grouping
+ * - Keep metadata secondary to main content (muted colors)
+ * - Use tabular-nums for timestamps and numbers
+ * - Limit to 1-2 metadata items to avoid clutter
+ * - Prefer links and badges over plain text when actionable
+ * 
+ * Avoid:
+ * - Multiple border separators in the same card
+ * - Prominent colors that compete with main content
+ * - More than 3 metadata items in footer
  */
 
 // ============================================================================

@@ -143,20 +143,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                       <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{p.modelName || '—'}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              router.push(`/predict/${marketId}`)
-                            }}
-                            className="flex items-center gap-1"
-                            data-debug-id="predict-again-button"
-                          >
-                            <RefreshCw className="h-3 w-3" />
-                            <span className="hidden sm:inline">Predict Again</span>
-                            <span className="sm:hidden">Again</span>
-                          </Button>
+                          
                           {isClickable && (
                             <Button
                               variant="outline"
