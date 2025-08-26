@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const { marketId, userMessage, model, dataSources } = await request.json()
+    const { marketId, userMessage, model } = await request.json()
 
     if (!marketId) {
       const errorResponse: ApiResponse = {

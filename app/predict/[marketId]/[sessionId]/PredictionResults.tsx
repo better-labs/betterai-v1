@@ -211,9 +211,18 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
   )
 }
 
+interface SessionPrediction {
+  id?: number
+  predictionResult?: {
+    outcomes: string[]
+    probabilities: number[]
+  }
+  aiResponse?: string
+}
+
 interface ModelResultCardProps {
   model?: typeof AI_MODELS[0]
-  prediction?: any
+  prediction?: SessionPrediction
   sessionStatus: PredictionSessionStatus
 }
 

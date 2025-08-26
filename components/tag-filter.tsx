@@ -1,15 +1,8 @@
 "use client"
 
 import { Button } from "@/shared/ui/button"
-import { Badge } from "@/shared/ui/badge"
 import { Filter, X } from "lucide-react"
 import { trpc } from "@/shared/providers/trpc-provider"
-
-interface Tag {
-  id: string
-  label: string
-  slug?: string | null
-}
 
 interface TagFilterProps {
   selectedTag: string | null
