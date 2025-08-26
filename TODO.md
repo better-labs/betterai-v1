@@ -130,7 +130,7 @@ Acceptance test:
 
 ---
 
-## Phase 4A — Pages & UX
+## Phase 4A — Pages & UX (next todo)
 
 **Create a new Prediction Generator Page (**`/predict/[marketId]`)
 
@@ -147,12 +147,16 @@ Acceptance test:
   * During polling:
     * Global step chip updates (Initializing → Researching → Generating…)
     * Model rows:
-      * Queued → muted dot
-      * Running → spinner + “running”. Reuse existing LoadingCard component if possible. Consistency: Uses the same Loader2 icon and animate-spin class used throughout your app
-      * Completed → check icon + short preview
-      * Failed → warning icon + “failed”
+      * Waiting (INITIALIZING) → muted dot + "Waiting..."
+      * Processing (RESEARCHING/GENERATING) → spinner + "Processing...". Reuse existing LoadingCard component if possible. Consistency: Uses the same Loader2 icon and animate-spin class used throughout your app
+      * Completed (FINISHED) → check icon + short preview
+      * Failed (ERROR) → warning icon + "Failed"
   * On finished: display full Prediction outputs per model
   * On error: show error alert + credits refunded note
+* **Error Boundaries:**
+  * Wrap polling components with React error boundary for graceful API failure handling
+  * Fallback UI shows "Something went wrong" with refresh button
+  * Example: `PredictionPollingErrorBoundary` component around Results page polling logic
 * **A11y (if not too much effort):**
   * `aria-live="polite"` for global step
   * Spinner has `aria-label="Loading"`
