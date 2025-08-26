@@ -1,5 +1,5 @@
 # CLAUDE.md
-After completing each set of tasks - add in a positive motivational quote or advice in the style of the The Tao of Pooh and/or The Big Lebowski.
+After completing each set of tasks - add in a positive motivational Tao'ist, Socratic, or Cynical, or Stoic.
 
 
 ## Project Overview

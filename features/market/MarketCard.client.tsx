@@ -1,6 +1,9 @@
 "use client"
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { usePrivy } from '@privy-io/react-auth'
+import { trpc } from '@/lib/trpc/client'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
@@ -58,9 +61,32 @@ export default function MarketDetailsCard({
 
   const delta = calculateDelta()
 
+  const router = useRouter()
+  const { authenticated, login } = usePrivy()
+
+  // Get user credits to check if they can afford at least 1 credit (minimum for prediction)
+  const { data: userCreditsResponse } = trpc.users.getCredits.useQuery(
+    {},
+    { enabled: authenticated }
+  )
+
   const handleGeneratePrediction = () => {
-    // TODO: Implement prediction generation
-    alert('Coming soon!')
+    // Check authentication first
+    if (!authenticated) {
+      login()
+      return
+    }
+
+    // Check if user has enough credits (at least 1)
+    const credits = userCreditsResponse?.credits?.credits || 0
+    if (credits < 1) {
+      // Could show a modal or redirect to credits page, but for now just alert
+      alert('You need at least 1 credit to generate predictions. Please purchase more credits.')
+      return
+    }
+
+    // Route to predict page
+    router.push(`/predict/${market.id}`)
   }
 
   const card = (

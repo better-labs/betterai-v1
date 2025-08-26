@@ -15,6 +15,7 @@ import { PredictionReasoningCard } from '@/features/prediction/PredictionReasoni
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import { serializePredictionData } from '@/lib/serialization'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
+import { MarketDetailActionBar } from './MarketDetailActionBar.client'
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -66,6 +67,9 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           marketId={serializedMarket.id}
           marketQuestion={serializedMarket.question}
         />
+
+        {/* Action Bar */}
+        <MarketDetailActionBar marketId={serializedMarket.id} />
 
         {/* Prediction Section */}
         <div className="space-y-6">
