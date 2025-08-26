@@ -118,7 +118,7 @@ export function Header() {
                     <button
                       type="button"
                       onClick={clearSearch}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10 flex items-center justify-center"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -310,7 +310,7 @@ export function Header() {
                  <button
                    type="button"
                    onClick={clearSearch}
-                   className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10 flex items-center justify-center"
                  >
                    <X className="h-4 w-4" />
                  </button>
