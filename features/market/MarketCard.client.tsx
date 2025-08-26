@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { usePrivy } from '@privy-io/react-auth'
+import { useEffect, useState } from 'react'
 import { trpc } from '@/lib/trpc/client'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Badge } from "@/shared/ui/badge"
@@ -64,12 +65,18 @@ export default function MarketDetailsCard({
   const delta = calculateDelta()
 
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const { authenticated, login } = usePrivy()
+
+  // Ensure client-side hydration
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Get user credits to check if they can afford at least 1 credit (minimum for prediction)
   const { data: userCreditsResponse } = trpc.users.getCredits.useQuery(
     {},
-    { enabled: authenticated }
+    { enabled: authenticated && mounted }
   )
 
   const handleGeneratePrediction = () => {

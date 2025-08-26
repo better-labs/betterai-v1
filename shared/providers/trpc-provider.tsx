@@ -16,7 +16,20 @@ interface TRPCProviderProps {
 }
 
 export function TRPCProvider({ children }: TRPCProviderProps) {
-  const { getAccessToken, authenticated, ready } = usePrivy()
+  // Safely get Privy context with fallback for SSR/hydration
+  let getAccessToken: (() => Promise<string | null>) | undefined
+  let authenticated = false
+  let ready = false
+  
+  try {
+    const privyContext = usePrivy()
+    getAccessToken = privyContext.getAccessToken
+    authenticated = privyContext.authenticated
+    ready = privyContext.ready
+  } catch (error) {
+    // Privy not available - this is expected during SSR or initial hydration
+    console.warn('Privy context not available, using fallback:', error)
+  }
 
   // Create stable instances to prevent re-initialization
   const [queryClient] = useState(() => new QueryClient({
