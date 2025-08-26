@@ -12,6 +12,7 @@ import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent, toUnitProbability } from '@/lib/utils'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
+import { components } from '@/lib/design-system'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -195,7 +196,7 @@ export default function MarketDetailsCard({
           <Stat
             label="AI Delta"
             value={delta != null ? formatPercent(delta) : '—'}
-            helpText="Absolute difference between market and AI probabilities"
+            tooltip="Absolute difference between market and AI probabilities"
             tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
             density="compact"
             align="center"

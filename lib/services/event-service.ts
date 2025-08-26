@@ -38,6 +38,11 @@ export async function getTrendingEventsWithMarkets(
     }
   }
   
+  // Only show events that haven't ended yet
+  whereClause.endDate = {
+    gt: new Date()
+  }
+  
   // Exclude events with crypto tags
   whereClause.NOT = {
     eventTags: {

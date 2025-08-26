@@ -125,6 +125,12 @@ export const components = {
       iconRight: 'flex items-center justify-center pr-4',
       button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
     }
+  },
+  
+  // Tooltip patterns
+  tooltip: {
+    trigger: 'cursor-help underline decoration-dotted decoration-muted-foreground underline-offset-4 hover:decoration-foreground transition-colors',
+    content: 'text-sm bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 shadow-lg',
   }
 } as const;
 
