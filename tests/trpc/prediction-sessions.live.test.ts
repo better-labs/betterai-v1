@@ -22,6 +22,14 @@ describe('PredictionSessions Live Database Integration', () => {
   let testUserId: string
   let testMarketId: string
 
+  beforeAll(() => {
+    // Debug fetch availability
+    console.log('globalThis.fetch exists:', !!globalThis.fetch)
+    console.log('global.fetch before:', !!global.fetch)
+    global.fetch = globalThis.fetch
+    console.log('global.fetch after:', !!global.fetch)
+  })
+
   beforeEach(async () => {
     // Create test user with credits
     const testUser = await testDb.user.create({
