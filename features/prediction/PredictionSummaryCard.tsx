@@ -4,10 +4,12 @@ import { PredictionMeta } from "@/features/prediction/PredictionMeta"
 import { cn, formatPercent, toUnitProbability } from "@/lib/utils"
 
 interface PredictionSummaryCardProps {
-  marketOutcomePrices: number[]
-  aiOutcomesProbabilities: number[]
-  confidenceLevel: number
-  modelName: string
+  marketOutcomes?: string[] | null
+  marketOutcomePrices: number[] | null
+  aiOutcomes?: string[] | null
+  aiOutcomesProbabilities: number[] | null
+  confidenceLevel: "High" | "Medium" | "Low" | null
+  modelName: string | null
   createdAt: string
   className?: string
 }
@@ -23,13 +25,7 @@ export function PredictionSummaryCard(props: PredictionSummaryCardProps) {
   const tone: "neutral" | "positive" | "caution" =
     delta == null ? "neutral" : delta >= 0.10 ? "positive" : delta >= 0.05 ? "caution" : "neutral"
 
-  // Convert numeric confidence level to string enum
-  const getConfidenceString = (level: number): "High" | "Medium" | "Low" | null => {
-    if (level >= 0.8) return "High"
-    if (level >= 0.6) return "Medium"
-    if (level >= 0) return "Low"
-    return null
-  }
+  // No conversion needed - confidence level is already a string enum
 
   return (
     <Card className={cn(className)}>
@@ -56,7 +52,7 @@ export function PredictionSummaryCard(props: PredictionSummaryCardProps) {
           />
           <div className="flex items-end justify-start md:justify-end">
             <PredictionMeta
-              confidenceLevel={getConfidenceString(confidenceLevel)}
+              confidenceLevel={confidenceLevel}
               modelName={modelName ?? null}
               createdAt={createdAt ?? null}
               align="right"
