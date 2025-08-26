@@ -34,9 +34,15 @@ export const createTRPCClient = (baseUrl: string = '', getAccessToken?: () => Pr
                 return {
                   Authorization: `Bearer ${token}`,
                 }
+              } else {
+                // If no token is available but getAccessToken is defined,
+                // the user might be logged out - log for debugging
+                console.warn('No access token available from Privy')
               }
             } catch (error) {
-              console.warn('Failed to get access token:', error)
+              console.error('Failed to get access token:', error)
+              // Don't throw here - let the request proceed without token
+              // This allows public procedures to work even if auth fails
             }
           }
           return {}

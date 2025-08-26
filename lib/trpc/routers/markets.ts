@@ -143,6 +143,9 @@ export const marketsRouter = router({
             category: event.category,
             icon: event.icon,
             image: event.image,
+            updatedAt: event.updatedAt?.toISOString() || null,
+            endDate: event.endDate?.toISOString() || null,
+            marketProvider: event.marketProvider || null,
             tags: event.eventTags.map((et: any) => et.tag),
           },
         })) || []

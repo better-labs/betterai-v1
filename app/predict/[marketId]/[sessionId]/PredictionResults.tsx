@@ -68,14 +68,23 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
     { sessionId },
     {
       refetchInterval: (query) => {
-        // Stop polling when finished or error
+        // Stop polling when finished or error (but allow auth retry)
         const data = query.state.data
-        if (data && (data.status === 'FINISHED' || data.status === 'ERROR')) {
+        const hasAuthError = query.state.error?.data?.code === 'UNAUTHORIZED'
+        if (data && (data.status === 'FINISHED' || data.status === 'ERROR') && !hasAuthError) {
           return false
         }
         return pollingInterval
       },
       refetchIntervalInBackground: false,
+      // More aggressive retry for auth errors
+      retry: (failureCount, error: any) => {
+        if (error?.data?.code === 'UNAUTHORIZED') {
+          return failureCount < 2 // Try twice for auth errors
+        }
+        return failureCount < 1 // Less retry for other errors during polling
+      },
+      retryDelay: 1500, // Slightly longer delay for this specific query
     }
   )
 
@@ -89,11 +98,27 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
   }, [session?.status])
 
   if (error) {
+    const isAuthError = error.data?.code === 'UNAUTHORIZED'
+    
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load prediction session. Please try refreshing the page.
+          {isAuthError ? (
+            <>
+              Authentication expired. Please refresh the page to sign in again.
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => window.location.reload()}
+                className="mt-2 ml-2"
+              >
+                Refresh Page
+              </Button>
+            </>
+          ) : (
+            'Failed to load prediction session. Please try refreshing the page.'
+          )}
         </AlertDescription>
       </Alert>
     )
