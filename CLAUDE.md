@@ -1,5 +1,5 @@
 # CLAUDE.md
-After completing each set of tasks - add in a positive motivational quote or advice in the style of the The Tao of Pooh and/or The Big Lebowski.
+After completing each set of tasks - add in a positive motivational Tao'ist, Socratic, or Cynical, or Stoic.
 
 
 ## Project Overview
@@ -146,6 +146,7 @@ Validate all inputs and implement proper authentication
 ### Database Migrations
 Use `pnpm run db:migrate:` commands where possible.
 Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
+Important: avoid using "prisma db push", prefer using "pnpm db:migrate:deploy:dev". This creates short term database migration inconsistencies that are difficult to debug. Prompt the user to explain your migration issue issue before trying db push.
 
 ### Next.js Build Best Practices
 Use `pnpm` not `npm`: Project uses pnpm for package management and build commands
@@ -164,6 +165,12 @@ Never make direct Prisma calls in components or API routes
 - Feature-based component architecture implemented
 - Legacy REST endpoints removed (except cron jobs)
 - Type safety achieved end-to-end with Zod + tRPC
+
+**Delta Calculation**: Delta represents the absolute difference between market probability and AI prediction probability:
+```
+delta = Math.abs(market.outcomePrices[0] - prediction.outcomesProbabilities[0])
+```
+This measures how much the AI prediction differs from current market sentiment.
 
 ### Security Best Practices
 Validate all user inputs
@@ -255,6 +262,7 @@ Code organization improvements
 
 
 ## UI/UX Patterns
+Build UI for mobile friendly first. Then allow for different layouts for larger screens if convenient.
 Collapsible Content with Gradient Fade: For long text content that needs to be collapsed, use gradient fade effects to indicate there's more content below
 Show More/Less Controls: Use chevron icons (ChevronDown/ChevronUp) with descriptive text for expand/collapse actions
 Consistent Collapsed Heights: Match collapsed heights to related UI sections (e.g., prediction summary height)
@@ -266,6 +274,7 @@ Responsive: Tailwind spacing classes automatically scale appropriately on mobile
 
 ### Layout & Spacing Standards
 Refer to /lib/design-system.ts for instructions.
+Prefer flexbox layout instead of absolution positioning to ensure mobile first good UX.
 
 
 

@@ -10,15 +10,18 @@ export interface NewMarket {
   question: string
   description?: string | null
   eventId: string
-  outcomes?: string | null
+  outcomes?: string[] | null
   outcomePrices?: string | number[] | Decimal[] | null
   volume?: number | Decimal | null
   liquidity?: number | Decimal | null
   active?: boolean | null
   closed?: boolean | null
   endDate?: Date | null
+  startDate?: Date | null
+  slug?: string | null
+  resolutionSource?: string | null
+  icon?: string | null
   image?: string | null
-  category?: string | null
   createdAt?: Date
   updatedAt?: Date
 }

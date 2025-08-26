@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth, createAuthErrorResponse } from '@/lib/auth'
 import { creditManager } from '@/lib/services/credit-manager'
+import { prisma } from '@/lib/db/prisma'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
 import { serializeDecimals } from '@/lib/serialization'
 
@@ -40,11 +41,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user credits
-    const credits = await creditManager.getUserCredits(userId)
-
-    if (!credits) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    const credits = await creditManager.getUserCredits(prisma, userId)
 
     return NextResponse.json({
       credits: serializeDecimals(credits),
@@ -113,22 +110,26 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: 'Valid amount is required for consume action' }, { status: 400 })
         }
 
-        const success = await creditManager.consumeCredits(
-          userId,
-          amount,
-          reason || 'prediction_generated',
-          metadata
-        )
-
-        if (!success) {
-          return NextResponse.json({
-            error: 'Insufficient credits',
-            code: 'INSUFFICIENT_CREDITS'
-          }, { status: 400 })
+        try {
+          await creditManager.consumeCredits(
+            prisma,
+            userId,
+            amount,
+            reason || 'prediction_generated',
+            metadata
+          )
+        } catch (error) {
+          if (error instanceof Error && error.message.includes('Insufficient credits')) {
+            return NextResponse.json({
+              error: 'Insufficient credits',
+              code: 'INSUFFICIENT_CREDITS'
+            }, { status: 400 })
+          }
+          throw error
         }
 
         // Return updated credit balance
-        const updatedCredits = await creditManager.getUserCredits(userId)
+        const updatedCredits = await creditManager.getUserCredits(prisma, userId)
 
         return NextResponse.json({
           success: true,
@@ -143,6 +144,7 @@ export async function POST(request: NextRequest) {
         }
 
         await creditManager.addCredits(
+          prisma,
           userId,
           amount,
           reason || 'manual_addition',
@@ -150,7 +152,7 @@ export async function POST(request: NextRequest) {
         )
 
         // Return updated credit balance
-        const updatedCredits = await creditManager.getUserCredits(userId)
+        const updatedCredits = await creditManager.getUserCredits(prisma, userId)
 
         return NextResponse.json({
           success: true,
@@ -160,10 +162,10 @@ export async function POST(request: NextRequest) {
       }
 
       case 'reset': {
-        await creditManager.resetDailyCredits(userId)
+        await creditManager.resetDailyCredits(prisma, userId)
 
         // Return updated credit balance
-        const updatedCredits = await creditManager.getUserCredits(userId)
+        const updatedCredits = await creditManager.getUserCredits(prisma, userId)
 
         return NextResponse.json({
           success: true,

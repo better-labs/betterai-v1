@@ -7,6 +7,7 @@ import { router } from '../trpc'
 import { marketsRouter } from './markets'
 import { eventsRouter } from './events'
 import { predictionsRouter } from './predictions'
+import { predictionSessionsRouter } from './prediction-sessions'
 import { usersRouter } from './users'
 import { tagsRouter } from './tags'
 import { searchRouter } from './search'
@@ -17,6 +18,7 @@ export const appRouter = router({
   markets: marketsRouter,
   events: eventsRouter,
   predictions: predictionsRouter,
+  predictionSessions: predictionSessionsRouter,
   users: usersRouter,
   tags: tagsRouter,
   search: searchRouter,
