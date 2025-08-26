@@ -1,6 +1,9 @@
 "use client"
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { usePrivy } from '@privy-io/react-auth'
+import { trpc } from '@/lib/trpc/client'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
@@ -9,6 +12,7 @@ import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent, toUnitProbability } from '@/lib/utils'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
+import { components } from '@/lib/design-system'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -58,9 +62,32 @@ export default function MarketDetailsCard({
 
   const delta = calculateDelta()
 
+  const router = useRouter()
+  const { authenticated, login } = usePrivy()
+
+  // Get user credits to check if they can afford at least 1 credit (minimum for prediction)
+  const { data: userCreditsResponse } = trpc.users.getCredits.useQuery(
+    {},
+    { enabled: authenticated }
+  )
+
   const handleGeneratePrediction = () => {
-    // TODO: Implement prediction generation
-    alert('Coming soon!')
+    // Check authentication first
+    if (!authenticated) {
+      login()
+      return
+    }
+
+    // Check if user has enough credits (at least 1)
+    const credits = userCreditsResponse?.credits?.credits || 0
+    if (credits < 1) {
+      // Could show a modal or redirect to credits page, but for now just alert
+      alert('You need at least 1 credit to generate predictions. Please purchase more credits.')
+      return
+    }
+
+    // Route to predict page
+    router.push(`/predict/${market.id}`)
   }
 
   const card = (
@@ -87,13 +114,11 @@ export default function MarketDetailsCard({
         {/* Market Question */}
         <CardTitle className="text-base leading-tight mb-3">
           {market.question}
-          <Badge variant={market.active ? 'default' : 'secondary'} className="ml-3 px-3 py-1">
-            {market.active ? 'Active' : 'Closed'}
-          </Badge>
+
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-6">
+      <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
         <div>
           <StatGroup className="grid-cols-2">
@@ -169,7 +194,7 @@ export default function MarketDetailsCard({
           <Stat
             label="AI Delta"
             value={delta != null ? formatPercent(delta) : '—'}
-            helpText="Absolute difference between market and AI probabilities"
+            tooltip="Absolute difference between market and AI probabilities"
             tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
             density="compact"
             align="center"
@@ -188,35 +213,49 @@ export default function MarketDetailsCard({
           </Button>
         </div>
 
-        {/* External Provider Link */}
-        {externalMarketUrl && (
-          <div className="pt-2 border-t border-border">
-            <p className="text-xs text-muted-foreground text-center">
+        {/* Footer Metadata */}
+        <div className={components.cardFooter.container}>
+          {/* Date metadata row */}
+          <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
+            <span className={components.cardFooter.timestamp}>
+              Last updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
+            </span>
+            {event?.endDate && (
+              <span className={components.cardFooter.timestamp}>
+                Ends: {new Date(event.endDate).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+          
+          {/* External link */}
+          {externalMarketUrl && (
+            <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single}`}>
               <a
-                className="text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
+                className={components.cardFooter.link}
                 href={externalMarketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-debug-id="market-external-link"
               >
                 Open Market on {event?.marketProvider ?? 'provider'}
               </a>
-            </p>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   )
 
-  // Make the entire card clickable when href is provided without nesting anchors
+  // Use pointer-events pattern to allow interactive elements while keeping card clickable
   return href ? (
-    <div className="relative group">
+    <div className={components.interactive.overlayContainer}>
       <div className="transition-all duration-200 ease-in-out group-hover:shadow-lg group-hover:shadow-muted/20 group-hover:-translate-y-0.5">
         {card}
       </div>
       <Link
         href={href}
         aria-label={`View market: ${market.question}`}
-        className="absolute inset-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
+        className={`${components.interactive.nonInteractiveOverlay} ${components.interactive.cardLink.fullOverlay}`}
       />
     </div>
   ) : (

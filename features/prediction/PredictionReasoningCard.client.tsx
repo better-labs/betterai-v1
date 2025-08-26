@@ -55,7 +55,7 @@ export function PredictionReasoningCard({
               variant="ghost" 
               size="sm" 
               onClick={() => setExpanded((v) => !v)}
-              className="text-xs h-auto p-1"
+              className="text-sm"
             >
               {expanded ? (
                 <>

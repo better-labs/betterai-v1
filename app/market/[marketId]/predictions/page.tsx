@@ -66,6 +66,7 @@ export default async function MarketPredictionsPage({ params }: PageProps) {
                   confidenceLevel={confidenceLevel}
                   modelName={(p as any).modelName ?? null}
                   createdAt={p.createdAt}
+                  marketId={marketId}
                 />
               )
             })}

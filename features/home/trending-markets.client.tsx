@@ -107,7 +107,8 @@ export function TrendingMarkets() {
       </div>
 
       {/* Popular Tags Filter */}
-      {!tagsLoading && popularTags.length > 0 && (
+      {/* todo: fix */}
+      {/* {!tagsLoading && popularTags.length > 0 && (
         <div className="flex justify-center">
           <div className="w-full max-w-4xl">
             <PopularTagsList 
@@ -119,7 +120,7 @@ export function TrendingMarkets() {
             />
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Markets Grid */}
       {filteredMarkets.length === 0 ? (

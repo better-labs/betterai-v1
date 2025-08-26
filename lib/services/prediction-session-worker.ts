@@ -9,6 +9,9 @@ import { updatePredictionSession, getPredictionSessionById } from './prediction-
 import { creditManager } from './credit-manager'
 import * as predictionService from './prediction-service'
 
+import { structuredLogger } from '../utils/structured-logger'
+
+
 export interface WorkerResult {
   success: boolean
   totalModels: number
@@ -40,6 +43,19 @@ export async function executePredictionSession(
     let successCount = 0
     let failureCount = 0
 
+
+    // Log session processing start
+    structuredLogger.info('prediction_session_worker_started', `Starting worker for session ${sessionId}`, {
+      sessionId,
+      userId,
+      marketId,
+      modelCount: selectedModels.length,
+      selectedModels
+    })
+
+    const startTime = Date.now()
+
+
     // Step 1: Optional research phase (skipped for v1 simplicity)
     await updatePredictionSession(db, sessionId, {
       status: 'GENERATING',
@@ -49,8 +65,13 @@ export async function executePredictionSession(
     // Step 2: Process each model sequentially
     for (let i = 0; i < selectedModels.length; i++) {
       const modelName = selectedModels[i]
-      
+
+      const modelStartTime = Date.now()
+
       try {
+        // Log model processing start
+        structuredLogger.predictionSessionModelProcessing(sessionId, modelName, 'generating')
+
         // Update step to show current model
         await updatePredictionSession(db, sessionId, {
           step: `Generating prediction ${i + 1}/${selectedModels.length} with ${modelName}`
@@ -72,21 +93,45 @@ export async function executePredictionSession(
             where: { id: result.predictionId },
             data: { sessionId }
           })
-          
+
+
           successCount++
-          console.log(`✅ Model ${modelName} succeeded for session ${sessionId}`)
+          const modelDuration = Date.now() - modelStartTime
+          structuredLogger.predictionSessionModelCompleted(sessionId, modelName, true, modelDuration)
         } else {
           failureCount++
-          console.log(`❌ Model ${modelName} failed for session ${sessionId}: ${result.message}`)
+          const modelDuration = Date.now() - modelStartTime
+          structuredLogger.predictionSessionModelCompleted(sessionId, modelName, false, modelDuration)
+
         }
 
       } catch (error) {
         failureCount++
-        console.error(`❌ Model ${modelName} error for session ${sessionId}:`, error)
+
+        const modelDuration = Date.now() - modelStartTime
+        structuredLogger.predictionSessionModelCompleted(sessionId, modelName, false, modelDuration)
+
+        // Log the error with context
+        if (error instanceof Error) {
+          structuredLogger.error('prediction_session_model_error', `Model ${modelName} failed with error`, {
+            sessionId,
+            modelName,
+            error: {
+              message: error.message,
+              stack: error.stack
+            },
+            duration: modelDuration
+          })
+        }
+
       }
     }
 
     // Step 3: Handle final session state
+
+    const totalDuration = Date.now() - startTime
+
+
     if (successCount === 0) {
       // All models failed - refund credits and mark as error
       try {
@@ -97,17 +142,38 @@ export async function executePredictionSession(
           `All models failed for session ${sessionId}`,
           { marketId }
         )
-        
+
+
+
         await updatePredictionSession(db, sessionId, {
           status: 'ERROR',
           step: 'All models failed - credits refunded',
           error: `All ${selectedModels.length} models failed to generate predictions`
         })
 
-        console.log(`💰 Refunded ${selectedModels.length} credits for session ${sessionId} - all models failed`)
+
+        // Log session completion with error
+        structuredLogger.predictionSessionCompleted(sessionId, 'ERROR', successCount, failureCount, totalDuration)
+        structuredLogger.info('prediction_session_credits_refunded', `Refunded ${selectedModels.length} credits for failed session`, {
+          sessionId,
+          userId,
+          creditsRefunded: selectedModels.length,
+          reason: 'all_models_failed'
+        })
+
       } catch (refundError) {
-        console.error(`Failed to refund credits for session ${sessionId}:`, refundError)
-        
+        // Log refund failure
+        if (refundError instanceof Error) {
+          structuredLogger.error('prediction_session_refund_failed', 'Failed to refund credits for failed session', {
+            sessionId,
+            userId,
+            error: {
+              message: refundError.message,
+              stack: refundError.stack
+            }
+          })
+        }
+
         await updatePredictionSession(db, sessionId, {
           status: 'ERROR',
           error: `All models failed and credit refund failed: ${refundError instanceof Error ? refundError.message : 'Unknown error'}`
@@ -121,7 +187,10 @@ export async function executePredictionSession(
         completedAt: new Date()
       })
 
-      console.log(`✅ Session ${sessionId} completed: ${successCount} success, ${failureCount} failures`)
+
+      // Log successful session completion
+      structuredLogger.predictionSessionCompleted(sessionId, 'FINISHED', successCount, failureCount, totalDuration)
+
     }
 
     return {
@@ -132,8 +201,18 @@ export async function executePredictionSession(
     }
 
   } catch (error) {
-    console.error(`❌ Worker error for session ${sessionId}:`, error)
-    
+
+    // Log structured error
+    if (error instanceof Error) {
+      structuredLogger.predictionSessionError(
+        sessionId,
+        'unknown', // userId not available in this context
+        error,
+        { step: 'worker_execution' }
+      )
+    }
+
+
     // Update session to error state
     try {
       await updatePredictionSession(db, sessionId, {
@@ -141,7 +220,18 @@ export async function executePredictionSession(
         error: error instanceof Error ? error.message : 'Unknown worker error'
       })
     } catch (updateError) {
-      console.error(`Failed to update session ${sessionId} to error state:`, updateError)
+
+      // Log update error as well
+      if (updateError instanceof Error) {
+        structuredLogger.error('prediction_session_update_failed', 'Failed to update session to error state', {
+          sessionId,
+          error: {
+            message: updateError.message,
+            stack: updateError.stack
+          }
+        })
+      }
+
     }
 
     return {

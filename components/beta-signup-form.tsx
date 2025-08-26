@@ -138,9 +138,9 @@ export function BetaSignupForm({ variant = "default", className = "" }: BetaSign
             >
               <Mail className="h-8 w-8 text-primary mx-auto mb-2" />
             </motion.div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">Thanks! We'll be in touch!</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Thanks! We&apos;ll be in touch!</h3>
             <p className="text-muted-foreground">
-              You've been added to our beta waitlist. We'll notify you when it's ready!
+              You&apos;ve been added to our beta waitlist. We&apos;ll notify you when it&apos;s ready!
             </p>
             <button
               onClick={handleReset}

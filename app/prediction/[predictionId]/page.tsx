@@ -73,6 +73,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           confidenceLevel={confidenceLevel}
           modelName={serializedPrediction.modelName ?? null}
           createdAt={serializedPrediction.createdAt}
+          marketId={marketId ?? null}
         />
 
         <PredictionReasoningCard reasoning={reasoning} />

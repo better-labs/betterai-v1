@@ -1,6 +1,5 @@
 "use client"
 
-import { Event, ApiResponse } from "@/lib/types"
 import { EventIcon } from "@/shared/ui/event-icon"
 import { formatVolume } from "@/lib/utils"
 import { trpc } from "@/shared/providers/trpc-provider"

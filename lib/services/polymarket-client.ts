@@ -158,3 +158,36 @@ export async function fetchPolymarketEvents(
   console.log(`Successfully validated ${validatedEvents.length}/${data.length} Polymarket events`);
   return validatedEvents;
 }
+
+/**
+ * Fetch a single Polymarket event by ID with all its markets
+ */
+export async function fetchPolymarketEventById(
+  eventId: string,
+  options: FetchOptions = {}
+): Promise<PolymarketEvent | null> {
+  const url = `${POLYMARKET_API_BASE_URL}/events/${eventId}`;
+
+  console.log(`Fetching Polymarket event by ID: ${url}`);
+  
+  try {
+    const response = await fetchWithRetry(url, options);
+    const data = await response.json();
+
+    // Validate the single event response
+    const validationResult = validatePolymarketEventSafe(data);
+    
+    if (validationResult.success) {
+      // Convert DTO (strings) to server types (Dates)
+      const convertedEvent = convertPolymarketEventDTOToServerType(validationResult.data);
+      console.log(`Successfully fetched event ${eventId}: ${convertedEvent.title}`);
+      return convertedEvent;
+    } else {
+      console.error(`Validation failed for event ${eventId}: ${validationResult.error}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Failed to fetch event ${eventId}:`, error);
+    return null;
+  }
+}

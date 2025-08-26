@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Stat, StatGroup } from "@/shared/ui/stat"
 import { PredictionMeta } from "@/features/prediction/PredictionMeta"
+import { Button } from "@/shared/ui/button"
 import { cn, formatPercent, toUnitProbability } from "@/lib/utils"
+import { components } from "@/lib/design-system"
+import { RefreshCw } from "lucide-react"
+import Link from "next/link"
 
 interface PredictionSummaryCardProps {
   marketOutcomes?: string[] | null
@@ -11,11 +15,12 @@ interface PredictionSummaryCardProps {
   confidenceLevel: "High" | "Medium" | "Low" | null
   modelName: string | null
   createdAt: string
+  marketId?: string | null
   className?: string
 }
 
 export function PredictionSummaryCard(props: PredictionSummaryCardProps) {
-  const { marketOutcomePrices, aiOutcomesProbabilities, confidenceLevel, modelName, createdAt, className } = props
+  const { marketOutcomePrices, aiOutcomesProbabilities, confidenceLevel, modelName, createdAt, marketId, className } = props
   const mp0 = toUnitProbability(marketOutcomePrices?.[0])
   const mp1 = toUnitProbability(marketOutcomePrices?.[1])
   const ap0 = toUnitProbability(aiOutcomesProbabilities?.[0])
@@ -59,6 +64,24 @@ export function PredictionSummaryCard(props: PredictionSummaryCardProps) {
             />
           </div>
         </StatGroup>
+        
+        {/* Generate New Prediction Button */}
+        {marketId && (
+          <div className={components.cardFooter.container}>
+            <div className={components.cardFooter.layout.single}>
+              <Link href={`/predict/${marketId}`}>
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center gap-2"
+                  data-debug-id="generate-new-prediction-btn"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Generate New Prediction
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

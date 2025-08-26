@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getDocBySlugAsync, getAllDocSlugs } from '@/lib/mdx'
+import { getDocBySlugAsync } from '@/lib/mdx'
 import { DocLayout } from '@/components/docs/doc-layout'
 import { AuthGuard } from '@/components/docs/auth-guard'
 

@@ -17,6 +17,10 @@ import {
   GetUserRecentSessionsInput,
 } from '../schemas/prediction-session'
 
+import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit'
+import { structuredLogger } from '@/lib/utils/structured-logger'
+
+
 export const predictionSessionsRouter = router({
   // Start a new prediction session
   start: authenticatedProcedure
@@ -24,6 +28,20 @@ export const predictionSessionsRouter = router({
     .mutation(async ({ input, ctx }) => {
       return await prisma.$transaction(async (tx) => {
         try {
+
+          // Check rate limit (10/hour, 50/day per user)
+          if (ctx.rateLimitId) {
+            const rateLimitResult = await checkRateLimit('predict', ctx.rateLimitId)
+            if (!rateLimitResult.success) {
+              structuredLogger.predictionRateLimited(ctx.userId, input.marketId)
+              throw new TRPCError({
+                code: 'TOO_MANY_REQUESTS',
+                message: `Rate limit exceeded. You can create ${rateLimitResult.limit} predictions per hour. Please try again later.`,
+              })
+            }
+          }
+
+
           // Validate selected models exist
           const { valid: validModels, invalid: invalidModels } = validateModelIds(input.selectedModels)
           if (invalidModels.length > 0) {
@@ -48,11 +66,18 @@ export const predictionSessionsRouter = router({
           // Consume credits
           await creditManager.consumeCredits(
             tx as any,
-            ctx.userId, 
+
+            ctx.userId,
+
             requiredCredits,
             'prediction_session_start',
             { marketId: input.marketId }
           )
+
+
+          // Log credit consumption
+          structuredLogger.predictionCreditsConsumed(ctx.userId, 'pending', requiredCredits, 'prediction_session_start')
+
 
           // Create PredictionSession (status=initializing)
           const { sessionId } = await predictionSessionService.createPredictionSession(tx as any, {
@@ -61,7 +86,10 @@ export const predictionSessionsRouter = router({
             selectedModels: validModels
           })
 
-          console.log(`Created prediction session ${sessionId} for user ${ctx.userId}`)
+
+          // Log session creation
+          structuredLogger.predictionSessionStarted(sessionId, ctx.userId, input.marketId, validModels)
+
 
           // Fire worker job immediately (Phase 3)
           // Note: Using setImmediate to execute after transaction commits
@@ -76,7 +104,18 @@ export const predictionSessionsRouter = router({
 
           return { sessionId }
         } catch (error) {
-          console.error('Start prediction session error:', error)
+
+          // Log structured error
+          if (error instanceof Error) {
+            structuredLogger.predictionSessionError(
+              'pending', // sessionId not available yet
+              ctx.userId,
+              error,
+              { marketId: input.marketId, step: 'session_creation' }
+            )
+          }
+
+
           if (error instanceof TRPCError) {
             throw error
           }

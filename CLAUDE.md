@@ -1,5 +1,5 @@
 # CLAUDE.md
-After completing each set of tasks - add in a positive motivational quote or advice in the style of the The Tao of Pooh and/or The Big Lebowski.
+After completing each set of tasks - add in a positive motivational Tao'ist, Socratic, or Cynical, or Stoic.
 
 
 ## Project Overview
@@ -166,6 +166,12 @@ Never make direct Prisma calls in components or API routes
 - Legacy REST endpoints removed (except cron jobs)
 - Type safety achieved end-to-end with Zod + tRPC
 
+**Delta Calculation**: Delta represents the absolute difference between market probability and AI prediction probability:
+```
+delta = Math.abs(market.outcomePrices[0] - prediction.outcomesProbabilities[0])
+```
+This measures how much the AI prediction differs from current market sentiment.
+
 ### Security Best Practices
 Validate all user inputs
 Sanitize data before database operations
@@ -256,6 +262,7 @@ Code organization improvements
 
 
 ## UI/UX Patterns
+Build UI for mobile friendly first. Then allow for different layouts for larger screens if convenient.
 Collapsible Content with Gradient Fade: For long text content that needs to be collapsed, use gradient fade effects to indicate there's more content below
 Show More/Less Controls: Use chevron icons (ChevronDown/ChevronUp) with descriptive text for expand/collapse actions
 Consistent Collapsed Heights: Match collapsed heights to related UI sections (e.g., prediction summary height)

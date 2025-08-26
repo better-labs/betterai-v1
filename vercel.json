@@ -23,6 +23,10 @@
     {
       "path": "/api/cron/daily-generate-batch-predictions?topMarketsCount=25&endDateRangeHours=4320&targetDaysFromNow=180&modelName=google%2Fgemini-2.0-flash-001&concurrencyPerModel=3",
       "schedule": "30 2 * * *"
+    },
+    {
+      "path": "/api/cron/update-active-events",
+      "schedule": "15 */12 * * *"
     }
   ]
 } 
