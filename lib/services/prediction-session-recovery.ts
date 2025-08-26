@@ -37,7 +37,7 @@ export async function recoverStuckSessions(
     const stuckSessions = await db.predictionSession.findMany({
       where: {
         status: {
-          in: ['generating', 'researching', 'initializing']
+          in: ['GENERATING', 'RESEARCHING', 'INITIALIZING']
         },
         createdAt: {
           lt: cutoffTime
@@ -87,7 +87,7 @@ export async function recoverStuckSessions(
           
           // Mark as permanently failed
           await updatePredictionSession(db, session.id, {
-            status: 'error',
+            status: 'ERROR',
             error: `Recovery failed after timeout: ${recoveryResult.error || 'Multiple retry attempts failed'}`
           })
 

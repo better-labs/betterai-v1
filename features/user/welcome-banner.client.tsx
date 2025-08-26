@@ -71,19 +71,23 @@ export function WelcomeBanner() {
               Welcome to BetterAI!
               {" "} {" "}
               Learn about{" "}
-              <Link
-                href="/docs/overview/what-is-betterai"
+              <a
+                href="https://docs.betterai.tools/overview/what-is-betterai"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-primary underline hover:no-underline font-medium transition-colors"
               >
                 What is BetterAI
-              </Link>
+              </a>
               {" "}and{" "}
-              <Link
-                href="/docs/overview/prediction-markets"
+              <a
+                href="https://docs.betterai.tools/overview/prediction-markets"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-primary underline hover:no-underline font-medium transition-colors"
               >
                 What are Prediction Markets
-              </Link>
+              </a>
               {" "}in our docs, or start browsing below to get started.
             </AlertDescription>
             <Button

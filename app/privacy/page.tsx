@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function PrivacyPage() {
-  redirect('/docs/legal/privacy-policy')
+  redirect('https://docs.betterai.tools/legal/privacy-policy')
 } 
