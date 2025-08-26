@@ -125,6 +125,7 @@ export const components = {
       iconRight: 'flex items-center justify-center pr-4',
       button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
     }
+
   },
   
   // Tooltip patterns
@@ -177,6 +178,15 @@ export const components = {
     overlayContainer: 'relative group',
     nonInteractiveOverlay: 'absolute inset-0 pointer-events-none',
     interactiveZone: 'relative z-10 pointer-events-auto',
+    
+    // Flex-based search input with icons (RECOMMENDED PATTERN)
+    search: {
+      container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
+      iconLeft: 'flex items-center justify-center px-2', // Left icon container with horizontal padding
+      input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
+      iconRight: 'flex items-center justify-center pr-4',
+      button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
+    }
   }
 } as const;
 

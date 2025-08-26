@@ -114,6 +114,7 @@ export default function MarketDetailsCard({
         {/* Market Question */}
         <CardTitle className="text-base leading-tight mb-3">
           {market.question}
+
         </CardTitle>
       </CardHeader>
       
