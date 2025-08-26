@@ -19,7 +19,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "start": "next start",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:ui": "vitest --ui",
     "cron:daily-generate-batch-predictions": "dotenv -e .env.local -- node scripts/cron/cron-daily-generate-batch-predictions.js",
     "cron:prediction-check": "dotenv -e .env.local -- node scripts/cron/cron-prediction-check.js",

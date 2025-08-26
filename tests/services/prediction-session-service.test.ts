@@ -138,14 +138,14 @@ describe('PredictionSessionService', () => {
       mockDb.predictionSession.update.mockResolvedValue({})
 
       await updatePredictionSession(mockDb as any, 'session-123', {
-        status: 'IN_PROGRESS',
+        status: 'GENERATING' as PredictionSessionStatus,
         step: 'Generating predictions'
       })
 
       expect(mockDb.predictionSession.update).toHaveBeenCalledWith({
         where: { id: 'session-123' },
         data: {
-          status: 'IN_PROGRESS',
+          status: 'GENERATING',
           step: 'Generating predictions'
         }
       })
@@ -211,9 +211,9 @@ describe('PredictionSessionService', () => {
           status: 'FINISHED' as PredictionSessionStatus
         },
         {
-          id: 'session-2', 
+          id: 'session-2',
           createdAt: new Date('2024-01-01'),
-          status: 'IN_PROGRESS' as PredictionSessionStatus
+          status: 'GENERATING' as PredictionSessionStatus
         }
       ]
 

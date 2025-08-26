@@ -96,8 +96,10 @@
 
 ---
 
-## Phase 3 — Worker
+## Phase 3 — Worker (done)
 
+Recommended Location:
+  /lib/services/prediction-session-worker.ts
 **Flow (sequential execution v1)**
 
 1. Update session: `status=researching` (optional research step)
@@ -120,8 +122,8 @@
 * **Timeout**: 10 minutes total session timeout
 * **Cleanup**: Hourly job to handle stuck sessions
 
-**Acceptance test**
-
+** Write minimal vitests for the new worker code **
+Acceptance test:
 * One success → session finished, at least one Prediction row exists
 * Partial success → finished with failed markers
 * All fail → error, refund
@@ -130,14 +132,14 @@
 
 ## Phase 4A — Pages & UX
 
-**Prediction Generator Page (**`/predict/[marketId]`)
+**Create a new Prediction Generator Page (**`/predict/[marketId]`)
 
 * Show market info + credit balance
 * Model checklist (1–5)
 * Generate button (disabled if insufficient credits)
 * On click: call `predictions.start`, redirect to Results with `sessionId`
 
-**Prediction Results Page (**`/predict/[marketId]/[sessionId]`)
+**Create a new Prediction Results Page (**`/predict/[marketId]/[sessionId]`)
 
 * Poll `predictions.status(sessionId)` every 10-15s until `finished` or `error` (optimized frequency to reduce DB load while maintaining responsiveness)
 * **Loading UX:**
@@ -156,14 +158,11 @@
   * Spinner has `aria-label="Loading"`
   * Reduced-motion users see static skeletons
 
-## Phase 4B Create a reusable `GeneratePredictionButton` and drop it into:
+## Phase 4B Integrate with `generate-prediction-btn` 
 
-* Market Detail
-* MarketList item
-* Search Result item
-* RecentPredictions (top + per-row)
 
-Add the button in **four surfaces**. All buttons route to `/predict/[marketId]`.
+
+Add the button to MarketCard. All buttons route to `/predict/[marketId]`.
 
 ### 1) Market Detail ( `/market/[marketId]` )
 
@@ -183,13 +182,7 @@ Add the button in **four surfaces**. All buttons route to `/predict/[marketId]`.
   * Respect global disabled state (auth/credits).
 * **Click:** `router.push(/predict/${marketId})`.
 
-### 3) Search Results (market hits)
 
-* **Placement:** Inline with each result, after title/snippet.
-* **Behavior:**
-  * Text button: **“Predict”**
-  * On small screens fold into a 3-dot menu (… → Predict).
-* **Click:** `router.push(/predict/${marketId})`.
 
 ### 4) RecentPredictions (user dashboard/feed)
 
