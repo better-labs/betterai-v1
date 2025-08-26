@@ -103,7 +103,7 @@ describe('/api/user/credits Integration', () => {
         sessionId: 'test-session'
       })
 
-      vi.mocked(creditManager.consumeCredits).mockResolvedValue(true)
+      vi.mocked(creditManager.consumeCredits).mockResolvedValue(97)
       
       // Mock the updated credits after consumption
       vi.mocked(creditManager.getUserCredits).mockResolvedValue({

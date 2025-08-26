@@ -47,11 +47,14 @@
 * `consume(userId, amount, reason)` → deduct + record
 * `refund(userId, amount, reason)` → restore + record
 
-**Implementation: Service Layer Pattern**
-* Create `lib/services/credit-service.ts` with functions accepting `db` parameter
-* Support both PrismaClient and TransactionClient for atomic operations
-* tRPC procedures use service via transactions: `creditService.consume(tx, userId, amount, reason)`
-* Follows existing "fat services for writes" architecture
+**Implementation: Upgrade Existing credit-manager.ts**
+* Refactor existing `lib/services/credit-manager.ts` to follow service layer pattern
+* Add `db` parameter to all methods for dependency injection
+* Support both PrismaClient and TransactionClient for atomic operations  
+* Update error handling to throw errors instead of return boolean/null
+* Keep all existing functionality (daily resets, UI helpers, analytics, batch operations)
+* Remove new `credit-service.ts` to avoid duplication
+* Zero breaking changes to existing API/UI integrations
 
 **Storage Decision: PostgreSQL (Recommended for v1)**
 * Use existing PostgreSQL for PredictionSession storage
