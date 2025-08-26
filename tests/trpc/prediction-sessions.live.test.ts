@@ -92,7 +92,6 @@ describe('PredictionSessions Live Database Integration', () => {
   it('should create session, consume credits, and execute worker with live database', async () => {
     const caller = appRouter.createCaller({
       userId: testUserId,
-      isAuthenticated: true
     })
 
     // Start prediction session
@@ -155,9 +154,7 @@ describe('PredictionSessions Live Database Integration', () => {
     })
 
     const caller = appRouter.createCaller({
-      userId: testUserId,
-      sessionId: 'test-session',
-      isAuthenticated: true
+      userId: testUserId
     })
 
     // Try to start session with 3 models (requires 3 credits)
@@ -185,9 +182,7 @@ describe('PredictionSessions Live Database Integration', () => {
 
   it('should reject invalid model IDs', async () => {
     const caller = appRouter.createCaller({
-      userId: testUserId,
-      sessionId: 'test-session',
-      isAuthenticated: true
+      userId: testUserId
     })
 
     await expect(
