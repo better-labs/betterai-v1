@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { createTRPCMsw } from 'msw-trpc'
 import { appRouter } from '@/lib/trpc/routers/_app'
 
 // Mock dependencies
@@ -53,10 +52,9 @@ describe('PredictionSessions tRPC Integration', () => {
   describe('predictionSessions.start', () => {
     it('should create session and consume credits in transaction', async () => {
       // Mock transaction
-      const mockTransaction = vi.fn()
       vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
-        const mockTx = { predictionSession: { create: vi.fn() } }
-        return await callback(mockTx)
+        const mockTx = prisma // Use the already mocked prisma instance
+        return await callback(mockTx as any)
       })
 
       // Mock credit validation and consumption
@@ -81,8 +79,8 @@ describe('PredictionSessions tRPC Integration', () => {
 
     it('should reject when insufficient credits', async () => {
       vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
-        const mockTx = { user: { findUnique: vi.fn() } }
-        return await callback(mockTx)
+        const mockTx = prisma // Use the already mocked prisma instance
+        return await callback(mockTx as any)
       })
 
       vi.mocked(creditManager.hasCredits).mockResolvedValue(false)

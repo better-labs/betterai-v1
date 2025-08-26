@@ -148,7 +148,7 @@ Acceptance test:
     * Global step chip updates (Initializing → Researching → Generating…)
     * Model rows:
       * Queued → muted dot
-      * Running → spinner + “running”
+      * Running → spinner + “running”. Reuse existing LoadingCard component if possible. Consistency: Uses the same Loader2 icon and animate-spin class used throughout your app
       * Completed → check icon + short preview
       * Failed → warning icon + “failed”
   * On finished: display full Prediction outputs per model
@@ -156,11 +156,10 @@ Acceptance test:
 * **A11y (if not too much effort):**
   * `aria-live="polite"` for global step
   * Spinner has `aria-label="Loading"`
-  * Reduced-motion users see static skeletons
+  
+
 
 ## Phase 4B Integrate with `generate-prediction-btn` 
-
-
 
 Add the button to MarketCard. All buttons route to `/predict/[marketId]`.
 
