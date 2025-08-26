@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db/prisma'
+import { PrismaClient } from '@/lib/generated/prisma'
+import type { DbClient } from './types'
 import * as userService from './user-service'
 
 export interface CreditTransaction {
@@ -23,126 +24,158 @@ export class CreditManager {
   /**
    * Get current credit balance for a user
    */
-  async getUserCredits(userId: string): Promise<CreditBalance | null> {
-    try {
-      // Use new service pattern
-      return await userService.getUserCredits(prisma, userId)
-    } catch (error) {
-      console.error('Error getting user credits:', error)
-      return null
+  async getUserCredits(
+    db: DbClient,
+    userId: string
+  ): Promise<CreditBalance> {
+    const credits = await userService.getUserCredits(db, userId)
+    if (!credits) {
+      throw new Error(`User not found: ${userId}`)
     }
+    return credits
   }
 
   /**
    * Consume credits for a user
-   * Returns true if successful, false if insufficient credits
+   * Throws error if insufficient credits or user not found
    */
   async consumeCredits(
+    db: DbClient,
     userId: string,
     amount: number,
     reason: string,
     metadata?: { marketId?: string; predictionId?: number }
-  ): Promise<boolean> {
-    try {
-      const user = await userService.getUserById(prisma, userId)
-      if (!user) {
-        return false
-      }
-
-      // Check if user has enough credits
-      if (user.credits < amount) {
-        return false
-      }
-
-      // Update user credits in transaction
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: user.credits - amount,
-          totalCreditsSpent: user.totalCreditsSpent + amount,
-          updatedAt: new Date()
-        }
-      })
-
-      // Log the transaction (we can add this later if needed)
-      console.log(`Credit consumed: ${userId}, amount: ${amount}, reason: ${reason}`)
-
-      return true
-    } catch (error) {
-      console.error('Error consuming credits:', error)
-      return false
+  ): Promise<number> {
+    if (amount <= 0) {
+      throw new Error("Credit amount must be positive")
     }
+
+    const user = await userService.getUserById(db, userId)
+    if (!user) {
+      throw new Error(`User not found: ${userId}`)
+    }
+
+    // Check if user has enough credits
+    if (user.credits < amount) {
+      throw new Error(`Insufficient credits: ${user.credits} available, ${amount} required`)
+    }
+
+    // Update user credits
+    const updatedUser = await db.user.update({
+      where: { id: userId },
+      data: {
+        credits: { decrement: amount },
+        totalCreditsSpent: { increment: amount },
+        updatedAt: new Date()
+      },
+      select: { credits: true }
+    })
+
+    console.log(`Credit consumed: ${userId}, amount: ${amount}, reason: ${reason}`)
+    return updatedUser.credits
   }
 
   /**
-   * Add credits to a user
+   * Add credits to a user (for bonuses/additions)
+   * Returns new balance after addition
    */
   async addCredits(
+    db: DbClient,
     userId: string,
     amount: number,
     reason: string,
     metadata?: { marketId?: string; predictionId?: number }
-  ): Promise<void> {
-    try {
-      const user = await userService.getUserById(prisma, userId)
-      if (!user) {
-        throw new Error('User not found')
-      }
-
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: user.credits + amount,
-          totalCreditsEarned: user.totalCreditsEarned + amount,
-          updatedAt: new Date()
-        }
-      })
-
-      // Log the transaction
-      console.log(`Credits added: ${userId}, amount: ${amount}, reason: ${reason}`)
-    } catch (error) {
-      console.error('Error adding credits:', error)
-      throw error
+  ): Promise<number> {
+    if (amount <= 0) {
+      throw new Error("Credit amount must be positive")
     }
+
+    const user = await userService.getUserById(db, userId)
+    if (!user) {
+      throw new Error(`User not found: ${userId}`)
+    }
+
+    const updatedUser = await db.user.update({
+      where: { id: userId },
+      data: {
+        credits: { increment: amount },
+        totalCreditsEarned: { increment: amount },
+        updatedAt: new Date()
+      },
+      select: { credits: true }
+    })
+
+    console.log(`Credits added: ${userId}, amount: ${amount}, reason: ${reason}`)
+    return updatedUser.credits
+  }
+
+  /**
+   * Refund credits to a user (decrements totalCreditsSpent)
+   * Returns new balance after refund
+   */
+  async refundCredits(
+    db: DbClient,
+    userId: string,
+    amount: number,
+    reason: string,
+    metadata?: { marketId?: string; predictionId?: number }
+  ): Promise<number> {
+    if (amount <= 0) {
+      throw new Error("Refund amount must be positive")
+    }
+
+    const updatedUser = await db.user.update({
+      where: { id: userId },
+      data: {
+        credits: { increment: amount },
+        totalCreditsSpent: { decrement: amount },
+        updatedAt: new Date()
+      },
+      select: { credits: true }
+    })
+
+    console.log(`Credits refunded: ${userId}, amount: ${amount}, reason: ${reason}`)
+    return updatedUser.credits
   }
 
   /**
    * Reset daily credits for a user
    * Ensures user gets at least DAILY_CREDIT_RESET credits
    */
-  async resetDailyCredits(userId: string): Promise<void> {
-    try {
-      const user = await userService.getUserById(prisma, userId)
-      if (!user) {
-        throw new Error('User not found')
-      }
-
-      const newCredits = Math.max(user.credits, CreditManager.DAILY_CREDIT_RESET)
-      const creditsAdded = newCredits - user.credits
-
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: newCredits,
-          creditsLastReset: new Date(),
-          totalCreditsEarned: user.totalCreditsEarned + Math.max(0, creditsAdded),
-          updatedAt: new Date()
-        }
-      })
-
-      console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${newCredits}`)
-    } catch (error) {
-      console.error('Error resetting daily credits:', error)
-      throw error
+  async resetDailyCredits(
+    db: DbClient,
+    userId: string
+  ): Promise<void> {
+    const user = await userService.getUserById(db, userId)
+    if (!user) {
+      throw new Error(`User not found: ${userId}`)
     }
+
+    const newCredits = Math.max(user.credits, CreditManager.DAILY_CREDIT_RESET)
+    const creditsAdded = newCredits - user.credits
+
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        credits: newCredits,
+        creditsLastReset: new Date(),
+        totalCreditsEarned: user.totalCreditsEarned + Math.max(0, creditsAdded),
+        updatedAt: new Date()
+      }
+    })
+
+    console.log(`Daily credits reset for ${userId}: ${user.credits} -> ${newCredits}`)
   }
 
   /**
    * Check if user should see the "Add Credits" button (< 10 credits)
    */
-  async shouldShowAddCreditsButton(userId: string): Promise<boolean> {
+  async shouldShowAddCreditsButton(
+    db: DbClient,
+    userId: string
+  ): Promise<boolean> {
     try {
-      const user = await userService.getUserById(prisma, userId)
+      const user = await userService.getUserById(db, userId)
       if (!user) {
         return false
       }
@@ -157,86 +190,96 @@ export class CreditManager {
   /**
    * Get multiple users' credit balances (for admin/batch operations)
    */
-  async getUsersCredits(userIds: string[]): Promise<Record<string, CreditBalance | null>> {
-    try {
-      const users = await prisma.user.findMany({
-        where: {
-          id: { in: userIds }
-        }
-      })
-
-      const result: Record<string, CreditBalance | null> = {}
-
-      for (const userId of userIds) {
-        const user = users.find(u => u.id === userId)
-        if (user) {
-          result[userId] = {
-            credits: user.credits,
-            creditsLastReset: user.creditsLastReset || new Date(),
-            totalCreditsEarned: user.totalCreditsEarned,
-            totalCreditsSpent: user.totalCreditsSpent
-          }
-        } else {
-          result[userId] = null
-        }
+  async getUsersCredits(
+    db: DbClient,
+    userIds: string[]
+  ): Promise<Record<string, CreditBalance | null>> {
+    const users = await db.user.findMany({
+      where: {
+        id: { in: userIds }
       }
+    })
 
-      return result
-    } catch (error) {
-      console.error('Error getting users credits:', error)
-      return {}
+    const result: Record<string, CreditBalance | null> = {}
+
+    for (const userId of userIds) {
+      const user = users.find((u: any) => u.id === userId)
+      if (user) {
+        result[userId] = {
+          credits: user.credits,
+          creditsLastReset: user.creditsLastReset || new Date(),
+          totalCreditsEarned: user.totalCreditsEarned,
+          totalCreditsSpent: user.totalCreditsSpent
+        }
+      } else {
+        result[userId] = null
+      }
     }
+
+    return result
   }
 
   /**
    * Initialize credits for a new user (100 credits on signup)
    */
-  async initializeUserCredits(userId: string): Promise<void> {
-    try {
-      await this.addCredits(userId, 100, 'signup_bonus')
-      console.log(`Initialized credits for new user: ${userId}`)
-    } catch (error) {
-      console.error('Error initializing user credits:', error)
-      throw error
-    }
+  async initializeUserCredits(
+    db: DbClient,
+    userId: string
+  ): Promise<void> {
+    await this.addCredits(db, userId, 100, 'signup_bonus')
+    console.log(`Initialized credits for new user: ${userId}`)
   }
 
   /**
    * Get credit statistics for analytics
    */
-  async getCreditStats(): Promise<{
+  async getCreditStats(
+    db: DbClient
+  ): Promise<{
     totalUsers: number
     totalCreditsInCirculation: number
     totalCreditsEarned: number
     totalCreditsSpent: number
     usersWithLowCredits: number
   }> {
-    try {
-      const stats = await prisma.user.aggregate({
-        _count: { id: true },
-        _sum: {
-          credits: true,
-          totalCreditsEarned: true,
-          totalCreditsSpent: true
-        }
-      })
-
-      const usersWithLowCredits = await prisma.user.count({
-        where: {
-          credits: { lt: CreditManager.LOW_CREDIT_THRESHOLD }
-        }
-      })
-
-      return {
-        totalUsers: stats._count.id,
-        totalCreditsInCirculation: stats._sum.credits || 0,
-        totalCreditsEarned: stats._sum.totalCreditsEarned || 0,
-        totalCreditsSpent: stats._sum.totalCreditsSpent || 0,
-        usersWithLowCredits
+    const stats = await db.user.aggregate({
+      _count: { id: true },
+      _sum: {
+        credits: true,
+        totalCreditsEarned: true,
+        totalCreditsSpent: true
       }
+    })
+
+    const usersWithLowCredits = await db.user.count({
+      where: {
+        credits: { lt: CreditManager.LOW_CREDIT_THRESHOLD }
+      }
+    })
+
+    return {
+      totalUsers: stats._count.id,
+      totalCreditsInCirculation: stats._sum.credits || 0,
+      totalCreditsEarned: stats._sum.totalCreditsEarned || 0,
+      totalCreditsSpent: stats._sum.totalCreditsSpent || 0,
+      usersWithLowCredits
+    }
+  }
+
+  /**
+   * Check if user has sufficient credits
+   */
+  async hasCredits(
+    db: DbClient,
+    userId: string,
+    requiredAmount: number
+  ): Promise<boolean> {
+    try {
+      const credits = await this.getUserCredits(db, userId)
+      return credits.credits >= requiredAmount
     } catch (error) {
-      console.error('Error getting credit stats:', error)
-      throw error
+      console.error('Error checking credits:', error)
+      return false
     }
   }
 }

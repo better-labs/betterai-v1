@@ -1,5 +1,12 @@
 import { vi } from 'vitest'
 import '@testing-library/jest-dom'
+import { config } from 'dotenv'
+import { resolve } from 'path'
+
+// Load environment variables for development testing
+if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+  config({ path: resolve(process.cwd(), '.env.local') })
+}
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth, createAuthErrorResponse } from '@/lib/auth'
 import { creditManager } from '@/lib/services/credit-manager'
+import { prisma } from '@/lib/db/prisma'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
@@ -41,14 +42,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user should see add credits button
-    const shouldShowAddCredits = await creditManager.shouldShowAddCreditsButton(userId)
+    const shouldShowAddCredits = await creditManager.shouldShowAddCreditsButton(prisma, userId)
 
     // Get current credit balance for context
-    const credits = await creditManager.getUserCredits(userId)
+    const credits = await creditManager.getUserCredits(prisma, userId)
 
     return NextResponse.json({
       shouldShowAddCredits,
-      credits: credits?.credits || 0,
+      credits: credits.credits,
       isAuthenticated: true
     })
   } catch (error) {

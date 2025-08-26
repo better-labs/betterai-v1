@@ -1,18 +1,26 @@
+
 /**
- * Provision/rotate BetterAI DB roles and emit app URLs.
+ * Provision/rotate BetterAI DB roles, ensure a Neon shadow DB, and emit URLs.
  *
  * Usage:
- *   ts-node provision-db-roles.ts "postgres://neondb_owner:...@ep-xxxxx-pooler.us-east-1.aws.neon.tech/betterai?sslmode=require"
+ *   ts-node provision-db-roles.ts "postgres://neondb_owner:...@ep-xxxxx-pooler.us-east-1.aws.neon.tech/betterai_dev?sslmode=require"
  *
  * What it does:
  *   - Validates the input URL includes 'neondb_owner' and '-pooler'
- *   - Connects using the same creds but to the **direct (non-pooler)** host
+ *   - Derives the **direct (non-pooler)** host
  *   - Creates or updates:
  *       - betterai_admin  (DDL / migrations)
  *       - betterai_app    (CRUD / runtime)
  *   - Grants least-privilege on all existing schemas (excl. pg_catalog, information_schema, pg_toast, temp schemas)
- *   - Sets default privileges so **future tables/sequences** inherit correct grants
- *   - Prints DATABASE_URL (pooled, app role) and DATABASE_URL_UNPOOLED (direct, app role)
+ *   - Sets **comprehensive default privileges** so future tables/sequences automatically inherit correct grants:
+ *       - neondb_owner grants to both betterai_admin and betterai_app
+ *       - betterai_admin grants CRUD access to betterai_app
+ *       - betterai_app grants full access to betterai_admin
+ *   - Ensures an empty **shadow DB** (dbName + "_shadow") owned by betterai_admin with mirrored extensions
+ *   - Prints:
+ *       - DATABASE_URL              (pooled, app role)
+ *       - DATABASE_URL_UNPOOLED     (direct, app role)
+ *       - SHADOW_DATABASE_URL       (direct, admin role, shadow DB)
  */
 
 import { Client } from "pg";
@@ -25,7 +33,6 @@ function fatal(msg: string): never {
 
 function genPassword(bytes = 48): string {
   // URL-safe base64 (no '+' or '/'); keep it simple for copy/paste & .env
-  // Ensure minimum length for security
   if (bytes < 32) bytes = 32;
   return crypto.randomBytes(bytes).toString("base64url");
 }
@@ -59,7 +66,7 @@ async function main() {
   if (!/^postgres(ql)?:$/.test(url.protocol))
     fatal("URL must start with postgres:// or postgresql://");
 
-  // Must be the owner user (getting-started default)
+  // Must be the owner user (Neon defaults to neondb_owner for bootstrap)
   if (decodeURIComponent(url.username) !== "neondb_owner") {
     fatal("URL must authenticate as 'neondb_owner'.");
   }
@@ -73,7 +80,7 @@ async function main() {
   // Derive the direct (non-pooler) host
   const directHost = pooledHost.replace("-pooler", "");
 
-  // Build a direct URL for admin connection (same owner creds)
+  // Build a direct URL for owner connection (same owner creds)
   const ownerDirectUrl = buildUrl(url, {
     username: decodeURIComponent(url.username),
     password: decodeURIComponent(url.password),
@@ -82,17 +89,12 @@ async function main() {
 
   // Connect as owner on the **direct** endpoint so DDL works reliably
   const adminClient = new Client({ connectionString: ownerDirectUrl });
-  
   try {
     await adminClient.connect();
-    console.log("✓ Connected to database as neondb_owner");
+    console.log("✓ Connected to database as neondb_owner (direct endpoint)");
   } catch (err) {
     fatal(`Failed to connect to database: ${err instanceof Error ? err.message : String(err)}`);
   }
-
-  // Generate new passwords
-  const appPwd = genPassword();
-  const adminPwd = genPassword();
 
   // Helpers
   const dbName = url.pathname.replace(/^\//, "");
@@ -100,6 +102,11 @@ async function main() {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(dbName)) {
     fatal("Database name contains invalid characters. Use only letters, numbers, and underscores.");
   }
+  const shadowDbName = `${dbName}_shadow`;
+
+  // Generate new passwords
+  const appPwd = genPassword();
+  const adminPwd = genPassword();
 
   try {
     // Ensure pgcrypto for any future SQL-side generation if you use it later
@@ -130,15 +137,13 @@ async function main() {
       END IF;
     END$$;`);
 
-    // Ensure both roles can CONNECT (proper identifier escaping)
+    // Ensure both roles can CONNECT to the main DB
     await adminClient.query(
       `GRANT CONNECT ON DATABASE "${dbName.replace(/"/g, '""')}" TO betterai_admin, betterai_app;`
     );
 
     // Discover non-system schemas (including "public")
-    const { rows: schemaRows } = await adminClient.query<{
-      nspname: string;
-    }>(`
+    const { rows: schemaRows } = await adminClient.query<{ nspname: string }>(`
       SELECT nspname
       FROM pg_namespace
       WHERE nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
@@ -152,7 +157,7 @@ async function main() {
       schemas.push("public");
     }
 
-    // Build and apply grants per schema
+    // Apply grants per schema on the main DB
     for (const s of schemas) {
       const ident = `"${s.replace(/"/g, '""')}"`;
 
@@ -173,36 +178,80 @@ async function main() {
         GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;`);
       await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
         GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;`);
+
+      // Cross-role default privileges for future-proof permissions
+      // When betterai_admin creates objects, grant access to betterai_app
+      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
+        GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;`);
+      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
+        GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;`);
+
+      // When betterai_app creates objects, grant access to betterai_admin
+      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
+        GRANT ALL ON TABLES TO betterai_admin;`);
+      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
+        GRANT ALL ON SEQUENCES TO betterai_admin;`);
     }
 
-    // Construct output URLs for **app role** as requested
+    // --- Ensure shadow DB exists and is owned by betterai_admin (simplest working perms) ---
+    const { rows: [{ exists: shadowExists }] } = await adminClient.query<{ exists: boolean }>(
+      `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1) AS exists`,
+      [shadowDbName]
+    );
+
+    if (!shadowExists) {
+      console.log(`Creating shadow database "${shadowDbName}" owned by betterai_admin...`);
+      await adminClient.query(`CREATE DATABASE "${shadowDbName}" OWNER betterai_admin`);
+    } else {
+      console.log(`✓ Shadow database "${shadowDbName}" already exists`);
+    }
+
+    // --- Initialize shadow DB extensions to mirror main/dev ---
+    const shadowUrl = new URL(ownerDirectUrl);
+    shadowUrl.pathname = `/${shadowDbName}`;
+    const shadowClient = new Client({ connectionString: shadowUrl.toString() });
+    try {
+      await shadowClient.connect();
+      await shadowClient.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+      await shadowClient.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
+      console.log(`✓ Shadow database "${shadowDbName}" initialized`);
+    } finally {
+      await shadowClient.end();
+    }
+
+    // Construct output URLs
     const pooledAppUrl = buildUrl(url, {
       username: "betterai_app",
       password: appPwd,
-      host: pooledHost, // keep -pooler
+      host: pooledHost, // keep -pooler for app runtime
     });
 
+    // Direct (non-pooled) URLs
     const directAppUrl = buildUrl(url, {
-      username: "betterai_admin",
-      password: adminPwd,
+      username: "betterai_app",
+      password: appPwd,
       host: directHost, // remove -pooler
     });
 
+    const directAdminUrl = buildUrl(url, {
+      username: "betterai_admin",
+      password: adminPwd,
+      host: directHost,
+    });
+
+    const shadowAdminUrl = (() => {
+      const u = new URL(directAdminUrl);
+      u.pathname = `/${shadowDbName}`;
+      return u.toString();
+    })();
+
     // Print as simple key=value lines ready for Vercel / .env
     console.log("\n# === Copy these to your env store ===");
-    console.log(`DATABASE_URL=${pooledAppUrl}`);
-    console.log(`DATABASE_URL_UNPOOLED=${directAppUrl}`);
+    console.log(`DATABASE_URL=${pooledAppUrl}`);                // pooled, app role (runtime)
+    console.log(`DATABASE_URL_UNPOOLED=${directAppUrl}`);       // direct, app role (runtime without pooler)
+    console.log(`SHADOW_DATABASE_URL=${shadowAdminUrl}`);       // direct, admin role, shadow DB
 
-    // // (Optional) also print a migrations URL for convenience
-    // const directAdminUrl = buildUrl(url, {
-    //   username: "betterai_admin",
-    //   password: adminPwd,
-    //   host: directHost,
-    // });
-    // console.log("\n# (Optional) For Prisma migrations use admin+direct:");
-    // console.log(`# DATABASE_URL_MIGRATIONS=${directAdminUrl}`);
-
-    console.log("\n# Done. Roles created/updated and privileges applied.");
+    console.log("\n# Done. Roles created/updated, grants applied, and shadow DB ensured.");
   } catch (err) {
     console.error("Provisioning failed:", err instanceof Error ? err.message : String(err));
     process.exitCode = 1;
