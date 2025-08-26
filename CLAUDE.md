@@ -146,6 +146,7 @@ Validate all inputs and implement proper authentication
 ### Database Migrations
 Use `pnpm run db:migrate:` commands where possible.
 Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
+Important: avoid using "prisma db push", prefer using "pnpm db:migrate:deploy:dev". This creates short term database migration inconsistencies that are difficult to debug. Prompt the user to explain your migration issue issue before trying db push.
 
 ### Next.js Build Best Practices
 Use `pnpm` not `npm`: Project uses pnpm for package management and build commands
