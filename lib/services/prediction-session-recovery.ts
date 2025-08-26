@@ -93,7 +93,7 @@ export async function recoverStuckSessions(
 
           structuredLogger.info('session_recovery_failed', `Marked session ${session.id} as failed`, {
             sessionId: session.id,
-            error: recoveryResult.error
+            error: recoveryResult.error ? { message: recoveryResult.error } : undefined
           })
         }
 
@@ -112,7 +112,7 @@ export async function recoverStuckSessions(
 
         try {
           await updatePredictionSession(db, session.id, {
-            status: 'error',
+            status: 'ERROR',
             error: `Recovery error: ${errorMessage}`
           })
         } catch (updateError) {
@@ -162,7 +162,7 @@ export async function cleanupOldSessions(
 
     const result = await db.predictionSession.deleteMany({
       where: {
-        status: 'error',
+        status: 'ERROR',
         createdAt: {
           lt: cutoffTime
         }
