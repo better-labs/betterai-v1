@@ -77,14 +77,14 @@
 
 **tRPC Procedures**
 
-* `predictions.start` (mutation):
+* `predictionsSessions.start` (mutation):
   * Input: `marketId`, `selectedModels[]`
   * Verify credits ≥ models.length
   * Consume credits
   * Create `PredictionSession` (status=initializing, all models queued)
   * Fire worker job immediately (event-driven trigger)
   * Return `{ sessionId }`
-* `predictions.status` (query):
+* `predictionsSessions.status` (query):
   * Input: `sessionId`
   * Return `PredictionSession` fields + all `Prediction` rows linked to it
   * Ensure row belongs to current user
@@ -115,7 +115,7 @@ Recommended Location:
    * Else → update session → `status=finished`, set `completedAt`
 
 **Worker Timing & Triggers**
-* **Trigger**: Event-driven on `predictions.start` + failure retry with exponential backoff
+* **Trigger**: Event-driven on `predictionsSessions.start` + failure retry with exponential backoff
 * **Frequency**: Simple approach - no complex queue needed initially
 * **Implementation**: Direct function call in tRPC mutation for v1 simplicity
 * **Retry Logic**: 3 attempts max with exponential backoff for failures

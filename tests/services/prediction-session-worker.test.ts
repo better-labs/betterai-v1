@@ -40,14 +40,25 @@ describe('PredictionSessionWorker', () => {
     console.error = vi.fn()
   })
 
+  // Helper function to create complete mock session
+  const createMockSession = (overrides?: Partial<any>) => ({
+    id: 'session-123',
+    userId: 'user-456',
+    marketId: 'market-789',
+    selectedModels: ['gpt-4', 'claude-3'],
+    status: 'INITIALIZING' as PredictionSessionStatus,
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    predictions: [],
+    market: {
+      id: 'market-789',
+      question: 'Will it rain tomorrow?',
+      outcomes: ['Yes', 'No']
+    },
+    ...overrides
+  })
+
   describe('executePredictionSession', () => {
-    const mockSession = {
-      id: 'session-123',
-      userId: 'user-456',
-      marketId: 'market-789',
-      selectedModels: ['gpt-4', 'claude-3'],
-      status: 'INITIALIZING' as PredictionSessionStatus
-    }
+    const mockSession = createMockSession()
 
     it('should execute all models and finish with success (one success scenario)', async () => {
       vi.mocked(getPredictionSessionById).mockResolvedValue(mockSession)
@@ -118,10 +129,9 @@ describe('PredictionSessionWorker', () => {
     })
 
     it('should handle partial success scenario', async () => {
-      const sessionWith3Models = {
-        ...mockSession,
+      const sessionWith3Models = createMockSession({
         selectedModels: ['gpt-4', 'claude-3', 'gemini']
-      }
+      })
 
       vi.mocked(getPredictionSessionById).mockResolvedValue(sessionWith3Models)
       vi.mocked(generatePredictionForMarket)
@@ -165,10 +175,9 @@ describe('PredictionSessionWorker', () => {
     })
 
     it('should handle wrong session status error', async () => {
-      const wrongStatusSession = {
-        ...mockSession,
+      const wrongStatusSession = createMockSession({
         status: 'FINISHED' as PredictionSessionStatus
-      }
+      })
 
       vi.mocked(getPredictionSessionById).mockResolvedValue(wrongStatusSession)
 
@@ -206,13 +215,9 @@ describe('PredictionSessionWorker', () => {
 
   describe('executePredictionSessionWithRetry', () => {
     it('should succeed on first attempt', async () => {
-      const mockSession = {
-        id: 'session-123',
-        userId: 'user-456',
-        marketId: 'market-789',
-        selectedModels: ['gpt-4'],
-        status: 'INITIALIZING' as PredictionSessionStatus
-      }
+      const mockSession = createMockSession({
+        selectedModels: ['gpt-4']
+      })
 
       vi.mocked(getPredictionSessionById).mockResolvedValue(mockSession)
       vi.mocked(generatePredictionForMarket).mockResolvedValue({
@@ -230,13 +235,9 @@ describe('PredictionSessionWorker', () => {
     })
 
     it('should retry and eventually succeed', async () => {
-      const mockSession = {
-        id: 'session-123',
-        userId: 'user-456', 
-        marketId: 'market-789',
-        selectedModels: ['gpt-4'],
-        status: 'INITIALIZING' as PredictionSessionStatus
-      }
+      const mockSession = createMockSession({
+        selectedModels: ['gpt-4']
+      })
 
       vi.mocked(getPredictionSessionById)
         .mockRejectedValueOnce(new Error('Network error'))

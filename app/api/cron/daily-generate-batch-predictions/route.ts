@@ -58,13 +58,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const modelList = [
-      'anthropic/claude-3.7-sonnet',
-      'x-ai/grok-3-mini',
-      'google/gemini-2.5-flash',
-      'deepseek/deepseek-chat-v3-0324',
-      'openai/gpt-4o-mini',
-    ]
+    const { getModelIds } = await import('@/lib/config/ai-models')
+    const modelList = getModelIds()
 
     const modelsToRun = Array.from(new Set(modelNameParam ? [...modelList, modelNameParam] : modelList))
 

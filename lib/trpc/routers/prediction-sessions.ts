@@ -9,6 +9,8 @@ import { TRPCError } from '@trpc/server'
 import { prisma } from '@/lib/db/prisma'
 import * as predictionSessionService from '@/lib/services/prediction-session-service'
 import { creditManager } from '@/lib/services/credit-manager'
+import { executePredictionSession } from '@/lib/services/prediction-session-worker'
+import { calculateTotalCreditCost, validateModelIds } from '@/lib/config/ai-models'
 import {
   StartPredictionSessionInput,
   GetPredictionSessionStatusInput,
@@ -22,8 +24,17 @@ export const predictionSessionsRouter = router({
     .mutation(async ({ input, ctx }) => {
       return await prisma.$transaction(async (tx) => {
         try {
-          // Verify credits ≥ models.length
-          const requiredCredits = input.selectedModels.length
+          // Validate selected models exist
+          const { valid: validModels, invalid: invalidModels } = validateModelIds(input.selectedModels)
+          if (invalidModels.length > 0) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: `Invalid model IDs: ${invalidModels.join(', ')}`,
+            })
+          }
+
+          // Calculate required credits based on model costs
+          const requiredCredits = calculateTotalCreditCost(validModels)
           const hasCredits = await creditManager.hasCredits(tx as any, ctx.userId, requiredCredits)
           
           if (!hasCredits) {
@@ -47,11 +58,21 @@ export const predictionSessionsRouter = router({
           const { sessionId } = await predictionSessionService.createPredictionSession(tx as any, {
             userId: ctx.userId,
             marketId: input.marketId,
-            selectedModels: input.selectedModels
+            selectedModels: validModels
           })
 
-          // TODO: Fire worker job immediately (Phase 3)
           console.log(`Created prediction session ${sessionId} for user ${ctx.userId}`)
+
+          // Fire worker job immediately (Phase 3)
+          // Note: Using setImmediate to execute after transaction commits
+          setImmediate(async () => {
+            try {
+              await executePredictionSession(prisma, sessionId)
+            } catch (workerError) {
+              console.error(`Worker failed for session ${sessionId}:`, workerError)
+              // Worker failure is logged but doesn't affect the session creation response
+            }
+          })
 
           return { sessionId }
         } catch (error) {
