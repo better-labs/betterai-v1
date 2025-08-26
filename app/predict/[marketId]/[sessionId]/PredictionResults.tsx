@@ -217,7 +217,7 @@ interface SessionPrediction {
     outcomes: string[]
     probabilities: number[]
   }
-  aiResponse?: string
+  aiResponse?: string | null
 }
 
 interface ModelResultCardProps {
@@ -280,11 +280,11 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Predicted Probabilities:</h4>
                 <div className="space-y-1">
-                  {prediction.predictionResult.outcomes.map((outcome: string, index: number) => (
+                  {prediction.predictionResult?.outcomes.map((outcome: string, index: number) => (
                     <div key={outcome} className="flex justify-between text-sm">
                       <span>{outcome}</span>
                       <Badge variant="outline">
-                        {formatPercent(prediction.predictionResult.probabilities?.[index])}
+                        {formatPercent(prediction.predictionResult?.probabilities?.[index])}
                       </Badge>
                     </div>
                   ))}
