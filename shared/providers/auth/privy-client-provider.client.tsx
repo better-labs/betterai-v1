@@ -41,11 +41,7 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 		<PrivyProvider
 			appId={appId}
 			config={{
-				appearance: {
-					theme: 'light',
-					accentColor: '#3B82F6',
-					logo: '/betterai-logo-vertical.png'
-				},
+				
 				// Keep login simple - only email and Google, no wallets
 				loginMethods: ['email', 'google'],
 				embeddedWallets: {

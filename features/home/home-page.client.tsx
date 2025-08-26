@@ -4,13 +4,12 @@ import { usePrivy } from "@privy-io/react-auth"
 import { LandingPage } from "@/components/landing-page"
 import { useEffect } from "react"
 import { LoadingCard } from "@/shared/ui/loading"
-import { PaginatedRecentPredictions } from "@/components/paginated-recent-predictions"
 import { useUser } from "@/hooks/use-user"
 import { WelcomeBanner } from "@/features/user/welcome-banner.client"
 import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
-import { TrendingUp, Activity, Target, Trophy } from "lucide-react"
+import { TrendingMarkets } from "@/features/home/trending-markets.client"
 
-export function HomePageWrapper() {
+export function HomePage() {
   const { ready, authenticated } = usePrivy()
   const { user, loading: userLoading, error: userError } = useUser()
 
@@ -67,21 +66,7 @@ export function HomePageWrapper() {
       <main className="container mx-auto px-4 py-8">
         <PageTransition>
           <div className="space-y-8">
-            {/* Header */}
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
-                <TrendingUp className="text-primary" />
-                Today's Top AI Market Predictions
-              </h1>
-              <p className="text-muted-foreground text-lg  mx-auto mb-6">
-                AI-powered predictions on trending markets. Get insights from multiple models with enriched data analysis.
-              </p>
-            </div>
-              
-
-            {/* Hide trending events table for now */}
-            {/* <TrendingEventsTable /> */}
-            <PaginatedRecentPredictions defaultPageSize={15} />
+            <TrendingMarkets />
           </div>
         </PageTransition>
       </main>

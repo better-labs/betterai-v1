@@ -53,7 +53,7 @@ export function Header() {
   return (
     <header className="border-b bg-background shadow-sm">
       <div className="container mx-auto header-container">
-        <div className="header-content">
+        <div className="header-content" data-testid="header-content">
           {/* Logo Section */}
           <div className="header-logo-section">
             <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105 duration-200">
@@ -93,69 +93,48 @@ export function Header() {
               >
                 About
               </Link>
-              <Link 
-                href="/docs" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive("/docs") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Docs
-              </Link>
+            
               
 
-              {/* {flags.showPortfolio && (
-                <Link 
-                  href="/portfolio" 
-                  className={`text-sm font-medium transition-colors ${
-                    isActive("/portfolio") 
-                      ? "text-foreground border-b-2 border-primary pb-1" 
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  My Portfolio
-                </Link>
-              )} */}
             </nav>
           </div>
 
           {/* Right side elements - directly in grid */}
           <div className="flex items-center justify-end gap-3">
             {/* Search Bar Section - Hidden on mobile */}
-            {flags.showSearch && (
-              <div className="header-search hidden md:flex">
-                <form onSubmit={handleSearch} className="relative w-full">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search markets"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-10 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={clearSearch}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </form>
-              </div>
-            )}
+            
+            <div className="header-search hidden md:flex">
+              <form onSubmit={handleSearch} className="relative w-full">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search markets"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-10 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={clearSearch}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+            
             {/* Credits Display */}
-            <div className="credit-display  md:flex ">
+            {/* <div className="credit-display  md:flex ">
               {ready && authenticated ? (
                 <UserCreditsDisplay />
               ) : (
                 <div className="w-20 h-6 bg-muted/30 rounded animate-pulse" />
               )}
-            </div>
+            </div> */}
 
             {/* Auth section */}
             <div className="flex items-center justify-center w-24 h-8">
@@ -169,13 +148,13 @@ export function Header() {
             {/* Menu */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="shadow-sm hover:shadow-md transition-shadow">
-                    <Menu className="h-5 w-5" />
+                  <Button variant="ghost" className="h-8 px-3 shadow-sm hover:shadow-md transition-shadow">
+                    <Menu className="h-7 w-7" />
                   </Button>
                 </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 shadow-lg">
                 {/* Mobile Search */}
-                {flags.showSearch && (
+                {/* {flags.showSearch && (
                   <>
                     <div className="p-2">
                       <form onSubmit={handleSearch} className="relative">
@@ -201,7 +180,7 @@ export function Header() {
                     
                     <DropdownMenuSeparator />
                   </>
-                )}
+                )} */}
                 
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>
@@ -223,7 +202,7 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/docs" className={`w-full flex items-center space-x-2 ${isActive("/docs") ? "bg-accent" : ""}`}>
+                  <Link href="https://docs.betterai.tools" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center space-x-2 ${isActive("/docs") ? "bg-accent" : ""}`}>
                     <BookOpen className="h-4 w-4" />
                     <span>Docs</span>
                   </Link>
@@ -315,6 +294,31 @@ export function Header() {
           </div>
         </div>
       </div>
+             <div className="mobile-search" data-testid="mobile-search">
+         <div className="container mx-auto">
+           <form onSubmit={handleSearch} className="relative w-full">
+             <div className="relative">
+               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+               <Input
+                 type="text"
+                 placeholder="Search markets"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="pl-10 pr-10 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
+               />
+               {searchQuery && (
+                 <button
+                   type="button"
+                   onClick={clearSearch}
+                   className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                 >
+                   <X className="h-4 w-4" />
+                 </button>
+               )}
+             </div>
+           </form>
+         </div>
+       </div>
     </header>
   )
 }

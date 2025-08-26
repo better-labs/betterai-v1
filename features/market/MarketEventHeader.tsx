@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { EventIcon } from '@/components/event-icon'
+import { EventIcon } from '@/shared/ui/event-icon'
 
 interface MarketEventHeaderProps {
   eventId?: string | null
@@ -43,12 +43,6 @@ export function MarketEventHeader({
         </div>
       )}
 
-      {showMarketLine && (
-        <Link href={marketId ? `/market/${marketId}` : '#'} className="block">
-          <div className="text-sm text-muted-foreground">Market</div>
-          <div className="text-lg font-medium">{marketQuestion ?? '—'}</div>
-        </Link>
-      )}
     </div>
   )
 }

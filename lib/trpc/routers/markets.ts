@@ -106,24 +106,44 @@ export const marketsRouter = router({
     .input(GetTrendingMarketsInput)
     .query(async ({ input }) => {
       // Get events with markets using the event service
-      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma)
-      
-      // Extract markets from events and flatten
-      const trendingMarkets = eventsWithMarkets.flatMap(event => 
-        event.markets?.map(market => ({
+      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, input.withPredictions)
+
+            // Extract markets from events and flatten
+      const trendingMarkets = eventsWithMarkets.flatMap((event: any) =>
+        event.markets?.map((market: any) => ({
           ...market,
           // Serialize Decimal fields properly
           volume: market.volume?.toString() || '0',
           liquidity: market.liquidity?.toString() || '0',
-          outcomePrices: Array.isArray(market.outcomePrices) 
-            ? market.outcomePrices 
-            : typeof market.outcomePrices === 'string' 
-              ? JSON.parse(market.outcomePrices) 
+          outcomePrices: Array.isArray(market.outcomePrices)
+            ? market.outcomePrices
+            : typeof market.outcomePrices === 'string'
+              ? JSON.parse(market.outcomePrices)
               : [],
+          // Serialize dates to ISO strings to match MarketDTO
+          endDate: market.endDate?.toISOString() || null,
+          startDate: market.startDate?.toISOString() || null,
+          updatedAt: market.updatedAt?.toISOString() || null,
+          // Include latest prediction data if available
+          latestPrediction: market.predictions?.[0] ? {
+            id: market.predictions[0].id,
+            outcomes: typeof market.predictions[0].outcomes === 'string' 
+              ? JSON.parse(market.predictions[0].outcomes) 
+              : market.predictions[0].outcomes,
+            outcomesProbabilities: typeof market.predictions[0].outcomesProbabilities === 'string'
+              ? JSON.parse(market.predictions[0].outcomesProbabilities)
+              : market.predictions[0].outcomesProbabilities,
+            createdAt: market.predictions[0].createdAt?.toISOString() || null,
+            modelName: market.predictions[0].modelName,
+          } : null,
           event: {
             id: event.id,
             title: event.title,
+            description: event.description,
             category: event.category,
+            icon: event.icon,
+            image: event.image,
+            tags: event.eventTags.map((et: any) => et.tag),
           },
         })) || []
       )

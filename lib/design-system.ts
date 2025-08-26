@@ -74,12 +74,12 @@ export const layout = {
 
 export const typography = {
   // Font sizes with consistent line heights
-  h1: 'text-4xl font-bold leading-tight mb-6',
-  h2: 'text-3xl font-semibold leading-tight mb-6',
-  h3: 'text-2xl font-semibold leading-tight mb-4',
-  h4: 'text-xl font-medium leading-tight mb-3',
-  h5: 'text-lg font-medium leading-tight mb-2',
-  h6: 'text-base font-medium leading-tight mb-2',
+  h1: 'text-3xl font-bold leading-tight mb-6',
+  h2: 'text-2xl font-semibold leading-tight mb-6',
+  h3: 'text-xl font-semibold leading-tight mb-4',
+  h4: 'text-lg font-medium leading-tight mb-3',
+  h5: 'text-md font-medium leading-tight mb-2',
+  h6: 'text-sm font-medium leading-tight mb-2',
   
   // Body text
   body: 'text-base leading-relaxed',

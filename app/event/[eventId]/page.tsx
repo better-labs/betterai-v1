@@ -5,7 +5,7 @@ import * as marketService from '@/lib/services/market-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
-import { EventIcon } from '@/components/event-icon'
+import { EventIcon } from '@/shared/ui/event-icon'
 import { BarChart2, Calendar, ArrowLeft, DollarSign, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { formatVolume } from '@/lib/utils'

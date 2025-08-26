@@ -60,4 +60,5 @@ export const DeleteMarketInput = z.object({
 export const GetTrendingMarketsInput = z.object({
   limit: z.number().int().positive().max(100).optional().default(20),
   cursor: z.string().optional(),
+  withPredictions: z.boolean().optional().default(false),
 })

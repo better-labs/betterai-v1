@@ -58,7 +58,7 @@
   display: flex;
   align-items: center;
   gap: 3rem;
-  min-width: 300px;
+  
   justify-content: flex-start;
 }
 
@@ -90,5 +90,29 @@
 @media (max-width: 768px) {
   .header-nav {
     display: none;
+  }
+}
+
+/* Mobile search section - hidden on desktop, shown on mobile */
+.mobile-search {
+  display: none;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+}
+
+.mobile-search .header-container {
+  min-height: auto;
+  padding: 0;
+}
+
+.mobile-search form {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .mobile-search {
+    display: block;
   }
 }

@@ -21,15 +21,57 @@ export async function getTrendingEvents(
 }
 
 export async function getTrendingEventsWithMarkets(
-  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>
-): Promise<(Event & { markets: Market[] })[]> {
+  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
+  withPredictions = false
+): Promise<any[]> {
+  const whereClause = withPredictions ? {
+    markets: {
+      some: {
+        predictions: {
+          some: {}
+        }
+      }
+    }
+  } : {}
+
   return await db.event.findMany({
+    where: whereClause,
     orderBy: { volume: 'desc' },
     take: 10,
     include: {
       markets: {
+        where: withPredictions ? {
+          predictions: {
+            some: {}
+          }
+        } : {},
         orderBy: {
           volume: 'desc'
+        },
+        include: withPredictions ? {
+          predictions: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: {
+              id: true,
+              outcomes: true,
+              outcomesProbabilities: true,
+              createdAt: true,
+              modelName: true,
+            }
+          }
+        } : {}
+      },
+      eventTags: {
+        include: {
+          tag: {
+            select: {
+              id: true,
+              label: true,
+              slug: true,
+              forceShow: true
+            }
+          }
         }
       }
     }

@@ -3,7 +3,7 @@ import * as eventService from '@/lib/services/event-service'
 import * as marketService from '@/lib/services/market-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
-import { EventIcon } from '@/components/event-icon'
+import { EventIcon } from '@/shared/ui/event-icon'
 import { BarChart2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import type { Event, Market } from '@/lib/types'
