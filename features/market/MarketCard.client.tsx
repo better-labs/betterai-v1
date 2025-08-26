@@ -114,9 +114,7 @@ export default function MarketDetailsCard({
         {/* Market Question */}
         <CardTitle className="text-base leading-tight mb-3">
           {market.question}
-          <Badge variant={market.active ? 'default' : 'secondary'} className="ml-3 px-3 py-1">
-            {market.active ? 'Active' : 'Closed'}
-          </Badge>
+
         </CardTitle>
       </CardHeader>
       

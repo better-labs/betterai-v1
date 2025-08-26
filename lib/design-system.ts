@@ -125,6 +125,7 @@ export const components = {
       iconRight: 'flex items-center justify-center pr-4',
       button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
     }
+
   },
   
   // Tooltip patterns
