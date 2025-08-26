@@ -60,8 +60,9 @@ describe('polymarket-batch-processor', () => {
         startDate: new Date('2025-01-01'),
         endDate: new Date('2025-12-31'),
         tags: [
-          { id: 'tag-1', label: 'politics' }
-        ]
+          { id: 'tag-1', label: 'politics', slug: 'politics', forceShow: false, updatedAt: '2025-01-01T00:00:00Z' }
+        ],
+        markets: []
       }
 
       const result = transformEventToDbFormat(event)

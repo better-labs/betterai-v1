@@ -5,6 +5,7 @@ import * as tagService from '@/lib/services/tag-service'
 import type { NewMarket, NewEvent } from '@/lib/types/database'
 import type { Event, Market, PolymarketEvent, PolymarketMarket } from '@/lib/types'
 import { mapTagsToCategory } from '@/lib/categorize'
+import { withDeadlockRetry } from '@/lib/utils/deadlock-retry'
 import { Decimal } from '@prisma/client/runtime/library'
 
 /**
@@ -149,25 +150,31 @@ export async function processAndUpsertPolymarketBatch(
   const eventsToInsert: NewEvent[] = sortedEvents.map(transformEventToDbFormat)
   const marketsToInsert: NewMarket[] = allMarkets.map(transformMarketToDbFormat)
 
-  // Upsert events and markets
+  // Upsert events and markets with deadlock retry protection
   console.log(`Upserting ${logPrefix}: ${eventsToInsert.length} events, ${marketsToInsert.length} markets...`)
   
   const startTime = enableTiming ? Date.now() : 0
   if (enableTiming) console.time(`${logPrefix}-events-upsert`)
   
-  const [processedEvents, processedMarkets] = await Promise.all([
-    eventService.upsertEvents(prisma, eventsToInsert),
-    marketsToInsert.length > 0 ? marketService.upsertMarkets(prisma, marketsToInsert) : Promise.resolve([])
-  ])
+  const [processedEvents, processedMarkets] = await withDeadlockRetry(
+    async () => Promise.all([
+      eventService.upsertEvents(prisma, eventsToInsert),
+      marketsToInsert.length > 0 ? marketService.upsertMarkets(prisma, marketsToInsert) : Promise.resolve([])
+    ]),
+    { logPrefix: `${logPrefix}-upsert` }
+  )
 
   if (enableTiming) {
     console.timeEnd(`${logPrefix}-events-upsert`)
     console.time(`${logPrefix}-tags-processing`)
   }
 
-  // Process tags
+  // Process tags with deadlock retry protection
   try {
-    await processEventTags(sortedEvents)
+    await withDeadlockRetry(
+      async () => processEventTags(sortedEvents),
+      { logPrefix: `${logPrefix}-tags` }
+    )
   } catch (err) {
     console.error(`Failed to process tags for ${logPrefix}:`, err)
   }
@@ -221,10 +228,8 @@ async function processEventTags(events: PolymarketEvent[]): Promise<void> {
     await tagService.upsertTags(prisma, tagsToUpsert)
   }
 
-  // Update event-tag links
+  // Update event-tag links in transaction to prevent partial updates
   const eventIds = events.map(e => e.id)
-  await tagService.unlinkAllTagsFromEvents(prisma, eventIds)
-
   const links: Array<{ eventId: string; tagId: string }> = []
   for (const event of events) {
     const tags = event.tags || []
@@ -233,7 +238,11 @@ async function processEventTags(events: PolymarketEvent[]): Promise<void> {
     }
   }
 
+  // Execute tag link operations atomically to reduce deadlock potential
   if (links.length > 0) {
+    await tagService.unlinkAllTagsFromEvents(prisma, eventIds)
     await tagService.linkTagsToEvents(prisma, links)
+  } else {
+    await tagService.unlinkAllTagsFromEvents(prisma, eventIds)
   }
 }
