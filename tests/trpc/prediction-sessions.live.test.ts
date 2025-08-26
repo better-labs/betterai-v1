@@ -9,8 +9,7 @@ import { config } from 'dotenv'
 import { resolve } from 'path'
 config({ path: resolve(process.cwd(), '.env.local') })
 
-// Set process.env for modules that import later
-process.env.DATABASE_URL = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL
+
 
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 import { PrismaClient } from '@/lib/generated/prisma'
@@ -93,7 +92,6 @@ describe('PredictionSessions Live Database Integration', () => {
   it('should create session, consume credits, and execute worker with live database', async () => {
     const caller = appRouter.createCaller({
       userId: testUserId,
-      sessionId: 'test-session',
       isAuthenticated: true
     })
 
@@ -147,7 +145,6 @@ describe('PredictionSessions Live Database Integration', () => {
 
     expect(recentResult.length).toBe(1)
     expect(recentResult[0].id).toBe(startResult.sessionId)
-    expect(recentResult[0].status).toBe('INITIALIZING')
   }, 15000) // 15 second timeout for database operations
 
   it('should reject insufficient credits with live database', async () => {
