@@ -206,7 +206,6 @@ export default function MarketDetailsCard({
         <div className="pt-2">
           <Button 
             onClick={handleGeneratePrediction}
-            disabled={authenticated && (userCreditsResponse?.credits?.credits || 0) < 1}
             className="w-full flex items-center gap-2"
             data-debug-id="generate-prediction-btn"
           >
