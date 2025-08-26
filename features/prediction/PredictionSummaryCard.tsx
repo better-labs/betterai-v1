@@ -68,7 +68,7 @@ export function PredictionSummaryCard(props: PredictionSummaryCardProps) {
         {/* Generate New Prediction Button */}
         {marketId && (
           <div className={components.cardFooter.container}>
-            <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single}`}>
+            <div className={components.cardFooter.layout.single}>
               <Link href={`/predict/${marketId}`}>
                 <Button 
                   variant="outline" 
