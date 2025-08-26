@@ -2,10 +2,12 @@
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
+import { Button } from "@/shared/ui/button"
 import { formatPercent, toUnitProbability } from '@/lib/utils'
 import Link from 'next/link'
 import { Sparkline } from '@/shared/ui/charts/sparkline.client'
 import { useRouter } from 'next/navigation'
+import { RefreshCw, Eye } from 'lucide-react'
 import type { PredictionCheckDTO, PredictionDTO } from '@/lib/types'
 
 type CheckItem = Pick<PredictionCheckDTO, 'createdAt' | 'aiProbability' | 'marketProbability' | 'delta' | 'marketClosed'>
@@ -103,6 +105,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                   <TableHead className="text-right">AI Pred</TableHead>
                   <TableHead className="text-right hidden sm:table-cell">Delta</TableHead>
                   <TableHead className="hidden md:table-cell">Model</TableHead>
+                  <TableHead className="w-[200px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -118,11 +121,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                   const isClickable = !!p.id
                   
                   return (
-                    <TableRow 
-                      key={idx}
-                      className={isClickable ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
-                      onClick={isClickable ? () => handlePredictionClick(p.id!) : undefined}
-                    >
+                    <TableRow key={idx}>
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(p.createdAt).toLocaleString()}
                       </TableCell>
@@ -142,6 +141,26 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                         {delta !== null ? formatPercent(delta) : '—'}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{p.modelName || '—'}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          
+                          {isClickable && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePredictionClick(p.id!)
+                              }}
+                              className="flex items-center gap-1"
+                              data-debug-id="view-prediction-button"
+                            >
+                              <Eye className="h-3 w-3" />
+                              <span className="hidden sm:inline">View</span>
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   )
                 })}
