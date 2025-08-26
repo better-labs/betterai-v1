@@ -15,7 +15,8 @@ import {
   AlertCircle, 
   Clock, 
   ArrowLeft,
-  RefreshCw 
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react'
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
 
@@ -291,6 +292,21 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
                   {prediction.aiResponse}
                 </div>
               </details>
+            )}
+            
+            {/* View Prediction Details Button */}
+            {prediction.id && (
+              <div className="pt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open(`/prediction/${prediction.id}`, '_blank')}
+                  className="w-full sm:w-auto"
+                >
+                  <ExternalLink className="mr-2 h-3 w-3" />
+                  View Prediction Details
+                </Button>
+              </div>
             )}
           </div>
         )}

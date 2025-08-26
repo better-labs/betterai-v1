@@ -171,6 +171,12 @@ Never make direct Prisma calls in components or API routes
 - Legacy REST endpoints removed (except cron jobs)
 - Type safety achieved end-to-end with Zod + tRPC
 
+**Delta Calculation**: Delta represents the absolute difference between market probability and AI prediction probability:
+```
+delta = Math.abs(market.outcomePrices[0] - prediction.outcomesProbabilities[0])
+```
+This measures how much the AI prediction differs from current market sentiment.
+
 ### Security Best Practices
 Validate all user inputs
 Sanitize data before database operations

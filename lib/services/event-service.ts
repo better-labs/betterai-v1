@@ -24,20 +24,38 @@ export async function getTrendingEventsWithMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   withPredictions = false
 ): Promise<any[]> {
-  const whereClause = withPredictions ? {
-    markets: {
+  const cryptoLabelFilter = ["Crypto"] // Exclude crypto markets from trending
+  
+  const whereClause: any = {}
+  
+  if (withPredictions) {
+    whereClause.markets = {
       some: {
         predictions: {
           some: {}
         }
       }
     }
-  } : {}
+  }
+  
+  // Exclude events with crypto tags
+  whereClause.NOT = {
+    eventTags: {
+      some: {
+        tag: {
+          label: {
+            in: cryptoLabelFilter,
+            mode: 'insensitive' as any
+          }
+        }
+      }
+    }
+  }
 
-  return await db.event.findMany({
+  const events = await db.event.findMany({
     where: whereClause,
     orderBy: { volume: 'desc' },
-    take: 10,
+    take: 50, // Get more events since we'll filter down to one market per event
     include: {
       markets: {
         where: withPredictions ? {
@@ -76,6 +94,49 @@ export async function getTrendingEventsWithMarkets(
       }
     }
   })
+
+  // For each event, find the market with the highest delta
+  const eventsWithBestMarket = events
+    .map((event: any) => {
+      if (!event.markets || event.markets.length === 0) return null
+      
+      // Calculate delta for each market with predictions
+      const marketsWithDelta = event.markets
+        .filter((market: any) => market.predictions && market.predictions.length > 0)
+        .map((market: any) => {
+          const prediction = market.predictions[0]
+          const marketProb = Array.isArray(market.outcomePrices) 
+            ? market.outcomePrices[0] 
+            : typeof market.outcomePrices === 'string' 
+              ? JSON.parse(market.outcomePrices)[0] 
+              : 0.5
+          const predictionProb = Array.isArray(prediction.outcomesProbabilities)
+            ? prediction.outcomesProbabilities[0]
+            : typeof prediction.outcomesProbabilities === 'string'
+              ? JSON.parse(prediction.outcomesProbabilities)[0]
+              : 0.5
+          
+          const delta = Math.abs(marketProb - predictionProb)
+          
+          return {
+            ...market,
+            delta
+          }
+        })
+      
+      // If no markets have predictions, take the highest volume market
+      const bestMarket = marketsWithDelta.length > 0
+        ? marketsWithDelta.sort((a: any, b: any) => b.delta - a.delta)[0]
+        : event.markets[0] // Fallback to highest volume market
+      
+      return {
+        ...event,
+        markets: [bestMarket] // Return only the best market
+      }
+    })
+    .filter((event: any) => event !== null)
+  
+  return eventsWithBestMarket
 }
 
 export async function getEventById(
