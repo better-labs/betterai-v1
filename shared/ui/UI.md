@@ -40,7 +40,7 @@ Event page:
 * <Market cards ordered by marketoutcome0>
 
 Search results page:
-.. todo
+.. lots todo
 
 market-card: [half complete]
 - EventIcon, event.title>
