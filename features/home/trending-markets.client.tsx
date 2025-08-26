@@ -9,7 +9,7 @@ import type { inferProcedureOutput } from "@trpc/server"
 import { trpc } from "@/shared/providers/trpc-provider"
 import { PopularTagsList } from "@/shared/ui/popular-tags-list"
 import { LoadingCard } from "@/shared/ui/loading"
-import MarketDetailsCard from "@/features/market/MarketCard"
+import MarketDetailsCard from "@/features/market/MarketCard.client"
 import { useApiQuery } from "@/lib/client/api-handler"
 import { typography } from "@/lib/design-system"
 
