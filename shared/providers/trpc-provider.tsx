@@ -16,7 +16,20 @@ interface TRPCProviderProps {
 }
 
 export function TRPCProvider({ children }: TRPCProviderProps) {
-  const { getAccessToken } = usePrivy()
+  // Safely get Privy context with fallback for SSR/hydration
+  let getAccessToken: (() => Promise<string | null>) | undefined
+  let authenticated = false
+  let ready = false
+  
+  try {
+    const privyContext = usePrivy()
+    getAccessToken = privyContext.getAccessToken
+    authenticated = privyContext.authenticated
+    ready = privyContext.ready
+  } catch (error) {
+    // Privy not available - this is expected during SSR or initial hydration
+    console.warn('Privy context not available, using fallback:', error)
+  }
 
   // Create stable instances to prevent re-initialization
   const [queryClient] = useState(() => new QueryClient({
@@ -24,14 +37,25 @@ export function TRPCProvider({ children }: TRPCProviderProps) {
       queries: {
         staleTime: 5 * 60 * 1000, // 5 minutes
         gcTime: 10 * 60 * 1000, // 10 minutes
+        // Add retry configuration for better auth error handling
+        retry: (failureCount, error: any) => {
+          // Don't retry auth errors more than once
+          if (error?.data?.code === 'UNAUTHORIZED') {
+            return failureCount < 1
+          }
+          // Default retry behavior for other errors
+          return failureCount < 3
+        },
+        retryDelay: 1000, // 1 second delay between retries
       },
     },
   }))
 
   // Create trpcClient that can access the current getAccessToken function
+  // Depend on authentication state to recreate client when auth changes
   const trpcClient = useMemo(() => {
     return createTRPCClient(getBaseUrl(), getAccessToken)
-  }, [getAccessToken])
+  }, [getAccessToken, authenticated, ready])
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>

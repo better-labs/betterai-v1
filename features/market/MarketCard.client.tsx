@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { usePrivy } from '@privy-io/react-auth'
+import { useEffect, useState } from 'react'
 import { trpc } from '@/lib/trpc/client'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Badge } from "@/shared/ui/badge"
@@ -12,6 +13,7 @@ import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent, toUnitProbability } from '@/lib/utils'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
+import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
 
 interface MarketDetailsCardProps {
@@ -63,12 +65,18 @@ export default function MarketDetailsCard({
   const delta = calculateDelta()
 
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const { authenticated, login } = usePrivy()
+
+  // Ensure client-side hydration
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Get user credits to check if they can afford at least 1 credit (minimum for prediction)
   const { data: userCreditsResponse } = trpc.users.getCredits.useQuery(
     {},
-    { enabled: authenticated }
+    { enabled: authenticated && mounted }
   )
 
   const handleGeneratePrediction = () => {
@@ -205,11 +213,11 @@ export default function MarketDetailsCard({
         <div className="pt-2">
           <Button 
             onClick={handleGeneratePrediction}
-            className="w-full"
-            variant="outline"
+            className="w-full flex items-center gap-2"
             data-debug-id="generate-prediction-btn"
           >
-            Generate New AI Prediction
+            <Brain className="h-4 w-4" />
+            Predict with AI
           </Button>
         </div>
 
