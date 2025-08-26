@@ -64,10 +64,10 @@ export function TrendingMarkets() {
   }
 
   // Filter markets by selected tags if any tags are selected
-  const filteredMarkets = selectedTagIds.length > 0 
-    ? markets.filter(market => 
-        market.event?.tags?.some(tag => 
-          typeof tag === 'object' && 'id' in tag 
+  const filteredMarkets = selectedTagIds.length > 0
+    ? markets.filter(market =>
+        market.event?.tags?.some((tag: any) =>
+          typeof tag === 'object' && tag.id
             ? selectedTagIds.includes(tag.id)
             : selectedTagIds.includes(String(tag))
         )

@@ -22,7 +22,7 @@ export async function getTrendingEvents(
 
 export async function getTrendingEventsWithMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>
-): Promise<(Event & { markets: Market[] })[]> {
+): Promise<any[]> {
   return await db.event.findMany({
     orderBy: { volume: 'desc' },
     take: 10,
@@ -30,6 +30,18 @@ export async function getTrendingEventsWithMarkets(
       markets: {
         orderBy: {
           volume: 'desc'
+        }
+      },
+      eventTags: {
+        include: {
+          tag: {
+            select: {
+              id: true,
+              label: true,
+              slug: true,
+              forceShow: true
+            }
+          }
         }
       }
     }

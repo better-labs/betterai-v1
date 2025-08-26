@@ -43,7 +43,7 @@ Search results page:
 
 market-card:
 - EventIcon, event.title>
-- <market.groupItemTitle>
+- <market.groupItemTitle> (temp: market.question)
 - StatsGroup: Label: Market Probability
     - Stats: Outlined grid: outcomes x outcomePrices
     - Hover text: Last Updated: ___
