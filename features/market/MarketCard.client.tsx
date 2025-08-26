@@ -120,7 +120,7 @@ export default function MarketDetailsCard({
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-6">
+      <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
         <div>
           <StatGroup className="grid-cols-2">
@@ -234,16 +234,16 @@ export default function MarketDetailsCard({
     </Card>
   )
 
-  // Make the entire card clickable when href is provided without nesting anchors
+  // Use pointer-events pattern to allow interactive elements while keeping card clickable
   return href ? (
-    <div className="relative group">
+    <div className={components.interactive.overlayContainer}>
       <div className="transition-all duration-200 ease-in-out group-hover:shadow-lg group-hover:shadow-muted/20 group-hover:-translate-y-0.5">
         {card}
       </div>
       <Link
         href={href}
         aria-label={`View market: ${market.question}`}
-        className="absolute inset-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
+        className={`${components.interactive.nonInteractiveOverlay} ${components.interactive.cardLink.fullOverlay}`}
       />
     </div>
   ) : (

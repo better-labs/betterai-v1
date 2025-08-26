@@ -131,6 +131,22 @@ export const components = {
   tooltip: {
     trigger: 'cursor-help underline decoration-dotted decoration-muted-foreground underline-offset-4 hover:decoration-foreground transition-colors',
     content: 'text-sm bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 shadow-lg',
+  },
+  
+  // Interactive area patterns
+  interactive: {
+    // Card link patterns - prevent overlapping interactive elements
+    cardLink: {
+      // Safe zone: link covers header/non-interactive areas only
+      safeZone: 'absolute top-0 left-0 right-0 rounded-t-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring',
+      // Full overlay (avoid when card has interactive elements)
+      fullOverlay: 'absolute inset-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring',
+    },
+    
+    // Best practice: Use pointer-events-none on overlay containers with interactive children
+    overlayContainer: 'relative group',
+    nonInteractiveOverlay: 'absolute inset-0 pointer-events-none',
+    interactiveZone: 'relative z-10 pointer-events-auto',
   }
 } as const;
 

@@ -1,12 +1,7 @@
 import { prisma } from '@/lib/db/prisma'
-import * as eventService from '@/lib/services/event-service'
-import * as marketService from '@/lib/services/market-service'
-import * as tagService from '@/lib/services/tag-service'
-import type { NewMarket, NewEvent } from '@/lib/types/database'
 import type { Event, Market, PolymarketEvent } from '@/lib/types'
-import { mapTagsToCategory } from '@/lib/categorize'
 import { fetchPolymarketEvents } from './polymarket-client'
-import { Decimal } from '@prisma/client/runtime/library'
+import { processAndUpsertPolymarketBatch } from './polymarket-batch-processor'
 
 /**
  * Updates only active Polymarket events (where end_date > NOW()) and their markets
@@ -144,11 +139,14 @@ export async function updateActivePolymarketEvents(options: {
   // Process all the active events we found
   if (allActiveEventsData.length > 0) {
     try {
-      const processResult = await processAndUpsertBatchEvents(allActiveEventsData)
-      updatedEvents.push(...processResult.updatedEvents)
-      updatedMarkets.push(...processResult.updatedMarkets)
+      const processResult = await processAndUpsertPolymarketBatch(allActiveEventsData, {
+        logPrefix: 'active-events-batch',
+        enableTiming: false
+      })
+      updatedEvents.push(...processResult.processedEvents)
+      updatedMarkets.push(...processResult.processedMarkets)
       
-      console.log(`✓ Batch processed: ${processResult.updatedEvents.length} events, ${processResult.updatedMarkets.length} markets`)
+      console.log(`✓ Batch processed: ${processResult.processedEvents.length} events, ${processResult.processedMarkets.length} markets`)
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
       console.error(`✗ Failed to process active events batch:`, errorMsg)
@@ -167,159 +165,3 @@ export async function updateActivePolymarketEvents(options: {
   }
 }
 
-/**
- * Process and upsert a batch of active events and their markets
- * This reuses the same logic as the main bulk update service
- */
-async function processAndUpsertBatchEvents(eventsData: PolymarketEvent[]): Promise<{
-  updatedEvents: Event[],
-  updatedMarkets: Market[]
-}> {
-  // Filter and validate events
-  const validEvents = eventsData.filter((event): event is PolymarketEvent => {
-    const isValid = event && 
-           typeof event === 'object' && 
-           typeof event.id === 'string' &&
-           typeof event.title === 'string' &&
-           typeof event.description === 'string' &&
-           typeof event.volume === 'number' &&
-           (event.slug === undefined || typeof event.slug === 'string') &&
-           (event.tags === undefined || Array.isArray(event.tags))
-    
-    return isValid
-  })
-
-  if (validEvents.length === 0) {
-    return {
-      updatedEvents: [],
-      updatedMarkets: []
-    }
-  }
-
-  // Sort events by volume (highest first) - same as bulk update
-  const sortedEvents = validEvents.sort((a, b) => b.volume - a.volume)
-  
-  // Extract markets from events
-  const allMarkets = sortedEvents
-    .flatMap(event => (event.markets || []).map(market => ({ ...market, eventId: event.id })))
-  
-  // Transform events data for database (same logic as bulk update)
-  const eventsToInsert: NewEvent[] = sortedEvents.map((event) => {
-    const tags = event.tags || []
-    const tagLabels = tags.map(tag => tag.label)
-    const category = mapTagsToCategory(tagLabels)
-    
-    return {
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      slug: event.slug || null,
-      icon: event.icon || null,
-      image: event.image || null,
-      tags: event.tags ? JSON.stringify(event.tags) : null,
-      category: category,
-      providerCategory: event.category,
-      startDate: event.startDate ? new Date(event.startDate) : null,
-      endDate: event.endDate ? new Date(event.endDate) : null,
-      volume: new Decimal(event.volume),
-      marketProvider: "Polymarket",
-      updatedAt: new Date(),
-    }
-  })
-
-  // Transform markets data for database (same logic as bulk update)
-  const marketsToInsert: NewMarket[] = allMarkets
-    .filter((market): market is any => {
-      const isValid = market && 
-             typeof market === 'object' && 
-             typeof market.id === 'string' &&
-             typeof market.question === 'string' &&
-             typeof market.outcomePrices === 'string' &&
-             typeof market.volume === 'string' &&
-             typeof market.liquidity === 'string' &&
-             typeof market.eventId === 'string'
-      
-      return isValid
-    })
-    .map((market: any) => {
-      let outcomePricesArray: Decimal[] = []
-      try {
-        const parsed = JSON.parse(market.outcomePrices)
-        outcomePricesArray = Array.isArray(parsed) ? parsed.map(p => new Decimal(p.toString())) : []
-      } catch (error) {
-        console.error(`Failed to parse outcomePrices for market ${market.id}:`, error)
-      }
-      
-      return {
-        id: market.id,
-        question: market.question,
-        eventId: market.eventId!,
-        slug: market.slug || null,
-        icon: market.icon || null,
-        image: market.image || null,
-        outcomePrices: outcomePricesArray,
-        outcomes: market.outcomes ? JSON.parse(market.outcomes) : null,
-        volume: new Decimal(market.volume),
-        liquidity: new Decimal(market.liquidity),
-        description: market.description || null,
-        active: market.active ?? null,
-        closed: market.closed ?? null,
-        startDate: market.startDate ? new Date(market.startDate) : null,
-        endDate: market.endDate ? new Date(market.endDate) : null,
-        resolutionSource: market.resolutionSource || null,
-        updatedAt: new Date(),
-      }
-    })
-
-  // Upsert events and markets in batch
-  console.log(`Upserting active events batch: ${eventsToInsert.length} events, ${marketsToInsert.length} markets...`)
-  const [updatedEvents, updatedMarkets] = await Promise.all([
-    eventService.upsertEvents(prisma, eventsToInsert),
-    marketsToInsert.length > 0 ? marketService.upsertMarkets(prisma, marketsToInsert) : Promise.resolve([])
-  ])
-
-  // Handle tags for batch (same logic as bulk update)
-  try {
-    const uniqueTagsMap = new Map<string, { id: string; label: string; slug?: string | null; forceShow?: boolean | null; providerUpdatedAt?: Date | null; provider?: string | null }>()
-    for (const ev of sortedEvents) {
-      const tags = (ev.tags || [])
-      for (const t of tags) {
-        if (!uniqueTagsMap.has(t.id)) {
-          uniqueTagsMap.set(t.id, {
-            id: t.id,
-            label: t.label,
-            slug: t.slug ?? null,
-            forceShow: t.forceShow ?? null,
-            providerUpdatedAt: t.updatedAt ? new Date(t.updatedAt) : null,
-            provider: 'Polymarket',
-          })
-        }
-      }
-    }
-    const tagsToUpsert = Array.from(uniqueTagsMap.values())
-    if (tagsToUpsert.length > 0) {
-      await tagService.upsertTags(prisma, tagsToUpsert)
-    }
-
-    // Refresh event-tag links for active events
-    const eventIdsInBatch = sortedEvents.map(e => e.id)
-    await tagService.unlinkAllTagsFromEvents(prisma, eventIdsInBatch)
-    const links: Array<{ eventId: string; tagId: string }> = []
-    for (const ev of sortedEvents) {
-      const tags = ev.tags || []
-      for (const t of tags) {
-        links.push({ eventId: ev.id, tagId: t.id })
-      }
-    }
-    if (links.length > 0) {
-      await tagService.linkTagsToEvents(prisma, links)
-    }
-  } catch (err) {
-    console.error('Failed to upsert/link tags for active events batch:', err)
-  }
-
-  return {
-    updatedEvents: updatedEvents.filter(Boolean) as Event[],
-    updatedMarkets: updatedMarkets.filter(Boolean) as Market[]
-  }
-}
