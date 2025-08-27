@@ -19,9 +19,11 @@ export interface PredictionSessionDTO {
   createdAt: Date
   completedAt?: Date | null
   predictions: Array<{
-    id: number
+    id: string
     modelName?: string | null
     predictionResult: any
+    outcomes: string[]
+    outcomesProbabilities: number[]
     aiResponse?: string | null
     createdAt?: Date | null
   }>
@@ -79,6 +81,8 @@ export async function getPredictionSessionById(
           id: true,
           modelName: true,
           predictionResult: true,
+          outcomes: true,
+          outcomesProbabilities: true,
           aiResponse: true,
           createdAt: true
         },
@@ -110,7 +114,15 @@ export async function getPredictionSessionById(
     error: session.error,
     createdAt: session.createdAt,
     completedAt: session.completedAt,
-    predictions: session.predictions,
+    predictions: session.predictions.map(pred => ({
+      id: String(pred.id),
+      modelName: pred.modelName,
+      predictionResult: pred.predictionResult,
+      outcomes: pred.outcomes,
+      outcomesProbabilities: pred.outcomesProbabilities?.map(p => Number(p)) || [],
+      aiResponse: pred.aiResponse,
+      createdAt: pred.createdAt
+    })),
     market: session.market
   }
 }
