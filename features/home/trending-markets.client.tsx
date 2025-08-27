@@ -64,11 +64,15 @@ export function TrendingMarkets() {
   const handleShowMore = async () => {
     setIsLoadingMore(true)
     const oldLimit = marketLimit
-    setMarketLimit(prev => prev + 10)
+    const newLimit = oldLimit + 10
+    
+    console.log(`Loading more markets: ${oldLimit} → ${newLimit}`)
+    setMarketLimit(newLimit)
     
     // Wait for the new data to be loaded
     try {
       await refetchMarkets()
+      console.log(`Markets loaded: ${marketsData?.items?.length || 0}, hasMore: ${marketsData?.hasMore}`)
     } finally {
       setIsLoadingMore(false)
     }
@@ -172,7 +176,7 @@ export function TrendingMarkets() {
       )}
 
       {/* Show More Button */}
-      {!marketsLoading && markets.length > 0 && filteredMarkets.length === markets.length && (
+      {!marketsLoading && marketsData?.hasMore && (
         <div className="text-center">
           <button
             onClick={handleShowMore}

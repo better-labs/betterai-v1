@@ -154,10 +154,15 @@ export const marketsRouter = router({
         })) || []
       )
 
+      // Implement proper pagination
+      const totalMarkets = trendingMarkets.length
+      const paginatedMarkets = trendingMarkets.slice(0, input.limit)
+      const hasMore = totalMarkets > input.limit
+
       return {
-        items: trendingMarkets.slice(0, input.limit),
-        nextCursor: null,
-        hasMore: false,
+        items: paginatedMarkets,
+        nextCursor: hasMore ? String(input.limit) : null,
+        hasMore,
       }
     }),
 

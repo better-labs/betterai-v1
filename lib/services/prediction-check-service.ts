@@ -1,12 +1,12 @@
 import type { PrismaClient, PredictionCheck } from '@/lib/generated/prisma'
 import { Prisma } from '@/lib/generated/prisma'
-import { mapPredictionCheckToDTO, mapPredictionChecksToDTO } from '@/lib/dtos/prediction-check-dto'
+import { mapPredictionChecksToDTO } from '@/lib/dtos/prediction-check-dto'
 import type { PredictionCheckDTO } from '@/lib/types'
 
 /**
  * Prediction Check service functions following clean service pattern:
  * - Accept db instance for dependency injection
- * - Return DTOs for serialized responses
+ * - Return DTOs for responses
  * - Support both PrismaClient and TransactionClient
  * - Clean named exports instead of object namespaces
  */
@@ -46,19 +46,12 @@ export async function getRecentByMarket(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   marketId: string,
   limit = 50
-): Promise<PredictionCheck[]> {
-  return await db.predictionCheck.findMany({
+): Promise<PredictionCheckDTO[]> {
+  const checks = await db.predictionCheck.findMany({
     where: { marketId },
     orderBy: { createdAt: 'desc' },
     take: limit,
   })
-}
-
-export async function getRecentByMarketSerialized(
-  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
-  marketId: string,
-  limit = 50
-): Promise<PredictionCheckDTO[]> {
-  const checks = await getRecentByMarket(db, marketId, limit)
   return mapPredictionChecksToDTO(checks)
 }
+

@@ -40,7 +40,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   // Optional history: recent checks and past predictions for this market
   const marketId = market?.id
   const [checks, pastPredictions]: [PredictionCheckDTO[], PredictionDTO[]] = await Promise.all([
-    marketId ? predictionCheckService.getRecentByMarketSerialized(prisma, marketId, 25) : Promise.resolve([]),
+    marketId ? predictionCheckService.getRecentByMarket(prisma, marketId, 25) : Promise.resolve([]),
     marketId ? predictionService.getPredictionsByMarketIdSerialized(prisma, marketId) : Promise.resolve([]),
   ])
 
