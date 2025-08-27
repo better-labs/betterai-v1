@@ -129,7 +129,7 @@ export default function MarketDetailsCard({
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
-        <div className={`flex items-start gap-4 ${!latestPrediction ? 'justify-center' : ''}`}>
+        <div className={`flex items-start gap-4`}>
           <div className={latestPrediction ? "flex-1" : "w-full max-w-md"}>
             <Link 
               href={`/market/${market.id}`}

@@ -211,7 +211,7 @@ export const components = {
     container: 'space-y-1',
     
     // Individual outcome row with consistent spacing
-    row: 'flex items-center gap-3 text-sm border border-border rounded px-3 py-2',
+    row: 'flex items-center gap-3 text-sm px-3 py-2',
     
     // Label styling (e.g., "Yes", "No", "Outcome A")
     label: 'truncate',
@@ -221,7 +221,7 @@ export const components = {
     
     // Compact variant for smaller spaces
     compact: {
-      row: 'flex items-center gap-2 text-xs border border-border rounded px-2 py-1.5',
+      row: 'flex items-center gap-2 text-xs px-2 py-1.5',
       label: 'truncate',
       value: 'font-semibold tabular-nums',
     }
