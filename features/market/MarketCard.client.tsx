@@ -24,6 +24,7 @@ interface MarketDetailsCardProps {
   latestPrediction?: Prediction | null
   href?: string | null
   hidePredictionButton?: boolean
+  hideReasoning?: boolean
 }
 
 export default function MarketDetailsCard({
@@ -34,6 +35,7 @@ export default function MarketDetailsCard({
   latestPrediction,
   href = null,
   hidePredictionButton = false,
+  hideReasoning = false,
 }: MarketDetailsCardProps) {
   const lastUpdatedLabel = `Last updated: ${market.updatedAt ? new Date(market.updatedAt).toLocaleString(undefined, {
     year: 'numeric',
@@ -242,7 +244,7 @@ export default function MarketDetailsCard({
                 align="center"
               />
             </div>
-            {latestPrediction?.predictionResult?.reasoning && (
+            {latestPrediction?.predictionResult?.reasoning && !hideReasoning && (
               <div className="flex-1 min-w-0">
                 <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Reasoning</div>
                 <p className="text-xs text-muted-foreground leading-relaxed">

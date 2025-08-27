@@ -20,6 +20,7 @@ type MarketItem = TrendingMarketsResponse['items'][number]
 export function TrendingMarkets() {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [marketLimit, setMarketLimit] = useState(10)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   
   // Fetch trending markets using tRPC
   const {
@@ -60,8 +61,17 @@ export function TrendingMarkets() {
     setSelectedTagIds([])
   }
 
-  const handleShowMore = () => {
+  const handleShowMore = async () => {
+    setIsLoadingMore(true)
+    const oldLimit = marketLimit
     setMarketLimit(prev => prev + 10)
+    
+    // Wait for the new data to be loaded
+    try {
+      await refetchMarkets()
+    } finally {
+      setIsLoadingMore(false)
+    }
   }
 
   // Filter markets by selected tags if any tags are selected
@@ -166,12 +176,21 @@ export function TrendingMarkets() {
         <div className="text-center">
           <button
             onClick={handleShowMore}
-            disabled={marketsLoading}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={marketsLoading || isLoadingMore}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-manipulation"
             aria-label="Load more trending markets"
           >
-            <span>Show More Markets</span>
-            <ChevronDown className="h-4 w-4" />
+            {isLoadingMore ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                <span className="font-medium">Loading More...</span>
+              </>
+            ) : (
+              <>
+                <span className="font-medium">Show More Markets</span>
+                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+              </>
+            )}
           </button>
         </div>
       )}
