@@ -117,13 +117,13 @@ export const components = {
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
     
-    // Flex-based search input with icons (INDUSTRY STANDARD)
+    // Simplified search input with relative positioning (INDUSTRY STANDARD)
     search: {
-      container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'flex items-center justify-center w-12 h-10 pl-3', // Fixed width container with left padding for proper icon spacing
-      input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'flex items-center justify-center w-12 h-10 pr-3', // Fixed width container for right icon with right padding
-      button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
+      container: 'relative flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
+      iconLeft: 'absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none',
+      input: 'w-full pl-10 pr-10 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
+      iconRight: 'absolute right-3 h-4 w-4 text-muted-foreground',
+      button: 'absolute right-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
   },

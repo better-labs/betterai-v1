@@ -25,7 +25,7 @@ export async function getTrendingEventsWithMarkets(
   withPredictions = false
 ): Promise<any[]> {
   const cryptoLabelFilter = ["Crypto"] // Exclude crypto markets from trending
-  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+  const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
   
   const whereClause: any = {}
   
@@ -35,7 +35,7 @@ export async function getTrendingEventsWithMarkets(
         predictions: {
           some: {
             createdAt: {
-              gte: threeDaysAgo
+              gte: twoDaysAgo
             }
           }
         }
@@ -72,7 +72,7 @@ export async function getTrendingEventsWithMarkets(
           predictions: {
             some: {
               createdAt: {
-                gte: threeDaysAgo
+                gte: twoDaysAgo
               }
             }
           }
@@ -84,7 +84,7 @@ export async function getTrendingEventsWithMarkets(
           predictions: {
             where: {
               createdAt: {
-                gte: threeDaysAgo
+                gte: twoDaysAgo
               }
             },
             orderBy: { createdAt: 'desc' },
