@@ -136,9 +136,9 @@ export default function MarketDetailsCard({
                       value={
                         <div className="space-y-1">
                           {market.outcomes?.map((outcome, i) => (
-                            <div key={i} className="flex justify-between text-sm border border-border rounded px-2 py-1">
-                              <span className="truncate">{outcome}</span>
-                              <span className="font-semibold tabular-nums ml-2">
+                            <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
+                              <span className="truncate pr-4">{outcome}</span>
+                              <span className="font-semibold tabular-nums">
                                 {formatPercent(market.outcomePrices?.[i])}
                               </span>
                             </div>
@@ -167,9 +167,9 @@ export default function MarketDetailsCard({
                         latestPrediction ? (
                           <div className="space-y-1">
                             {latestPrediction.outcomes?.map((outcome, i) => (
-                              <div key={i} className="flex justify-between text-sm border border-border rounded px-2 py-1">
-                                <span className="truncate">{outcome}</span>
-                                <span className="font-semibold tabular-nums ml-2">
+                              <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
+                                <span className="truncate pr-4">{outcome}</span>
+                                <span className="font-semibold tabular-nums">
                                   {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
                                 </span>
                               </div>
