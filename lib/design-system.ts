@@ -117,12 +117,12 @@ export const components = {
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
     
-    // Flex-based search input with icons (RECOMMENDED PATTERN)
+    // Flex-based search input with icons (INDUSTRY STANDARD)
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'flex items-center justify-center px-2', // Left icon container with horizontal padding
+      iconLeft: 'flex items-center justify-center w-12', // Fixed width container (48px) for consistent spacing
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'flex items-center justify-center pr-4',
+      iconRight: 'flex items-center justify-center w-12', // Fixed width container for right icon
       button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
     }
 
@@ -179,12 +179,12 @@ export const components = {
     nonInteractiveOverlay: 'absolute inset-0 pointer-events-none',
     interactiveZone: 'relative z-10 pointer-events-auto',
     
-    // Flex-based search input with icons (RECOMMENDED PATTERN)
+    // Flex-based search input with icons (INDUSTRY STANDARD)
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'flex items-center justify-center px-2', // Left icon container with horizontal padding
+      iconLeft: 'flex items-center justify-center w-12', // Fixed width container (48px) for consistent spacing
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'flex items-center justify-center pr-4',
+      iconRight: 'flex items-center justify-center w-12', // Fixed width container for right icon
       button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
     }
   }
@@ -195,10 +195,10 @@ export const components = {
 // ============================================================================
 
 /**
- * FLEX-BASED SEARCH INPUT PATTERN (RECOMMENDED)
+ * FLEX-BASED SEARCH INPUT PATTERN (INDUSTRY STANDARD)
  * 
- * This pattern uses flexbox for predictable, accessible search inputs with icons.
- * Preferred over absolute positioning for better browser compatibility and maintainability.
+ * This pattern uses flexbox with fixed-width icon containers for predictable, 
+ * accessible search inputs. This is the most common approach used by major web applications.
  * 
  * Structure:
  * ```html
@@ -216,11 +216,18 @@ export const components = {
  * ```
  * 
  * Advantages:
- * - Predictable left-to-right layout flow
+ * - Fixed 48px (w-12) icon containers ensure consistent spacing
+ * - Predictable layout across all screen sizes and browsers
  * - No z-index or absolute positioning conflicts
- * - Natural responsive behavior
  * - Better accessibility and tab order
- * - Standard pattern used by major web applications
+ * - Industry standard used by Google, GitHub, and most modern web apps
+ * - Easy to add multiple icons or adjust spacing
+ * 
+ * Spacing Standards:
+ * - Left icon: 48px fixed width (w-12)
+ * - Right icon: 48px fixed width (w-12) 
+ * - Input padding: 12px horizontal (px-3)
+ * - Icon size: 16px (h-4)
  * 
  * Avoid: Absolute positioning with multiple overlapping elements
  */

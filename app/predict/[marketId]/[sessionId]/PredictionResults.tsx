@@ -340,7 +340,7 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
                   className="flex-shrink-0"
                 >
                   <ExternalLink className="mr-2 h-3 w-3" />
-                  View Prediction Details
+                  Details
                 </Button>
               )}
             </div>
