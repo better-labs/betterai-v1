@@ -6,7 +6,6 @@ import { PredictionReasoningCard } from "@/features/prediction/PredictionReasoni
 
 import * as predictionCheckService from '@/lib/services/prediction-check-service'
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
-import { PredictionUserMessageCard } from "@/features/prediction/PredictionUserMessageCard.client"
 import MarketDetailsCard from '@/features/market/MarketCard.client'
 import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
@@ -65,11 +64,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         )}
 
         <PredictionReasoningCard reasoning={reasoning} />
-
-        {/* First: Prompt message */}
-        <PredictionUserMessageCard userMessage={prediction.userMessage} />
-
-        {/* Then: Past predictions only */}
+        {/* Past predictions only */}
         <PredictionHistoryList
           className="mt-2"
           checks={checks}

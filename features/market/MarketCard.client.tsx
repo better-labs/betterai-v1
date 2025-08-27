@@ -12,7 +12,7 @@ import { Stat, StatGroup } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent } from '@/lib/utils'
-import { computeDeltaFromArrays } from '@/lib/delta'
+import { computeDeltaFromArrays, DELTA_TOOLTIP } from '@/lib/delta'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
@@ -208,7 +208,7 @@ export default function MarketDetailsCard({
               <Stat
                 label="AI Delta"
                 value={delta != null ? formatPercent(delta) : '—'}
-                tooltip="Absolute difference between market and AI probabilities"
+                tooltip={DELTA_TOOLTIP}
                 tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
                 density="compact"
                 align="center"

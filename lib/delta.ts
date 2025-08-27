@@ -1,5 +1,7 @@
 import { toUnitProbability } from './utils'
 
+export const DELTA_TOOLTIP = 'Absolute difference between Market and AI probabilities'
+
 export function computeDeltaFromArrays(
   marketOutcomePrices: unknown[] | null | undefined,
   aiOutcomesProbabilities: unknown[] | null | undefined

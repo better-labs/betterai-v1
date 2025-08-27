@@ -4,7 +4,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
 import { Button } from "@/shared/ui/button"
 import { formatPercent } from '@/lib/utils'
-import { computeDeltaFromArrays } from '@/lib/delta'
+import { computeDeltaFromArrays, DELTA_TOOLTIP } from '@/lib/delta'
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import Link from 'next/link'
 import { Sparkline } from '@/shared/ui/charts/sparkline.client'
 import { useRouter } from 'next/navigation'
@@ -101,10 +102,9 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[160px]">Time</TableHead>
+                  <TableHead className="w-[160px]">Date</TableHead>
                   <TableHead className="text-right">Delta</TableHead>
                   <TableHead className="hidden md:table-cell">Model</TableHead>
-                  <TableHead className="w-[200px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -117,34 +117,29 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                   const isClickable = !!p.id
                   
                   return (
-                    <TableRow key={idx}>
+                    <TableRow 
+                      key={idx}
+                      onClick={() => isClickable && handlePredictionClick(p.id!)}
+                      className={isClickable ? "cursor-pointer hover:bg-muted/40" : undefined}
+                      role={isClickable ? "button" : undefined}
+                      data-debug-id={isClickable ? "prediction-row" : undefined}
+                    >
                       <TableCell className="text-xs text-muted-foreground">
-                        {new Date(p.createdAt).toLocaleString()}
+                        {new Date(p.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                       </TableCell>
                       <TableCell className={`text-right tabular-nums ${getDeltaColor(delta)}`}>
-                        {delta !== null ? formatPercent(delta) : '—'}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>{delta !== null ? formatPercent(delta) : '—'}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{DELTA_TOOLTIP}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{p.modelName || '—'}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          
-                          {isClickable && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handlePredictionClick(p.id!)
-                              }}
-                              className="flex items-center gap-1"
-                              data-debug-id="view-prediction-button"
-                            >
-                              <Eye className="h-3 w-3" />
-                              <span className="hidden sm:inline">View</span>
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground hidden md:table-cell">{p.modelName || '—'}</TableCell>
                     </TableRow>
                   )
                 })}
