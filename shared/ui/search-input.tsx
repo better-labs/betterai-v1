@@ -18,11 +18,15 @@ export function SearchInput({
   placeholder = "Search...",
   className 
 }: SearchInputProps) {
+  const id = typeof window === 'undefined' ? undefined : 'global-search-input'
   return (
     <div className={`${components.input.search.container} ${className || ''}`}>
       <Search className={components.input.search.iconLeft} />
       <input
         type="text"
+        id={id}
+        name={id}
+        aria-label={placeholder || 'Search'}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
