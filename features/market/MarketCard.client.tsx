@@ -108,22 +108,16 @@ export default function MarketDetailsCard({
               image={event.image}
               icon={event.icon}
               title={event.title}
-              size="md"
+              size="twoxl"
               className="flex-shrink-0"
             />
           )}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-muted-foreground truncate">
-              {event?.title ?? 'Event'}
-            </h3>
-          </div>
+          <CardTitle className="text-base leading-tight">
+          {market.question}
+        </CardTitle>  
         </div>
         
-        {/* Market Question */}
-        <CardTitle className="text-base leading-tight mb-3">
-          {market.question}
-
-        </CardTitle>
+        
       </CardHeader>
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
