@@ -7,7 +7,7 @@ interface EventIconProps {
   image?: string | null
   icon?: string | null
   title: string
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'twoxl' 
   className?: string
 }
 
@@ -18,13 +18,17 @@ export function EventIcon({ image, icon, title, size = 'md', className = '' }: E
   const sizeClasses = {
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
-    lg: 'w-10 h-10'
+    lg: 'w-10 h-10',
+    xl: 'w-12 h-12',
+    twoxl: 'w-16 h-16'
   }
 
   const textSizeClasses = {
     sm: 'text-xs',
     md: 'text-xs',
-    lg: 'text-sm'
+    lg: 'text-sm',
+    xl: 'text-base',
+    twoxl: 'text-lg'
   }
 
   const srcCandidate = loadError ? null : (image || icon || null)

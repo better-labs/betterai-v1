@@ -135,6 +135,9 @@ export const marketsRouter = router({
               : market.predictions[0].outcomesProbabilities,
             createdAt: market.predictions[0].createdAt?.toISOString() || null,
             modelName: market.predictions[0].modelName,
+            predictionResult: typeof market.predictions[0].predictionResult === 'string'
+              ? JSON.parse(market.predictions[0].predictionResult)
+              : market.predictions[0].predictionResult,
           } : null,
           event: {
             id: event.id,

@@ -100,114 +100,172 @@ export default function MarketDetailsCard({
 
   const card = (
     <Card className={className} data-debug-id="market-card">
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-3">
         {/* Event Icon and Title */}
-        <div className="flex items-center gap-3 mb-2">
+        <Link 
+          href={`/market/${market.id}`}
+          className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity"
+        >
           {event && (
             <EventIcon
               image={event.image}
               icon={event.icon}
               title={event.title}
-              size="md"
+              size="twoxl"
               className="flex-shrink-0"
             />
           )}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-muted-foreground truncate">
-              {event?.title ?? 'Event'}
-            </h3>
-          </div>
-        </div>
-        
-        {/* Market Question */}
-        <CardTitle className="text-base leading-tight mb-3">
+          <CardTitle className="text-base leading-tight">
           {market.question}
-
-        </CardTitle>
+        </CardTitle>  
+        </Link>
+        
+        
       </CardHeader>
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
-        <div>
-          <StatGroup className="grid-cols-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Stat
-                      label="Market Probability"
-                      value={
-                        <div className="space-y-1">
-                          {market.outcomes?.map((outcome, i) => (
-                            <div key={i} className="flex justify-between text-sm border border-border rounded px-2 py-1">
-                              <span className="truncate">{outcome}</span>
-                              <span className="font-semibold tabular-nums ml-2">
-                                {formatPercent(market.outcomePrices?.[i])}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      }
-                      density="compact"
-                      align="left"
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{lastUpdatedLabel}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            {/* AI Prediction Stats */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Stat
-                      label="AI Prediction"
-                      value={
-                        latestPrediction ? (
+        <div className="flex items-start gap-4">
+          <div className="flex-1">
+            <Link 
+              href={`/market/${market.id}`}
+              className="block hover:opacity-80 transition-opacity"
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Stat
+                        label="Market Probability"
+                        value={
                           <div className="space-y-1">
-                            {latestPrediction.outcomes?.map((outcome, i) => (
-                              <div key={i} className="flex justify-between text-sm border border-border rounded px-2 py-1">
-                                <span className="truncate">{outcome}</span>
-                                <span className="font-semibold tabular-nums ml-2">
-                                  {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
+                            {market.outcomes?.map((outcome, i) => (
+                              <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
+                                <span className="truncate pr-4">{outcome}</span>
+                                <span className="font-semibold tabular-nums">
+                                  {formatPercent(market.outcomePrices?.[i])}
                                 </span>
                               </div>
                             ))}
                           </div>
-                        ) : (
+                        }
+                        density="compact"
+                        align="left"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{lastUpdatedLabel}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Link>
+          </div>
+            
+          {/* AI Prediction Stats */}
+          <div className="flex-1">
+            {latestPrediction ? (
+              <Link 
+                href={`/prediction/${latestPrediction.id}`}
+                className="block hover:opacity-80 transition-opacity"
+              >
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Stat
+                          label="AI Prediction"
+                          value={
+                            <div className="space-y-1">
+                              {latestPrediction.outcomes?.map((outcome, i) => (
+                                <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
+                                  <span className="truncate pr-4">{outcome}</span>
+                                  <span className="font-semibold tabular-nums">
+                                    {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          }
+                          density="compact"
+                          align="left"
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{lastGeneratedLabel}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </Link>
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Stat
+                        label="AI Prediction"
+                        value={
                           <div className="text-sm text-muted-foreground py-2">
                             No prediction yet
                           </div>
-                        )
-                      }
-                      density="compact"
-                      align="left"
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{lastGeneratedLabel}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </StatGroup>
+                        }
+                        density="compact"
+                        align="left"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{lastGeneratedLabel}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
         </div>
 
         {/* AI Delta */}
-        <div>
-          <Stat
-            label="AI Delta"
-            value={delta != null ? formatPercent(delta) : '—'}
-            tooltip="Absolute difference between market and AI probabilities"
-            tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
-            density="compact"
-            align="center"
-          />
-        </div>
+        {latestPrediction ? (
+          <Link 
+            href={`/prediction/${latestPrediction.id}`}
+            className="flex items-start gap-4 hover:opacity-80 transition-opacity"
+          >
+            <div className="flex-shrink-0">
+              <Stat
+                label="AI Delta"
+                value={delta != null ? formatPercent(delta) : '—'}
+                tooltip="Absolute difference between market and AI probabilities"
+                tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
+                density="compact"
+                align="center"
+              />
+            </div>
+            {latestPrediction?.predictionResult?.reasoning && (
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Reasoning</div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {latestPrediction.predictionResult.reasoning.length > 120 
+                    ? `${latestPrediction.predictionResult.reasoning.slice(0, 120)}...`
+                    : latestPrediction.predictionResult.reasoning
+                  }
+                </p>
+              </div>
+            )}
+          </Link>
+        ) : (
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <Stat
+                label="AI Delta"
+                value="—"
+                tooltip="Absolute difference between market and AI probabilities"
+                tone="neutral"
+                density="compact"
+                align="center"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Generate New AI Prediction Button */}
         <div className="pt-2">

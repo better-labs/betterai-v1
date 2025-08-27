@@ -48,6 +48,11 @@ export async function getTrendingEventsWithMarkets(
     gt: new Date()
   }
   
+  // Only show events updated in the past 2 days
+  whereClause.updatedAt = {
+    gte: twoDaysAgo
+  }
+  
   // Exclude events with crypto tags
   whereClause.NOT = {
     eventTags: {
@@ -95,6 +100,7 @@ export async function getTrendingEventsWithMarkets(
               outcomesProbabilities: true,
               createdAt: true,
               modelName: true,
+              predictionResult: true,
             }
           }
         } : {}
@@ -143,10 +149,16 @@ export async function getTrendingEventsWithMarkets(
           }
         })
       
-      // If no markets have predictions, take the highest volume market
-      const bestMarket = marketsWithDelta.length > 0
-        ? marketsWithDelta.sort((a: any, b: any) => b.delta - a.delta)[0]
-        : event.markets[0] // Fallback to highest volume market
+      // Filter markets with significant delta (> 0.009) and sort by highest delta
+      const significantDeltaMarkets = marketsWithDelta.filter((market: any) => market.delta > 0.009)
+      
+      // If no markets have significant delta, skip this event
+      const bestMarket = significantDeltaMarkets.length > 0
+        ? significantDeltaMarkets.sort((a: any, b: any) => b.delta - a.delta)[0]
+        : null
+      
+      // Skip events without significant delta markets
+      if (!bestMarket) return null
       
       return {
         ...event,
