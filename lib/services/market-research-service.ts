@@ -1,8 +1,7 @@
 import { prisma } from '../db/prisma'
 import * as marketService from './market-service'
 import * as researchCacheService from './research-cache-service'
-
-const DEFAULT_MODEL = 'google/gemini-2.0-flash-thinking-exp'
+import { DEFAULT_MODEL } from '../config/ai-models'
 import { z } from 'zod';
 import { fetchStructuredFromOpenRouter } from './openrouter-client';
 

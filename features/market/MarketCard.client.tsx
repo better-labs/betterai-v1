@@ -226,7 +226,7 @@ export default function MarketDetailsCard({
           {/* Date metadata row */}
           <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
             <span className={components.cardFooter.timestamp}>
-              Last updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
+              Market data last updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
             </span>
             {event?.endDate && (
               <span className={components.cardFooter.timestamp}>

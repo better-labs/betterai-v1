@@ -120,9 +120,9 @@ export const components = {
     // Flex-based search input with icons (INDUSTRY STANDARD)
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'flex items-center justify-center w-12 h-10', // Fixed width container (48px) with height for proper centering
+      iconLeft: 'flex items-center justify-center w-12 h-10 pl-3', // Fixed width container with left padding for proper icon spacing
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'flex items-center justify-center w-12 h-10', // Fixed width container for right icon with height
+      iconRight: 'flex items-center justify-center w-12 h-10 pr-3', // Fixed width container for right icon with right padding
       button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
     }
 
