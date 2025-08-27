@@ -226,21 +226,28 @@ export default function MarketDetailsCard({
           {/* Date metadata row */}
           <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
             <span className={components.cardFooter.timestamp}>
-              Market data updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
+              Market updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
             </span>
-            {event?.endDate && (
+            {latestPrediction && (
               <span className={components.cardFooter.timestamp}>
-                Ends: {new Date(event.endDate).toLocaleDateString()}
+                Prediction updated: {new Date(latestPrediction.createdAt).toLocaleDateString()}
               </span>
             )}
           </div>
           
           {/* Prediction metadata row */}
           {latestPrediction && (
-            <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single} mb-2`}>
+            <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
+            {event?.endDate && (
               <span className={components.cardFooter.timestamp}>
-                Prediction data updated: {new Date(latestPrediction.createdAt).toLocaleDateString()}
+                Ends: {new Date(event.endDate).toLocaleDateString()}
               </span>
+            )}  
+              {latestPrediction.modelName && (
+                <span className={components.cardFooter.timestamp}>
+                  AI Model: {latestPrediction.modelName}
+                </span>
+              )}
             </div>
           )}
           
