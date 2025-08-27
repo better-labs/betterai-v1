@@ -111,6 +111,32 @@ export const layout = {
 } as const;
 
 // ============================================================================
+// INTERACTION TOKENS (touch targets, interactive elements)
+// ============================================================================
+
+export const interaction = {
+  // Touch target sizes following WCAG and platform guidelines
+  touchTarget: {
+    // Minimum for WCAG 2.2 AA compliance
+    minimum: 'w-6 h-6',     // 24px - basic compliance
+    // Recommended for WCAG 2.1 AAA and optimal UX  
+    standard: 'w-11 h-11',  // 44px - iOS/Android standard
+    // Enhanced for complex interactive elements
+    enhanced: 'w-16 h-16',  // 64px - search icons, complex controls
+  },
+  
+  // Interactive container widths (for icon containers, etc.)
+  container: {
+    // Minimum functional width for icon containers
+    minWidth: 'w-16',       // 64px - ensures proper flex layout
+    // Standard width for most interactive containers  
+    standard: 'w-12',       // 48px - basic icon containers
+    // Compact width for tight layouts
+    compact: 'w-10',        // 40px - minimal but functional
+  }
+} as const;
+
+// ============================================================================
 // CORE TOKENS (radii, elevation, durations, z-index)
 // ============================================================================
 
@@ -212,21 +238,12 @@ export const accessibility = {
 // ============================================================================
 
 export const typography = {
-  // Fluid typography with clamp() for optimal responsive scaling
-  h1: 'text-[clamp(1.75rem,4vw,3rem)] font-bold leading-tight', // 28px-48px
-  h2: 'text-[clamp(1.5rem,3vw,2rem)] font-semibold leading-tight', // 24px-32px
-  h3: 'text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold leading-tight', // 20px-24px
-  h4: 'text-[clamp(1.125rem,2vw,1.25rem)] font-medium leading-tight', // 18px-20px
-  h5: 'text-base font-medium leading-tight',
-  h6: 'text-sm font-medium leading-tight',
-  
-  // Traditional responsive typography (alternative to fluid)
-  responsive: {
+ 
     h1: 'text-2xl md:text-3xl lg:text-4xl font-bold leading-tight',
     h2: 'text-xl md:text-2xl lg:text-3xl font-semibold leading-tight',
     h3: 'text-lg md:text-xl lg:text-2xl font-semibold leading-tight',
     h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
-  },
+ 
   
   // Body text with fluid scaling
   body: 'text-[clamp(0.875rem,1.5vw,1rem)] leading-relaxed', // 14px-16px
@@ -276,9 +293,9 @@ export const components = {
     // Simplified search input using flex-based layout (INDUSTRY STANDARD)
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'w-12 flex items-center justify-center text-muted-foreground',   // fixed width left
+      iconLeft: `${interaction.container.minWidth} flex items-center justify-center text-muted-foreground px-2`,   // semantic min width for proper layout
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
-      iconRight: 'w-12 flex items-center justify-center text-muted-foreground', // fixed width right
+      iconRight: `${interaction.container.minWidth} flex items-center justify-center text-muted-foreground px-2`, // semantic min width for proper layout
       button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
@@ -485,10 +502,11 @@ export const components = {
  * - Easy to add multiple icons or adjust spacing
  * 
  * Spacing Standards:
- * - Left icon: 48px fixed width (w-12)
- * - Right icon: 48px fixed width (w-12) 
+ * - Left icon: 64px minimum width (interaction.container.minWidth) - ensures proper flex layout
+ * - Right icon: 64px minimum width (interaction.container.minWidth) - ensures proper flex layout
  * - Input padding: 12px horizontal (px-3)
  * - Icon size: 16px (h-4)
+ * - Additional padding: 8px horizontal (px-2) on icon containers
  * 
  * Avoid: Absolute positioning with multiple overlapping elements
  */
@@ -610,3 +628,4 @@ export type SpacingKey = keyof typeof spacing;
 export type LayoutKey = keyof typeof layout;
 export type TypographyKey = keyof typeof typography;
 export type ComponentKey = keyof typeof components;
+export type InteractionKey = keyof typeof interaction;

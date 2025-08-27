@@ -136,11 +136,11 @@ export function TrendingMarkets() {
     <section className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className={`${typography.h2} flex items-center justify-center gap-2`}>
+        <h2 className={`${typography.h1} flex items-center justify-center gap-2`}>
           <TrendingUp className="text-primary" />
           Trending Markets
         </h2>
-        <p className="text-muted-foreground ">
+        <p className={`${typography.body} text-muted-foreground `}>
           Markets with the highest dailytrading volume
         </p>
       </div>
