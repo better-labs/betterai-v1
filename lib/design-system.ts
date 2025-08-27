@@ -69,17 +69,47 @@ export const layout = {
 } as const;
 
 // ============================================================================
+// CORE TOKENS (radii, elevation, durations, z-index)
+// ============================================================================
+
+export const radii = {
+  sm: 'rounded-sm',
+  md: 'rounded-md',
+  lg: 'rounded-lg',
+  full: 'rounded-full',
+} as const;
+
+export const elevation = {
+  sm: 'shadow-sm',
+  md: 'shadow-md',
+  lg: 'shadow-lg',
+} as const;
+
+export const duration = {
+  fast: 'duration-150',
+  normal: 'duration-200',
+  slow: 'duration-300',
+} as const;
+
+export const zIndex = {
+  dropdown: 'z-20',
+  popover: 'z-30',
+  modal: 'z-50',
+  toast: 'z-50',
+} as const;
+
+// ============================================================================
 // TYPOGRAPHY SCALE
 // ============================================================================
 
 export const typography = {
   // Font sizes with consistent line heights
-  h1: 'text-3xl font-bold leading-tight mb-6',
-  h2: 'text-2xl font-semibold leading-tight mb-6',
-  h3: 'text-xl font-semibold leading-tight mb-4',
-  h4: 'text-lg font-medium leading-tight mb-3',
-  h5: 'text-md font-medium leading-tight mb-2',
-  h6: 'text-sm font-medium leading-tight mb-2',
+  h1: 'text-3xl font-bold leading-tight',
+  h2: 'text-2xl font-semibold leading-tight',
+  h3: 'text-xl font-semibold leading-tight',
+  h4: 'text-lg font-medium leading-tight',
+  h5: 'text-base font-medium leading-tight',
+  h6: 'text-sm font-medium leading-tight',
   
   // Body text
   body: 'text-base leading-relaxed',
@@ -107,9 +137,9 @@ export const components = {
   button: {
     base: 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
     size: {
-      sm: 'btn-sm',
-      md: 'btn-md', 
-      lg: 'btn-lg',
+      sm: 'h-8 px-3 text-sm',
+      md: 'h-10 px-4 text-sm', 
+      lg: 'h-11 px-6 text-base',
     },
     variant: {
       // High emphasis - most important actions (e.g., "Predict with AI")
@@ -126,13 +156,13 @@ export const components = {
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
     
-    // Simplified search input with relative positioning (INDUSTRY STANDARD)
+    // Simplified search input using flex-based layout (INDUSTRY STANDARD)
     search: {
-      container: 'relative flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none',
-      input: 'w-full pl-10 pr-10 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'absolute right-3 h-4 w-4 text-muted-foreground',
-      button: 'absolute right-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
+      container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
+      iconLeft: 'w-12 flex items-center justify-center text-muted-foreground',
+      input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
+      iconRight: 'w-12 flex items-center justify-center text-muted-foreground',
+      button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
   },
