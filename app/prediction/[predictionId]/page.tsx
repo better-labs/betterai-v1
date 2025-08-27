@@ -72,6 +72,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           marketId={marketId ?? null}
           showChecks={false}
           showPredictions={true}
+          currentMarketOutcomePrices={marketDTO?.outcomePrices ?? null}
         />
       </div>
       </div>

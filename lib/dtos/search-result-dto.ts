@@ -1,8 +1,10 @@
 import { serializeDecimals } from "@/lib/serialization"
 import type { Market, Event, Tag, Prediction } from "@/lib/generated/prisma"
 import type { MarketDTO, EventDTO, PredictionDTO, TagDTO } from "@/lib/types"
-import { mapMarketsToDTO } from "./market-dto"
+import { mapMarketToDTO } from "./market-dto"
 import { mapEventsToDTO } from "./event-dto"
+import { mapPredictionsToDTO } from "./prediction-dto"
+import { mapEventToDTO } from "./event-dto"
 
 
 
@@ -62,7 +64,11 @@ export function mapSearchResultToDTO(result: {
   suggestions?: string[]
 }): SearchResultDTO {
   return {
-    markets: mapMarketsToDTO(result.markets),
+    markets: result.markets.map(market => ({
+      ...mapMarketToDTO(market),
+      event: market.event ? mapEventToDTO(market.event) : null,
+      predictions: mapPredictionsToDTO(market.predictions)
+    })),
     events: mapEventsToDTO(result.events),
     tags: mapTagsToDTO(result.tags),
     totalResults: result.totalResults,

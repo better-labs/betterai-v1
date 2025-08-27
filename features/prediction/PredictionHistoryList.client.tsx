@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
 import { Button } from "@/shared/ui/button"
 import { formatPercent } from '@/lib/utils'
-import { computeDeltaFromArrays, DELTA_TOOLTIP } from '@/lib/delta'
+import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaColor } from '@/lib/delta'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import Link from 'next/link'
 import { Sparkline } from '@/shared/ui/charts/sparkline.client'
@@ -25,9 +25,10 @@ interface PredictionHistoryListProps {
   marketId?: string | null
   showChecks?: boolean
   showPredictions?: boolean
+  currentMarketOutcomePrices?: Array<unknown> | null
 }
 
-export function PredictionHistoryList({ checks, predictions, className, marketId, showChecks = true, showPredictions = true }: PredictionHistoryListProps) {
+export function PredictionHistoryList({ checks, predictions, className, marketId, showChecks = true, showPredictions = true, currentMarketOutcomePrices }: PredictionHistoryListProps) {
   const router = useRouter()
   const hasChecks = !!checks && checks.length > 0
   const hasPredictions = !!predictions && predictions.length > 0
@@ -39,13 +40,6 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
     router.push(`/prediction/${predictionId}`)
   }
 
-  // Color coding based on delta magnitude (reused from prediction components)
-  const getDeltaColor = (delta: number | null) => {
-    if (delta == null) return 'text-muted-foreground'
-    if (delta >= 0.10) return 'text-green-600' // High disagreement - major AI insight!
-    if (delta >= 0.05) return 'text-yellow-600' // Small disagreement
-    return 'text-foreground' // Close agreement - no color
-  }
 
   return (
     <div className={className}>
@@ -110,7 +104,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
               <TableBody>
                 {predictions!.map((p, idx) => {
                   const delta = computeDeltaFromArrays(
-                    Array.isArray(p.marketOutcomePrices) ? (p.marketOutcomePrices as unknown[]) : null,
+                    currentMarketOutcomePrices,
                     Array.isArray(p.outcomesProbabilities) ? (p.outcomesProbabilities as unknown[]) : null
                   )
                   

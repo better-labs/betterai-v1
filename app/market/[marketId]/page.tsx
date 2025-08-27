@@ -153,6 +153,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               showChecks={false}
               showPredictions={true}
               className="mt-6"
+              currentMarketOutcomePrices={serializedMarket.outcomePrices ?? null}
             />
           )}
         </div>

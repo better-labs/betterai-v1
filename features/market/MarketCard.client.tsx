@@ -12,7 +12,7 @@ import { Stat, StatGroup } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent } from '@/lib/utils'
-import { computeDeltaFromArrays, DELTA_TOOLTIP } from '@/lib/delta'
+import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
@@ -209,7 +209,7 @@ export default function MarketDetailsCard({
                 label="AI Delta"
                 value={delta != null ? formatPercent(delta) : '—'}
                 tooltip={DELTA_TOOLTIP}
-                tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
+                tone={getDeltaTone(delta)}
                 density="compact"
                 align="center"
               />
@@ -300,7 +300,7 @@ export default function MarketDetailsCard({
       <Link
         href={href}
         aria-label={`View market: ${market.question}`}
-        className={`${components.interactive.nonInteractiveOverlay} ${components.interactive.cardLink.fullOverlay}`}
+        className={`${components.interactive.nonInteractiveOverlay} ${components.interactive.fullOverlay}`}
       />
     </div>
   ) : (
