@@ -3,7 +3,6 @@ import * as marketService from './market-service'
 import * as eventService from './event-service'
 import * as tagService from './tag-service'
 import { mapSearchResultToDTO, type SearchResultDTO } from '@/lib/dtos/search-result-dto'
-import type { MarketDTO, EventDTO, PredictionDTO } from '@/lib/types'
 
 /**
  * Search service functions following clean service pattern:
