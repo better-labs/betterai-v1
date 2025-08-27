@@ -125,8 +125,8 @@ export default function MarketDetailsCard({
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
-        <div>
-          <StatGroup className="grid-cols-2">
+        <div className="flex items-start gap-4">
+          <div className="flex-1">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -155,8 +155,10 @@ export default function MarketDetailsCard({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          </div>
             
-            {/* AI Prediction Stats */}
+          {/* AI Prediction Stats */}
+          <div className="flex-1">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -191,33 +193,51 @@ export default function MarketDetailsCard({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </StatGroup>
+          </div>
         </div>
 
         {/* AI Delta */}
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0">
-            <Stat
-              label="AI Delta"
-              value={delta != null ? formatPercent(delta) : '—'}
-              tooltip="Absolute difference between market and AI probabilities"
-              tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
-              density="compact"
-              align="center"
-            />
-          </div>
-          {latestPrediction?.predictionResult?.reasoning && (
-            <div className="flex-1 min-w-0">
-              <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Reasoning</div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {latestPrediction.predictionResult.reasoning.length > 120 
-                  ? `${latestPrediction.predictionResult.reasoning.slice(0, 120)}...`
-                  : latestPrediction.predictionResult.reasoning
-                }
-              </p>
+        {latestPrediction ? (
+          <Link 
+            href={`/prediction/${latestPrediction.id}`}
+            className="flex items-start gap-4 hover:opacity-80 transition-opacity"
+          >
+            <div className="flex-shrink-0">
+              <Stat
+                label="AI Delta"
+                value={delta != null ? formatPercent(delta) : '—'}
+                tooltip="Absolute difference between market and AI probabilities"
+                tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
+                density="compact"
+                align="center"
+              />
             </div>
-          )}
-        </div>
+            {latestPrediction?.predictionResult?.reasoning && (
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Reasoning</div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {latestPrediction.predictionResult.reasoning.length > 120 
+                    ? `${latestPrediction.predictionResult.reasoning.slice(0, 120)}...`
+                    : latestPrediction.predictionResult.reasoning
+                  }
+                </p>
+              </div>
+            )}
+          </Link>
+        ) : (
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <Stat
+                label="AI Delta"
+                value="—"
+                tooltip="Absolute difference between market and AI probabilities"
+                tone="neutral"
+                density="compact"
+                align="center"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Generate New AI Prediction Button */}
         <div className="pt-2">
