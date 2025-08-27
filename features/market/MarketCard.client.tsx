@@ -142,11 +142,11 @@ export default function MarketDetailsCard({
                       <Stat
                         label="Market Probability"
                         value={
-                          <div className="space-y-1">
+                          <div className={components.outcome.container}>
                             {market.outcomes?.map((outcome, i) => (
-                              <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
-                                <span className="truncate pr-4">{outcome}</span>
-                                <span className="font-semibold tabular-nums">
+                              <div key={i} className={components.outcome.row}>
+                                <span className={components.outcome.label}>{outcome}</span>
+                                <span className={components.outcome.value}>
                                   {formatPercent(market.outcomePrices?.[i])}
                                 </span>
                               </div>
@@ -180,11 +180,11 @@ export default function MarketDetailsCard({
                         <Stat
                           label="AI Prediction"
                           value={
-                            <div className="space-y-1">
+                            <div className={components.outcome.container}>
                               {latestPrediction.outcomes?.map((outcome, i) => (
-                                <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
-                                  <span className="truncate pr-4">{outcome}</span>
-                                  <span className="font-semibold tabular-nums">
+                                <div key={i} className={components.outcome.row}>
+                                  <span className={components.outcome.label}>{outcome}</span>
+                                  <span className={components.outcome.value}>
                                     {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
                                   </span>
                                 </div>

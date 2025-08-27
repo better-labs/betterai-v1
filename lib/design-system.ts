@@ -203,6 +203,28 @@ export const components = {
     overlayContainer: 'relative group',
     nonInteractiveOverlay: 'absolute inset-0 pointer-events-none',
     interactiveZone: 'relative z-10 pointer-events-auto',
+  },
+
+  // Outcome display patterns for market predictions
+  outcome: {
+    // Container for grouped outcomes (like Yes/No results)
+    container: 'space-y-1',
+    
+    // Individual outcome row with consistent spacing
+    row: 'flex items-center gap-3 text-sm border border-border rounded px-3 py-2',
+    
+    // Label styling (e.g., "Yes", "No", "Outcome A")
+    label: 'truncate',
+    
+    // Value styling (e.g., "60%", probability values)
+    value: 'font-semibold tabular-nums',
+    
+    // Compact variant for smaller spaces
+    compact: {
+      row: 'flex items-center gap-2 text-xs border border-border rounded px-2 py-1.5',
+      label: 'truncate',
+      value: 'font-semibold tabular-nums',
+    }
   }
 } as const;
 
