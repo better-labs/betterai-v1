@@ -286,6 +286,19 @@ export async function fetchStructuredFromOpenRouter<T>(
   }
 
   if (!response.ok) {
+    // Enhanced error logging with request details
+    const errorBody = await response.text().catch(() => 'Unable to read response body')
+    const requestDetails = {
+      url: response.url,
+      status: response.status,
+      statusText: response.statusText,
+      model,
+      userMessageLength: userMessage.length,
+      responseBody: errorBody
+    }
+    
+    console.error('OpenRouter API request failed:', requestDetails)
+    
     if (response.status === 429) {
       throw new Error(`OpenRouter rate limit exceeded.`);
     }

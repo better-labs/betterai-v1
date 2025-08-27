@@ -120,9 +120,9 @@ export const components = {
     // Flex-based search input with icons (INDUSTRY STANDARD)
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'flex items-center justify-center w-12', // Fixed width container (48px) for consistent spacing
+      iconLeft: 'flex items-center justify-center w-12 h-10', // Fixed width container (48px) with height for proper centering
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'flex items-center justify-center w-12', // Fixed width container for right icon
+      iconRight: 'flex items-center justify-center w-12 h-10', // Fixed width container for right icon with height
       button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
     }
 
@@ -178,15 +178,6 @@ export const components = {
     overlayContainer: 'relative group',
     nonInteractiveOverlay: 'absolute inset-0 pointer-events-none',
     interactiveZone: 'relative z-10 pointer-events-auto',
-    
-    // Flex-based search input with icons (INDUSTRY STANDARD)
-    search: {
-      container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'flex items-center justify-center w-12', // Fixed width container (48px) for consistent spacing
-      input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'flex items-center justify-center w-12', // Fixed width container for right icon
-      button: 'text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center p-1 rounded'
-    }
   }
 } as const;
 

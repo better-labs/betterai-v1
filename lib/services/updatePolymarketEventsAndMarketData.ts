@@ -6,7 +6,7 @@ import { processAndUpsertPolymarketBatch } from './polymarket-batch-processor'
  * Updates all Polymarket events and markets with proper throttling and pagination
  */
 export async function updatePolymarketEventsAndMarketData(options: {
-  limit?: number,
+  batchSize?: number,
   delayMs?: number,
   maxRetries?: number,
   retryDelayMs?: number,
@@ -16,7 +16,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   daysToFetchFuture?: number,
   maxBatchFailuresBeforeAbort?: number,
   sortBy?: string,
-  totalEventLimit?: number,
+  maxEvents?: number,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -25,17 +25,17 @@ export async function updatePolymarketEventsAndMarketData(options: {
   errors: string[]
 }> {
   const {
-    limit = 100,
+    batchSize = 100,
     delayMs = 1000,
     daysToFetchPast = 8,
     daysToFetchFuture = 21,
     maxBatchFailuresBeforeAbort = 3,
     sortBy,
-    totalEventLimit,
+    maxEvents,
     ...fetchOptions
   } = options
 
-  console.log(`Starting Polymarket data sync (${limit} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future)`)
+  console.log(`Starting Polymarket data sync (${batchSize} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future)`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
@@ -51,26 +51,26 @@ export async function updatePolymarketEventsAndMarketData(options: {
   const startDateMin = new Date(Date.now() - daysToFetchPast * MS_IN_DAY)
   const endDateMax = new Date(Date.now() + daysToFetchFuture * MS_IN_DAY)
   
+  // Helper function to calculate current batch size
+  const getCurrentBatchSize = (processed: number, batchSize: number, maxEvents?: number) => {
+    if (!maxEvents) return batchSize
+    const remaining = maxEvents - processed
+    return Math.min(batchSize, remaining)
+  }
 
   while (hasMoreData) {
     try {
       totalRequests++
       
-      // Check if we've reached the total event limit
-      if (totalEventLimit && totalFetched >= totalEventLimit) {
-        // Reached event limit - stopping
+      const currentBatchSize = getCurrentBatchSize(totalFetched, batchSize, maxEvents)
+      
+      // Single termination check
+      if (currentBatchSize <= 0) {
         hasMoreData = false
         break
       }
       
-      // Adjust batch size if we're close to the limit
-      let adjustedLimit = limit
-      if (totalEventLimit && (totalFetched + limit > totalEventLimit)) {
-        adjustedLimit = totalEventLimit - totalFetched
-        // Adjusting final batch size
-      }
-      
-      const eventsData = await fetchPolymarketEvents(offset, adjustedLimit, startDateMin, endDateMax, fetchOptions, sortBy)
+      const eventsData = await fetchPolymarketEvents(offset, currentBatchSize, startDateMin, endDateMax, fetchOptions, sortBy)
       
       if (eventsData.length > 0) {
         const batchResult = await processAndUpsertPolymarketBatch(eventsData, { 
@@ -83,11 +83,11 @@ export async function updatePolymarketEventsAndMarketData(options: {
         console.log(`Batch ${totalRequests}: Processed ${eventsData.length} events, ${batchResult.processedEvents.length} events upserted, ${batchResult.processedMarkets.length} markets upserted (total: ${totalFetched})`)
       }
 
-      // Stop if we've reached the total event limit or no more data
-      if ((totalEventLimit && totalFetched >= totalEventLimit) || eventsData.length < adjustedLimit) {
-        hasMoreData = false
-      } else {
-        offset += adjustedLimit
+      // Single exit condition check
+      hasMoreData = eventsData.length === currentBatchSize && (!maxEvents || totalFetched < maxEvents)
+      
+      if (hasMoreData) {
+        offset += currentBatchSize
         await new Promise(resolve => setTimeout(resolve, delayMs))
       }
       // success resets error counter

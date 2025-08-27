@@ -22,12 +22,13 @@ async function main() {
     const { updatePolymarketEventsAndMarketData } = await import('../lib/services/updatePolymarketEventsAndMarketData')
     
     const result = await updatePolymarketEventsAndMarketData({
-      limit: 100, // Small limit for testing
+      batchSize: 50, // Small batch size for testing
       delayMs: 100, // Faster delay for testing
       maxRetries: 1, // Fewer retries for testing
       timeoutMs: 10000, // Shorter timeout for testing
       daysToFetchPast: 14,
       daysToFetchFuture: 21,
+      maxEvents: 200
     })
 
     console.log('Update completed successfully!')
@@ -43,21 +44,21 @@ async function main() {
       console.log('Errors encountered:', result.errors)
     }
 
-    console.log('Starting AI models update...')
-    const { updateAIModels } = await import('../lib/services/ai-models')
-    const aiModelsResult = await updateAIModels()
+    // console.log('Starting AI models update...')
+    // const { updateAIModels } = await import('../lib/services/ai-models')
+    // const aiModelsResult = await updateAIModels()
 
-    console.log('AI models update completed successfully!')
-    console.log('Results:', {
-      totalFetched: aiModelsResult.totalFetched,
-      totalUpserted: aiModelsResult.totalUpserted,
-      success: aiModelsResult.success,
-      error: aiModelsResult.error
-    })
+    // console.log('AI models update completed successfully!')
+    // console.log('Results:', {
+    //   totalFetched: aiModelsResult.totalFetched,
+    //   totalUpserted: aiModelsResult.totalUpserted,
+    //   success: aiModelsResult.success,
+    //   error: aiModelsResult.error
+    // })
 
-    if (aiModelsResult.error) {
-      console.log('Error encountered:', aiModelsResult.error)
-    }
+    // if (aiModelsResult.error) {
+    //   console.log('Error encountered:', aiModelsResult.error)
+    // }
 
 
   } catch (error) {
