@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { components } from '@/lib/design-system'
 import { cn } from '@/lib/utils'
 
 interface PredictionReasoningCardProps {
@@ -58,15 +59,15 @@ export function PredictionReasoningCard({
               className="text-sm"
             >
               {expanded ? (
-                <>
-                  <ChevronUp className="h-3 w-3 mr-1" />
-                  Show less
-                </>
+                <span className={components.disclosure.container}>
+                  <span>Show less</span>
+                  <ChevronUp className={`${components.disclosure.icon} ${components.disclosure.iconSm} ${components.disclosure.iconExpanded}`} />
+                </span>
               ) : (
-                <>
-                  <ChevronDown className="h-3 w-3 mr-1" />
-                  Show more
-                </>
+                <span className={components.disclosure.container}>
+                  <span>Show more</span>
+                  <ChevronDown className={`${components.disclosure.icon} ${components.disclosure.iconSm}`} />
+                </span>
               )}
             </Button>
           </div>

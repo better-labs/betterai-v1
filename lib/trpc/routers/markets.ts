@@ -105,8 +105,8 @@ export const marketsRouter = router({
   trending: publicProcedure
     .input(GetTrendingMarketsInput)
     .query(async ({ input }) => {
-      // Get events with markets using the event service
-      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, input.withPredictions)
+      // Get events with markets using the event service with configurable filter days
+      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, input.withPredictions, 4)
 
             // Extract markets from events and flatten
       const trendingMarkets = eventsWithMarkets.flatMap((event: any) =>
@@ -154,10 +154,15 @@ export const marketsRouter = router({
         })) || []
       )
 
+      // Implement proper pagination
+      const totalMarkets = trendingMarkets.length
+      const paginatedMarkets = trendingMarkets.slice(0, input.limit)
+      const hasMore = totalMarkets > input.limit
+
       return {
-        items: trendingMarkets.slice(0, input.limit),
-        nextCursor: null,
-        hasMore: false,
+        items: paginatedMarkets,
+        nextCursor: hasMore ? String(input.limit) : null,
+        hasMore,
       }
     }),
 

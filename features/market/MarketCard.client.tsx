@@ -23,6 +23,8 @@ interface MarketDetailsCardProps {
   className?: string
   latestPrediction?: Prediction | null
   href?: string | null
+  hidePredictionButton?: boolean
+  hideReasoning?: boolean
 }
 
 export default function MarketDetailsCard({
@@ -32,6 +34,8 @@ export default function MarketDetailsCard({
   className,
   latestPrediction,
   href = null,
+  hidePredictionButton = false,
+  hideReasoning = false,
 }: MarketDetailsCardProps) {
   const lastUpdatedLabel = `Last updated: ${market.updatedAt ? new Date(market.updatedAt).toLocaleString(undefined, {
     year: 'numeric',
@@ -125,8 +129,8 @@ export default function MarketDetailsCard({
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
-        <div className="flex items-start gap-4">
-          <div className="flex-1">
+        <div className={`flex items-start gap-4`}>
+          <div className={latestPrediction ? "flex-1" : "w-full max-w-md"}>
             <Link 
               href={`/market/${market.id}`}
               className="block hover:opacity-80 transition-opacity"
@@ -138,11 +142,11 @@ export default function MarketDetailsCard({
                       <Stat
                         label="Market Probability"
                         value={
-                          <div className="space-y-1">
+                          <div className={components.outcome.container}>
                             {market.outcomes?.map((outcome, i) => (
-                              <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
-                                <span className="truncate pr-4">{outcome}</span>
-                                <span className="font-semibold tabular-nums">
+                              <div key={i} className={components.outcome.row}>
+                                <span className={components.outcome.label}>{outcome}</span>
+                                <span className={components.outcome.value}>
                                   {formatPercent(market.outcomePrices?.[i])}
                                 </span>
                               </div>
@@ -162,9 +166,9 @@ export default function MarketDetailsCard({
             </Link>
           </div>
             
-          {/* AI Prediction Stats */}
-          <div className="flex-1">
-            {latestPrediction ? (
+          {/* AI Prediction Stats - only show if prediction exists */}
+          {latestPrediction && (
+            <div className="flex-1">
               <Link 
                 href={`/prediction/${latestPrediction.id}`}
                 className="block hover:opacity-80 transition-opacity"
@@ -176,11 +180,11 @@ export default function MarketDetailsCard({
                         <Stat
                           label="AI Prediction"
                           value={
-                            <div className="space-y-1">
+                            <div className={components.outcome.container}>
                               {latestPrediction.outcomes?.map((outcome, i) => (
-                                <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
-                                  <span className="truncate pr-4">{outcome}</span>
-                                  <span className="font-semibold tabular-nums">
+                                <div key={i} className={components.outcome.row}>
+                                  <span className={components.outcome.label}>{outcome}</span>
+                                  <span className={components.outcome.value}>
                                     {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
                                   </span>
                                 </div>
@@ -198,34 +202,12 @@ export default function MarketDetailsCard({
                   </Tooltip>
                 </TooltipProvider>
               </Link>
-            ) : (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Stat
-                        label="AI Prediction"
-                        value={
-                          <div className="text-sm text-muted-foreground py-2">
-                            No prediction yet
-                          </div>
-                        }
-                        density="compact"
-                        align="left"
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{lastGeneratedLabel}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* AI Delta */}
-        {latestPrediction ? (
+        {/* AI Delta - only show if prediction exists */}
+        {latestPrediction && (
           <Link 
             href={`/prediction/${latestPrediction.id}`}
             className="flex items-start gap-4 hover:opacity-80 transition-opacity"
@@ -240,7 +222,7 @@ export default function MarketDetailsCard({
                 align="center"
               />
             </div>
-            {latestPrediction?.predictionResult?.reasoning && (
+            {latestPrediction?.predictionResult?.reasoning && !hideReasoning && (
               <div className="flex-1 min-w-0">
                 <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Reasoning</div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -252,32 +234,21 @@ export default function MarketDetailsCard({
               </div>
             )}
           </Link>
-        ) : (
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <Stat
-                label="AI Delta"
-                value="—"
-                tooltip="Absolute difference between market and AI probabilities"
-                tone="neutral"
-                density="compact"
-                align="center"
-              />
-            </div>
-          </div>
         )}
 
         {/* Generate New AI Prediction Button */}
-        <div className="pt-2">
-          <Button 
-            onClick={handleGeneratePrediction}
-            className="w-full flex items-center gap-2"
-            data-debug-id="generate-prediction-btn"
-          >
-            <Brain className="h-4 w-4" />
-            Predict with AI
-          </Button>
-        </div>
+        {!hidePredictionButton && (
+          <div className="pt-2">
+            <Button 
+              onClick={handleGeneratePrediction}
+              className="w-full flex items-center gap-2"
+              data-debug-id="generate-prediction-btn"
+            >
+              <Brain className="h-4 w-4" />
+              Predict with AI
+            </Button>
+          </div>
+        )}
 
         {/* Footer Metadata */}
         <div className={components.cardFooter.container}>

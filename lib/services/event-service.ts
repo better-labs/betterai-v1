@@ -20,12 +20,29 @@ export async function getTrendingEvents(
   })
 }
 
+/**
+ * Gets trending events with their associated markets, sorted by volume.
+ * Applies business filters to show relevant, active events for predictions.
+ * 
+ * @param db - Prisma database client
+ * @param withPredictions - If true, only include events with markets that have recent predictions
+ * @param predictionDaysLookBack - Number of days to look back for recent predictions (default: 3)
+ * @returns Array of events with their highest-volume markets and prediction data
+ * 
+ * Applied filters:
+ * - Future events only (endDate > now)
+ * - Excludes crypto-tagged events
+ * - When withPredictions=true: only events with markets having predictions from last {predictionDaysLookBack} days
+ * - Sorts by event volume DESC, markets by volume DESC
+ * - Returns one market per event (highest volume/delta)
+ */
 export async function getTrendingEventsWithMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
-  withPredictions = false
+  withPredictions = false,
+  predictionDaysLookBack = 4
 ): Promise<any[]> {
   const cryptoLabelFilter = ["Crypto"] // Exclude crypto markets from trending
-  const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+  const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
   
   const whereClause: any = {}
   
@@ -35,7 +52,7 @@ export async function getTrendingEventsWithMarkets(
         predictions: {
           some: {
             createdAt: {
-              gte: twoDaysAgo
+              gte: filterDate
             }
           }
         }
@@ -48,9 +65,9 @@ export async function getTrendingEventsWithMarkets(
     gt: new Date()
   }
   
-  // Only show events updated in the past 2 days
+  // Remove overly restrictive updatedAt filter to show more trending markets
   whereClause.updatedAt = {
-    gte: twoDaysAgo
+    gte: filterDate  
   }
   
   // Exclude events with crypto tags
@@ -77,7 +94,7 @@ export async function getTrendingEventsWithMarkets(
           predictions: {
             some: {
               createdAt: {
-                gte: twoDaysAgo
+                gte: filterDate
               }
             }
           }
@@ -89,7 +106,7 @@ export async function getTrendingEventsWithMarkets(
           predictions: {
             where: {
               createdAt: {
-                gte: twoDaysAgo
+                gte: filterDate
               }
             },
             orderBy: { createdAt: 'desc' },

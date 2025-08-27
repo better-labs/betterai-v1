@@ -23,6 +23,14 @@ export function EventIcon({ image, icon, title, size = 'md', className = '' }: E
     twoxl: 'w-16 h-16'
   }
 
+  const imageSizes = {
+    sm: '24px',
+    md: '32px', 
+    lg: '40px',
+    xl: '48px',
+    twoxl: '64px'
+  }
+
   const textSizeClasses = {
     sm: 'text-xs',
     md: 'text-xs',
@@ -41,9 +49,11 @@ export function EventIcon({ image, icon, title, size = 'md', className = '' }: E
           src={srcCandidate}
           alt={title}
           fill
-          sizes={size === 'lg' ? '40px' : size === 'md' ? '32px' : '24px'}
+          sizes={imageSizes[size]}
           className="object-cover shadow-sm"
           onError={() => setLoadError(true)}
+          quality={85}
+          priority={size === 'twoxl'}
         />
       )}
       {(showFallback || loadError) && (

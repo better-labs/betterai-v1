@@ -195,10 +195,10 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
               data-debug-id="generate-prediction-button"
             >
               {isGenerating ? (
-                <>
+                <div className="flex items-center justify-center">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Starting Prediction...
-                </>
+                </div>
               ) : (
                 `Generate Prediction${selectedModels.length > 1 ? 's' : ''}`
               )}

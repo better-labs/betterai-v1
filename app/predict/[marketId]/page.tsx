@@ -4,6 +4,9 @@ import { prisma } from '@/lib/db/prisma'
 import { PredictionGenerator } from './PredictionGenerator'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Skeleton } from '@/shared/ui/skeleton'
+import MarketDetailsCard from '@/features/market/MarketCard.client'
+import { mapMarketToDTO } from '@/lib/dtos/market-dto'
+import { mapEventToDTO } from '@/lib/dtos/event-dto'
 
 interface PredictPageProps {
   params: Promise<{ marketId: string }>
@@ -14,12 +17,7 @@ async function getMarket(marketId: string) {
   const market = await prisma.market.findUnique({
     where: { id: marketId },
     include: {
-      event: {
-        select: {
-          id: true,
-          title: true,
-        }
-      }
+      event: true
     }
   })
 
@@ -34,6 +32,10 @@ export default async function PredictPage({ params }: PredictPageProps) {
     notFound()
   }
 
+  // Convert to DTOs for client components
+  const marketDTO = mapMarketToDTO(market)
+  const eventDTO = mapEventToDTO(market.event)
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-6">
@@ -45,27 +47,13 @@ export default async function PredictPage({ params }: PredictPageProps) {
           </p>
         </div>
 
-        {/* Market Info Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <h2 className="text-lg font-semibold">{market.question}</h2>
-              <p className="text-sm text-muted-foreground">
-                {market.event.title}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-4">
-                {market.outcomes.map((outcome, index) => (
-                  <div
-                    key={outcome}
-                    className="px-3 py-1 bg-muted rounded-full text-sm"
-                  >
-                    {outcome}: {(Number(market.outcomePrices[index]) * 100).toFixed(1)}%
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Market Card */}
+        <MarketDetailsCard
+          market={marketDTO}
+          event={eventDTO}
+          className="w-full"
+          hidePredictionButton={true}
+        />
 
         {/* Generator Component */}
         <Suspense fallback={<GeneratorSkeleton />}>
