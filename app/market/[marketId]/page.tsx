@@ -113,7 +113,6 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                       <h4 className="font-medium mb-2">Reasoning</h4>
                       <PredictionReasoningCard 
                         reasoning={predictionResult.reasoning}
-                        collapsedHeight="7rem"
                         showHeader={false}
                         className="border-0 shadow-none bg-transparent"
                       />

@@ -146,16 +146,7 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
   return (
     <PredictionPollingErrorBoundary>
       <div className="space-y-6">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => router.push(`/predict/${marketId}`)}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Generator
-        </Button>
-
+      
         {/* Global Status */}
         <Card>
           <CardContent className="p-4">

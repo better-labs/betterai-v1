@@ -448,23 +448,7 @@ export const components = {
     }
   },
 
-  // Collapsible content patterns (CSS-only, no motion library)
-  collapsible: {
-    // Base container for collapsible text content
-    container: 'whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground relative break-words w-full',
-    // Additional class when collapsed
-    collapsed: 'overflow-hidden',
-    // Text wrapping styles
-    textWrap: { wordWrap: 'break-word' as const, overflowWrap: 'anywhere' as const },
-    
-    // Fade overlays for different background contexts
-    fadeOverlay: {
-      // For card backgrounds
-      card: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent',
-      // For muted backgrounds
-      muted: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent',
-    }
-  }
+
 } as const;
 
 // ============================================================================

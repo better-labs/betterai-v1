@@ -16,6 +16,7 @@ import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
+import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -127,34 +128,11 @@ export default function MarketDetailsCard({
               href={`/market/${market.id}`}
               className="block hover:opacity-80 transition-opacity"
             >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Stat
-                        label="Market Probability"
-                        value={
-                          <div className={components.outcome.container}>
-                            {market.outcomes?.map((outcome, i) => (
-                              <div key={i} className={components.outcome.row}>
-                                <span className={components.outcome.label}>{outcome}</span>
-                                <span className={components.outcome.value}>
-                                  {formatPercent(market.outcomePrices?.[i])}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        }
-                        density="compact"
-                        align="left"
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{lastUpdatedLabel}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <MarketProbabilityStat 
+                outcomes={market.outcomes}
+                outcomePrices={market.outcomePrices as number[] | null}
+                tooltip={lastUpdatedLabel}
+              />
             </Link>
           </div>
             

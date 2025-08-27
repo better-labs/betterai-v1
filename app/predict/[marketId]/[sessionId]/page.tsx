@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { PredictionResults } from '@/features/prediction/PredictionResults.client'
 import { Card, CardContent } from '@/shared/ui/card'
+import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 interface PredictionResultsPageProps {
@@ -34,35 +35,29 @@ export default async function PredictionResultsPage({ params }: PredictionResult
     notFound()
   }
 
+  // Normalize Prisma Decimal[] -> number[] for UI components
+  const outcomePrices: number[] | null = Array.isArray(market.outcomePrices)
+    ? (market.outcomePrices as any[]).map((v) => Number(v))
+    : null
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-6">
         {/* Page Header */}
         <div className="text-center space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold">AI Prediction Results</h1>
-          <p className="text-muted-foreground">
-            Your AI models are analyzing this market
-          </p>
+         
         </div>
 
         {/* Market Info Card */}
         <Card>
           <CardContent className="p-6">
-            <div className="space-y-2">
+            <div className="space-y-4">
               <h2 className="text-lg font-semibold">{market.question}</h2>
-              <p className="text-sm text-muted-foreground">
-                {market.event.title}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-4">
-                {market.outcomes.map((outcome, index) => (
-                  <div
-                    key={outcome}
-                    className="px-3 py-1 bg-muted rounded-full text-sm"
-                  >
-                    {outcome}: {(Number(market.outcomePrices[index]) * 100).toFixed(1)}%
-                  </div>
-                ))}
-              </div>
+              <MarketProbabilityStat 
+                outcomes={market.outcomes}
+                outcomePrices={outcomePrices}
+              />
             </div>
           </CardContent>
         </Card>
