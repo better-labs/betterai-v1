@@ -11,7 +11,8 @@ import { Button } from "@/shared/ui/button"
 import { Stat, StatGroup } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
-import { formatPercent, toUnitProbability } from '@/lib/utils'
+import { formatPercent } from '@/lib/utils'
+import { computeDeltaFromArrays } from '@/lib/delta'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
@@ -55,18 +56,9 @@ export default function MarketDetailsCard({
       })}`
     : 'No AI prediction yet'
 
-  // Calculate AI Delta (absolute difference between first outcomes)
-  const calculateDelta = () => {
-    if (!latestPrediction || !market.outcomePrices?.[0] || !latestPrediction.outcomesProbabilities?.[0]) {
-      return null
-    }
-    const marketProb = toUnitProbability(market.outcomePrices[0])
-    const aiProb = toUnitProbability(latestPrediction.outcomesProbabilities[0])
-    if (marketProb == null || aiProb == null) return null
-    return Math.abs(marketProb - aiProb)
-  }
-
-  const delta = calculateDelta()
+  const delta = latestPrediction
+    ? computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
+    : null
 
   const router = useRouter()
   const [mounted, setMounted] = useState(false)

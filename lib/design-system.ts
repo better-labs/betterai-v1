@@ -143,21 +143,6 @@ export const components = {
     content: 'text-sm bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 shadow-lg',
   },
 
-  // Disclosure / Chevron patterns (industry standard)
-  // Place chevron inline to the right of the label and rotate on toggle
-  disclosure: {
-    // Container for label + chevron
-    container: 'inline-flex items-center gap-2',
-    // Optional emphasis for the label
-    label: 'font-medium',
-    // Icon sizes and animation
-    icon: 'shrink-0 transition-transform duration-200',
-    iconSm: 'h-3 w-3',
-    iconMd: 'h-4 w-4',
-    iconLg: 'h-5 w-5',
-    // Applied when expanded/open
-    iconExpanded: 'rotate-180',
-  },
 
   // Card footer metadata patterns
   cardFooter: {
@@ -224,6 +209,55 @@ export const components = {
       row: 'flex items-center gap-2 text-xs px-2 py-1.5',
       label: 'truncate',
       value: 'font-semibold tabular-nums',
+    }
+  },
+
+  // Motion patterns for Framer Motion components
+  motion: {
+    // Expandable content containers
+    expandable: {
+      // Base classes for expandable content
+      container: 'relative overflow-hidden break-words whitespace-pre-wrap w-full',
+      // Inline styles for text wrapping
+      textWrap: { wordWrap: 'break-word' as const, overflowWrap: 'anywhere' as const },
+      // Animation settings
+      animation: {
+        duration: 0.2,
+        ease: "easeInOut" as const,
+      },
+      // Height settings
+      collapsedHeight: '8rem',
+    },
+    
+    // Fade overlay for collapsed content
+    fadeOverlay: {
+      // Base classes for fade gradient
+      container: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent',
+      // Animation settings
+      animation: {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        duration: 0.15,
+      },
+    }
+  },
+
+  // Collapsible content patterns (CSS-only, no motion library)
+  collapsible: {
+    // Base container for collapsible text content
+    container: 'whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground relative break-words w-full',
+    // Additional class when collapsed
+    collapsed: 'overflow-hidden',
+    // Text wrapping styles
+    textWrap: { wordWrap: 'break-word' as const, overflowWrap: 'anywhere' as const },
+    
+    // Fade overlays for different background contexts
+    fadeOverlay: {
+      // For card backgrounds
+      card: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent',
+      // For muted backgrounds
+      muted: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent',
     }
   }
 } as const;

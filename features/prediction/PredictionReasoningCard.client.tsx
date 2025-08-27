@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
-import { ChevronDown, ChevronUp } from 'lucide-react'
 import { components } from '@/lib/design-system'
 import { cn } from '@/lib/utils'
 
@@ -38,16 +37,17 @@ export function PredictionReasoningCard({
       <CardContent className={showHeader ? '' : 'p-0'}>
         <div 
           className={cn(
-            "whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground relative",
-            !expanded && needsCollapse && "overflow-hidden",
+            components.collapsible.container,
+            !expanded && needsCollapse && components.collapsible.collapsed,
           )}
           style={{ 
-            maxHeight: !expanded && needsCollapse ? collapsedHeight : 'none'
+            maxHeight: !expanded && needsCollapse ? collapsedHeight : 'none',
+            ...components.collapsible.textWrap
           }}
         >
           {text}
           {!expanded && needsCollapse && (
-            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent" />
+            <div className={components.collapsible.fadeOverlay.card} />
           )}
         </div>
         {needsCollapse && (
@@ -59,15 +59,9 @@ export function PredictionReasoningCard({
               className="text-sm"
             >
               {expanded ? (
-                <span className={components.disclosure.container}>
-                  <span>Show less</span>
-                  <ChevronUp className={`${components.disclosure.icon} ${components.disclosure.iconSm} ${components.disclosure.iconExpanded}`} />
-                </span>
+                <span>Show less</span>
               ) : (
-                <span className={components.disclosure.container}>
-                  <span>Show more</span>
-                  <ChevronDown className={`${components.disclosure.icon} ${components.disclosure.iconSm}`} />
-                </span>
+                <span>Show more</span>
               )}
             </Button>
           </div>

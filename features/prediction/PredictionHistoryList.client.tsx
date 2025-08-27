@@ -3,7 +3,8 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
 import { Button } from "@/shared/ui/button"
-import { formatPercent, toUnitProbability } from '@/lib/utils'
+import { formatPercent } from '@/lib/utils'
+import { computeDeltaFromArrays } from '@/lib/delta'
 import Link from 'next/link'
 import { Sparkline } from '@/shared/ui/charts/sparkline.client'
 import { useRouter } from 'next/navigation'
@@ -101,22 +102,17 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[160px]">Time</TableHead>
-                  <TableHead className="text-right hidden sm:table-cell">Market Prob</TableHead>
-                  <TableHead className="text-right">AI Pred</TableHead>
-                  <TableHead className="text-right hidden sm:table-cell">Delta</TableHead>
+                  <TableHead className="text-right">Delta</TableHead>
                   <TableHead className="hidden md:table-cell">Model</TableHead>
                   <TableHead className="w-[200px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {predictions!.map((p, idx) => {
-                  const aiP0 = Array.isArray(p.outcomesProbabilities) ? p.outcomesProbabilities[0] : null
-                  const marketP0 = Array.isArray(p.marketOutcomePrices) ? p.marketOutcomePrices[0] : null
-                  
-                  // Calculate delta
-                  const aiProb = toUnitProbability(aiP0)
-                  const marketProb = toUnitProbability(marketP0)
-                  const delta = aiProb != null && marketProb != null ? Math.abs(marketProb - aiProb) : null
+                  const delta = computeDeltaFromArrays(
+                    Array.isArray(p.marketOutcomePrices) ? (p.marketOutcomePrices as unknown[]) : null,
+                    Array.isArray(p.outcomesProbabilities) ? (p.outcomesProbabilities as unknown[]) : null
+                  )
                   
                   const isClickable = !!p.id
                   
@@ -125,19 +121,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(p.createdAt).toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums hidden sm:table-cell">{formatPercent(marketP0)}</TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        <div>{formatPercent(aiP0)}</div>
-                        <div className="sm:hidden text-xs text-muted-foreground mt-1">
-                          {marketP0 ? `Mkt: ${formatPercent(marketP0)}` : ''}
-                          {delta !== null && (
-                            <span className={`ml-2 ${getDeltaColor(delta)}`}>
-                              Δ{formatPercent(delta)}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className={`text-right tabular-nums hidden sm:table-cell ${getDeltaColor(delta)}`}>
+                      <TableCell className={`text-right tabular-nums ${getDeltaColor(delta)}`}>
                         {delta !== null ? formatPercent(delta) : '—'}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{p.modelName || '—'}</TableCell>

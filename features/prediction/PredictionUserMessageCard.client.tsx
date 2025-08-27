@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
-import { ClipboardCopyIcon, CheckIcon, ChevronDown, ChevronUp } from 'lucide-react'
+import { USER_MESSAGE_PREFIX } from '@/lib/utils'
 import { components } from '@/lib/design-system'
-import { USER_MESSAGE_PREFIX, cn } from '@/lib/utils'
 
 interface PredictionUserMessageCardProps {
   userMessage?: string | null
@@ -15,6 +13,8 @@ interface PredictionUserMessageCardProps {
 
 export function PredictionUserMessageCard({ userMessage }: PredictionUserMessageCardProps) {
   const [expanded, setExpanded] = useState(false)
+  const [needsCollapse, setNeedsCollapse] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
   const text = userMessage || '—'
 
   // Extract the static guidance sentence from the prompt, if present
@@ -24,15 +24,18 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
     content = text.slice(idx + USER_MESSAGE_PREFIX.length).trimStart()
   }
 
-  const needsCollapse = useMemo(() => {
-    return content.length > 400 // Collapse if content is longer than 400 characters
-  }, [content])
+  // Measure content height and determine if collapse is needed
+  useEffect(() => {
+    if (!contentRef.current) return
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(userMessage || '')
-    } catch {}
-  }
+    const contentElement = contentRef.current
+    const scrollHeight = contentElement.scrollHeight
+    const clientHeight = contentElement.clientHeight
+    
+    // Check if content overflows the collapsed height (8rem = 128px)
+    const collapsedHeightPx = 128
+    setNeedsCollapse(scrollHeight > collapsedHeightPx)
+  }, [content])
 
   return (
     <Card>
@@ -46,44 +49,29 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
           The text below was sent to the AI model to generate this prediction. To verify the prediction you can copy and paste the prompt exactly as shown below into your AI provider of choice.
         </div>
         <div className="relative rounded-md border bg-muted/20 p-3 text-xs text-muted-foreground">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleCopy}
-                  className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-foreground shadow-sm hover:bg-muted/50 z-10"
-                  aria-label="Copy prompt"
-                >
-                  <ClipboardCopyIcon className="h-3 w-3" />
-                  Copy
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Copy to clipboard</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           <motion.div 
-            className="whitespace-pre-wrap relative overflow-hidden"
+            ref={contentRef}
+            className={components.motion.expandable.container}
+            style={components.motion.expandable.textWrap}
             animate={{ 
-              height: !expanded && needsCollapse ? '8rem' : 'auto'
+              height: !expanded && needsCollapse ? components.motion.expandable.collapsedHeight : 'auto'
             }}
-            transition={{ 
-              duration: 0.2,
-              ease: "easeInOut"
-            }}
+            transition={components.motion.expandable.animation}
           >
             {content}
             <AnimatePresence>
               {!expanded && needsCollapse && (
                 <motion.div 
-                  className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
+                  className={components.motion.fadeOverlay.container}
+                  initial={components.motion.fadeOverlay.animation.initial}
+                  animate={components.motion.fadeOverlay.animation.animate}
+                  exit={components.motion.fadeOverlay.animation.exit}
+                  transition={{ duration: components.motion.fadeOverlay.animation.duration }}
                 />
               )}
             </AnimatePresence>
           </motion.div>
+          
           {needsCollapse && (
             <div className="mt-3 flex items-center gap-1">
               <Button 
@@ -93,15 +81,9 @@ export function PredictionUserMessageCard({ userMessage }: PredictionUserMessage
                 className="text-xs h-auto p-1"
               >
                 {expanded ? (
-                  <span className={components.disclosure.container}>
-                    <span>Show less</span>
-                    <ChevronUp className={`${components.disclosure.icon} ${components.disclosure.iconSm} ${components.disclosure.iconExpanded}`} />
-                  </span>
+                  <span>Show less</span>
                 ) : (
-                  <span className={components.disclosure.container}>
-                    <span>Show more</span>
-                    <ChevronDown className={`${components.disclosure.icon} ${components.disclosure.iconSm}`} />
-                  </span>
+                  <span>Show more</span>
                 )}
               </Button>
             </div>
