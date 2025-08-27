@@ -137,7 +137,7 @@ export const components = {
   // Card footer metadata patterns
   cardFooter: {
     // Container for metadata section at bottom of cards
-    container: 'pt-3 border-t border-border',
+    container: 'pt-3',
     
     // Individual metadata items
     item: 'text-xs text-muted-foreground',
