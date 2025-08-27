@@ -101,8 +101,8 @@ export function TrendingMarkets() {
           <TrendingUp className="text-primary" />
           Trending Markets
         </h2>
-        <p className="text-muted-foreground mt-2">
-          Markets with the highest trading volume
+        <p className="text-muted-foreground ">
+          Markets with the highest dailytrading volume
         </p>
       </div>
 

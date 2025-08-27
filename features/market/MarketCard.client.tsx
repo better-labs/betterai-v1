@@ -23,6 +23,7 @@ interface MarketDetailsCardProps {
   className?: string
   latestPrediction?: Prediction | null
   href?: string | null
+  hidePredictionButton?: boolean
 }
 
 export default function MarketDetailsCard({
@@ -32,6 +33,7 @@ export default function MarketDetailsCard({
   className,
   latestPrediction,
   href = null,
+  hidePredictionButton = false,
 }: MarketDetailsCardProps) {
   const lastUpdatedLabel = `Last updated: ${market.updatedAt ? new Date(market.updatedAt).toLocaleString(undefined, {
     year: 'numeric',
@@ -268,16 +270,18 @@ export default function MarketDetailsCard({
         )}
 
         {/* Generate New AI Prediction Button */}
-        <div className="pt-2">
-          <Button 
-            onClick={handleGeneratePrediction}
-            className="w-full flex items-center gap-2"
-            data-debug-id="generate-prediction-btn"
-          >
-            <Brain className="h-4 w-4" />
-            Predict with AI
-          </Button>
-        </div>
+        {!hidePredictionButton && (
+          <div className="pt-2">
+            <Button 
+              onClick={handleGeneratePrediction}
+              className="w-full flex items-center gap-2"
+              data-debug-id="generate-prediction-btn"
+            >
+              <Brain className="h-4 w-4" />
+              Predict with AI
+            </Button>
+          </div>
+        )}
 
         {/* Footer Metadata */}
         <div className={components.cardFooter.container}>
