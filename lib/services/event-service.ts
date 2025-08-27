@@ -48,6 +48,11 @@ export async function getTrendingEventsWithMarkets(
     gt: new Date()
   }
   
+  // Only show events updated in the past 2 days
+  whereClause.updatedAt = {
+    gte: twoDaysAgo
+  }
+  
   // Exclude events with crypto tags
   whereClause.NOT = {
     eventTags: {
