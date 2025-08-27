@@ -102,7 +102,10 @@ export default function MarketDetailsCard({
     <Card className={className} data-debug-id="market-card">
       <CardHeader className="pb-4">
         {/* Event Icon and Title */}
-        <div className="flex items-center gap-3 mb-2">
+        <Link 
+          href={`/market/${market.id}`}
+          className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity"
+        >
           {event && (
             <EventIcon
               image={event.image}
@@ -115,7 +118,7 @@ export default function MarketDetailsCard({
           <CardTitle className="text-base leading-tight">
           {market.question}
         </CardTitle>  
-        </div>
+        </Link>
         
         
       </CardHeader>
@@ -192,15 +195,28 @@ export default function MarketDetailsCard({
         </div>
 
         {/* AI Delta */}
-        <div>
-          <Stat
-            label="AI Delta"
-            value={delta != null ? formatPercent(delta) : '—'}
-            tooltip="Absolute difference between market and AI probabilities"
-            tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
-            density="compact"
-            align="center"
-          />
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0">
+            <Stat
+              label="AI Delta"
+              value={delta != null ? formatPercent(delta) : '—'}
+              tooltip="Absolute difference between market and AI probabilities"
+              tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
+              density="compact"
+              align="center"
+            />
+          </div>
+          {latestPrediction?.predictionResult?.reasoning && (
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Reasoning</div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {latestPrediction.predictionResult.reasoning.length > 120 
+                  ? `${latestPrediction.predictionResult.reasoning.slice(0, 120)}...`
+                  : latestPrediction.predictionResult.reasoning
+                }
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Generate New AI Prediction Button */}

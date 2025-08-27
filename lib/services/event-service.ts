@@ -100,6 +100,7 @@ export async function getTrendingEventsWithMarkets(
               outcomesProbabilities: true,
               createdAt: true,
               modelName: true,
+              predictionResult: true,
             }
           }
         } : {}
