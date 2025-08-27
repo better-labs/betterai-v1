@@ -13,7 +13,7 @@ import MarketDetailsCard from '@/features/market/MarketCard.client'
 import { MarketEventHeader } from '@/features/market/MarketEventHeader'
 import { PredictionReasoningCard } from '@/features/prediction/PredictionReasoningCard.client'
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
-import { serializePredictionData } from '@/lib/serialization'
+import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 
 // Force dynamic rendering to avoid build-time database queries
@@ -55,18 +55,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         
-        {/* Event/Market Header */}
-        <MarketEventHeader
-          className="mb-6"
-          size="lg"
-          eventId={serializedEvent?.id ?? null}
-          eventTitle={serializedEvent?.title ?? null}
-          eventImage={serializedEvent?.image ?? null}
-          eventIcon={serializedEvent?.icon ?? null}
-          marketId={serializedMarket.id}
-          marketQuestion={serializedMarket.question}
-        />
-
+        
 
         {/* Prediction Section */}
         <div className="space-y-6">
@@ -124,7 +113,6 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                       <h4 className="font-medium mb-2">Reasoning</h4>
                       <PredictionReasoningCard 
                         reasoning={predictionResult.reasoning}
-                        collapsedHeight="7rem"
                         showHeader={false}
                         className="border-0 shadow-none bg-transparent"
                       />
@@ -159,11 +147,12 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           {/* Past Predictions */}
           {serializedAllPredictions.length > 1 && (
             <PredictionHistoryList
-              predictions={serializePredictionData(serializedAllPredictions)}
+              predictions={mapPredictionsToDTO(serializedAllPredictions as any)}
               marketId={marketId}
               showChecks={false}
               showPredictions={true}
               className="mt-6"
+              currentMarketOutcomePrices={serializedMarket.outcomePrices ?? null}
             />
           )}
         </div>

@@ -11,10 +11,12 @@ import { Button } from "@/shared/ui/button"
 import { Stat, StatGroup } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
-import { formatPercent, toUnitProbability } from '@/lib/utils'
+import { formatPercent } from '@/lib/utils'
+import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
+import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -55,18 +57,9 @@ export default function MarketDetailsCard({
       })}`
     : 'No AI prediction yet'
 
-  // Calculate AI Delta (absolute difference between first outcomes)
-  const calculateDelta = () => {
-    if (!latestPrediction || !market.outcomePrices?.[0] || !latestPrediction.outcomesProbabilities?.[0]) {
-      return null
-    }
-    const marketProb = toUnitProbability(market.outcomePrices[0])
-    const aiProb = toUnitProbability(latestPrediction.outcomesProbabilities[0])
-    if (marketProb == null || aiProb == null) return null
-    return Math.abs(marketProb - aiProb)
-  }
-
-  const delta = calculateDelta()
+  const delta = latestPrediction
+    ? computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
+    : null
 
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -135,34 +128,11 @@ export default function MarketDetailsCard({
               href={`/market/${market.id}`}
               className="block hover:opacity-80 transition-opacity"
             >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Stat
-                        label="Market Probability"
-                        value={
-                          <div className={components.outcome.container}>
-                            {market.outcomes?.map((outcome, i) => (
-                              <div key={i} className={components.outcome.row}>
-                                <span className={components.outcome.label}>{outcome}</span>
-                                <span className={components.outcome.value}>
-                                  {formatPercent(market.outcomePrices?.[i])}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        }
-                        density="compact"
-                        align="left"
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{lastUpdatedLabel}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <MarketProbabilityStat 
+                outcomes={market.outcomes}
+                outcomePrices={market.outcomePrices as number[] | null}
+                tooltip={lastUpdatedLabel}
+              />
             </Link>
           </div>
             
@@ -216,8 +186,8 @@ export default function MarketDetailsCard({
               <Stat
                 label="AI Delta"
                 value={delta != null ? formatPercent(delta) : '—'}
-                tooltip="Absolute difference between market and AI probabilities"
-                tone={delta && delta >= 0.10 ? 'positive' : delta && delta >= 0.05 ? 'caution' : 'neutral'}
+                tooltip={DELTA_TOOLTIP}
+                tone={getDeltaTone(delta)}
                 density="compact"
                 align="center"
               />
@@ -308,7 +278,7 @@ export default function MarketDetailsCard({
       <Link
         href={href}
         aria-label={`View market: ${market.question}`}
-        className={`${components.interactive.nonInteractiveOverlay} ${components.interactive.cardLink.fullOverlay}`}
+        className={`${components.interactive.nonInteractiveOverlay} ${components.interactive.fullOverlay}`}
       />
     </div>
   ) : (

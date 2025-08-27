@@ -146,16 +146,7 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
   return (
     <PredictionPollingErrorBoundary>
       <div className="space-y-6">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => router.push(`/predict/${marketId}`)}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Generator
-        </Button>
-
+      
         {/* Global Status */}
         <Card>
           <CardContent className="p-4">
@@ -237,7 +228,9 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
 }
 
 interface SessionPrediction {
-  id?: number
+  id?: string
+  outcomes?: string[]
+  outcomesProbabilities?: number[]
   predictionResult?: {
     outcomes: string[]
     probabilities: number[]
@@ -301,15 +294,15 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
         {status === 'completed' && prediction && (
           <div className="space-y-3">
             {/* Prediction outcomes */}
-            {prediction.predictionResult?.outcomes && (
+            {prediction.outcomes && prediction.outcomesProbabilities && (
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Predicted Probabilities:</h4>
                 <div className="space-y-1">
-                  {prediction.predictionResult?.outcomes.map((outcome: string, index: number) => (
+                  {prediction.outcomes.map((outcome: string, index: number) => (
                     <div key={outcome} className="flex justify-between text-sm">
                       <span>{outcome}</span>
                       <Badge variant="outline">
-                        {formatPercent(prediction.predictionResult?.probabilities?.[index])}
+                        {formatPercent(prediction.outcomesProbabilities?.[index] || 0)}
                       </Badge>
                     </div>
                   ))}

@@ -6,11 +6,11 @@ import { PredictionReasoningCard } from "@/features/prediction/PredictionReasoni
 
 import * as predictionCheckService from '@/lib/services/prediction-check-service'
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
-import { PredictionUserMessageCard } from "@/features/prediction/PredictionUserMessageCard.client"
 import MarketDetailsCard from '@/features/market/MarketCard.client'
 import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
 import { mapPredictionToDTO } from '@/lib/dtos/prediction-dto'
+import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
 
 // Force dynamic rendering to avoid build-time database queries
@@ -64,18 +64,15 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         )}
 
         <PredictionReasoningCard reasoning={reasoning} />
-
-        {/* First: Prompt message */}
-        <PredictionUserMessageCard userMessage={prediction.userMessage} />
-
-        {/* Then: Past predictions only */}
+        {/* Past predictions only */}
         <PredictionHistoryList
           className="mt-2"
           checks={checks}
-          predictions={pastPredictions}
+          predictions={mapPredictionsToDTO(pastPredictions as any)}
           marketId={marketId ?? null}
           showChecks={false}
           showPredictions={true}
+          currentMarketOutcomePrices={marketDTO?.outcomePrices ?? null}
         />
       </div>
       </div>

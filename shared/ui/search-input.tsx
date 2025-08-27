@@ -11,6 +11,8 @@ interface SearchInputProps {
   className?: string
 }
 
+
+
 export function SearchInput({ 
   value, 
   onChange, 
@@ -20,22 +22,32 @@ export function SearchInput({
 }: SearchInputProps) {
   return (
     <div className={`${components.input.search.container} ${className || ''}`}>
-      <Search className={components.input.search.iconLeft} />
+      {/* Left slot */}
+      <div className={components.input.search.iconLeft}>
+        <Search className="h-4 w-4" />
+      </div>
+
+      {/* Input */}
       <input
         type="text"
+        aria-label={placeholder}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={components.input.search.input}
       />
+
+      {/* Right slot */}
       {value && (
-        <button
-          type="button"
-          onClick={onClear}
-          className={components.input.search.button}
-        >
-          <X className="h-4 w-4" />
-        </button>
+        <div className={components.input.search.iconRight}>
+          <button
+            type="button"
+            onClick={onClear}
+            className={components.input.search.button}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       )}
     </div>
   )

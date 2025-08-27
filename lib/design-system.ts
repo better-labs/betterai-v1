@@ -34,26 +34,68 @@ export const spacing = {
 // ============================================================================
 
 export const layout = {
-  // Page structure
+  // Page structure (references spacing tokens to reduce redundancy)
   page: {
     container: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
-    section: 'mb-24',
-    hero: 'py-16 mb-24',
+    section: spacing.section, // Reference spacing tokens
+    hero: spacing.hero,
   },
   
-  // Grid systems
+  // Enhanced grid systems with auto-fit and CSS Grid areas
   grid: {
+    // Traditional responsive columns
     cols: {
       '1': 'grid-cols-1',
       '2': 'grid-cols-1 md:grid-cols-2',
       '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
       '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+      '6': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6',
     },
+    
+    // Auto-fit columns for flexible layouts
+    autoFit: {
+      xs: 'grid-cols-[repeat(auto-fit,minmax(150px,1fr))]',
+      sm: 'grid-cols-[repeat(auto-fit,minmax(200px,1fr))]',
+      md: 'grid-cols-[repeat(auto-fit,minmax(250px,1fr))]',
+      lg: 'grid-cols-[repeat(auto-fit,minmax(300px,1fr))]',
+      xl: 'grid-cols-[repeat(auto-fit,minmax(350px,1fr))]',
+    },
+    
+    // Auto-fill columns for consistent sizing
+    autoFill: {
+      xs: 'grid-cols-[repeat(auto-fill,minmax(150px,1fr))]',
+      sm: 'grid-cols-[repeat(auto-fill,minmax(200px,1fr))]',
+      md: 'grid-cols-[repeat(auto-fill,minmax(250px,1fr))]',
+      lg: 'grid-cols-[repeat(auto-fill,minmax(300px,1fr))]',
+      xl: 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]',
+    },
+    
     gap: {
+      xs: 'gap-2',
       sm: 'gap-4',
       md: 'gap-6',
       lg: 'gap-8',
       xl: 'gap-12',
+    },
+    
+    // CSS Grid template areas for complex layouts
+    areas: {
+      dashboard: `[grid-template-areas:'header_header''sidebar_main''footer_footer'] md:[grid-template-areas:'header_header''sidebar_main''sidebar_main']`,
+      profile: `[grid-template-areas:'avatar_info''bio_bio''actions_actions'] lg:[grid-template-areas:'avatar_info_actions''bio_bio_bio']`,
+      card: `[grid-template-areas:'header''content''footer'] md:[grid-template-areas:'header_header''content_sidebar''footer_footer']`,
+    },
+    
+    // Grid area utilities
+    area: {
+      header: '[grid-area:header]',
+      sidebar: '[grid-area:sidebar]',
+      main: '[grid-area:main]',
+      footer: '[grid-area:footer]',
+      avatar: '[grid-area:avatar]',
+      info: '[grid-area:info]',
+      bio: '[grid-area:bio]',
+      actions: '[grid-area:actions]',
+      content: '[grid-area:content]',
     }
   },
   
@@ -69,21 +111,126 @@ export const layout = {
 } as const;
 
 // ============================================================================
+// CORE TOKENS (radii, elevation, durations, z-index)
+// ============================================================================
+
+export const radii = {
+  sm: 'rounded-sm',
+  md: 'rounded-md',
+  lg: 'rounded-lg',
+  full: 'rounded-full',
+} as const;
+
+export const elevation = {
+  sm: 'shadow-sm',
+  md: 'shadow-md',
+  lg: 'shadow-lg',
+} as const;
+
+// Enhanced animation system with modern easing and durations
+export const animation = {
+  duration: {
+    instant: 'duration-0',
+    fast: 'duration-150',
+    normal: 'duration-300',
+    slow: 'duration-500',
+    slower: 'duration-700',
+  },
+  
+  easing: {
+    // Standard CSS easing
+    linear: 'ease-linear',
+    in: 'ease-in',
+    out: 'ease-out',
+    inOut: 'ease-in-out',
+    
+    // Modern cubic-bezier curves
+    spring: 'ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]',
+    natural: 'ease-[cubic-bezier(0.4,0.0,0.2,1)]',
+    sharp: 'ease-[cubic-bezier(0.4,0.0,0.6,1)]',
+    emphasized: 'ease-[cubic-bezier(0.2,0.0,0,1)]',
+  },
+  
+  // Combined animation classes
+  transitions: {
+    all: 'transition-all duration-300 ease-in-out',
+    colors: 'transition-colors duration-200 ease-in-out',
+    transform: 'transition-transform duration-300 ease-out',
+    shadow: 'transition-shadow duration-200 ease-in-out',
+    size: 'transition-[width,height] duration-300 ease-in-out',
+  }
+} as const;
+
+// Legacy duration export for backward compatibility
+export const duration = animation.duration;
+
+export const zIndex = {
+  dropdown: 'z-20',
+  popover: 'z-30',
+  modal: 'z-50',
+  toast: 'z-50',
+} as const;
+
+// Enhanced focus management for accessibility
+export const accessibility = {
+  focus: {
+    // Default focus styling with ring
+    default: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring',
+    // High visibility focus for critical actions
+    high: 'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-primary',
+    // Inset ring for compact elements
+    inset: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+    // Subtle focus for secondary elements
+    subtle: 'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:ring-muted-foreground',
+    // Custom color focus rings
+    success: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500',
+    warning: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-500',
+    destructive: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500',
+  },
+  
+  // Skip to content link
+  skipLink: 'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium',
+  
+  // Screen reader only text
+  srOnly: 'sr-only',
+  
+  // ARIA live regions
+  liveRegion: {
+    polite: 'sr-only',
+    assertive: 'sr-only',
+  },
+  
+  // Focus trap boundaries
+  focusTrap: {
+    start: 'sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0',
+    end: 'sr-only focus:not-sr-only focus:absolute focus:bottom-0 focus:right-0',
+  }
+} as const;
+
+// ============================================================================
 // TYPOGRAPHY SCALE
 // ============================================================================
 
 export const typography = {
-  // Font sizes with consistent line heights
-  h1: 'text-3xl font-bold leading-tight mb-6',
-  h2: 'text-2xl font-semibold leading-tight mb-6',
-  h3: 'text-xl font-semibold leading-tight mb-4',
-  h4: 'text-lg font-medium leading-tight mb-3',
-  h5: 'text-md font-medium leading-tight mb-2',
-  h6: 'text-sm font-medium leading-tight mb-2',
+  // Fluid typography with clamp() for optimal responsive scaling
+  h1: 'text-[clamp(1.75rem,4vw,3rem)] font-bold leading-tight', // 28px-48px
+  h2: 'text-[clamp(1.5rem,3vw,2rem)] font-semibold leading-tight', // 24px-32px
+  h3: 'text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold leading-tight', // 20px-24px
+  h4: 'text-[clamp(1.125rem,2vw,1.25rem)] font-medium leading-tight', // 18px-20px
+  h5: 'text-base font-medium leading-tight',
+  h6: 'text-sm font-medium leading-tight',
   
-  // Body text
-  body: 'text-base leading-relaxed',
-  bodyLarge: 'text-lg leading-relaxed',
+  // Traditional responsive typography (alternative to fluid)
+  responsive: {
+    h1: 'text-2xl md:text-3xl lg:text-4xl font-bold leading-tight',
+    h2: 'text-xl md:text-2xl lg:text-3xl font-semibold leading-tight',
+    h3: 'text-lg md:text-xl lg:text-2xl font-semibold leading-tight',
+    h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
+  },
+  
+  // Body text with fluid scaling
+  body: 'text-[clamp(0.875rem,1.5vw,1rem)] leading-relaxed', // 14px-16px
+  bodyLarge: 'text-[clamp(1rem,2vw,1.125rem)] leading-relaxed', // 16px-18px
   bodySmall: 'text-sm leading-relaxed',
   
   // Special text
@@ -107,9 +254,9 @@ export const components = {
   button: {
     base: 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
     size: {
-      sm: 'btn-sm',
-      md: 'btn-md', 
-      lg: 'btn-lg',
+      sm: 'h-8 px-3 text-sm',
+      md: 'h-10 px-4 text-sm', 
+      lg: 'h-11 px-6 text-base',
     },
     variant: {
       // High emphasis - most important actions (e.g., "Predict with AI")
@@ -126,13 +273,13 @@ export const components = {
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
     
-    // Simplified search input with relative positioning (INDUSTRY STANDARD)
+    // Simplified search input using flex-based layout (INDUSTRY STANDARD)
     search: {
-      container: 'relative flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none',
-      input: 'w-full pl-10 pr-10 py-2 bg-transparent border-0 outline-none focus:ring-0 text-sm placeholder:text-muted-foreground',
-      iconRight: 'absolute right-3 h-4 w-4 text-muted-foreground',
-      button: 'absolute right-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
+      container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
+      iconLeft: 'w-12 flex items-center justify-center text-muted-foreground',   // fixed width left
+      input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
+      iconRight: 'w-12 flex items-center justify-center text-muted-foreground', // fixed width right
+      button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
   },
@@ -143,21 +290,6 @@ export const components = {
     content: 'text-sm bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 shadow-lg',
   },
 
-  // Disclosure / Chevron patterns (industry standard)
-  // Place chevron inline to the right of the label and rotate on toggle
-  disclosure: {
-    // Container for label + chevron
-    container: 'inline-flex items-center gap-2',
-    // Optional emphasis for the label
-    label: 'font-medium',
-    // Icon sizes and animation
-    icon: 'shrink-0 transition-transform duration-200',
-    iconSm: 'h-3 w-3',
-    iconMd: 'h-4 w-4',
-    iconLg: 'h-5 w-5',
-    // Applied when expanded/open
-    iconExpanded: 'rotate-180',
-  },
 
   // Card footer metadata patterns
   cardFooter: {
@@ -189,20 +321,78 @@ export const components = {
     timestamp: 'tabular-nums',
   },
   
-  // Interactive area patterns
-  interactive: {
-    // Card link patterns - prevent overlapping interactive elements
-    cardLink: {
-      // Safe zone: link covers header/non-interactive areas only
-      safeZone: 'absolute top-0 left-0 right-0 rounded-t-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring',
-      // Full overlay (avoid when card has interactive elements)
-      fullOverlay: 'absolute inset-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring',
+  // Navigation link patterns (BEST PRACTICE: NO ARROWS/CHEVRONS)
+  navigation: {
+    // Primary navigation links
+    link: {
+      // Default navigation link styling
+      base: 'text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors',
+      // Active state for current page
+      active: 'text-foreground font-medium',
+      // Subtle variant for secondary navigation
+      subtle: 'text-muted-foreground/70 hover:text-muted-foreground transition-colors',
     },
     
-    // Best practice: Use pointer-events-none on overlay containers with interactive children
-    overlayContainer: 'relative group',
-    nonInteractiveOverlay: 'absolute inset-0 pointer-events-none',
+    // "View all" style links (common pattern)
+    viewAll: {
+      // Standard "View all" link without decorative elements
+      base: 'text-sm text-primary hover:text-primary/80 font-medium transition-colors',
+      // Muted variant for less prominent contexts
+      muted: 'text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors',
+      // With focus states for accessibility
+      accessible: `text-sm text-primary hover:text-primary/80 font-medium transition-colors ${accessibility.focus.default}`,
+    },
+    
+    // Breadcrumb navigation
+    breadcrumb: {
+      item: 'text-muted-foreground hover:text-foreground transition-colors',
+      separator: 'text-muted-foreground/50 mx-2',
+      current: 'text-foreground font-medium',
+    },
+  },
+  
+  // Consolidated interactive patterns for simpler API
+  interactive: {
+    // Basic interactive card with hover effects
+    card: 'group relative hover:shadow-md transition-shadow duration-200 cursor-pointer',
+    
+    // Card link overlay with proper focus management
+    cardLink: 'before:absolute before:inset-0 before:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring',
+    
+    // Safe area for interactive elements inside interactive cards
+    safeArea: 'relative z-10',
+    
+    // Hover states
+    hover: {
+      lift: 'hover:-translate-y-1 hover:shadow-lg transition-all duration-200',
+      glow: 'hover:shadow-lg hover:shadow-primary/10 transition-shadow duration-200',
+      scale: 'hover:scale-105 transition-transform duration-200',
+    },
+    
+    // Focus states (uses accessibility.focus patterns)
+    focus: accessibility.focus.default,
+    
+    // Legacy properties for backward compatibility (DEPRECATED)
+    /** @deprecated Use safeArea instead */
     interactiveZone: 'relative z-10 pointer-events-auto',
+    /** @deprecated Use card instead */
+    overlayContainer: 'relative group',
+    /** @deprecated Use before: pseudo-element pattern instead */
+    nonInteractiveOverlay: 'absolute inset-0 pointer-events-none',
+    /** @deprecated Use cardLink instead */
+    fullOverlay: 'absolute inset-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring',
+  },
+  
+  // Disclosure/expand patterns (for show more buttons, etc.)
+  disclosure: {
+    // Icon sizing for disclosure indicators
+    icon: 'transition-transform duration-200',
+    iconSm: 'w-4 h-4',
+    iconMd: 'w-5 h-5',
+    iconLg: 'w-6 h-6',
+    // Rotation states
+    expanded: 'rotate-180',
+    collapsed: 'rotate-0',
   },
 
   // Outcome display patterns for market predictions
@@ -225,7 +415,40 @@ export const components = {
       label: 'truncate',
       value: 'font-semibold tabular-nums',
     }
-  }
+  },
+
+  // Motion patterns for Framer Motion components
+  motion: {
+    // Expandable content containers
+    expandable: {
+      // Base classes for expandable content
+      container: 'relative overflow-hidden break-words whitespace-pre-wrap w-full',
+      // Inline styles for text wrapping
+      textWrap: { wordWrap: 'break-word' as const, overflowWrap: 'anywhere' as const },
+      // Animation settings
+      animation: {
+        duration: 0.2,
+        ease: "easeInOut" as const,
+      },
+      // Height settings
+      collapsedHeight: '8rem',
+    },
+    
+    // Fade overlay for collapsed content
+    fadeOverlay: {
+      // Base classes for fade gradient
+      container: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent',
+      // Animation settings
+      animation: {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        duration: 0.15,
+      },
+    }
+  },
+
+
 } as const;
 
 // ============================================================================
@@ -312,6 +535,49 @@ export const components = {
  * - Multiple border separators in the same card
  * - Prominent colors that compete with main content
  * - More than 3 metadata items in footer
+ */
+
+/**
+ * NAVIGATION LINKS PATTERN (BEST PRACTICE)
+ * 
+ * Clean navigation links without decorative elements like arrows or chevrons.
+ * Follows web accessibility standards and modern design principles.
+ * 
+ * "View All" Example:
+ * ```html
+ * <Link 
+ *   href="/predictions" 
+ *   className={components.navigation.viewAll.accessible}
+ * >
+ *   View all predictions
+ * </Link>
+ * ```
+ * 
+ * Primary Navigation Example:
+ * ```html
+ * <nav>
+ *   <Link 
+ *     href="/dashboard" 
+ *     className={components.navigation.link.base}
+ *   >
+ *     Dashboard
+ *   </Link>
+ * </nav>
+ * ```
+ * 
+ * Guidelines:
+ * - NO arrows, chevrons, or decorative symbols on clickable links
+ * - Use underline and color changes to indicate hover/focus states
+ * - Maintain consistent spacing and typography hierarchy
+ * - Include proper focus states for keyboard navigation
+ * - Use semantic HTML elements (Link, <a>) for navigation
+ * 
+ * Why No Arrows/Chevrons:
+ * - Creates visual noise and reduces clarity
+ * - Not necessary for users to understand clickability
+ * - Can interfere with text selection and accessibility
+ * - Modern web design favors minimal, clean interfaces
+ * - Hover and focus states provide sufficient interaction feedback
  */
 
 // ============================================================================

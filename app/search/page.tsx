@@ -54,7 +54,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </h1>
         </div>
 
-        <div className="flex gap-6">
+
+        <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
             {/* Markets Section */}
             {marketsWithUrl.length > 0 && (
@@ -178,13 +179,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             )}
           </div>
 
-          <div className="w-80 flex-shrink-0">
+          {/* Desktop Sidebar Filters - Hidden on mobile */}
+          <div className="hidden lg:block lg:w-80 lg:flex-shrink-0">
             <Card>
               <CardContent className="p-4 space-y-4">
                 <SearchInput defaultQuery={query} sort={String(sort)} status={String(status)} />
                 <Separator />
                 {/* Sort options */}
                 <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-muted-foreground">Sort by</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {[
                       { id: 'trending', label: 'Trending' },
@@ -208,6 +211,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <Separator />
                 {/* Status filters */}
                 <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     {[
                       { id: 'active', label: 'Active' },
