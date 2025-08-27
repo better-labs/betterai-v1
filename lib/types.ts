@@ -259,6 +259,16 @@ export interface PredictionCheckDTO {
   createdAt: ISODateString
 }
 
+export interface TagDTO {
+  id: string
+  label: string
+  slug?: string | null
+  forceShow?: boolean | null
+  providerUpdatedAt?: string | null // ISO string
+  provider?: string | null
+  eventCount?: number
+}
+
 // Re-export all database types from Prisma for convenience
 export type { 
   Event, 

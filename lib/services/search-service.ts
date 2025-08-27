@@ -2,7 +2,7 @@ import type { PrismaClient, Market, Event, Tag, Prediction } from '@/lib/generat
 import * as marketService from './market-service'
 import * as eventService from './event-service'
 import * as tagService from './tag-service'
-import { serializeDecimals } from '@/lib/serialization'
+import { mapSearchResultToDTO, type SearchResultDTO } from '@/lib/dtos/search-result-dto'
 import type { MarketDTO, EventDTO, PredictionDTO } from '@/lib/types'
 
 /**
@@ -78,15 +78,9 @@ export async function searchAllSerialized(
     limit?: number
     marketOptions?: Parameters<typeof marketService.searchMarkets>[2]
   }
-): Promise<{
-  markets: Array<MarketDTO & { event: EventDTO | null, predictions: PredictionDTO[] }>
-  events: Array<EventDTO & { markets?: MarketDTO[] }>
-  tags: Array<Tag & { eventCount?: number }>
-  totalResults: number
-  suggestions?: string[]
-}> {
+): Promise<SearchResultDTO> {
   const result = await searchAll(db, searchTerm, options)
-  return serializeDecimals(result) as any
+  return mapSearchResultToDTO(result)
 }
 
 /**
