@@ -276,9 +276,9 @@ export const components = {
     // Simplified search input using flex-based layout (INDUSTRY STANDARD)
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'w-12 flex items-center justify-center text-muted-foreground',
+      iconLeft: 'w-12 flex items-center justify-center text-muted-foreground',   // fixed width left
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
-      iconRight: 'w-12 flex items-center justify-center text-muted-foreground',
+      iconRight: 'w-12 flex items-center justify-center text-muted-foreground', // fixed width right
       button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 

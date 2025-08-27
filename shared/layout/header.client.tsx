@@ -100,7 +100,7 @@ export function Header() {
           </div>
 
           {/* Right side elements - directly in grid */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center  gap-3">
             {/* Search Bar Section - Hidden on mobile */}
             
             <div className="header-search hidden md:flex">
