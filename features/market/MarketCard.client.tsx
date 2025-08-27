@@ -100,7 +100,7 @@ export default function MarketDetailsCard({
 
   const card = (
     <Card className={className} data-debug-id="market-card">
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-3">
         {/* Event Icon and Title */}
         <Link 
           href={`/market/${market.id}`}
@@ -127,72 +127,100 @@ export default function MarketDetailsCard({
         {/* Market Probability Stats */}
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Stat
-                      label="Market Probability"
-                      value={
-                        <div className="space-y-1">
-                          {market.outcomes?.map((outcome, i) => (
-                            <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
-                              <span className="truncate pr-4">{outcome}</span>
-                              <span className="font-semibold tabular-nums">
-                                {formatPercent(market.outcomePrices?.[i])}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      }
-                      density="compact"
-                      align="left"
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{lastUpdatedLabel}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-            
-          {/* AI Prediction Stats */}
-          <div className="flex-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Stat
-                      label="AI Prediction"
-                      value={
-                        latestPrediction ? (
+            <Link 
+              href={`/market/${market.id}`}
+              className="block hover:opacity-80 transition-opacity"
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Stat
+                        label="Market Probability"
+                        value={
                           <div className="space-y-1">
-                            {latestPrediction.outcomes?.map((outcome, i) => (
+                            {market.outcomes?.map((outcome, i) => (
                               <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
                                 <span className="truncate pr-4">{outcome}</span>
                                 <span className="font-semibold tabular-nums">
-                                  {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
+                                  {formatPercent(market.outcomePrices?.[i])}
                                 </span>
                               </div>
                             ))}
                           </div>
-                        ) : (
+                        }
+                        density="compact"
+                        align="left"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{lastUpdatedLabel}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Link>
+          </div>
+            
+          {/* AI Prediction Stats */}
+          <div className="flex-1">
+            {latestPrediction ? (
+              <Link 
+                href={`/prediction/${latestPrediction.id}`}
+                className="block hover:opacity-80 transition-opacity"
+              >
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Stat
+                          label="AI Prediction"
+                          value={
+                            <div className="space-y-1">
+                              {latestPrediction.outcomes?.map((outcome, i) => (
+                                <div key={i} className="flex items-center justify-between text-sm border border-border rounded px-3 py-2">
+                                  <span className="truncate pr-4">{outcome}</span>
+                                  <span className="font-semibold tabular-nums">
+                                    {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          }
+                          density="compact"
+                          align="left"
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{lastGeneratedLabel}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </Link>
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Stat
+                        label="AI Prediction"
+                        value={
                           <div className="text-sm text-muted-foreground py-2">
                             No prediction yet
                           </div>
-                        )
-                      }
-                      density="compact"
-                      align="left"
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{lastGeneratedLabel}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                        }
+                        density="compact"
+                        align="left"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{lastGeneratedLabel}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         </div>
 
