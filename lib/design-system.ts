@@ -103,13 +103,22 @@ export const components = {
     hover: 'hover:shadow-md transition-shadow duration-200',
   },
   
-  // Button patterns
+  // Button patterns with hierarchy
   button: {
     base: 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
     size: {
-      sm: 'h-8 px-3 text-sm',
-      md: 'h-10 px-4 py-2',
-      lg: 'h-11 px-8',
+      sm: 'btn-sm',
+      md: 'btn-md', 
+      lg: 'btn-lg',
+    },
+    variant: {
+      // High emphasis - most important actions (e.g., "Predict with AI")
+      primary: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm',
+      // Medium emphasis - secondary actions  
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border',
+      // Low emphasis - tertiary actions (e.g., "Show More")
+      ghost: 'hover:bg-accent hover:text-accent-foreground',
+      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     }
   },
   
@@ -132,6 +141,22 @@ export const components = {
   tooltip: {
     trigger: 'cursor-help underline decoration-dotted decoration-muted-foreground underline-offset-4 hover:decoration-foreground transition-colors',
     content: 'text-sm bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 shadow-lg',
+  },
+
+  // Disclosure / Chevron patterns (industry standard)
+  // Place chevron inline to the right of the label and rotate on toggle
+  disclosure: {
+    // Container for label + chevron
+    container: 'inline-flex items-center gap-2',
+    // Optional emphasis for the label
+    label: 'font-medium',
+    // Icon sizes and animation
+    icon: 'shrink-0 transition-transform duration-200',
+    iconSm: 'h-3 w-3',
+    iconMd: 'h-4 w-4',
+    iconLg: 'h-5 w-5',
+    // Applied when expanded/open
+    iconExpanded: 'rotate-180',
   },
 
   // Card footer metadata patterns

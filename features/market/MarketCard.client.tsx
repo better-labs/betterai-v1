@@ -129,8 +129,8 @@ export default function MarketDetailsCard({
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
-        <div className="flex items-start gap-4">
-          <div className="flex-1">
+        <div className={`flex items-start gap-4 ${!latestPrediction ? 'justify-center' : ''}`}>
+          <div className={latestPrediction ? "flex-1" : "w-full max-w-md"}>
             <Link 
               href={`/market/${market.id}`}
               className="block hover:opacity-80 transition-opacity"
@@ -166,9 +166,9 @@ export default function MarketDetailsCard({
             </Link>
           </div>
             
-          {/* AI Prediction Stats */}
-          <div className="flex-1">
-            {latestPrediction ? (
+          {/* AI Prediction Stats - only show if prediction exists */}
+          {latestPrediction && (
+            <div className="flex-1">
               <Link 
                 href={`/prediction/${latestPrediction.id}`}
                 className="block hover:opacity-80 transition-opacity"
@@ -202,34 +202,12 @@ export default function MarketDetailsCard({
                   </Tooltip>
                 </TooltipProvider>
               </Link>
-            ) : (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Stat
-                        label="AI Prediction"
-                        value={
-                          <div className="text-sm text-muted-foreground py-2">
-                            No prediction yet
-                          </div>
-                        }
-                        density="compact"
-                        align="left"
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{lastGeneratedLabel}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* AI Delta */}
-        {latestPrediction ? (
+        {/* AI Delta - only show if prediction exists */}
+        {latestPrediction && (
           <Link 
             href={`/prediction/${latestPrediction.id}`}
             className="flex items-start gap-4 hover:opacity-80 transition-opacity"
@@ -256,19 +234,6 @@ export default function MarketDetailsCard({
               </div>
             )}
           </Link>
-        ) : (
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <Stat
-                label="AI Delta"
-                value="—"
-                tooltip="Absolute difference between market and AI probabilities"
-                tone="neutral"
-                density="compact"
-                align="center"
-              />
-            </div>
-          </div>
         )}
 
         {/* Generate New AI Prediction Button */}

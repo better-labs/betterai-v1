@@ -2,6 +2,7 @@
 
 import { config } from 'dotenv'
 import { resolve } from 'path'
+import { DEFAULT_MODEL } from '@/lib/config/ai-models'
 
 // Load environment variables FIRST, before any other imports
 // Try .env.local first, then fall back to .env
@@ -58,7 +59,7 @@ async function main() {
         targetDaysFromNow: 7,
         categoryMix: true
       },
-      modelName || 'google/gemini-2.5-flash',
+      modelName || DEFAULT_MODEL,
       {
         experimentTag,
         experimentNotes
