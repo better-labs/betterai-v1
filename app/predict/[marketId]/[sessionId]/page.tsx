@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
-import { PredictionResults } from './PredictionResults'
+import { PredictionResults } from '@/features/prediction/PredictionResults.client'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Skeleton } from '@/shared/ui/skeleton'
 
