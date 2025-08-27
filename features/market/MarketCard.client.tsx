@@ -226,14 +226,30 @@ export default function MarketDetailsCard({
           {/* Date metadata row */}
           <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
             <span className={components.cardFooter.timestamp}>
-              Last updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
+              Market updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
             </span>
+            {latestPrediction && (
+              <span className={components.cardFooter.timestamp}>
+                Prediction updated: {new Date(latestPrediction.createdAt).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+          
+          {/* Prediction metadata row */}
+          {latestPrediction && (
+            <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
             {event?.endDate && (
               <span className={components.cardFooter.timestamp}>
                 Ends: {new Date(event.endDate).toLocaleDateString()}
               </span>
-            )}
-          </div>
+            )}  
+              {latestPrediction.modelName && (
+                <span className={components.cardFooter.timestamp}>
+                  AI Model: {latestPrediction.modelName}
+                </span>
+              )}
+            </div>
+          )}
           
           {/* External link */}
           {externalMarketUrl && (

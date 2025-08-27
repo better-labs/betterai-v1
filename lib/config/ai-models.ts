@@ -11,10 +11,13 @@ export interface AIModel {
   description: string
 }
 
+// Default model for predictions and research
+export const DEFAULT_MODEL = 'openai/gpt-5-mini'
+
 export const AI_MODELS: AIModel[] = [
   {
-    id: 'anthropic/claude-3.7-sonnet',
-    name: 'Claude 3.7 Sonnet',
+    id: 'anthropic/claude-sonnet-4',
+    name: 'Claude Sonnet 4',
     provider: 'Anthropic',
     creditCost: 1,
     description: 'Advanced reasoning and analysis'
@@ -41,8 +44,8 @@ export const AI_MODELS: AIModel[] = [
     description: 'High-quality reasoning model'
   },
   {
-    id: 'openai/gpt-4o-mini',
-    name: 'GPT-4o Mini',
+    id: 'openai/gpt-5-mini',
+    name: 'GPT-5 Mini',
     provider: 'OpenAI',
     creditCost: 1,
     description: 'Compact and efficient model'

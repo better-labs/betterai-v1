@@ -1,8 +1,7 @@
 import { prisma } from '../db/prisma'
 import * as marketService from './market-service'
 import * as predictionService from './prediction-service'
-
-const DEFAULT_MODEL = 'google/gemini-2.0-flash-thinking-exp'
+import { DEFAULT_MODEL } from '../config/ai-models'
 import { fetchPredictionFromOpenRouter, type OpenRouterPredictionResult, EmptyContentError } from './openrouter-client'
 import type { Market, PredictionResult } from '../types'
 import { Decimal } from '@prisma/client/runtime/library'

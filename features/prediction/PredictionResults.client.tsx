@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/lib/trpc/client'
 import { AI_MODELS } from '@/lib/config/ai-models'
-import { PredictionPollingErrorBoundary } from './PredictionPollingErrorBoundary'
+import { PredictionPollingErrorBoundary } from './PredictionPollingErrorBoundary.client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
@@ -340,7 +340,7 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
                   className="flex-shrink-0"
                 >
                   <ExternalLink className="mr-2 h-3 w-3" />
-                  View Prediction Details
+                  Details
                 </Button>
               )}
             </div>

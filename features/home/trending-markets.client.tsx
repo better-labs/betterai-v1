@@ -154,7 +154,6 @@ export function TrendingMarkets() {
                 market={market}
                 event={market.event}
                 latestPrediction={market.latestPrediction}
-                href={`/market/${market.id}`}
                 className="h-full"
               />
             </motion.div>

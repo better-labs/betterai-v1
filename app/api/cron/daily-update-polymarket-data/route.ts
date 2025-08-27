@@ -9,7 +9,7 @@ export const maxDuration = 300
 
 // Input validation function
 function validateQueryParams(
-  limit: number,
+  batchSize: number,
   delayMs: number,
   daysToFetchPast: number,
   daysToFetchFuture: number,
@@ -20,9 +20,9 @@ function validateQueryParams(
 ) {
   const errors: string[] = []
   
-  // Validate limit (1-100) - Security: Prevent dump-style requests
-  if (isNaN(limit) || limit < 1 || limit > 100) {
-    errors.push('limit must be a number between 1 and 100')
+  // Validate batchSize (1-100) - Security: Prevent dump-style requests
+  if (isNaN(batchSize) || batchSize < 1 || batchSize > 100) {
+    errors.push('batchSize must be a number between 1 and 100')
   }
   
   // Validate delayMs (0-10000ms)
@@ -73,8 +73,8 @@ export async function GET(request: NextRequest) {
 
     const url = request.nextUrl
 
-    // Defaults from env with sensible fallbacks (Security: Conservative limit)
-    const defaultLimit = Math.min(Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50), 100)
+    // Defaults from env with sensible fallbacks (Security: Conservative batch size)
+    const defaultBatchSize = Math.min(Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50), 100)
     const defaultDelayMs = Number(process.env.POLYMARKET_UPDATE_DELAY_MS ?? 1000)
     const defaultDaysPast = Number(process.env.POLYMARKET_UPDATE_DAYS_PAST ?? 8)
     const defaultDaysFuture = Number(process.env.POLYMARKET_UPDATE_DAYS_FUTURE ?? 21)
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     const defaultMaxBatchFailures = Number(process.env.POLYMARKET_UPDATE_MAX_BATCH_FAILURES ?? 3)
 
     // Allow query param overrides for ad-hoc runs
-    const limit = Number(url.searchParams.get('limit') ?? defaultLimit)
+    const batchSize = Number(url.searchParams.get('batchSize') ?? url.searchParams.get('limit') ?? defaultBatchSize)
     const delayMs = Number(url.searchParams.get('delayMs') ?? defaultDelayMs)
     const daysToFetchPast = Number(url.searchParams.get('daysToFetchPast') ?? defaultDaysPast)
     const daysToFetchFuture = Number(url.searchParams.get('daysToFetchFuture') ?? defaultDaysFuture)
@@ -95,11 +95,12 @@ export async function GET(request: NextRequest) {
     const userAgent = url.searchParams.get('userAgent') || defaultUserAgent
     const maxBatchFailuresBeforeAbort = Number(url.searchParams.get('maxBatchFailuresBeforeAbort') ?? defaultMaxBatchFailures)
     const sortBy = url.searchParams.get('sortBy') || undefined
-    const totalEventLimit = url.searchParams.get('totalEventLimit') ? Number(url.searchParams.get('totalEventLimit')) : undefined
+    const maxEvents = url.searchParams.get('maxEvents') ?? url.searchParams.get('totalEventLimit')
+    const maxEventsNumber = maxEvents ? Number(maxEvents) : undefined
 
     // Validate query parameters
     const validationErrors = validateQueryParams(
-      limit,
+      batchSize,
       delayMs,
       daysToFetchPast,
       daysToFetchFuture,
@@ -120,7 +121,7 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await updatePolymarketEventsAndMarketData({
-      limit,
+      batchSize,
       delayMs,
       maxRetries,
       retryDelayMs,
@@ -130,7 +131,7 @@ export async function GET(request: NextRequest) {
       daysToFetchFuture,
       maxBatchFailuresBeforeAbort,
       sortBy,
-      totalEventLimit,
+      maxEvents: maxEventsNumber,
     })
 
     // Send heartbeat to BetterStack on successful completion

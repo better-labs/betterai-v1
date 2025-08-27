@@ -44,7 +44,7 @@ async function runDailyPolymarketUpdate(dryRun = false) {
   console.log(`🔧 Using ${use6MonthConfig ? '6-MONTH' : 'STANDARD'} configuration`)
   
   // Allow ENV overrides for window and throttling
-  if (process.env[`${configPrefix}LIMIT`]) params.set('limit', String(process.env[`${configPrefix}LIMIT`]))
+  if (process.env[`${configPrefix}LIMIT`]) params.set('batchSize', String(process.env[`${configPrefix}LIMIT`]))
   if (process.env[`${configPrefix}DELAY_MS`]) params.set('delayMs', String(process.env[`${configPrefix}DELAY_MS`]))
   if (process.env[`${configPrefix}DAYS_PAST`]) params.set('daysToFetchPast', String(process.env[`${configPrefix}DAYS_PAST`]))
   if (process.env[`${configPrefix}DAYS_FUTURE`]) params.set('daysToFetchFuture', String(process.env[`${configPrefix}DAYS_FUTURE`]))
@@ -53,11 +53,11 @@ async function runDailyPolymarketUpdate(dryRun = false) {
   if (process.env[`${configPrefix}TIMEOUT_MS`]) params.set('timeoutMs', String(process.env[`${configPrefix}TIMEOUT_MS`]))
   if (process.env[`${configPrefix}USER_AGENT`]) params.set('userAgent', String(process.env[`${configPrefix}USER_AGENT`]))
   if (process.env[`${configPrefix}SORT_BY`]) params.set('sortBy', String(process.env[`${configPrefix}SORT_BY`]))
-  if (process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]) params.set('totalEventLimit', String(process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]))
+  if (process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]) params.set('maxEvents', String(process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]))
   
-  // For 6-month config, set totalEventLimit to 100 if not already set
+  // For 6-month config, set maxEvents to 100 if not already set
   if (use6MonthConfig && !process.env[`${configPrefix}TOTAL_EVENT_LIMIT`]) {
-    params.set('totalEventLimit', '100')
+    params.set('maxEvents', '100')
   }
 
   const qs = params.toString()

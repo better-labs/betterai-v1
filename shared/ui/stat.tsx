@@ -47,8 +47,10 @@ export function Stat({
         {tooltip && (
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger asChild><Info className="h-3 w-3 opacity-70" /></TooltipTrigger>
-              <TooltipContent side="top" className="max-w-64 text-xs">{tooltip}</TooltipContent>
+              <TooltipTrigger asChild>
+                <Info className="h-3 w-3 opacity-70 hover:opacity-100 hover:bg-muted/50 rounded p-0.5 transition-all" />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-64 text-xs bg-background border-border shadow-lg">{tooltip}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}

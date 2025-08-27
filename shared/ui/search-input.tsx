@@ -20,9 +20,7 @@ export function SearchInput({
 }: SearchInputProps) {
   return (
     <div className={`${components.input.search.container} ${className || ''}`}>
-      <div className={components.input.search.iconLeft}>
-        <Search className="h-4 w-4 text-muted-foreground" />
-      </div>
+      <Search className={components.input.search.iconLeft} />
       <input
         type="text"
         placeholder={placeholder}
@@ -31,15 +29,13 @@ export function SearchInput({
         className={components.input.search.input}
       />
       {value && (
-        <div className={components.input.search.iconRight}>
-          <button
-            type="button"
-            onClick={onClear}
-            className={components.input.search.button}
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onClear}
+          className={components.input.search.button}
+        >
+          <X className="h-4 w-4" />
+        </button>
       )}
     </div>
   )
