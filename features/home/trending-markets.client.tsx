@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { ChevronDown, ChevronRight, TrendingUp } from "lucide-react"
 import { components } from "@/lib/design-system"
@@ -22,6 +22,7 @@ export function TrendingMarkets() {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [marketLimit, setMarketLimit] = useState(10)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [autoLoadCount, setAutoLoadCount] = useState(0)
   
   // Fetch trending markets using tRPC
   const {
@@ -49,6 +50,25 @@ export function TrendingMarkets() {
   
   const popularTags = popularTagsResponse?.success ? popularTagsResponse.data : []
   const markets = marketsData?.items || []
+  const shouldShowManual = autoLoadCount >= 2
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  // Auto-load on scroll for first 2 times
+  useEffect(() => {
+    if (shouldShowManual || isLoadingMore || !marketsData?.hasMore) return
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          handleLoadMore(true)
+        }
+      },
+      { threshold: 0.1, rootMargin: '200px' }
+    )
+    
+    if (sentinelRef.current) observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [shouldShowManual, isLoadingMore, marketsData?.hasMore, marketLimit])
 
   const handleTagSelect = (tagId: string) => {
     setSelectedTagIds(prev => 
@@ -62,12 +82,16 @@ export function TrendingMarkets() {
     setSelectedTagIds([])
   }
 
-  const handleShowMore = async () => {
+  const handleLoadMore = async (isAutoLoad = false) => {
     setIsLoadingMore(true)
     const oldLimit = marketLimit
     const newLimit = oldLimit + 10
     
-    console.log(`Loading more markets: ${oldLimit} → ${newLimit}`)
+    if (isAutoLoad) {
+      setAutoLoadCount(prev => prev + 1)
+    }
+    
+    console.log(`Loading more markets: ${oldLimit} → ${newLimit} (${isAutoLoad ? 'auto' : 'manual'})`)
     setMarketLimit(newLimit)
     
     // Wait for the new data to be loaded
@@ -176,13 +200,18 @@ export function TrendingMarkets() {
         </motion.div>
       )}
 
-      {/* Show More Button */}
-      {!marketsLoading && marketsData?.hasMore && (
+      {/* Auto-load sentinel for first 2 loads */}
+      {!shouldShowManual && marketsData?.hasMore && (
+        <div ref={sentinelRef} className="h-4" aria-hidden="true" />
+      )}
+
+      {/* Manual Show More Button - appears after 2 auto-loads */}
+      {shouldShowManual && marketsData?.hasMore && (
         <div className="text-center">
           <button
-            onClick={handleShowMore}
+            onClick={() => handleLoadMore(false)}
             disabled={marketsLoading || isLoadingMore}
-            className={`${components.button.base} ${components.button.variant.outline} ${components.button.size.lg} gap-2 touch-manipulation`}
+            className={`${components.button.base} ${components.button.variant.secondary} ${components.button.size.lg} gap-2 touch-manipulation`}
             aria-label="Load more trending markets"
           >
             {isLoadingMore ? (
@@ -192,8 +221,8 @@ export function TrendingMarkets() {
               </>
             ) : (
               <>
-                <span>Show More Markets
-                <ChevronRight className={`${components.disclosure.icon} ${components.disclosure.iconMd}`} /></span>
+                <span>Show More Markets</span>
+                <ChevronDown className={`${components.disclosure.icon} ${components.disclosure.iconMd}`} />
               </>
             )}
           </button>
