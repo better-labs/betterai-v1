@@ -18,7 +18,8 @@ import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
-import { MarketProbabilityStats } from '@/features/market/MarketProbabilityStats.client'
+import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
+import { PredictionStats } from '@/features/prediction/PredictionStats.client'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -115,11 +116,25 @@ export default function MarketDetailsCard({
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
-        <MarketProbabilityStats 
-          market={market}
-          latestPrediction={latestPrediction}
-          lastUpdatedLabel={lastUpdatedLabel}
-        />
+        <div className="flex items-start gap-4">
+          <div className={latestPrediction ? "flex-1" : "w-full max-w-md"}>
+            <Link 
+              href={`/market/${market.id}`}
+              className="block hover:opacity-80 transition-opacity"
+            >
+              <MarketProbabilityStat 
+                outcomes={market.outcomes}
+                outcomePrices={market.outcomePrices as number[] | null}
+                tooltip={lastUpdatedLabel}
+              />
+            </Link>
+          </div>
+            
+          {/* AI Prediction Stats - only show if prediction exists */}
+          {latestPrediction && (
+            <PredictionStats prediction={latestPrediction} className="flex-1" />
+          )}
+        </div>
 
         {/* AI Delta - only show if prediction exists */}
         {latestPrediction && (
