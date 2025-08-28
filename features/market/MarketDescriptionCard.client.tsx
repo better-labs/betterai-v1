@@ -21,7 +21,7 @@ export function MarketDescriptionCard({ market }: MarketDescriptionCardProps) {
         <CardTitle>Market Description</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Key Stats moved from Market Details */}
+        
         <div className="flex items-center gap-6 mb-4">
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-muted-foreground" />

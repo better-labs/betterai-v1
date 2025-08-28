@@ -282,3 +282,4 @@ Prefer flexbox layout instead of absolution positioning to ensure mobile first g
 Build and Runtime errors: if you find or are given build or runtime errors, try first to consider whether the error is tied to a deeper system design issue or whether it is a small tactical issue. If there is a bigger design issue, please stop and share this information with user for their feedback.
 Prefer fat services for writes (transactions, idempotency), thin for reads.
 Any updates made to CLAUDE.md, please also update .cursor/rules/general-cursor-project-rule.mdc accordingly and vice versa.
+- try to remove inline styling wherever possible, instead leverage /lib/design-system.ts

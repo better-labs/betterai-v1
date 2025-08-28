@@ -340,18 +340,18 @@ export const components = {
       current: 'text-foreground font-medium',
     },
     
-    // Mobile navigation menu patterns
+    // Mobile navigation menu patterns - consistent with dropdown spacing
     mobileMenu: {
       // Container for mobile dropdown menu
       container: 'bg-background border border-border shadow-lg',
-      // Menu items with larger text for mobile
-      item: 'flex items-center gap-3 px-3 py-3 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Menu items with consistent py-2.5 spacing to match dropdown
+      item: 'flex items-center gap-3 px-3 py-2.5 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
       // Icon sizing for menu items
       icon: 'h-5 w-5 flex-shrink-0',
       // Separator styling
       separator: 'my-2 border-t border-border',
-      // Submenu trigger styling
-      subTrigger: 'flex items-center justify-between w-full px-3 py-3 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Submenu trigger styling with consistent py-2.5 spacing
+      subTrigger: 'flex items-center justify-between w-full px-3 py-2.5 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
       // Submenu content styling
       subContent: 'bg-background border border-border shadow-lg',
     },
