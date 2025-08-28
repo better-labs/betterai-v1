@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { trpc } from '@/lib/trpc/client'
 import { AI_MODELS } from '@/lib/config/ai-models'
 import { PredictionPollingErrorBoundary } from './PredictionPollingErrorBoundary.client'
@@ -16,10 +17,11 @@ import {
   Clock, 
   ArrowLeft,
   RefreshCw,
-  ExternalLink
+  
 } from 'lucide-react'
 import { formatPercent } from '@/lib/utils'
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
+import { PredictionOutcomes } from './PredictionOutcomes.client'
 
 interface PredictionResultsProps {
   sessionId: string
@@ -233,6 +235,8 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
         {session.status === 'FINISHED' && (
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button 
+              variant="secondary"
+              size="md"
               onClick={() => router.push(`/predict/${marketId}`)}
               className="flex-1"
             >
@@ -351,33 +355,24 @@ function ModelResultCard({ model, prediction, sessionStatus, sessionStep, modelI
           <div className="space-y-3">
             {/* Prediction outcomes */}
             {prediction.outcomes && prediction.outcomesProbabilities && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Predicted Probabilities:</h4>
-                <div className="space-y-1">
-                  {prediction.outcomes.map((outcome: string, index: number) => (
-                    <div key={outcome} className="flex justify-between text-sm">
-                      <span>{outcome}</span>
-                      <Badge variant="outline">
-                        {formatPercent(prediction.outcomesProbabilities?.[index] || 0)}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <PredictionOutcomes
+                outcomes={prediction.outcomes}
+                probabilities={prediction.outcomesProbabilities}
+                className="space-y-2"
+              />
             )}
             
             {/* View Prediction Details Button */}
             {prediction.id && (
               <div className="pt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => window.open(`/prediction/${prediction.id}`, '_blank')}
-                  className="w-full"
+                <Link 
+                  href={`/prediction/${prediction.id}`}
+                  target="_blank"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full"
                 >
-                  <ExternalLink className="mr-2 h-3 w-3" />
+                  
                   View Details
-                </Button>
+                </Link>
               </div>
             )}
           </div>
