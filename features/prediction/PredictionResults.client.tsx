@@ -8,18 +8,17 @@ import { AI_MODELS } from '@/lib/config/ai-models'
 import { PredictionPollingErrorBoundary } from './PredictionPollingErrorBoundary.client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-import { Badge } from '@/shared/ui/badge'
+
 import { Alert, AlertDescription } from '@/shared/ui/alert'
-import { 
-  Loader2, 
-  CheckCircle, 
-  AlertCircle, 
-  Clock, 
-  ArrowLeft,
+import {
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  Clock,
   RefreshCw,
-  
+
 } from 'lucide-react'
-import { formatPercent } from '@/lib/utils'
+
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
 import { OutcomeStat } from '@/shared/ui/outcome-stat'
 
