@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import { formatPercent } from '@/lib/utils'
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
-import { PredictionOutcomes } from './PredictionOutcomes.client'
+import { OutcomeStat } from '@/shared/ui/outcome-stat'
 
 interface PredictionResultsProps {
   sessionId: string
@@ -355,9 +355,10 @@ function ModelResultCard({ model, prediction, sessionStatus, sessionStep, modelI
           <div className="space-y-3">
             {/* Prediction outcomes */}
             {prediction.outcomes && prediction.outcomesProbabilities && (
-              <PredictionOutcomes
+              <OutcomeStat
+                label="Predicted Probabilities"
                 outcomes={prediction.outcomes}
-                probabilities={prediction.outcomesProbabilities}
+                values={prediction.outcomesProbabilities}
                 className="space-y-2"
               />
             )}
