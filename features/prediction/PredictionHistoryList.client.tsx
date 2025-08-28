@@ -48,7 +48,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
             <CardTitle>Past Predictions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`grid ${layout.grid.cols['2']} ${layout.grid.gap.md}`}>
+            <div className="space-y-3">
               {predictions!.map((p, idx) => {
                 const delta = computeDeltaFromArrays(
                   currentMarketOutcomePrices,
@@ -61,37 +61,38 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                   <div
                     key={idx}
                     onClick={() => isClickable && handlePredictionClick(p.id!)}
-                    className={`${components.card.base} ${spacing.card} ${isClickable ? components.interactive.card : ''}`}
+                    className={`flex items-center justify-between p-3 rounded-md border border-border ${isClickable ? 'hover:bg-muted/40 cursor-pointer' : ''}`}
                     role={isClickable ? "button" : undefined}
-                    data-debug-id={isClickable ? "prediction-card" : undefined}
+                    data-debug-id={isClickable ? "prediction-row" : undefined}
                   >
-                    <div className="flex flex-col space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className={`${typography.bodySmall} text-muted-foreground`}>
-                          {new Date(p.createdAt).toLocaleString(undefined, { 
-                            year: 'numeric', 
-                            month: 'short', 
-                            day: 'numeric',
-                            hour: 'numeric', 
-                            minute: '2-digit' 
-                          })}
-                        </span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className={`${typography.label} tabular-nums ${getDeltaColor(delta)}`}>
-                                {delta !== null ? formatPercent(delta) : '—'}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{DELTA_TOOLTIP}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <span className={`${typography.caption}`}>
+                    <div className="flex flex-col">
+                      <span className={`${typography.bodySmall} text-muted-foreground`}>
+                        {new Date(p.createdAt).toLocaleString(undefined, { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: 'numeric', 
+                          minute: '2-digit' 
+                        })}
+                      </span>
+                      <span className={`${typography.caption} mt-1`}>
                         {p.modelName || 'Unknown Model'}
                       </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`${typography.bodySmall} text-muted-foreground`}>Delta:</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`${typography.label} tabular-nums ${getDeltaColor(delta)}`}>
+                              {delta !== null ? formatPercent(delta) : '—'}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{DELTA_TOOLTIP}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
                 )
