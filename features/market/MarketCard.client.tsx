@@ -209,9 +209,11 @@ export default function MarketDetailsCard({
         {/* Generate New AI Prediction Button */}
         {!hidePredictionButton && (
           <div className="pt-2 space-y-3">
-            <Button 
+            <Button
               onClick={handleGeneratePrediction}
-              className="w-full flex items-center gap-2"
+              variant="primary"
+              size="md"
+              className="w-full"
               data-debug-id="generate-prediction-btn"
             >
               <Brain className="h-4 w-4" />

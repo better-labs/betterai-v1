@@ -256,25 +256,7 @@ export const components = {
     hover: 'hover:shadow-md transition-shadow duration-200',
   },
   
-  // Button patterns with hierarchy
-  button: {
-    base: 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
-    size: {
-      sm: 'h-8 px-3 text-sm',
-      md: 'h-10 px-4 text-sm', 
-      lg: 'h-11 px-6 text-base',
-    },
-    variant: {
-      // High emphasis - most important actions (e.g., "Predict with AI")
-      primary: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm',
-      // Medium emphasis - secondary actions  
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border',
-      // Low emphasis - tertiary actions (e.g., "Show More")
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-    }
-  },
-  
+
   // Input patterns
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
@@ -582,15 +564,8 @@ export const usageExamples = {
         </button>
       </div>
     </div>
-  `,
-  
-  // Button with proper accessibility
-  button: `
-    <button className={\`\${components.button.base} \${components.button.size.md} \${components.button.variant.primary}\`}>
-      Predict with AI
-    </button>
-  `,
-  
+    `,
+
   // Navigation link without decorative arrows
   navigationLink: `
     <Link 

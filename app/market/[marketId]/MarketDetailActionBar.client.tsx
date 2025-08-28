@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { usePrivy } from '@privy-io/react-auth'
 import { trpc } from '@/lib/trpc/client'
-import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
+import { Button } from "@/shared/ui/button"
 import { Card, CardContent } from "@/shared/ui/card"
 import { Coins, Brain } from 'lucide-react'
 
@@ -79,10 +79,9 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
           <div className="flex items-center gap-3">
             {hasRecentSession && (
               <Button
+                onClick={handleViewLastRun}
                 variant="outline"
                 size="sm"
-                onClick={handleViewLastRun}
-                className="flex items-center gap-2"
               >
                 <Brain className="h-4 w-4" />
                 View Last Run
@@ -90,10 +89,10 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
             )}
 
             <Button
-              variant="primary"
               onClick={handlePredictClick}
               disabled={authenticated && credits < 1}
-              className="flex items-center gap-2"
+              variant="primary"
+              size="md"
               data-debug-id="market-detail-predict-button"
             >
               <Brain className="h-4 w-4" />

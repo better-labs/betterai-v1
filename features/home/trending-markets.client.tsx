@@ -8,6 +8,7 @@ import type { AppRouter } from "@/lib/trpc/routers/_app"
 import type { inferProcedureOutput } from "@trpc/server"
 import { trpc } from "@/shared/providers/trpc-provider"
 import { LoadingCard } from "@/shared/ui/loading"
+import { Button } from "@/shared/ui/button"
 import MarketDetailsCard from "@/features/market/MarketCard.client"
 
 // Use tRPC's inferred types
@@ -83,12 +84,14 @@ export function TrendingMarkets() {
     return (
       <div className="border rounded-lg p-8 text-center bg-card">
         <p className="text-destructive">Error loading trending markets</p>
-        <button 
+        <Button
           onClick={() => refetchMarkets()}
-          className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          variant="primary"
+          size="sm"
+          className="mt-2"
         >
           Retry
-        </button>
+        </Button>
       </div>
     )
   }
@@ -166,10 +169,12 @@ export function TrendingMarkets() {
       {/* Manual Show More Button - appears after 2 auto-loads */}
       {shouldShowManual && marketsData?.hasMore && (
         <div className="text-center">
-          <button
+          <Button
             onClick={() => handleLoadMore(false)}
             disabled={marketsLoading || isLoadingMore}
-            className={`${components.button.base} ${components.button.variant.secondary} ${components.button.size.lg} gap-2 touch-manipulation`}
+            variant="secondary"
+            size="lg"
+            className="gap-2 touch-manipulation"
             aria-label="Load more trending markets"
           >
             {isLoadingMore ? (
@@ -183,7 +188,7 @@ export function TrendingMarkets() {
                 <ChevronDown className={`${components.disclosure.icon} ${components.disclosure.iconMd}`} />
               </>
             )}
-          </button>
+          </Button>
         </div>
       )}
 
