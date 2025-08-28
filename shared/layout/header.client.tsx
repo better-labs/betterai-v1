@@ -100,10 +100,9 @@ export function Header() {
           </div>
 
           {/* Right side elements - directly in grid */}
-          <div className="flex items-center  gap-3">
+          <div className="flex items-center gap-4 md:gap-6">
             {/* Search Bar Section - Hidden on mobile */}
-            
-            <div className="header-search hidden md:flex">
+            <div className="header-search hidden md:flex flex-1 max-w-sm">
               <form onSubmit={handleSearch} className="w-full">
                 <SearchInput
                   value={searchQuery}
@@ -124,21 +123,22 @@ export function Header() {
             </div> */}
 
             {/* Auth section */}
-            <div className="flex items-center justify-center w-24 h-8">
+            <div className="flex items-center justify-center min-w-0 flex-shrink-0">
               {ready ? (
                 <PrivyUserPill />
               ) : (
-                <div className="w-full h-full bg-muted/50 rounded animate-pulse" />
+                <div className="h-8 w-20 bg-muted/50 rounded animate-pulse" />
               )}
             </div>
 
             {/* Menu */}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 px-3 shadow-sm hover:shadow-md transition-shadow">
-                    <Menu className="h-7 w-7" />
-                  </Button>
-                </DropdownMenuTrigger>
+            <div className="flex-shrink-0">
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 px-3 shadow-sm hover:shadow-md transition-shadow">
+                      <Menu className="h-7 w-7" />
+                    </Button>
+                  </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 shadow-lg">
                 {/* Mobile Search */}
                 {/* {flags.showSearch && (
@@ -279,6 +279,7 @@ export function Header() {
                 </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>

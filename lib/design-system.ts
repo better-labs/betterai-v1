@@ -94,7 +94,6 @@ export const interaction = {
   // Interactive container widths and spacing for icon containers and flex layouts
   container: {
     // Width tokens
-    minWidth: 'w-11',       // 44px - matches standard touch target (WCAG AAA)
     standard: 'w-10',       // 40px - basic icon containers (WCAG AA)
     compact: 'w-8',         // 32px - minimal but functional for tight layouts
     
