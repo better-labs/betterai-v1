@@ -59,37 +59,42 @@ export default async function PredictionDetailPage({ params }: PageProps) {
             Prediction Detail
           </h1>
         </div>
-        {/* Market Card with current prediction */}
-        {marketDTO && eventDTO && (
-          <MarketDetailsCard
-            market={marketDTO}
-            event={eventDTO}
-            latestPrediction={mapPredictionToDTO(prediction as any)}
-            className="w-full"
-            hideReasoning={true}
-          />
-        )}
 
-        <PredictionDetailCard
-          predictionResult={prediction.predictionResult}
-          serializedPrediction={mapPredictionToDTO(prediction as any)}
-          title="Prediction Detail"
-          description="AI-generated prediction for this market"
-          showMakePredictionButton={false}
-          makePredictionHref="/"
-        />
-        <PredictionHistoryList
-          className="mt-2"
-          checks={checks}
-          predictions={mapPredictionsToDTO(pastPredictions as any)}
-          marketId={marketId ?? null}
-          showChecks={false}
-          showPredictions={true}
-          currentMarketOutcomePrices={marketDTO?.outcomePrices ?? null}
-        />
+        {/* Main Content Sections */}
+        <div className={components.page.sections}>
+          {/* Market Card with current prediction */}
+          {marketDTO && eventDTO && (
+            <MarketDetailsCard
+              market={marketDTO}
+              event={eventDTO}
+              latestPrediction={mapPredictionToDTO(prediction as any)}
+              className="w-full"
+              hideReasoning={true}
+            />
+          )}
+
+          {/* Prediction Detail Card */}
+          <PredictionDetailCard
+            predictionResult={prediction.predictionResult}
+            serializedPrediction={mapPredictionToDTO(prediction as any)}
+            title="Prediction Detail"
+            description="AI-generated prediction for this market"
+            showMakePredictionButton={false}
+            makePredictionHref="/"
+          />
+
+          {/* Prediction History */}
+          <PredictionHistoryList
+            checks={checks}
+            predictions={mapPredictionsToDTO(pastPredictions as any)}
+            marketId={marketId ?? null}
+            showChecks={false}
+            showPredictions={true}
+            currentMarketOutcomePrices={marketDTO?.outcomePrices ?? null}
+          />
+        </div>
       </div>
-      </div>
-      
+    </div>
   )
 }
 

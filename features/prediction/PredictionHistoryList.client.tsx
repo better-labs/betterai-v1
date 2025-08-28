@@ -43,49 +43,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
 
   return (
     <div className={className}>
-      {renderChecks && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Recent Checks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-3">
-              <Sparkline values={checks!.map(c => c.delta ?? 0)} height={40} />
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[160px]">Time</TableHead>
-                  <TableHead>AI</TableHead>
-                  <TableHead>Market</TableHead>
-                  <TableHead>Delta</TableHead>
-                  <TableHead>Closed</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {checks!.map((c, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(c.createdAt).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="tabular-nums">{formatPercent(c.aiProbability)}</TableCell>
-                    <TableCell className="tabular-nums">{formatPercent(c.marketProbability)}</TableCell>
-                    <TableCell className="tabular-nums">{formatPercent(c.delta)}</TableCell>
-                    <TableCell>{c.marketClosed ? 'Yes' : 'No'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-          {marketId && (
-            <CardFooter>
-              <Link href={`/market/${marketId}/predictions`} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
-                View all predictions
-              </Link>
-            </CardFooter>
-          )}
-        </Card>
-      )}
+      
 
       {renderPredictions && (
         <Card>
