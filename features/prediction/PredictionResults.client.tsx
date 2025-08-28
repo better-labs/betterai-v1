@@ -366,33 +366,20 @@ function ModelResultCard({ model, prediction, sessionStatus, sessionStep, modelI
               </div>
             )}
             
-            {/* Action buttons with even horizontal spacing */}
-            <div className="flex justify-between items-start gap-4 pt-2">
-              {/* AI reasoning - collapsible on mobile */}
-              {prediction.aiResponse && (
-                <details className="text-sm flex-1">
-                  <summary className="cursor-pointer font-medium text-muted-foreground hover:text-foreground">
-                    View AI Analysis
-                  </summary>
-                  <div className="mt-2 p-3 bg-muted rounded-lg text-xs whitespace-pre-wrap max-h-40 overflow-y-auto">
-                    {prediction.aiResponse}
-                  </div>
-                </details>
-              )}
-              
-              {/* View Prediction Details Button */}
-              {prediction.id && (
+            {/* View Prediction Details Button */}
+            {prediction.id && (
+              <div className="pt-2">
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => window.open(`/prediction/${prediction.id}`, '_blank')}
-                  className="flex-shrink-0"
+                  className="w-full"
                 >
                   <ExternalLink className="mr-2 h-3 w-3" />
-                  Details
+                  View Details
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

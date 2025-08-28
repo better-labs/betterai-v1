@@ -19,6 +19,7 @@ import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shar
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
 import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
+import { PredictionStats } from '@/features/prediction/PredictionStats.client'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -49,15 +50,6 @@ export default function MarketDetailsCard({
     minute: '2-digit',
   }) : 'Unknown'}`
 
-  const lastGeneratedLabel = latestPrediction?.createdAt 
-    ? `Last generated: ${new Date(latestPrediction.createdAt).toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'numeric', 
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-      })}`
-    : 'No AI prediction yet'
 
   const delta = latestPrediction
     ? computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
@@ -140,36 +132,7 @@ export default function MarketDetailsCard({
             
           {/* AI Prediction Stats - only show if prediction exists */}
           {latestPrediction && (
-            <div className="flex-1">
-              <Link 
-                href={`/prediction/${latestPrediction.id}`}
-                className="block hover:opacity-80 transition-opacity"
-              >
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <Stat
-                          label="AI Prediction"
-                          value={
-                            <OutcomeDisplay
-                              outcomes={latestPrediction.outcomes || []}
-                              values={latestPrediction.outcomesProbabilities || []}
-                              variant="compact"
-                            />
-                          }
-                          density="compact"
-                          align="left"
-                        />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{lastGeneratedLabel}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Link>
-            </div>
+            <PredictionStats prediction={latestPrediction} className="flex-1" />
           )}
         </div>
 
