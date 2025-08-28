@@ -12,6 +12,8 @@ import { mapEventToDTO } from '@/lib/dtos/event-dto'
 import { mapPredictionToDTO } from '@/lib/dtos/prediction-dto'
 import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
+import { PredictionDetailCard } from "@/features/prediction/PredictionDetailCard.client"
+import { components } from "@/lib/design-system"
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -49,9 +51,14 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const eventDTO = event ? mapEventToDTO(event) : null
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="max-w-4xl mx-auto">
-      <div className="space-y-6">
+    <div className={components.page.container}>
+      <div className={components.page.content}>
+        {/* Page Header */}
+        <div className={components.pageHeader.container}>
+          <h1 className={components.pageHeader.title}>
+            Prediction Detail
+          </h1>
+        </div>
         {/* Market Card with current prediction */}
         {marketDTO && eventDTO && (
           <MarketDetailsCard
@@ -63,8 +70,14 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           />
         )}
 
-        <PredictionReasoningCard reasoning={reasoning} />
-        {/* Past predictions only */}
+        <PredictionDetailCard
+          predictionResult={prediction.predictionResult}
+          serializedPrediction={mapPredictionToDTO(prediction as any)}
+          title="Prediction Detail"
+          description="AI-generated prediction for this market"
+          showMakePredictionButton={false}
+          makePredictionHref="/"
+        />
         <PredictionHistoryList
           className="mt-2"
           checks={checks}
@@ -76,7 +89,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         />
       </div>
       </div>
-    </div>
+      
   )
 }
 

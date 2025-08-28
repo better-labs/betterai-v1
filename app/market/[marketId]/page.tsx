@@ -3,7 +3,6 @@ import { prisma } from '@/lib/db/prisma'
 import * as marketService from '@/lib/services/market-service'
 import * as predictionService from '@/lib/services/prediction-service'
 import * as eventService from '@/lib/services/event-service'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
 import Link from 'next/link'
 import { generateMarketURL } from '@/lib/utils'
@@ -11,7 +10,7 @@ import type { PredictionResult } from '@/lib/types'
 import MarketDetailsCard from '@/features/market/MarketCard.client'
 import { MarketEventHeader } from '@/features/market/MarketEventHeader'
 import { MarketDescriptionCard } from '@/features/market/MarketDescriptionCard.client'
-import { PredictionReasoningCard } from '@/features/prediction/PredictionReasoningCard.client'
+import { PredictionDetailCard } from '@/features/prediction/PredictionDetailCard.client'
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
@@ -53,16 +52,17 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   const externalMarketUrl = await generateMarketURL(marketId)
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        
+    <div className={components.page.container}>
+      <div className={components.page.content}>
         {/* Page Header */}
-        <div className={components.pageHeader.compact.container}>
-          <h1 className={components.pageHeader.compact.title}>Market Detail</h1>
+        <div className={components.pageHeader.container}>
+          <h1 className={components.pageHeader.title}>
+            Market Detail
+          </h1>
         </div>
 
-        {/* Prediction Section */}
-        <div className="space-y-6">
+        {/* Main Content Sections */}
+        <div className={components.page.sections}>
           {/* Market Details Card */}
           <MarketDetailsCard
             market={serializedMarket}
@@ -71,94 +71,15 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
             latestPrediction={serializedPrediction}
           />
 
+          {/* Market Description */}
+          <MarketDescriptionCard market={serializedMarket} />
+
           {/* Most Recent Prediction */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Most Recent Prediction</CardTitle>
-              <CardDescription>
-                AI-generated prediction for this market
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {predictionResult ? (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Prediction</h4>
-                    <p className="text-lg font-semibold text-primary">
-                      {predictionResult.prediction}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium mb-2">Probability</h4>
-                    <div className="flex items-center gap-3">
-                      {(() => {
-                        const p0 = Array.isArray(predictionResult.outcomesProbabilities) ? predictionResult.outcomesProbabilities[0] : null
-                        const pct = typeof p0 === 'number' ? Math.round(p0 * 100) : null
-                        return (
-                          <>
-                            <span className="text-2xl font-bold">{pct !== null ? `${pct}%` : '--'}</span>
-                            <div className="flex-1 bg-muted rounded-full h-3">
-                              <div
-                                className="bg-primary h-3 rounded-full transition-all"
-                                style={{ width: pct !== null ? `${pct}%` : '0%' }}
-                              />
-                            </div>
-                          </>
-                        )
-                      })()}
-                    </div>
-                  </div>
-
-
-
-                  {predictionResult.reasoning && (
-                    <div>
-                      <h4 className="font-medium mb-2">Reasoning</h4>
-                      <PredictionReasoningCard 
-                        reasoning={predictionResult.reasoning}
-                        showHeader={false}
-                        className="border-0 shadow-none bg-transparent"
-                      />
-                    </div>
-                  )}
-
-                  {predictionResult.confidence_level && (
-                    <div>
-                      <h4 className="font-medium mb-2">Confidence:  {predictionResult.confidence_level}</h4>
-                      
-                    </div>
-                  )}
-
-                  {serializedPrediction && (
-                    <div className="pt-4 border-t">
-                      <p className="text-xs text-muted-foreground">
-                        Prediction made on {new Date(serializedPrediction.createdAt as unknown as string).toLocaleString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
-                    No predictions available for this market yet.
-                  </p>
-                  <Button asChild>
-                    <Link href="/">
-                      Make a Prediction
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
+          <PredictionDetailCard
+            predictionResult={predictionResult}
+            serializedPrediction={serializedPrediction}
+          />
         </div>
-
-       
-
-        {/* Market Description */}
-        <MarketDescriptionCard market={serializedMarket} />
 
         {/* Past Predictions */}
         {serializedAllPredictions.length > 1 && (
@@ -171,22 +92,6 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
             currentMarketOutcomePrices={serializedMarket.outcomePrices ?? null}
           />
         )}
-
-         {/* Action Buttons */}
-         <div className="mt-8 flex gap-4">
-          <Button asChild>
-            <Link href="/">
-              Back to Markets
-            </Link>
-          </Button>
-          {serializedPrediction && (
-            <Button variant="outline" asChild>
-              <Link href={`/market/${marketId}/predictions`}>
-                View All Predictions
-              </Link>
-            </Button>
-          )}
-        </div>
       </div>
     </div>
   )

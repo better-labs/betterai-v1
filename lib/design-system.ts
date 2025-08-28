@@ -219,6 +219,37 @@ export const typography = {
 // ============================================================================
 
 export const components = {
+
+  // Page layout patterns - consistent page containers
+  page: {
+    // Standard page container (replaces repeated container structure)
+    container: 'container mx-auto px-4 py-10',
+    content: 'max-w-4xl mx-auto',
+    sections: 'space-y-6',
+    
+    // Compact variant for simpler pages
+    compact: {
+      container: 'container mx-auto px-4 py-8',
+      content: 'max-w-3xl mx-auto',
+      sections: 'space-y-4',
+    },
+    
+    // Wide variant for dashboard-style pages
+    wide: {
+      container: 'container mx-auto px-4 py-10',
+      content: 'max-w-6xl mx-auto',
+      sections: 'space-y-8',
+    }
+  },
+
+  // Page header patterns - consistent headers across pages
+  pageHeader: {
+    container: 'text-center mb-6',
+    title: typography.h1,
+    subtitle: `${typography.body} text-muted-foreground`,
+    icon: 'text-primary',
+  },
+
   // Card patterns
   card: {
     base: 'bg-card border border-border rounded-lg shadow-sm',
@@ -434,30 +465,6 @@ export const components = {
     }
   },
 
-  // Page header patterns - consistent headers across pages
-  pageHeader: {
-    // Main page header container with consistent spacing
-    container: 'text-center mb-12',
-    
-    // Main page title with icon (like homepage "Trending Markets")
-    titleWithIcon: `${typography.h1} flex items-center justify-center gap-2`,
-    
-    // Main page title without icon
-    title: typography.h1,
-    
-    // Page subtitle/description
-    subtitle: `${typography.body} text-muted-foreground`,
-    
-    // Icon styling for page headers
-    icon: 'text-primary',
-    
-    // Alternative compact header for detail pages
-    compact: {
-      container: 'mb-8',
-      title: `${typography.h2} text-center`,
-      subtitle: `${typography.bodySmall} text-muted-foreground text-center`,
-    }
-  },
 
   // Motion patterns for Framer Motion components
   motion: {
@@ -534,6 +541,23 @@ export type InteractionKey = keyof typeof interaction;
  * Copy these patterns for consistent implementation across the app.
  */
 export const usageExamples = {
+  // Standard page layout (replaces repeated container structure)
+  pageLayout: `
+    <div className={components.page.container}>
+      <div className={components.page.content}>
+        {/* Page header */}
+        <div className={components.pageHeader.container}>
+          <h1 className={components.pageHeader.title}>Page Title</h1>
+        </div>
+        
+        {/* Page sections */}
+        <div className={components.page.sections}>
+          {/* Content sections go here */}
+        </div>
+      </div>
+    </div>
+  `,
+
   // Basic card with proper spacing
   card: `
     <div className={\`\${components.card.base} \${spacing.card}\`}>
