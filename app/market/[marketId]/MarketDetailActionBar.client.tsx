@@ -95,7 +95,6 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
               size="md"
               data-debug-id="market-detail-predict-button"
             >
-              <Brain className="h-4 w-4" />
               Predict with AI
             </Button>
           </div>

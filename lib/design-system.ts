@@ -348,15 +348,7 @@ export const components = {
       active: 'text-foreground font-medium', // Current page indicator
       subtle: 'text-muted-foreground/70 hover:text-muted-foreground transition-colors',
     },
-    
-    // "View all" style links - clean without decorative elements
-    // Modern design principle: let content and behavior indicate clickability
-    viewAll: {
-      base: 'text-sm text-primary hover:text-primary/80 font-medium transition-colors',
-      muted: 'text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors',
-      accessible: `text-sm text-primary hover:text-primary/80 font-medium transition-colors ${accessibility.focus.default}`,
-    },
-    
+
     // Breadcrumb navigation
     breadcrumb: {
       item: 'text-muted-foreground hover:text-foreground transition-colors',
@@ -424,29 +416,6 @@ export const components = {
     expanded: 'rotate-180',
     collapsed: 'rotate-0',
   },
-
-  // Outcome display patterns for market predictions
-  outcome: {
-    // Container for grouped outcomes (like Yes/No results)
-    container: 'space-y-1',
-    
-    // Individual outcome row with consistent spacing
-    row: 'flex items-center gap-3 text-sm px-3 py-2',
-    
-    // Label styling (e.g., "Yes", "No", "Outcome A")
-    label: 'truncate',
-    
-    // Value styling (e.g., "60%", probability values)
-    value: 'font-semibold tabular-nums',
-    
-    // Compact variant for smaller spaces
-    compact: {
-      row: 'flex items-center gap-2 text-xs px-2 py-1.5',
-      label: 'truncate',
-      value: 'font-semibold tabular-nums',
-    }
-  },
-
 
   // Motion patterns for Framer Motion components
   motion: {
@@ -566,16 +535,6 @@ export const usageExamples = {
     </div>
     `,
 
-  // Navigation link without decorative arrows
-  navigationLink: `
-    <Link 
-      href="/predictions" 
-      className={components.navigation.viewAll.accessible}
-    >
-      View all predictions
-    </Link>
-  `,
-  
   // Dropdown menu with proper spacing
   dropdownMenu: `
     <DropdownMenuContent className={components.dropdown.content}>

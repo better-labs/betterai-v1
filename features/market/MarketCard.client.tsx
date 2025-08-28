@@ -10,6 +10,8 @@ import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { Stat, StatGroup } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
+import { OutcomeDisplay } from "@/shared/ui/outcome-display"
+import { ViewAllLink } from "@/shared/ui/view-all-link"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent } from '@/lib/utils'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
@@ -150,16 +152,11 @@ export default function MarketDetailsCard({
                         <Stat
                           label="AI Prediction"
                           value={
-                            <div className={components.outcome.container}>
-                              {latestPrediction.outcomes?.map((outcome, i) => (
-                                <div key={i} className={components.outcome.row}>
-                                  <span className={components.outcome.label}>{outcome}</span>
-                                  <span className={components.outcome.value}>
-                                    {formatPercent(latestPrediction.outcomesProbabilities?.[i])}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
+                            <OutcomeDisplay
+                              outcomes={latestPrediction.outcomes || []}
+                              values={latestPrediction.outcomesProbabilities || []}
+                              variant="compact"
+                            />
                           }
                           density="compact"
                           align="left"
@@ -216,22 +213,21 @@ export default function MarketDetailsCard({
               className="w-full"
               data-debug-id="generate-prediction-btn"
             >
-              <Brain className="h-4 w-4" />
               Predict with AI
             </Button>
             
             {/* External Market Link */}
             {externalMarketUrl && (
               <div className="text-center">
-                <a
-                  className={`${components.navigation.viewAll.base} text-sm`}
+                <ViewAllLink
                   href={externalMarketUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  variant="base"
+                  external={true}
+                  className="text-sm"
                   data-debug-id="market-external-link"
                 >
                   Open Market on {event?.marketProvider ?? 'Polymarket'}
-                </a>
+                </ViewAllLink>
               </div>
             )}
           </div>
