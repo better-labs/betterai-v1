@@ -1,7 +1,6 @@
 "use client"
 
-import { Stat } from "@/shared/ui/stat"
-import { OutcomeDisplay } from "@/shared/ui/outcome-display"
+import { OutcomeStat } from "@/shared/ui/outcome-stat"
 
 interface PredictionOutcomesProps {
   outcomes: string[]
@@ -17,19 +16,11 @@ export function PredictionOutcomes({
   className 
 }: PredictionOutcomesProps) {
   return (
-    <div className={className}>
-      <Stat
-        label={title}
-        value={
-          <OutcomeDisplay
-            outcomes={outcomes}
-            values={probabilities}
-            variant="compact"
-          />
-        }
-        density="compact"
-        align="left"
-      />
-    </div>
+    <OutcomeStat
+      label={title}
+      outcomes={outcomes}
+      values={probabilities}
+      className={className}
+    />
   )
 }

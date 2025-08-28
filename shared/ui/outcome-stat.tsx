@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { Stat } from "@/shared/ui/stat"
-import { OutcomeDisplay } from "@/shared/ui/outcome-display"
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
+import { formatPercent } from "@/lib/utils"
 
 interface OutcomeStatProps {
   label: string
@@ -26,6 +26,26 @@ export function OutcomeStat({
   density = "compact",
   align = "left",
 }: OutcomeStatProps) {
+  // Inline OutcomeDisplay logic (always uses compact variant)
+  const outcomeContent = (
+    <div className="space-y-1">
+      {outcomes.map((outcome, i) => {
+        const value = values?.[i]
+        return (
+          <div key={i} className="flex items-center gap-2 px-2 py-1.5">
+            <span className="truncate">{outcome}</span>
+            <span className="font-semibold tabular-nums">
+              {value !== undefined && value !== null
+                ? formatPercent(value)
+                : '--'
+              }
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+
   const statContent = (
     <TooltipProvider>
       <Tooltip>
@@ -33,13 +53,7 @@ export function OutcomeStat({
           <div>
             <Stat
               label={label}
-              value={
-                <OutcomeDisplay
-                  outcomes={outcomes}
-                  values={values}
-                  variant="compact"
-                />
-              }
+              value={outcomeContent}
               density={density}
               align={align}
             />

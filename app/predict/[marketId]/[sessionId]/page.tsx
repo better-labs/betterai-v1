@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { PredictionResults } from '@/features/prediction/PredictionResults.client'
 import { Card, CardContent } from '@/shared/ui/card'
-import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
+import { OutcomeStat } from '@/shared/ui/outcome-stat'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 interface PredictionResultsPageProps {
@@ -54,9 +54,10 @@ export default async function PredictionResultsPage({ params }: PredictionResult
           <CardContent className="p-6">
             <div className="space-y-4">
               <h2 className="text-lg font-semibold">{market.question}</h2>
-              <MarketProbabilityStat 
-                outcomes={market.outcomes}
-                outcomePrices={outcomePrices}
+              <OutcomeStat
+                label="Market Probability"
+                outcomes={market.outcomes || []}
+                values={outcomePrices || []}
               />
             </div>
           </CardContent>
