@@ -3,7 +3,7 @@
 import "./header.css"
 import { Button } from "@/shared/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu"
-import { TrendingUp, Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail } from "lucide-react"
+import { TrendingUp, Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail, Activity } from "lucide-react"
 import { SearchInput } from "@/shared/ui/search-input"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -209,6 +209,7 @@ export function Header() {
                 {flags.showActivity && (
                   <DropdownMenuItem asChild>
                     <Link href="/activity">
+                      <Activity className="h-5 w-5 flex-shrink-0" />
                       <span>Activity</span>
                     </Link>
                   </DropdownMenuItem>

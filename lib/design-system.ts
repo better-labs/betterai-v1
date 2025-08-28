@@ -91,11 +91,17 @@ export const interaction = {
     enhanced: 'w-12 h-12',  // 48px - complex interactive elements
   },
   
-  // Interactive container widths for icon containers and flex layouts
+  // Interactive container widths and spacing for icon containers and flex layouts
   container: {
+    // Width tokens
     minWidth: 'w-11',       // 44px - matches standard touch target (WCAG AAA)
     standard: 'w-10',       // 40px - basic icon containers (WCAG AA)
     compact: 'w-8',         // 32px - minimal but functional for tight layouts
+    
+    // Vertical margin tokens for flex spacing (use margin, not padding - see dropdown.item)
+    marginMin: 'my-0.5',    // 2px - minimal vertical spacing
+    marginStandard: 'my-1', // 4px - standard vertical spacing between flex items
+    marginComfortable: 'my-2', // 8px - comfortable vertical spacing
   }
 } as const;
 
