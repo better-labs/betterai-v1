@@ -90,6 +90,7 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
             )}
 
             <Button
+              variant="primary"
               onClick={handlePredictClick}
               disabled={authenticated && credits < 1}
               className="flex items-center gap-2"

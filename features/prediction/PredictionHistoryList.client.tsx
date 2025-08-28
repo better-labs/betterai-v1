@@ -65,7 +65,22 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                     role={isClickable ? "button" : undefined}
                     data-debug-id={isClickable ? "prediction-row" : undefined}
                   >
-                    <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className={`${typography.body} text-muted-foreground`}>Delta:</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`${typography.bodyLarge} tabular-nums ${getDeltaColor(delta)}`}>
+                              {delta !== null ? formatPercent(delta) : '—'}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{DELTA_TOOLTIP}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div className="flex flex-col text-right">
                       <span className={`${typography.bodySmall} text-muted-foreground`}>
                         {new Date(p.createdAt).toLocaleString(undefined, { 
                           year: 'numeric', 
@@ -78,21 +93,6 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
                       <span className={`${typography.caption} mt-1`}>
                         {p.modelName || 'Unknown Model'}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`${typography.bodySmall} text-muted-foreground`}>Delta:</span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className={`${typography.label} tabular-nums ${getDeltaColor(delta)}`}>
-                              {delta !== null ? formatPercent(delta) : '—'}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{DELTA_TOOLTIP}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
                     </div>
                   </div>
                 )

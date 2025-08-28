@@ -53,12 +53,7 @@ export function PredictionDetailCard({
                   return (
                     <>
                       <span className="text-2xl font-bold">{pct !== null ? `${pct}%` : '--'}</span>
-                      <div className="flex-1 bg-muted rounded-full h-3">
-                        <div
-                          className="bg-primary h-3 rounded-full transition-all"
-                          style={{ width: pct !== null ? `${pct}%` : '0%' }}
-                        />
-                      </div>
+                     
                     </>
                   )
                 })()}
