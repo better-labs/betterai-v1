@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { usePrivy } from '@privy-io/react-auth'
 import { trpc } from '@/lib/trpc/client'
 import { AI_MODELS } from '@/lib/config/ai-models'
 import { PredictionPollingErrorBoundary } from './PredictionPollingErrorBoundary.client'
@@ -64,10 +65,12 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
   const router = useRouter()
   const [pollingInterval, setPollingInterval] = useState(5000) // Start with 5s
 
-  // Poll session status
+  // Poll session status - but only when authenticated
+  const { ready, authenticated } = usePrivy()
   const { data: session, isLoading, error, refetch } = trpc.predictionSessions.status.useQuery(
     { sessionId },
     {
+      enabled: ready && authenticated, // Only run when Privy is ready and user is authenticated
       refetchInterval: (query) => {
         // Stop polling when finished or error (but allow auth retry)
         const data = query.state.data
