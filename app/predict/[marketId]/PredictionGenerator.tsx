@@ -186,8 +186,8 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
             </Alert>
           )}
 
-          {/* Generate Button - Fixed at bottom on mobile */}
-          <div className="sticky bottom-4 sm:static">
+          {/* Generate Button */}
+          <div>
             <Button
               onClick={handleGenerate}
               disabled={!canGenerate || isGenerating}
