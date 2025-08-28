@@ -208,7 +208,7 @@ export default function MarketDetailsCard({
 
         {/* Generate New AI Prediction Button */}
         {!hidePredictionButton && (
-          <div className="pt-2">
+          <div className="pt-2 space-y-3">
             <Button 
               onClick={handleGeneratePrediction}
               className="w-full flex items-center gap-2"
@@ -217,6 +217,21 @@ export default function MarketDetailsCard({
               <Brain className="h-4 w-4" />
               Predict with AI
             </Button>
+            
+            {/* External Market Link */}
+            {externalMarketUrl && (
+              <div className="text-center">
+                <a
+                  className={`${components.navigation.viewAll.base} text-sm`}
+                  href={externalMarketUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-debug-id="market-external-link"
+                >
+                  Open Market on {event?.marketProvider ?? 'Polymarket'}
+                </a>
+              </div>
+            )}
           </div>
         )}
 
@@ -247,21 +262,6 @@ export default function MarketDetailsCard({
                   AI Model: {latestPrediction.modelName}
                 </span>
               )}
-            </div>
-          )}
-          
-          {/* External link */}
-          {externalMarketUrl && (
-            <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single}`}>
-              <a
-                className={components.cardFooter.link}
-                href={externalMarketUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-debug-id="market-external-link"
-              >
-                Open Market on {event?.marketProvider ?? 'provider'}
-              </a>
             </div>
           )}
         </div>

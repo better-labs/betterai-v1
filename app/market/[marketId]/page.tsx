@@ -15,6 +15,7 @@ import { PredictionReasoningCard } from '@/features/prediction/PredictionReasoni
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
+import { components } from '@/lib/design-system'
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -55,7 +56,10 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         
-        
+        {/* Page Header */}
+        <div className={components.pageHeader.compact.container}>
+          <h1 className={components.pageHeader.compact.title}>Market Detail</h1>
+        </div>
 
         {/* Prediction Section */}
         <div className="space-y-6">

@@ -12,7 +12,6 @@ import { PopularTagsList } from "@/shared/ui/popular-tags-list"
 import { LoadingCard } from "@/shared/ui/loading"
 import MarketDetailsCard from "@/features/market/MarketCard.client"
 import { useApiQuery } from "@/lib/client/api-handler"
-import { typography } from "@/lib/design-system"
 
 // Use tRPC's inferred types
 type TrendingMarketsResponse = inferProcedureOutput<AppRouter['markets']['trending']>
@@ -135,12 +134,12 @@ export function TrendingMarkets() {
   return (
     <section className="space-y-6">
       {/* Header */}
-      <div className="text-center">
-        <h2 className={`${typography.h1} flex items-center justify-center gap-2`}>
-          <TrendingUp className="text-primary" />
+      <div className={components.pageHeader.container}>
+        <h2 className={components.pageHeader.titleWithIcon}>
+          <TrendingUp className={components.pageHeader.icon} />
           Trending Markets
         </h2>
-        <p className={`${typography.body} text-muted-foreground `}>
+        <p className={components.pageHeader.subtitle}>
           Markets with the highest dailytrading volume
         </p>
       </div>

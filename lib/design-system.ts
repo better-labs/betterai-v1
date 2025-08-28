@@ -434,6 +434,31 @@ export const components = {
     }
   },
 
+  // Page header patterns - consistent headers across pages
+  pageHeader: {
+    // Main page header container with consistent spacing
+    container: 'text-center mb-12',
+    
+    // Main page title with icon (like homepage "Trending Markets")
+    titleWithIcon: `${typography.h1} flex items-center justify-center gap-2`,
+    
+    // Main page title without icon
+    title: typography.h1,
+    
+    // Page subtitle/description
+    subtitle: `${typography.body} text-muted-foreground`,
+    
+    // Icon styling for page headers
+    icon: 'text-primary',
+    
+    // Alternative compact header for detail pages
+    compact: {
+      container: 'mb-8',
+      title: `${typography.h2} text-center`,
+      subtitle: `${typography.bodySmall} text-muted-foreground text-center`,
+    }
+  },
+
   // Motion patterns for Framer Motion components
   motion: {
     // Expandable content containers
