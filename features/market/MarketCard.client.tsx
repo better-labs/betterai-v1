@@ -6,19 +6,18 @@ import { usePrivy } from '@privy-io/react-auth'
 import { useEffect, useState } from 'react'
 import { trpc } from '@/lib/trpc/client'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
-import { Badge } from "@/shared/ui/badge"
+
 import { Button } from "@/shared/ui/button"
-import { Stat, StatGroup } from "@/shared/ui/stat"
+import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
-import { OutcomeDisplay } from "@/shared/ui/outcome-display"
 import { ViewAllLink } from "@/shared/ui/view-all-link"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent } from '@/lib/utils'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
+
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
-import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
+import { OutcomeStat } from '@/shared/ui/outcome-stat'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -49,15 +48,6 @@ export default function MarketDetailsCard({
     minute: '2-digit',
   }) : 'Unknown'}`
 
-  const lastGeneratedLabel = latestPrediction?.createdAt 
-    ? `Last generated: ${new Date(latestPrediction.createdAt).toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'numeric', 
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-      })}`
-    : 'No AI prediction yet'
 
   const delta = latestPrediction
     ? computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
@@ -124,52 +114,36 @@ export default function MarketDetailsCard({
       
       <CardContent className={`space-y-6 ${components.interactive.interactiveZone}`}>
         {/* Market Probability Stats */}
-        <div className={`flex items-start gap-4`}>
+        <div className="flex items-start gap-4">
           <div className={latestPrediction ? "flex-1" : "w-full max-w-md"}>
-            <Link 
+            <OutcomeStat
+              label="Market Probability"
+              outcomes={market.outcomes || []}
+              values={market.outcomePrices as number[] || []}
+              tooltip={lastUpdatedLabel}
               href={`/market/${market.id}`}
-              className="block hover:opacity-80 transition-opacity"
-            >
-              <MarketProbabilityStat 
-                outcomes={market.outcomes}
-                outcomePrices={market.outcomePrices as number[] | null}
-                tooltip={lastUpdatedLabel}
-              />
-            </Link>
+            />
           </div>
             
           {/* AI Prediction Stats - only show if prediction exists */}
           {latestPrediction && (
-            <div className="flex-1">
-              <Link 
-                href={`/prediction/${latestPrediction.id}`}
-                className="block hover:opacity-80 transition-opacity"
-              >
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <Stat
-                          label="AI Prediction"
-                          value={
-                            <OutcomeDisplay
-                              outcomes={latestPrediction.outcomes || []}
-                              values={latestPrediction.outcomesProbabilities || []}
-                              variant="compact"
-                            />
-                          }
-                          density="compact"
-                          align="left"
-                        />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{lastGeneratedLabel}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Link>
-            </div>
+            <OutcomeStat
+              label="AI Prediction"
+              outcomes={latestPrediction.outcomes || []}
+              values={latestPrediction.outcomesProbabilities || []}
+              tooltip={latestPrediction.createdAt 
+                ? `Last generated: ${new Date(latestPrediction.createdAt).toLocaleString(undefined, {
+                    year: 'numeric',
+                    month: 'numeric', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}`
+                : 'No AI prediction yet'
+              }
+              href={`/prediction/${latestPrediction.id}`}
+              className="flex-1"
+            />
           )}
         </div>
 

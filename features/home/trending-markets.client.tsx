@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { ChevronDown, ChevronRight, TrendingUp } from "lucide-react"
-import { components, typography } from "@/lib/design-system"
+import { ChevronDown, TrendingUp } from "lucide-react"
+import { components } from "@/lib/design-system"
 import type { AppRouter } from "@/lib/trpc/routers/_app"
 import type { inferProcedureOutput } from "@trpc/server"
 import { trpc } from "@/shared/providers/trpc-provider"

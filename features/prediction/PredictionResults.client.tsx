@@ -2,24 +2,26 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { usePrivy } from '@privy-io/react-auth'
 import { trpc } from '@/lib/trpc/client'
 import { AI_MODELS } from '@/lib/config/ai-models'
 import { PredictionPollingErrorBoundary } from './PredictionPollingErrorBoundary.client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-import { Badge } from '@/shared/ui/badge'
+
 import { Alert, AlertDescription } from '@/shared/ui/alert'
-import { 
-  Loader2, 
-  CheckCircle, 
-  AlertCircle, 
-  Clock, 
-  ArrowLeft,
+import {
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  Clock,
   RefreshCw,
-  ExternalLink
+
 } from 'lucide-react'
-import { formatPercent } from '@/lib/utils'
+
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
+import { OutcomeStat } from '@/shared/ui/outcome-stat'
 
 interface PredictionResultsProps {
   sessionId: string
@@ -61,12 +63,14 @@ const STATUS_CONFIG = {
 
 export function PredictionResults({ sessionId, marketId }: PredictionResultsProps) {
   const router = useRouter()
-  const [pollingInterval, setPollingInterval] = useState(10000) // Start with 10s
+  const [pollingInterval, setPollingInterval] = useState(5000) // Start with 5s
 
-  // Poll session status
+  // Poll session status - but only when authenticated
+  const { ready, authenticated } = usePrivy()
   const { data: session, isLoading, error, refetch } = trpc.predictionSessions.status.useQuery(
     { sessionId },
     {
+      enabled: ready && authenticated, // Only run when Privy is ready and user is authenticated
       refetchInterval: (query) => {
         // Stop polling when finished or error (but allow auth retry)
         const data = query.state.data
@@ -91,9 +95,9 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
   // Adjust polling frequency based on status
   useEffect(() => {
     if (session?.status === 'GENERATING') {
-      setPollingInterval(8000) // Faster during generation
+      setPollingInterval(5000) // Fast during generation
     } else if (session?.status === 'INITIALIZING' || session?.status === 'RESEARCHING') {
-      setPollingInterval(15000) // Slower during setup
+      setPollingInterval(8000) // Moderate during setup
     }
   }, [session?.status])
 
@@ -151,14 +155,36 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3" aria-live="polite">
-                <StatusIcon 
-                  className={`h-5 w-5 ${statusConfig.color} ${isActive ? 'animate-spin' : ''}`}
-                  aria-label={isActive ? "Loading" : undefined}
-                />
-                <span className="font-medium">{statusConfig.label}</span>
+              <div className="flex-1" aria-live="polite">
+                <div className="flex items-center space-x-3 mb-2">
+                  <StatusIcon 
+                    className={`h-5 w-5 ${statusConfig.color} ${isActive ? 'animate-spin' : ''}`}
+                    aria-label={isActive ? "Loading" : undefined}
+                  />
+                  <span className="font-medium">{statusConfig.label}</span>
+                  {session.status === 'GENERATING' && (
+                    <span className="text-sm text-muted-foreground">
+                      ({session.predictions.length}/{session.selectedModels.length} models completed)
+                    </span>
+                  )}
+                </div>
+                
+                {/* Progress Bar for Generation */}
+                {session.status === 'GENERATING' && (
+                  <div className="w-full bg-muted rounded-full h-2 mb-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
+                      style={{ 
+                        width: `${(session.predictions.length / session.selectedModels.length) * 100}%` 
+                      }}
+                    />
+                  </div>
+                )}
+                
                 {session.step && (
-                  <span className="text-sm text-muted-foreground">• {session.step}</span>
+                  <div className="text-sm text-muted-foreground">
+                    {session.step}
+                  </div>
                 )}
               </div>
               
@@ -189,7 +215,7 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
 
         {/* Model Results - Mobile-first vertical stack */}
         <div className="space-y-4">
-          {session.selectedModels.map((modelId) => {
+          {session.selectedModels.map((modelId, index) => {
             const model = AI_MODELS.find(m => m.id === modelId)
             const prediction = session.predictions.find(p => p.modelName === modelId)
             
@@ -199,6 +225,9 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
                 model={model}
                 prediction={prediction}
                 sessionStatus={session.status}
+                sessionStep={session.step}
+                modelIndex={index}
+                totalModels={session.selectedModels.length}
               />
             )
           })}
@@ -208,6 +237,8 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
         {session.status === 'FINISHED' && (
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button 
+              variant="secondary"
+              size="md"
               onClick={() => router.push(`/predict/${marketId}`)}
               className="flex-1"
             >
@@ -242,26 +273,46 @@ interface ModelResultCardProps {
   model?: typeof AI_MODELS[0]
   prediction?: SessionPrediction
   sessionStatus: PredictionSessionStatus
+  sessionStep?: string | null
+  modelIndex: number
+  totalModels: number
 }
 
-function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardProps) {
+function ModelResultCard({ model, prediction, sessionStatus, sessionStep, modelIndex, totalModels }: ModelResultCardProps) {
   const getModelStatus = () => {
     if (prediction) {
-      return { status: 'completed', icon: CheckCircle, color: 'text-green-600' }
+      return { status: 'completed', icon: CheckCircle, color: 'text-green-600', label: 'Complete' }
     }
     
     if (sessionStatus === 'ERROR') {
-      return { status: 'failed', icon: AlertCircle, color: 'text-red-600' }
+      return { status: 'failed', icon: AlertCircle, color: 'text-red-600', label: 'Failed' }
     }
     
-    if (sessionStatus === 'GENERATING' || sessionStatus === 'RESEARCHING') {
-      return { status: 'processing', icon: Loader2, color: 'text-blue-600' }
+    // Parse current model from step if available
+    const isCurrentModel = sessionStep && model?.id && sessionStep.includes(model.id)
+    const currentModelMatch = sessionStep?.match(/Generating prediction (\d+)\/(\d+)/)
+    const currentModelIndex = currentModelMatch ? parseInt(currentModelMatch[1]) - 1 : -1
+    
+    if (sessionStatus === 'GENERATING') {
+      if (isCurrentModel || currentModelIndex === modelIndex) {
+        return { status: 'processing', icon: Loader2, color: 'text-blue-600', label: 'Generating...' }
+      } else if (currentModelIndex > modelIndex) {
+        // This model was processed but we don't have prediction yet (shouldn't happen)
+        return { status: 'processing', icon: Loader2, color: 'text-blue-600', label: 'Processing...' }
+      } else {
+        // Model is queued
+        return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Queued' }
+      }
     }
     
-    return { status: 'waiting', icon: Clock, color: 'text-muted-foreground' }
+    if (sessionStatus === 'RESEARCHING' || sessionStatus === 'INITIALIZING') {
+      return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Waiting...' }
+    }
+    
+    return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Waiting' }
   }
 
-  const { status, icon: StatusIcon, color } = getModelStatus()
+  const { status, icon: StatusIcon, color, label } = getModelStatus()
 
   return (
     <Card data-debug-id={`model-result-${model?.id}`}>
@@ -271,72 +322,62 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
             <CardTitle className="text-base">{model?.name || 'Unknown Model'}</CardTitle>
             <p className="text-sm text-muted-foreground">{model?.provider}</p>
           </div>
-          <StatusIcon 
-            className={`h-5 w-5 ${color} ${status === 'processing' ? 'animate-spin' : ''}`}
-            aria-label={status === 'processing' ? "Loading" : undefined}
-          />
+          <div className="flex items-center gap-2">
+            <StatusIcon 
+              className={`h-5 w-5 ${color} ${status === 'processing' ? 'animate-spin' : ''}`}
+              aria-label={status === 'processing' ? "Loading" : undefined}
+            />
+            <span className={`text-sm font-medium ${color}`}>
+              {label}
+            </span>
+          </div>
         </div>
       </CardHeader>
       
       <CardContent className="pt-0">
         {status === 'waiting' && (
-          <div className="text-sm text-muted-foreground">Waiting...</div>
+          <div className="text-sm text-muted-foreground">
+            {sessionStatus === 'INITIALIZING' ? 'Initializing session...' : 
+             sessionStatus === 'RESEARCHING' ? 'Researching market...' : 
+             'Waiting in queue...'}
+          </div>
         )}
         
         {status === 'processing' && (
-          <div className="text-sm text-muted-foreground">Processing...</div>
+          <div className="text-sm text-muted-foreground">
+            Generating AI prediction...
+          </div>
         )}
         
         {status === 'failed' && (
-          <div className="text-sm text-red-600">Failed</div>
+          <div className="text-sm text-red-600">Generation failed</div>
         )}
         
         {status === 'completed' && prediction && (
           <div className="space-y-3">
             {/* Prediction outcomes */}
             {prediction.outcomes && prediction.outcomesProbabilities && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Predicted Probabilities:</h4>
-                <div className="space-y-1">
-                  {prediction.outcomes.map((outcome: string, index: number) => (
-                    <div key={outcome} className="flex justify-between text-sm">
-                      <span>{outcome}</span>
-                      <Badge variant="outline">
-                        {formatPercent(prediction.outcomesProbabilities?.[index] || 0)}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <OutcomeStat
+                label="Predicted Probabilities"
+                outcomes={prediction.outcomes}
+                values={prediction.outcomesProbabilities}
+                className="space-y-2"
+              />
             )}
             
-            {/* Action buttons with even horizontal spacing */}
-            <div className="flex justify-between items-start gap-4 pt-2">
-              {/* AI reasoning - collapsible on mobile */}
-              {prediction.aiResponse && (
-                <details className="text-sm flex-1">
-                  <summary className="cursor-pointer font-medium text-muted-foreground hover:text-foreground">
-                    View AI Analysis
-                  </summary>
-                  <div className="mt-2 p-3 bg-muted rounded-lg text-xs whitespace-pre-wrap max-h-40 overflow-y-auto">
-                    {prediction.aiResponse}
-                  </div>
-                </details>
-              )}
-              
-              {/* View Prediction Details Button */}
-              {prediction.id && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => window.open(`/prediction/${prediction.id}`, '_blank')}
-                  className="flex-shrink-0"
+            {/* View Prediction Details Button */}
+            {prediction.id && (
+              <div className="pt-2">
+                <Link 
+                  href={`/prediction/${prediction.id}`}
+                  target="_blank"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full"
                 >
-                  <ExternalLink className="mr-2 h-3 w-3" />
-                  Details
-                </Button>
-              )}
-            </div>
+                  
+                  View Details
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

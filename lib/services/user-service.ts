@@ -1,5 +1,5 @@
 import type { PrismaClient, User, UserWatchlist, Market, Prediction } from '@/lib/generated/prisma'
-import { mapUserToDTO, mapUsersToDTO, type UserDTO } from '@/lib/dtos'
+import { mapUserToDTO, type UserDTO } from '@/lib/dtos'
 import type { CreditBalance } from '@/lib/services/credit-manager'
 
 /**

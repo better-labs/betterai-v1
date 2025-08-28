@@ -23,12 +23,18 @@ export function TRPCProvider({ children }: TRPCProviderProps) {
   
   try {
     const privyContext = usePrivy()
-    getAccessToken = privyContext.getAccessToken
+    // Only use getAccessToken if Privy is ready
+    if (privyContext.ready) {
+      getAccessToken = privyContext.getAccessToken
+    }
     authenticated = privyContext.authenticated
     ready = privyContext.ready
   } catch (error) {
     // Privy not available - this is expected during SSR or initial hydration
-    console.warn('Privy context not available, using fallback:', error)
+    // Don't log in production to avoid noise
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Privy context not available, using fallback')
+    }
   }
 
   // Create stable instances to prevent re-initialization
@@ -54,7 +60,8 @@ export function TRPCProvider({ children }: TRPCProviderProps) {
   // Create trpcClient that can access the current getAccessToken function
   // Depend on authentication state to recreate client when auth changes
   const trpcClient = useMemo(() => {
-    return createTRPCClient(getBaseUrl(), getAccessToken)
+    // Only pass getAccessToken if Privy is ready to avoid race conditions
+    return createTRPCClient(getBaseUrl(), ready ? getAccessToken : undefined)
   }, [getAccessToken, authenticated, ready])
 
   return (

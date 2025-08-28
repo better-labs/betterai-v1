@@ -105,91 +105,13 @@ export const interaction = {
 } as const;
 
 // ============================================================================
-// CORE TOKENS (radii, elevation, durations, z-index)
+// CORE TOKENS (elevation)
 // ============================================================================
-
-export const radii = {
-  sm: 'rounded-sm',
-  md: 'rounded-md',
-  lg: 'rounded-lg',
-  full: 'rounded-full',
-} as const;
 
 export const elevation = {
   sm: 'shadow-sm',
   md: 'shadow-md',
   lg: 'shadow-lg',
-} as const;
-
-// Animation system with modern easing and durations
-export const animation = {
-  duration: {
-    instant: 'duration-0',
-    fast: 'duration-150',
-    normal: 'duration-300',
-    slow: 'duration-500',
-    slower: 'duration-700',
-  },
-  
-  easing: {
-    // Standard CSS easing
-    linear: 'ease-linear',
-    in: 'ease-in',
-    out: 'ease-out',
-    inOut: 'ease-in-out',
-    
-    // Modern cubic-bezier curves
-    spring: 'ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]',
-    natural: 'ease-[cubic-bezier(0.4,0.0,0.2,1)]',
-    sharp: 'ease-[cubic-bezier(0.4,0.0,0.6,1)]',
-    emphasized: 'ease-[cubic-bezier(0.2,0.0,0,1)]',
-  }
-} as const;
-
-// Legacy duration export for backward compatibility
-export const duration = animation.duration;
-
-export const zIndex = {
-  dropdown: 'z-20',
-  popover: 'z-30',
-  modal: 'z-50',
-  toast: 'z-50',
-} as const;
-
-// Enhanced focus management for accessibility
-export const accessibility = {
-  focus: {
-    // Default focus styling with ring
-    default: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring',
-    // High visibility focus for critical actions
-    high: 'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-primary',
-    // Inset ring for compact elements
-    inset: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
-    // Subtle focus for secondary elements
-    subtle: 'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:ring-muted-foreground',
-    // Custom color focus rings
-    success: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500',
-    warning: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-500',
-    destructive: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500',
-  },
-  
-  // Skip to content link
-  skipLink: 'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium',
-  
-  // Screen reader only text
-  srOnly: 'sr-only',
-  
-  // ARIA live regions
-  liveRegion: {
-    polite: 'sr-only',
-    assertive: 'sr-only',
-  },
-  
-  // Focus trap boundaries
-  focusTrap: {
-    start: 'sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0',
-    end: 'sr-only focus:not-sr-only focus:absolute focus:bottom-0 focus:right-0',
-  }
 } as const;
 
 // ============================================================================
@@ -204,13 +126,18 @@ export const typography = {
   h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
   
   // Body text with fluid scaling
-  body: 'text-[clamp(0.875rem,1.5vw,1rem)] leading-relaxed', // 14px-16px
-  bodyLarge: 'text-[clamp(1rem,2vw,1.125rem)] leading-relaxed', // 16px-18px
+  body: 'text-[clamp(0.9375rem,1.5vw,1.0625rem)] leading-relaxed', // 15px-17px
+  bodyLarge: 'text-[clamp(1.0625rem,2vw,1.1875rem)] leading-relaxed', // 17px-19px
   bodySmall: 'text-sm leading-relaxed',
   
   // Special text
   caption: 'text-sm text-muted-foreground',
   label: 'text-sm font-medium',
+  statLabel: 'text-[11px] tracking-wide text-muted-foreground',
+  
+  // Outcome display typography
+  outcomeValue: 'text-sm font-semibold tabular-nums',
+  outcomeLabel: 'text-sm truncate',
 } as const;
 
 // ============================================================================
@@ -390,8 +317,8 @@ export const components = {
       scale: 'hover:scale-105 transition-transform duration-200',
     },
     
-    // Focus states (uses accessibility.focus patterns)
-    focus: accessibility.focus.default,
+    // Focus states
+    focus: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring',
     
     // Legacy properties for backward compatibility (DEPRECATED)
     /** @deprecated Use safeArea instead */
@@ -447,6 +374,12 @@ export const components = {
     }
   },
 
+  // Outcome display patterns
+  outcome: {
+    container: 'space-y-1',
+    row: 'flex items-center gap-2 px-2 py-1.5',
+    
+  },
 
 } as const;
 
