@@ -401,14 +401,19 @@ export async function generateMarketURL(marketId: string): Promise<string | null
  * Following Privy's documentation: https://docs.privy.io/authentication/user-authentication/access-tokens
  */
 export async function authenticatedFetch(
-  url: string, 
+  url: string,
   options: RequestInit = {},
   getAccessToken: () => Promise<string>
 ): Promise<Response> {
   try {
     const accessToken = await getAccessToken()
-    
-    return fetch(url, {
+
+    if (!accessToken) {
+      console.error('No access token available for authenticated request')
+      throw new Error('No access token available')
+    }
+
+    const response = await fetch(url, {
       ...options,
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -416,9 +421,24 @@ export async function authenticatedFetch(
         ...options.headers,
       },
     })
+
+    // Log response status for debugging
+    console.log(`Authenticated fetch to ${url}: ${response.status} ${response.statusText}`)
+
+    return response
   } catch (error) {
-    console.error('Failed to get access token for authenticated request:', error)
-    throw new Error('Authentication required')
+    console.error('Authenticated fetch error:', {
+      url,
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined
+    })
+
+    // Re-throw the original error for better error handling upstream
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      throw new Error(`Network error: Unable to connect to ${url}. Check if the development server is running.`)
+    }
+
+    throw error
   }
 }
 
