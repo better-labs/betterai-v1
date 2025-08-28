@@ -213,6 +213,7 @@ export default function MarketDetailsCard({
               className="w-full"
               data-debug-id="generate-prediction-btn"
             >
+              <Brain className="h-4 w-4" />
               Predict with AI
             </Button>
             
