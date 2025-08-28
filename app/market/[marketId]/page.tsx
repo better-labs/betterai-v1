@@ -5,12 +5,12 @@ import * as predictionService from '@/lib/services/prediction-service'
 import * as eventService from '@/lib/services/event-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
-import { Calendar, DollarSign, BarChart2 } from 'lucide-react'
 import Link from 'next/link'
-import { formatVolume, generateMarketURL } from '@/lib/utils'
+import { generateMarketURL } from '@/lib/utils'
 import type { PredictionResult } from '@/lib/types'
 import MarketDetailsCard from '@/features/market/MarketCard.client'
 import { MarketEventHeader } from '@/features/market/MarketEventHeader'
+import { MarketDescriptionCard } from '@/features/market/MarketDescriptionCard.client'
 import { PredictionReasoningCard } from '@/features/prediction/PredictionReasoningCard.client'
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
@@ -119,7 +119,12 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
                     </div>
                   )}
 
-
+                  {predictionResult.confidence_level && (
+                    <div>
+                      <h4 className="font-medium mb-2">Confidence:  {predictionResult.confidence_level}</h4>
+                      
+                    </div>
+                  )}
 
                   {serializedPrediction && (
                     <div className="pt-4 border-t">
@@ -149,35 +154,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
        
 
         {/* Market Description */}
-        {serializedMarket.description && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Market Description</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Key Stats moved from Market Details */}
-              <div className="flex items-center gap-6 mb-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Volume {formatVolume(Number(serializedMarket.volume) || 0)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <BarChart2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Liquidity {formatVolume(Number(serializedMarket.liquidity) || 0)}</span>
-                </div>
-                {serializedMarket.endDate && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Market Close Date {new Date(serializedMarket.endDate).toLocaleDateString()}</span>
-                  </div>
-                )}
-              </div>
-              <p className="text-muted-foreground">
-                {serializedMarket.description}
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        <MarketDescriptionCard market={serializedMarket} />
 
         {/* Past Predictions */}
         {serializedAllPredictions.length > 1 && (
