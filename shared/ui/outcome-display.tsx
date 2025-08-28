@@ -22,8 +22,8 @@ export function OutcomeDisplay({
   const containerClass = 'space-y-1'
 
   const rowClass = variant === 'compact'
-    ? 'flex items-center gap-2 text-xs px-2 py-1.5'
-    : 'flex items-center gap-3 text-sm px-3 py-2'
+    ? 'flex items-center gap-2  px-2 py-1.5'
+    : 'flex items-center gap-3  px-3 py-2'
 
   const labelClass = 'truncate'
   const valueClass = 'font-semibold tabular-nums'

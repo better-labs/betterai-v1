@@ -2,6 +2,7 @@
 import { Info } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { typography } from "@/lib/design-system"
 
 type Tone = "neutral" | "positive" | "caution" | "critical"
 type Density = "comfortable" | "compact"
@@ -41,7 +42,7 @@ export function Stat({
 }) {
   return (
     <div className={cn("flex flex-col", align === "center" && "items-center", align === "right" && "items-end", className)}>
-      <div className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+      <div className={`flex items-center gap-1 ${typography.statLabel}`}>
         {icon}
         <span>{label}</span>
         {tooltip && (

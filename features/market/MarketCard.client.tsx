@@ -18,8 +18,7 @@ import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
-import { MarketProbabilityStat } from '@/features/market/MarketProbabilityStat'
-import { PredictionStats } from '@/features/prediction/PredictionStats.client'
+import { OutcomeStat } from '@/shared/ui/outcome-stat'
 
 interface MarketDetailsCardProps {
   market: Market
@@ -118,21 +117,34 @@ export default function MarketDetailsCard({
         {/* Market Probability Stats */}
         <div className="flex items-start gap-4">
           <div className={latestPrediction ? "flex-1" : "w-full max-w-md"}>
-            <Link 
+            <OutcomeStat
+              label="Market Probability"
+              outcomes={market.outcomes || []}
+              values={market.outcomePrices as number[] || []}
+              tooltip={lastUpdatedLabel}
               href={`/market/${market.id}`}
-              className="block hover:opacity-80 transition-opacity"
-            >
-              <MarketProbabilityStat 
-                outcomes={market.outcomes}
-                outcomePrices={market.outcomePrices as number[] | null}
-                tooltip={lastUpdatedLabel}
-              />
-            </Link>
+            />
           </div>
             
           {/* AI Prediction Stats - only show if prediction exists */}
           {latestPrediction && (
-            <PredictionStats prediction={latestPrediction} className="flex-1" />
+            <OutcomeStat
+              label="AI Prediction"
+              outcomes={latestPrediction.outcomes || []}
+              values={latestPrediction.outcomesProbabilities || []}
+              tooltip={latestPrediction.createdAt 
+                ? `Last generated: ${new Date(latestPrediction.createdAt).toLocaleString(undefined, {
+                    year: 'numeric',
+                    month: 'numeric', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}`
+                : 'No AI prediction yet'
+              }
+              href={`/prediction/${latestPrediction.id}`}
+              className="flex-1"
+            />
           )}
         </div>
 

@@ -133,6 +133,7 @@ export const typography = {
   // Special text
   caption: 'text-sm text-muted-foreground',
   label: 'text-sm font-medium',
+  statLabel: 'text-[11px] tracking-wide text-muted-foreground',
 } as const;
 
 // ============================================================================
