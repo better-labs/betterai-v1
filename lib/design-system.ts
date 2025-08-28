@@ -10,6 +10,10 @@
  * - Mobile First: Design for mobile, then enhance for larger screens
  * - Performance: Prefer CSS classes over inline styles
  * - Maintainability: Keep the design system centralized and well-documented
+ * 
+ * Layout Best Practices:
+ * - Flex Spacing: Use margin (my-*) for vertical spacing between flex items, not padding
+ *   Flex containers can compress padding but respect margin spacing between items
  */
 
 // ============================================================================
@@ -92,7 +96,6 @@ export const interaction = {
     minWidth: 'w-11',       // 44px - matches standard touch target (WCAG AAA)
     standard: 'w-10',       // 40px - basic icon containers (WCAG AA)
     compact: 'w-8',         // 32px - minimal but functional for tight layouts
-    searchIcon: 'w-16',     // 64px - optimized for search input flex layouts
   }
 } as const;
 
@@ -244,9 +247,9 @@ export const components = {
     // Advantages: predictable layout, no z-index conflicts, better accessibility
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: `${interaction.container.searchIcon} flex items-center justify-center text-muted-foreground px-2`,
+      iconLeft: `${interaction.container.standard} flex items-center justify-center text-muted-foreground px-2`,
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
-      iconRight: `${interaction.container.searchIcon} flex items-center justify-center text-muted-foreground px-2`,
+      iconRight: `${interaction.container.standard} flex items-center justify-center text-muted-foreground px-2`,
       button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
@@ -257,7 +260,9 @@ export const components = {
     // Content container
     content: 'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-background py-2 text-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
     
-    // Menu items - using margin for vertical spacing to avoid box model conflicts
+    // Menu items - IMPORTANT: Use margin (my-1) for vertical spacing, not padding
+    // Flex layouts with items-center can compress vertical padding, making it ineffective
+    // Margin creates actual space BETWEEN flex items that containers can't override
     item: 'relative flex cursor-default select-none items-center gap-2 rounded-sm px-3 py-2 my-1 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
     
     // Sub-trigger for nested menus - consistent margin spacing
@@ -344,7 +349,7 @@ export const components = {
     mobileMenu: {
       // Container for mobile dropdown menu
       container: 'bg-background border border-border shadow-lg',
-      // Menu items with margin spacing to match dropdown
+      // Menu items - using my-1 margin for proper flex spacing (see dropdown.item comment)
       item: 'flex items-center gap-3 px-3 py-2 my-1 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
       // Icon sizing for menu items
       icon: 'h-5 w-5 flex-shrink-0',
