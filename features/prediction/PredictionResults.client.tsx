@@ -61,7 +61,7 @@ const STATUS_CONFIG = {
 
 export function PredictionResults({ sessionId, marketId }: PredictionResultsProps) {
   const router = useRouter()
-  const [pollingInterval, setPollingInterval] = useState(10000) // Start with 10s
+  const [pollingInterval, setPollingInterval] = useState(5000) // Start with 5s
 
   // Poll session status
   const { data: session, isLoading, error, refetch } = trpc.predictionSessions.status.useQuery(
@@ -91,9 +91,9 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
   // Adjust polling frequency based on status
   useEffect(() => {
     if (session?.status === 'GENERATING') {
-      setPollingInterval(8000) // Faster during generation
+      setPollingInterval(5000) // Fast during generation
     } else if (session?.status === 'INITIALIZING' || session?.status === 'RESEARCHING') {
-      setPollingInterval(15000) // Slower during setup
+      setPollingInterval(8000) // Moderate during setup
     }
   }, [session?.status])
 
@@ -151,14 +151,36 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3" aria-live="polite">
-                <StatusIcon 
-                  className={`h-5 w-5 ${statusConfig.color} ${isActive ? 'animate-spin' : ''}`}
-                  aria-label={isActive ? "Loading" : undefined}
-                />
-                <span className="font-medium">{statusConfig.label}</span>
+              <div className="flex-1" aria-live="polite">
+                <div className="flex items-center space-x-3 mb-2">
+                  <StatusIcon 
+                    className={`h-5 w-5 ${statusConfig.color} ${isActive ? 'animate-spin' : ''}`}
+                    aria-label={isActive ? "Loading" : undefined}
+                  />
+                  <span className="font-medium">{statusConfig.label}</span>
+                  {session.status === 'GENERATING' && (
+                    <span className="text-sm text-muted-foreground">
+                      ({session.predictions.length}/{session.selectedModels.length} models completed)
+                    </span>
+                  )}
+                </div>
+                
+                {/* Progress Bar for Generation */}
+                {session.status === 'GENERATING' && (
+                  <div className="w-full bg-muted rounded-full h-2 mb-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
+                      style={{ 
+                        width: `${(session.predictions.length / session.selectedModels.length) * 100}%` 
+                      }}
+                    />
+                  </div>
+                )}
+                
                 {session.step && (
-                  <span className="text-sm text-muted-foreground">• {session.step}</span>
+                  <div className="text-sm text-muted-foreground">
+                    {session.step}
+                  </div>
                 )}
               </div>
               
@@ -189,7 +211,7 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
 
         {/* Model Results - Mobile-first vertical stack */}
         <div className="space-y-4">
-          {session.selectedModels.map((modelId) => {
+          {session.selectedModels.map((modelId, index) => {
             const model = AI_MODELS.find(m => m.id === modelId)
             const prediction = session.predictions.find(p => p.modelName === modelId)
             
@@ -199,6 +221,9 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
                 model={model}
                 prediction={prediction}
                 sessionStatus={session.status}
+                sessionStep={session.step}
+                modelIndex={index}
+                totalModels={session.selectedModels.length}
               />
             )
           })}
@@ -242,26 +267,46 @@ interface ModelResultCardProps {
   model?: typeof AI_MODELS[0]
   prediction?: SessionPrediction
   sessionStatus: PredictionSessionStatus
+  sessionStep?: string | null
+  modelIndex: number
+  totalModels: number
 }
 
-function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardProps) {
+function ModelResultCard({ model, prediction, sessionStatus, sessionStep, modelIndex, totalModels }: ModelResultCardProps) {
   const getModelStatus = () => {
     if (prediction) {
-      return { status: 'completed', icon: CheckCircle, color: 'text-green-600' }
+      return { status: 'completed', icon: CheckCircle, color: 'text-green-600', label: 'Complete' }
     }
     
     if (sessionStatus === 'ERROR') {
-      return { status: 'failed', icon: AlertCircle, color: 'text-red-600' }
+      return { status: 'failed', icon: AlertCircle, color: 'text-red-600', label: 'Failed' }
     }
     
-    if (sessionStatus === 'GENERATING' || sessionStatus === 'RESEARCHING') {
-      return { status: 'processing', icon: Loader2, color: 'text-blue-600' }
+    // Parse current model from step if available
+    const isCurrentModel = sessionStep && model?.id && sessionStep.includes(model.id)
+    const currentModelMatch = sessionStep?.match(/Generating prediction (\d+)\/(\d+)/)
+    const currentModelIndex = currentModelMatch ? parseInt(currentModelMatch[1]) - 1 : -1
+    
+    if (sessionStatus === 'GENERATING') {
+      if (isCurrentModel || currentModelIndex === modelIndex) {
+        return { status: 'processing', icon: Loader2, color: 'text-blue-600', label: 'Generating...' }
+      } else if (currentModelIndex > modelIndex) {
+        // This model was processed but we don't have prediction yet (shouldn't happen)
+        return { status: 'processing', icon: Loader2, color: 'text-blue-600', label: 'Processing...' }
+      } else {
+        // Model is queued
+        return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Queued' }
+      }
     }
     
-    return { status: 'waiting', icon: Clock, color: 'text-muted-foreground' }
+    if (sessionStatus === 'RESEARCHING' || sessionStatus === 'INITIALIZING') {
+      return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Waiting...' }
+    }
+    
+    return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Waiting' }
   }
 
-  const { status, icon: StatusIcon, color } = getModelStatus()
+  const { status, icon: StatusIcon, color, label } = getModelStatus()
 
   return (
     <Card data-debug-id={`model-result-${model?.id}`}>
@@ -271,24 +316,35 @@ function ModelResultCard({ model, prediction, sessionStatus }: ModelResultCardPr
             <CardTitle className="text-base">{model?.name || 'Unknown Model'}</CardTitle>
             <p className="text-sm text-muted-foreground">{model?.provider}</p>
           </div>
-          <StatusIcon 
-            className={`h-5 w-5 ${color} ${status === 'processing' ? 'animate-spin' : ''}`}
-            aria-label={status === 'processing' ? "Loading" : undefined}
-          />
+          <div className="flex items-center gap-2">
+            <StatusIcon 
+              className={`h-5 w-5 ${color} ${status === 'processing' ? 'animate-spin' : ''}`}
+              aria-label={status === 'processing' ? "Loading" : undefined}
+            />
+            <span className={`text-sm font-medium ${color}`}>
+              {label}
+            </span>
+          </div>
         </div>
       </CardHeader>
       
       <CardContent className="pt-0">
         {status === 'waiting' && (
-          <div className="text-sm text-muted-foreground">Waiting...</div>
+          <div className="text-sm text-muted-foreground">
+            {sessionStatus === 'INITIALIZING' ? 'Initializing session...' : 
+             sessionStatus === 'RESEARCHING' ? 'Researching market...' : 
+             'Waiting in queue...'}
+          </div>
         )}
         
         {status === 'processing' && (
-          <div className="text-sm text-muted-foreground">Processing...</div>
+          <div className="text-sm text-muted-foreground">
+            Generating AI prediction...
+          </div>
         )}
         
         {status === 'failed' && (
-          <div className="text-sm text-red-600">Failed</div>
+          <div className="text-sm text-red-600">Generation failed</div>
         )}
         
         {status === 'completed' && prediction && (
