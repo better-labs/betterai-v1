@@ -144,17 +144,6 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
             </CardContent>
           </Card>
 
-          {/* Past Predictions */}
-          {serializedAllPredictions.length > 1 && (
-            <PredictionHistoryList
-              predictions={mapPredictionsToDTO(serializedAllPredictions as any)}
-              marketId={marketId}
-              showChecks={false}
-              showPredictions={true}
-              className="mt-6"
-              currentMarketOutcomePrices={serializedMarket.outcomePrices ?? null}
-            />
-          )}
         </div>
 
        
@@ -188,6 +177,18 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
               </p>
             </CardContent>
           </Card>
+        )}
+
+        {/* Past Predictions */}
+        {serializedAllPredictions.length > 1 && (
+          <PredictionHistoryList
+            predictions={mapPredictionsToDTO(serializedAllPredictions as any)}
+            marketId={marketId}
+            showChecks={false}
+            showPredictions={true}
+            className="mt-8"
+            currentMarketOutcomePrices={serializedMarket.outcomePrices ?? null}
+          />
         )}
 
          {/* Action Buttons */}

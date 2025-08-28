@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Alert, AlertDescription } from "@/shared/ui/alert"
 import { Button } from "@/shared/ui/button"
-import { X, Info } from "lucide-react"
+import { X } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "@/hooks/use-user"
 
@@ -65,7 +65,6 @@ export function WelcomeBanner() {
     <div className="flex justify-center pt-4">
       <div className="w-auto max-w-5xl">
         <Alert className="border-primary/20 bg-primary/5 text-foreground">
-          <Info className="h-4 w-4 text-primary" />
           <div className="flex items-start justify-between">
             <AlertDescription className="flex-1 pr-4">
               Welcome to BetterAI!
