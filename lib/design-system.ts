@@ -134,6 +134,7 @@ export const typography = {
   caption: 'text-sm text-muted-foreground',
   label: 'text-sm font-medium',
   statLabel: 'text-[11px] tracking-wide text-muted-foreground',
+  
 } as const;
 
 // ============================================================================
@@ -370,6 +371,12 @@ export const components = {
     }
   },
 
+  // Outcome display patterns
+  outcome: {
+    container: 'space-y-1',
+    row: 'flex items-center gap-2 px-2 py-1.5',
+    
+  },
 
 } as const;
 
