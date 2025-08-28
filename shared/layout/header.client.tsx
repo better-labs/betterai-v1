@@ -3,7 +3,7 @@
 import "./header.css"
 import { Button } from "@/shared/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu"
-import { TrendingUp, Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail } from "lucide-react"
+import { TrendingUp, Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail, Activity } from "lucide-react"
 import { SearchInput } from "@/shared/ui/search-input"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -100,10 +100,9 @@ export function Header() {
           </div>
 
           {/* Right side elements - directly in grid */}
-          <div className="flex items-center  gap-3">
+          <div className="flex items-center gap-4 md:gap-6">
             {/* Search Bar Section - Hidden on mobile */}
-            
-            <div className="header-search hidden md:flex">
+            <div className="header-search hidden md:flex flex-1 max-w-sm">
               <form onSubmit={handleSearch} className="w-full">
                 <SearchInput
                   value={searchQuery}
@@ -124,22 +123,23 @@ export function Header() {
             </div> */}
 
             {/* Auth section */}
-            <div className="flex items-center justify-center w-24 h-8">
+            <div className="flex items-center justify-center min-w-0 flex-shrink-0">
               {ready ? (
                 <PrivyUserPill />
               ) : (
-                <div className="w-full h-full bg-muted/50 rounded animate-pulse" />
+                <div className="h-8 w-20 bg-muted/50 rounded animate-pulse" />
               )}
             </div>
 
             {/* Menu */}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 px-3 shadow-sm hover:shadow-md transition-shadow">
-                    <Menu className="h-7 w-7" />
-                  </Button>
-                </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 shadow-lg">
+            <div className="flex-shrink-0">
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 px-3 shadow-sm hover:shadow-md transition-shadow">
+                      <Menu className="h-7 w-7" />
+                    </Button>
+                  </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 shadow-lg">
                 {/* Mobile Search */}
                 {/* {flags.showSearch && (
                   <>
@@ -171,26 +171,26 @@ export function Header() {
                 
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>
-                  <Link href="/" className={`w-full flex items-center space-x-2 ${isActive("/") ? "bg-accent" : ""}`}>
-                    <Home className="h-4 w-4" />
+                  <Link href="/">
+                    <Home className="h-5 w-5 flex-shrink-0" />
                     <span>Home</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/leaderboard" className={`w-full flex items-center space-x-2 ${isActive("/leaderboard") ? "bg-accent" : ""}`}>
-                    <Trophy className="h-4 w-4" />
+                  <Link href="/leaderboard">
+                    <Trophy className="h-5 w-5 flex-shrink-0" />
                     <span>AI Leaderboard</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/about" className={`w-full flex items-center space-x-2 ${isActive("/about") ? "bg-accent" : ""}`}>
-                    <Info className="h-4 w-4" />
+                  <Link href="/about">
+                    <Info className="h-5 w-5 flex-shrink-0" />
                     <span>About</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="https://docs.betterai.tools" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center space-x-2 ${isActive("/docs") ? "bg-accent" : ""}`}>
-                    <BookOpen className="h-4 w-4" />
+                  <Link href="https://docs.betterai.tools" target="_blank" rel="noopener noreferrer">
+                    <BookOpen className="h-5 w-5 flex-shrink-0" />
                     <span>Docs</span>
                   </Link>
                 </DropdownMenuItem>
@@ -208,15 +208,16 @@ export function Header() {
                 <DropdownMenuSeparator />
                 {flags.showActivity && (
                   <DropdownMenuItem asChild>
-                    <Link href="/activity" className={`w-full ${isActive("/activity") ? "bg-accent" : ""}`}>
+                    <Link href="/activity">
+                      <Activity className="h-5 w-5 flex-shrink-0" />
                       <span>Activity</span>
                     </Link>
                   </DropdownMenuItem>
                 )}
                 {authenticated && (
                   <DropdownMenuItem asChild>
-                    <Link href="/credits" className={`w-full flex items-center space-x-2 ${isActive("/credits") ? "bg-accent" : ""}`}>
-                      <CreditCard className="h-4 w-4" />
+                    <Link href="/credits">
+                      <CreditCard className="h-5 w-5 flex-shrink-0" />
                       <span>Credits</span>
                     </Link>
                   </DropdownMenuItem>
@@ -224,13 +225,13 @@ export function Header() {
                 
                 {/* Support & Social Section */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4" />
+                <DropdownMenuItem>
+                  <Mail className="h-5 w-5 flex-shrink-0" />
                   <span>Contact Us</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="https://x.com/HelloBetterAI" target="_blank" rel="noopener noreferrer" className="w-full flex items-center space-x-2">
-                    <Twitter className="h-4 w-4" />
+                  <Link href="https://x.com/HelloBetterAI" target="_blank" rel="noopener noreferrer">
+                    <Twitter className="h-5 w-5 flex-shrink-0" />
                     <span>Follow us on X</span>
                   </Link>
                 </DropdownMenuItem>
@@ -242,18 +243,18 @@ export function Header() {
                     <span>Theme</span>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <DropdownMenuItem onClick={() => setTheme("light")}>
-                      <Sun className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => setTheme("light")} className="">
+                      <Sun className="mr-3 h-5 w-5 flex-shrink-0" />
                       <span>Light</span>
                       {theme === "light" && <span className="ml-auto">✓</span>}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("dark")}>
-                      <Moon className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => setTheme("dark")} className="">
+                      <Moon className="mr-3 h-5 w-5 flex-shrink-0" />
                       <span>Dark</span>
                       {theme === "dark" && <span className="ml-auto">✓</span>}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("system")}>
-                      <Monitor className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => setTheme("system")} className="">
+                      <Monitor className="mr-3 h-5 w-5 flex-shrink-0" />
                       <span>System</span>
                       {theme === "system" && <span className="ml-auto">✓</span>}
                     </DropdownMenuItem>
@@ -265,12 +266,12 @@ export function Header() {
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem asChild>
-                      <Link href="/privacy" className={`w-full ${isActive("/privacy") ? "bg-accent" : ""}`}>
+                      <Link href="/privacy">
                         <span>Privacy Policy</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/tos" className={`w-full ${isActive("/tos") ? "bg-accent" : ""}`}>
+                      <Link href="/tos">
                         <span>Terms of Service</span>
                       </Link>
                     </DropdownMenuItem>
@@ -278,6 +279,7 @@ export function Header() {
                 </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>

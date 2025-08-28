@@ -12,6 +12,8 @@ import { mapEventToDTO } from '@/lib/dtos/event-dto'
 import { mapPredictionToDTO } from '@/lib/dtos/prediction-dto'
 import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
+import { PredictionDetailCard } from "@/features/prediction/PredictionDetailCard.client"
+import { components } from "@/lib/design-system"
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -49,32 +51,48 @@ export default async function PredictionDetailPage({ params }: PageProps) {
   const eventDTO = event ? mapEventToDTO(event) : null
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="max-w-4xl mx-auto">
-      <div className="space-y-6">
-        {/* Market Card with current prediction */}
-        {marketDTO && eventDTO && (
-          <MarketDetailsCard
-            market={marketDTO}
-            event={eventDTO}
-            latestPrediction={mapPredictionToDTO(prediction as any)}
-            className="w-full"
-            hideReasoning={true}
-          />
-        )}
+    <div className={components.page.container}>
+      <div className={components.page.content}>
+        {/* Page Header */}
+        <div className={components.pageHeader.container}>
+          <h1 className={components.pageHeader.title}>
+            Prediction Detail
+          </h1>
+        </div>
 
-        <PredictionReasoningCard reasoning={reasoning} />
-        {/* Past predictions only */}
-        <PredictionHistoryList
-          className="mt-2"
-          checks={checks}
-          predictions={mapPredictionsToDTO(pastPredictions as any)}
-          marketId={marketId ?? null}
-          showChecks={false}
-          showPredictions={true}
-          currentMarketOutcomePrices={marketDTO?.outcomePrices ?? null}
-        />
-      </div>
+        {/* Main Content Sections */}
+        <div className={components.page.sections}>
+          {/* Market Card with current prediction */}
+          {marketDTO && eventDTO && (
+            <MarketDetailsCard
+              market={marketDTO}
+              event={eventDTO}
+              latestPrediction={mapPredictionToDTO(prediction as any)}
+              className="w-full"
+              hideReasoning={true}
+            />
+          )}
+
+          {/* Prediction Detail Card */}
+          <PredictionDetailCard
+            predictionResult={prediction.predictionResult}
+            serializedPrediction={mapPredictionToDTO(prediction as any)}
+            title="Prediction Detail"
+            description="AI-generated prediction for this market"
+            showMakePredictionButton={false}
+            makePredictionHref="/"
+          />
+
+          {/* Prediction History */}
+          <PredictionHistoryList
+            checks={checks}
+            predictions={mapPredictionsToDTO(pastPredictions as any)}
+            marketId={marketId ?? null}
+            showChecks={false}
+            showPredictions={true}
+            currentMarketOutcomePrices={marketDTO?.outcomePrices ?? null}
+          />
+        </div>
       </div>
     </div>
   )

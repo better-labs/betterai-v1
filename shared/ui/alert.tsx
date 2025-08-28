@@ -1,37 +1,35 @@
 import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
-  {
-    variants: {
-      variant: {
-        default: "bg-background text-foreground",
-        destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
-        warning:
-          "border-yellow-500/50 text-yellow-700 dark:border-yellow-500 dark:text-yellow-400 [&>svg]:text-yellow-700 dark:[&>svg]:text-yellow-400",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+// Base alert styles - applied to all variants
+const baseAlertStyles = "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground"
 
-const Alert = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
->(({ className, variant, ...props }, ref) => (
-  <div
-    ref={ref}
-    role="alert"
-    className={cn(alertVariants({ variant }), className)}
-    {...props}
-  />
-))
+// Variant styles
+const variantStyles = {
+  default: "bg-background text-foreground",
+  destructive: "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+  warning: "border-yellow-500/50 text-yellow-700 dark:border-yellow-500 dark:text-yellow-400 [&>svg]:text-yellow-700 dark:[&>svg]:text-yellow-400",
+} as const
+
+export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: keyof typeof variantStyles
+}
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
+  ({ className, variant = "default", ...props }, ref) => (
+    <div
+      ref={ref}
+      role="alert"
+      className={cn(
+        baseAlertStyles,
+        variantStyles[variant],
+        className
+      )}
+      {...props}
+    />
+  )
+)
 Alert.displayName = "Alert"
 
 const AlertTitle = React.forwardRef<

@@ -3,30 +3,45 @@
  * 
  * This file contains consistent spacing, typography, and layout patterns
  * used throughout the application for professional, polished layouts.
+ * 
+ * Key Principles:
+ * - Consistency: Always use design system tokens instead of hardcoded values
+ * - Accessibility: Include proper focus states and WCAG compliant touch targets
+ * - Mobile First: Design for mobile, then enhance for larger screens
+ * - Performance: Prefer CSS classes over inline styles
+ * - Maintainability: Keep the design system centralized and well-documented
+ * 
+ * Layout Best Practices:
+ * - Flex Spacing: Use margin (my-*) for vertical spacing between flex items, not padding
+ *   Flex containers can compress padding but respect margin spacing between items
  */
 
 // ============================================================================
-// SPACING SYSTEM
+// SPACING SYSTEM - Consistent spacing for professional layouts
 // ============================================================================
 
+/**
+ * Spacing tokens for consistent vertical and horizontal rhythm throughout the app.
+ * Use these tokens to maintain consistent spacing between major sections, content areas,
+ * and component elements.
+ */
 export const spacing = {
-  // Major section spacing
-  section: 'mb-24',        // 6rem/96px between major sections
+  // Major section spacing (large visual separation)
+  section: 'mb-24',        // 6rem/96px - between major page sections
   hero: 'py-16 mb-24',     // 4rem/64px vertical padding, 6rem/96px bottom margin
-  divider: 'my-16',        // 4rem/64px margin for border separators
+  divider: 'my-16',        // 4rem/64px - for visual border separators
   
-  // Content spacing within sections
-  content: 'mb-12',        // 3rem/48px between content areas within sections
-  cta: 'mt-8',            // 2rem/32px top margin for secondary actions
+  // Content spacing within sections (moderate visual separation) 
+  content: 'mb-12',        // 3rem/48px - between content areas within sections
+  cta: 'mt-8',            // 2rem/32px - top margin for secondary actions
   
-  // Typography spacing
-  title: 'mb-6',          // 1.5rem/24px bottom margin for titles
-  heading: 'mb-6',        // 1.5rem/24px bottom margin for headings
+  // Typography spacing (text rhythm)
+  heading: 'mb-6',        // 1.5rem/24px - bottom margin for headings
   
-  // Component spacing
-  card: 'p-6',            // 1.5rem/24px padding for cards
-  button: 'px-4 py-2',    // 1rem/16px horizontal, 0.5rem/8px vertical for buttons
-  input: 'px-3 py-2',     // 0.75rem/12px horizontal, 0.5rem/8px vertical for inputs
+  // Component spacing (internal component padding)
+  card: 'p-6',            // 1.5rem/24px - padding for cards and containers
+  button: 'px-4 py-2',    // 1rem/16px horizontal, 0.5rem/8px vertical
+  input: 'px-3 py-2',     // 0.75rem/12px horizontal, 0.5rem/8px vertical
 } as const;
 
 // ============================================================================
@@ -41,72 +56,51 @@ export const layout = {
     hero: spacing.hero,
   },
   
-  // Enhanced grid systems with auto-fit and CSS Grid areas
+  // Essential grid systems
   grid: {
-    // Traditional responsive columns
+    // Responsive columns
     cols: {
       '1': 'grid-cols-1',
       '2': 'grid-cols-1 md:grid-cols-2',
       '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
       '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
-      '6': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6',
     },
     
-    // Auto-fit columns for flexible layouts
-    autoFit: {
-      xs: 'grid-cols-[repeat(auto-fit,minmax(150px,1fr))]',
-      sm: 'grid-cols-[repeat(auto-fit,minmax(200px,1fr))]',
-      md: 'grid-cols-[repeat(auto-fit,minmax(250px,1fr))]',
-      lg: 'grid-cols-[repeat(auto-fit,minmax(300px,1fr))]',
-      xl: 'grid-cols-[repeat(auto-fit,minmax(350px,1fr))]',
-    },
-    
-    // Auto-fill columns for consistent sizing
-    autoFill: {
-      xs: 'grid-cols-[repeat(auto-fill,minmax(150px,1fr))]',
-      sm: 'grid-cols-[repeat(auto-fill,minmax(200px,1fr))]',
-      md: 'grid-cols-[repeat(auto-fill,minmax(250px,1fr))]',
-      lg: 'grid-cols-[repeat(auto-fill,minmax(300px,1fr))]',
-      xl: 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]',
-    },
-    
+    // Grid gaps
     gap: {
-      xs: 'gap-2',
       sm: 'gap-4',
       md: 'gap-6',
       lg: 'gap-8',
-      xl: 'gap-12',
     },
-    
-    // CSS Grid template areas for complex layouts
-    areas: {
-      dashboard: `[grid-template-areas:'header_header''sidebar_main''footer_footer'] md:[grid-template-areas:'header_header''sidebar_main''sidebar_main']`,
-      profile: `[grid-template-areas:'avatar_info''bio_bio''actions_actions'] lg:[grid-template-areas:'avatar_info_actions''bio_bio_bio']`,
-      card: `[grid-template-areas:'header''content''footer'] md:[grid-template-areas:'header_header''content_sidebar''footer_footer']`,
-    },
-    
-    // Grid area utilities
-    area: {
-      header: '[grid-area:header]',
-      sidebar: '[grid-area:sidebar]',
-      main: '[grid-area:main]',
-      footer: '[grid-area:footer]',
-      avatar: '[grid-area:avatar]',
-      info: '[grid-area:info]',
-      bio: '[grid-area:bio]',
-      actions: '[grid-area:actions]',
-      content: '[grid-area:content]',
-    }
+  }
+} as const;
+
+// ============================================================================
+// INTERACTION TOKENS - Touch targets and interactive elements (WCAG Compliant)
+// ============================================================================
+
+/**
+ * Touch target and interactive element sizing following WCAG guidelines.
+ * These tokens ensure accessibility across all devices and input methods.
+ */
+export const interaction = {
+  // Touch target sizes following WCAG and platform guidelines
+  touchTarget: {
+    minimum: 'w-10 h-10',   // 40px - WCAG 2.2 AA compliance (minimum)
+    standard: 'w-11 h-11',  // 44px - WCAG 2.1 AAA compliance (recommended)
+    enhanced: 'w-12 h-12',  // 48px - complex interactive elements
   },
   
-  // Flexbox patterns
-  flex: {
-    center: 'flex items-center justify-center',
-    between: 'flex items-center justify-between',
-    start: 'flex items-center justify-start',
-    end: 'flex items-center justify-end',
-    col: 'flex flex-col',
-    row: 'flex flex-row',
+  // Interactive container widths and spacing for icon containers and flex layouts
+  container: {
+    // Width tokens
+    standard: 'w-10',       // 40px - basic icon containers (WCAG AA)
+    compact: 'w-8',         // 32px - minimal but functional for tight layouts
+    
+    // Vertical margin tokens for flex spacing (use margin, not padding - see dropdown.item)
+    marginMin: 'my-0.5',    // 2px - minimal vertical spacing
+    marginStandard: 'my-1', // 4px - standard vertical spacing between flex items
+    marginComfortable: 'my-2', // 8px - comfortable vertical spacing
   }
 } as const;
 
@@ -127,7 +121,7 @@ export const elevation = {
   lg: 'shadow-lg',
 } as const;
 
-// Enhanced animation system with modern easing and durations
+// Animation system with modern easing and durations
 export const animation = {
   duration: {
     instant: 'duration-0',
@@ -149,15 +143,6 @@ export const animation = {
     natural: 'ease-[cubic-bezier(0.4,0.0,0.2,1)]',
     sharp: 'ease-[cubic-bezier(0.4,0.0,0.6,1)]',
     emphasized: 'ease-[cubic-bezier(0.2,0.0,0,1)]',
-  },
-  
-  // Combined animation classes
-  transitions: {
-    all: 'transition-all duration-300 ease-in-out',
-    colors: 'transition-colors duration-200 ease-in-out',
-    transform: 'transition-transform duration-300 ease-out',
-    shadow: 'transition-shadow duration-200 ease-in-out',
-    size: 'transition-[width,height] duration-300 ease-in-out',
   }
 } as const;
 
@@ -212,21 +197,11 @@ export const accessibility = {
 // ============================================================================
 
 export const typography = {
-  // Fluid typography with clamp() for optimal responsive scaling
-  h1: 'text-[clamp(1.75rem,4vw,3rem)] font-bold leading-tight', // 28px-48px
-  h2: 'text-[clamp(1.5rem,3vw,2rem)] font-semibold leading-tight', // 24px-32px
-  h3: 'text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold leading-tight', // 20px-24px
-  h4: 'text-[clamp(1.125rem,2vw,1.25rem)] font-medium leading-tight', // 18px-20px
-  h5: 'text-base font-medium leading-tight',
-  h6: 'text-sm font-medium leading-tight',
-  
-  // Traditional responsive typography (alternative to fluid)
-  responsive: {
-    h1: 'text-2xl md:text-3xl lg:text-4xl font-bold leading-tight',
-    h2: 'text-xl md:text-2xl lg:text-3xl font-semibold leading-tight',
-    h3: 'text-lg md:text-xl lg:text-2xl font-semibold leading-tight',
-    h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
-  },
+  // Headings
+  h1: 'text-2xl md:text-3xl lg:text-4xl font-bold leading-tight',
+  h2: 'text-xl md:text-2xl lg:text-3xl font-semibold leading-tight',
+  h3: 'text-lg md:text-xl lg:text-2xl font-semibold leading-tight',
+  h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
   
   // Body text with fluid scaling
   body: 'text-[clamp(0.875rem,1.5vw,1rem)] leading-relaxed', // 14px-16px
@@ -243,45 +218,87 @@ export const typography = {
 // ============================================================================
 
 export const components = {
+
+  // Page layout patterns - consistent page containers
+  page: {
+    // Standard page container (replaces repeated container structure)
+    container: 'container mx-auto px-4 py-10',
+    content: 'max-w-4xl mx-auto',
+    sections: 'space-y-6',
+    
+    // Compact variant for simpler pages
+    compact: {
+      container: 'container mx-auto px-4 py-8',
+      content: 'max-w-3xl mx-auto',
+      sections: 'space-y-4',
+    },
+    
+    // Wide variant for dashboard-style pages
+    wide: {
+      container: 'container mx-auto px-4 py-10',
+      content: 'max-w-6xl mx-auto',
+      sections: 'space-y-8',
+    }
+  },
+
+  // Page header patterns - consistent headers across pages
+  pageHeader: {
+    container: 'text-center mb-6',
+    title: typography.h1,
+    subtitle: `${typography.body} text-muted-foreground`,
+    icon: 'text-primary',
+  },
+
   // Card patterns
   card: {
     base: 'bg-card border border-border rounded-lg shadow-sm',
-    padding: 'p-6',
     hover: 'hover:shadow-md transition-shadow duration-200',
   },
   
-  // Button patterns with hierarchy
-  button: {
-    base: 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
-    size: {
-      sm: 'h-8 px-3 text-sm',
-      md: 'h-10 px-4 text-sm', 
-      lg: 'h-11 px-6 text-base',
-    },
-    variant: {
-      // High emphasis - most important actions (e.g., "Predict with AI")
-      primary: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm',
-      // Medium emphasis - secondary actions  
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border',
-      // Low emphasis - tertiary actions (e.g., "Show More")
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-    }
-  },
-  
+
   // Input patterns
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
     
-    // Simplified search input using flex-based layout (INDUSTRY STANDARD)
+    // Flex-based search input (INDUSTRY STANDARD PATTERN)
+    // Used by Google, GitHub, and most modern web apps
+    // Advantages: predictable layout, no z-index conflicts, better accessibility
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'w-12 flex items-center justify-center text-muted-foreground',   // fixed width left
+      iconLeft: `${interaction.container.standard} flex items-center justify-center text-muted-foreground px-2`,
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
-      iconRight: 'w-12 flex items-center justify-center text-muted-foreground', // fixed width right
+      iconRight: `${interaction.container.standard} flex items-center justify-center text-muted-foreground px-2`,
       button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
+  },
+  
+  // Dropdown menu patterns
+  dropdown: {
+    // Content container
+    content: 'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-background py-2 text-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+    
+    // Menu items - IMPORTANT: Use margin (my-1) for vertical spacing, not padding
+    // Flex layouts with items-center can compress vertical padding, making it ineffective
+    // Margin creates actual space BETWEEN flex items that containers can't override
+    item: 'relative flex cursor-default select-none items-center gap-2 rounded-sm px-3 py-2 my-1 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+    
+    // Sub-trigger for nested menus - consistent margin spacing
+    subTrigger: 'flex cursor-default gap-2 select-none items-center rounded-sm px-3 py-2 my-1 text-base outline-none focus:bg-accent data-[state=open]:bg-accent [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+    
+    // Labels and separators
+    label: 'px-3 py-2 text-sm font-semibold',
+    separator: '-mx-1 my-2 h-px bg-muted',
+    
+    // Shortcut text
+    shortcut: 'ml-auto text-xs tracking-widest opacity-60',
+    
+    // Checkbox and radio items - using margin spacing consistent with other items
+    checkboxItem: 'relative flex cursor-default select-none items-center rounded-sm py-2 my-1 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    radioItem: 'relative flex cursor-default select-none items-center rounded-sm py-2 my-1 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    
+    // Indicator positioning
+    indicator: 'absolute left-2 flex h-3.5 w-3.5 items-center justify-center',
   },
   
   // Tooltip patterns
@@ -321,33 +338,37 @@ export const components = {
     timestamp: 'tabular-nums',
   },
   
-  // Navigation link patterns (BEST PRACTICE: NO ARROWS/CHEVRONS)
+  // Navigation link patterns (CLEAN DESIGN - NO ARROWS/CHEVRONS)
+  // Following modern web accessibility standards and clean design principles
   navigation: {
     // Primary navigation links
     link: {
-      // Default navigation link styling
       base: 'text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors',
-      // Active state for current page
-      active: 'text-foreground font-medium',
-      // Subtle variant for secondary navigation
+      active: 'text-foreground font-medium', // Current page indicator
       subtle: 'text-muted-foreground/70 hover:text-muted-foreground transition-colors',
     },
-    
-    // "View all" style links (common pattern)
-    viewAll: {
-      // Standard "View all" link without decorative elements
-      base: 'text-sm text-primary hover:text-primary/80 font-medium transition-colors',
-      // Muted variant for less prominent contexts
-      muted: 'text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors',
-      // With focus states for accessibility
-      accessible: `text-sm text-primary hover:text-primary/80 font-medium transition-colors ${accessibility.focus.default}`,
-    },
-    
+
     // Breadcrumb navigation
     breadcrumb: {
       item: 'text-muted-foreground hover:text-foreground transition-colors',
       separator: 'text-muted-foreground/50 mx-2',
       current: 'text-foreground font-medium',
+    },
+    
+    // Mobile navigation menu patterns - consistent with dropdown spacing
+    mobileMenu: {
+      // Container for mobile dropdown menu
+      container: 'bg-background border border-border shadow-lg',
+      // Menu items - using my-1 margin for proper flex spacing (see dropdown.item comment)
+      item: 'flex items-center gap-3 px-3 py-2 my-1 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Icon sizing for menu items
+      icon: 'h-5 w-5 flex-shrink-0',
+      // Separator styling
+      separator: 'my-2 border-t border-border',
+      // Submenu trigger styling with consistent margin spacing
+      subTrigger: 'flex items-center justify-between w-full px-3 py-2 my-1 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Submenu content styling
+      subContent: 'bg-background border border-border shadow-lg',
     },
   },
   
@@ -395,28 +416,6 @@ export const components = {
     collapsed: 'rotate-0',
   },
 
-  // Outcome display patterns for market predictions
-  outcome: {
-    // Container for grouped outcomes (like Yes/No results)
-    container: 'space-y-1',
-    
-    // Individual outcome row with consistent spacing
-    row: 'flex items-center gap-3 text-sm px-3 py-2',
-    
-    // Label styling (e.g., "Yes", "No", "Outcome A")
-    label: 'truncate',
-    
-    // Value styling (e.g., "60%", probability values)
-    value: 'font-semibold tabular-nums',
-    
-    // Compact variant for smaller spaces
-    compact: {
-      row: 'flex items-center gap-2 text-xs px-2 py-1.5',
-      label: 'truncate',
-      value: 'font-semibold tabular-nums',
-    }
-  },
-
   // Motion patterns for Framer Motion components
   motion: {
     // Expandable content containers
@@ -452,135 +451,6 @@ export const components = {
 } as const;
 
 // ============================================================================
-// INPUT LAYOUT PATTERNS & BEST PRACTICES
-// ============================================================================
-
-/**
- * FLEX-BASED SEARCH INPUT PATTERN (INDUSTRY STANDARD)
- * 
- * This pattern uses flexbox with fixed-width icon containers for predictable, 
- * accessible search inputs. This is the most common approach used by major web applications.
- * 
- * Structure:
- * ```html
- * <div className={components.input.search.container}>
- *   <div className={components.input.search.iconLeft}>
- *     <SearchIcon />
- *   </div>
- *   <input className={components.input.search.input} />
- *   <div className={components.input.search.iconRight}>
- *     <button className={components.input.search.button}>
- *       <XIcon />
- *     </button>
- *   </div>
- * </div>
- * ```
- * 
- * Advantages:
- * - Fixed 48px (w-12) icon containers ensure consistent spacing
- * - Predictable layout across all screen sizes and browsers
- * - No z-index or absolute positioning conflicts
- * - Better accessibility and tab order
- * - Industry standard used by Google, GitHub, and most modern web apps
- * - Easy to add multiple icons or adjust spacing
- * 
- * Spacing Standards:
- * - Left icon: 48px fixed width (w-12)
- * - Right icon: 48px fixed width (w-12) 
- * - Input padding: 12px horizontal (px-3)
- * - Icon size: 16px (h-4)
- * 
- * Avoid: Absolute positioning with multiple overlapping elements
- */
-
-/**
- * CARD FOOTER METADATA PATTERN (RECOMMENDED)
- * 
- * Consistent system for displaying metadata in card footers.
- * Maintains visual hierarchy while providing essential context.
- * 
- * Basic Structure:
- * ```html
- * <div className={components.cardFooter.container}>
- *   <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single}`}>
- *     <a href="..." className={components.cardFooter.link}>
- *       View on Provider
- *     </a>
- *   </div>
- * </div>
- * ```
- * 
- * Multiple Items:
- * ```html
- * <div className={components.cardFooter.container}>
- *   <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split}`}>
- *     <span className={components.cardFooter.timestamp}>
- *       Updated: 12/15/24 3:45 PM
- *     </span>
- *     <span className={components.cardFooter.metadataBadge}>
- *       Trending
- *     </span>
- *   </div>
- * </div>
- * ```
- * 
- * Guidelines:
- * - Always use border-t separator for visual grouping
- * - Keep metadata secondary to main content (muted colors)
- * - Use tabular-nums for timestamps and numbers
- * - Limit to 1-2 metadata items to avoid clutter
- * - Prefer links and badges over plain text when actionable
- * 
- * Avoid:
- * - Multiple border separators in the same card
- * - Prominent colors that compete with main content
- * - More than 3 metadata items in footer
- */
-
-/**
- * NAVIGATION LINKS PATTERN (BEST PRACTICE)
- * 
- * Clean navigation links without decorative elements like arrows or chevrons.
- * Follows web accessibility standards and modern design principles.
- * 
- * "View All" Example:
- * ```html
- * <Link 
- *   href="/predictions" 
- *   className={components.navigation.viewAll.accessible}
- * >
- *   View all predictions
- * </Link>
- * ```
- * 
- * Primary Navigation Example:
- * ```html
- * <nav>
- *   <Link 
- *     href="/dashboard" 
- *     className={components.navigation.link.base}
- *   >
- *     Dashboard
- *   </Link>
- * </nav>
- * ```
- * 
- * Guidelines:
- * - NO arrows, chevrons, or decorative symbols on clickable links
- * - Use underline and color changes to indicate hover/focus states
- * - Maintain consistent spacing and typography hierarchy
- * - Include proper focus states for keyboard navigation
- * - Use semantic HTML elements (Link, <a>) for navigation
- * 
- * Why No Arrows/Chevrons:
- * - Creates visual noise and reduces clarity
- * - Not necessary for users to understand clickability
- * - Can interfere with text selection and accessibility
- * - Modern web design favors minimal, clean interfaces
- * - Hover and focus states provide sufficient interaction feedback
- */
-
-// ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
 
@@ -610,3 +480,70 @@ export type SpacingKey = keyof typeof spacing;
 export type LayoutKey = keyof typeof layout;
 export type TypographyKey = keyof typeof typography;
 export type ComponentKey = keyof typeof components;
+export type InteractionKey = keyof typeof interaction;
+
+// ============================================================================
+// USAGE EXAMPLES AND PATTERNS
+// ============================================================================
+
+/**
+ * Common usage patterns and examples for the design system.
+ * Copy these patterns for consistent implementation across the app.
+ */
+export const usageExamples = {
+  // Standard page layout (replaces repeated container structure)
+  pageLayout: `
+    <div className={components.page.container}>
+      <div className={components.page.content}>
+        {/* Page header */}
+        <div className={components.pageHeader.container}>
+          <h1 className={components.pageHeader.title}>Page Title</h1>
+        </div>
+        
+        {/* Page sections */}
+        <div className={components.page.sections}>
+          {/* Content sections go here */}
+        </div>
+      </div>
+    </div>
+  `,
+
+  // Basic card with proper spacing
+  card: `
+    <div className={\`\${components.card.base} \${spacing.card}\`}>
+      <h3 className={\`\${typography.h3} \${spacing.heading}\`}>Card Title</h3>
+      <p className={typography.body}>Card content goes here.</p>
+    </div>
+  `,
+  
+  // Search input with flex layout (industry standard)
+  searchInput: `
+    <div className={components.input.search.container}>
+      <div className={components.input.search.iconLeft}>
+        <Search className="h-4 w-4" />
+      </div>
+      <input 
+        className={components.input.search.input}
+        placeholder="Search markets..."
+      />
+      <div className={components.input.search.iconRight}>
+        <button className={components.input.search.button}>
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+    `,
+
+  // Dropdown menu with proper spacing
+  dropdownMenu: `
+    <DropdownMenuContent className={components.dropdown.content}>
+      <DropdownMenuItem className={components.dropdown.item}>
+        Profile
+      </DropdownMenuItem>
+      <DropdownMenuSeparator className={components.dropdown.separator} />
+      <DropdownMenuItem className={components.dropdown.item}>
+        Settings
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  `
+} as const;

@@ -1,15 +1,12 @@
 "use client"
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
-import { Button } from "@/shared/ui/button"
 import { formatPercent } from '@/lib/utils'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaColor } from '@/lib/delta'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
 import Link from 'next/link'
-import { Sparkline } from '@/shared/ui/charts/sparkline.client'
 import { useRouter } from 'next/navigation'
-import { RefreshCw, Eye } from 'lucide-react'
+import { layout, components, spacing, typography } from '@/lib/design-system'
 import type { PredictionCheckDTO, PredictionDTO } from '@/lib/types'
 
 type CheckItem = Pick<PredictionCheckDTO, 'createdAt' | 'aiProbability' | 'marketProbability' | 'delta' | 'marketClosed'>
@@ -43,49 +40,7 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
 
   return (
     <div className={className}>
-      {renderChecks && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Recent Checks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-3">
-              <Sparkline values={checks!.map(c => c.delta ?? 0)} height={40} />
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[160px]">Time</TableHead>
-                  <TableHead>AI</TableHead>
-                  <TableHead>Market</TableHead>
-                  <TableHead>Delta</TableHead>
-                  <TableHead>Closed</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {checks!.map((c, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(c.createdAt).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="tabular-nums">{formatPercent(c.aiProbability)}</TableCell>
-                    <TableCell className="tabular-nums">{formatPercent(c.marketProbability)}</TableCell>
-                    <TableCell className="tabular-nums">{formatPercent(c.delta)}</TableCell>
-                    <TableCell>{c.marketClosed ? 'Yes' : 'No'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-          {marketId && (
-            <CardFooter>
-              <Link href={`/market/${marketId}/predictions`} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
-                View all predictions
-              </Link>
-            </CardFooter>
-          )}
-        </Card>
-      )}
+      
 
       {renderPredictions && (
         <Card>
@@ -93,52 +48,56 @@ export function PredictionHistoryList({ checks, predictions, className, marketId
             <CardTitle>Past Predictions</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[160px]">Date</TableHead>
-                  <TableHead className="text-right">Delta</TableHead>
-                  <TableHead className="hidden md:table-cell">Model</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {predictions!.map((p, idx) => {
-                  const delta = computeDeltaFromArrays(
-                    currentMarketOutcomePrices,
-                    Array.isArray(p.outcomesProbabilities) ? (p.outcomesProbabilities as unknown[]) : null
-                  )
-                  
-                  const isClickable = !!p.id
-                  
-                  return (
-                    <TableRow 
-                      key={idx}
-                      onClick={() => isClickable && handlePredictionClick(p.id!)}
-                      className={isClickable ? "cursor-pointer hover:bg-muted/40" : undefined}
-                      role={isClickable ? "button" : undefined}
-                      data-debug-id={isClickable ? "prediction-row" : undefined}
-                    >
-                      <TableCell className="text-xs text-muted-foreground">
-                        {new Date(p.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                      </TableCell>
-                      <TableCell className={`text-right tabular-nums ${getDeltaColor(delta)}`}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>{delta !== null ? formatPercent(delta) : '—'}</span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{DELTA_TOOLTIP}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground hidden md:table-cell">{p.modelName || '—'}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+            <div className="space-y-3">
+              {predictions!.map((p, idx) => {
+                const delta = computeDeltaFromArrays(
+                  currentMarketOutcomePrices,
+                  Array.isArray(p.outcomesProbabilities) ? (p.outcomesProbabilities as unknown[]) : null
+                )
+                
+                const isClickable = !!p.id
+                
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => isClickable && handlePredictionClick(p.id!)}
+                    className={`flex items-center justify-between p-3 rounded-md border border-border ${isClickable ? 'hover:bg-muted/40 cursor-pointer' : ''}`}
+                    role={isClickable ? "button" : undefined}
+                    data-debug-id={isClickable ? "prediction-row" : undefined}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`${typography.body} text-muted-foreground`}>Delta:</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`${typography.bodyLarge} tabular-nums ${getDeltaColor(delta)}`}>
+                              {delta !== null ? formatPercent(delta) : '—'}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{DELTA_TOOLTIP}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div className="flex flex-col text-right">
+                      <span className={`${typography.bodySmall} text-muted-foreground`}>
+                        {new Date(p.createdAt).toLocaleString(undefined, { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: 'numeric', 
+                          minute: '2-digit' 
+                        })}
+                      </span>
+                      <span className={`${typography.caption} mt-1`}>
+                        {p.modelName || 'Unknown Model'}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </CardContent>
           {marketId && (
             <CardFooter>

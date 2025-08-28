@@ -3,23 +3,18 @@
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { ChevronDown, ChevronRight, TrendingUp } from "lucide-react"
-import { components } from "@/lib/design-system"
-import type { Tag } from "@/lib/types"
+import { components, typography } from "@/lib/design-system"
 import type { AppRouter } from "@/lib/trpc/routers/_app"
 import type { inferProcedureOutput } from "@trpc/server"
 import { trpc } from "@/shared/providers/trpc-provider"
-import { PopularTagsList } from "@/shared/ui/popular-tags-list"
 import { LoadingCard } from "@/shared/ui/loading"
+import { Button } from "@/shared/ui/button"
 import MarketDetailsCard from "@/features/market/MarketCard.client"
-import { useApiQuery } from "@/lib/client/api-handler"
-import { typography } from "@/lib/design-system"
 
 // Use tRPC's inferred types
 type TrendingMarketsResponse = inferProcedureOutput<AppRouter['markets']['trending']>
-type MarketItem = TrendingMarketsResponse['items'][number]
 
 export function TrendingMarkets() {
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [marketLimit, setMarketLimit] = useState(10)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [autoLoadCount, setAutoLoadCount] = useState(0)
@@ -35,20 +30,6 @@ export function TrendingMarkets() {
     withPredictions: true,
   })
 
-  // Fetch popular tags using existing API
-  const { 
-    data: popularTagsResponse, 
-    isLoading: tagsLoading 
-  } = useApiQuery<{ success: boolean; data: (Tag & { totalVolume: number })[] }>(
-    ['popular-tags'],
-    '/api/tags/popular?limit=25',
-    {
-      staleTime: 10 * 60 * 1000, // 10 minutes
-      gcTime: 30 * 60 * 1000, // 30 minutes
-    }
-  )
-  
-  const popularTags = popularTagsResponse?.success ? popularTagsResponse.data : []
   const markets = marketsData?.items || []
   const shouldShowManual = autoLoadCount >= 2
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -70,17 +51,6 @@ export function TrendingMarkets() {
     return () => observer.disconnect()
   }, [shouldShowManual, isLoadingMore, marketsData?.hasMore, marketLimit])
 
-  const handleTagSelect = (tagId: string) => {
-    setSelectedTagIds(prev => 
-      prev.includes(tagId) 
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    )
-  }
-
-  const handleClearFilters = () => {
-    setSelectedTagIds([])
-  }
 
   const handleLoadMore = async (isAutoLoad = false) => {
     setIsLoadingMore(true)
@@ -103,16 +73,8 @@ export function TrendingMarkets() {
     }
   }
 
-  // Filter markets by selected tags if any tags are selected
-  const filteredMarkets = selectedTagIds.length > 0
-    ? markets.filter(market =>
-        market.event?.tags?.some((tag: any) =>
-          typeof tag === 'object' && tag.id
-            ? selectedTagIds.includes(tag.id)
-            : selectedTagIds.includes(String(tag))
-        )
-      )
-    : markets
+  // No filtering currently applied
+  const filteredMarkets = markets
 
   if (marketsLoading && markets.length === 0) {
     return <LoadingCard />
@@ -122,12 +84,14 @@ export function TrendingMarkets() {
     return (
       <div className="border rounded-lg p-8 text-center bg-card">
         <p className="text-destructive">Error loading trending markets</p>
-        <button 
+        <Button
           onClick={() => refetchMarkets()}
-          className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          variant="primary"
+          size="sm"
+          className="mt-2"
         >
           Retry
-        </button>
+        </Button>
       </div>
     )
   }
@@ -135,12 +99,12 @@ export function TrendingMarkets() {
   return (
     <section className="space-y-6">
       {/* Header */}
-      <div className="text-center">
-        <h2 className={`${typography.h2} flex items-center justify-center gap-2`}>
-          <TrendingUp className="text-primary" />
+      <div className={components.pageHeader.container}>
+        <h1 className={components.pageHeader.title + " flex items-center justify-center gap-2"}>
+          <TrendingUp className={components.pageHeader.icon} />
           Trending Markets
-        </h2>
-        <p className="text-muted-foreground ">
+        </h1>
+        <p className={components.pageHeader.subtitle}>
           Markets with the highest dailytrading volume
         </p>
       </div>
@@ -165,10 +129,7 @@ export function TrendingMarkets() {
       {filteredMarkets.length === 0 ? (
         <div className="border rounded-lg p-8 text-center bg-card">
           <p className="text-muted-foreground">
-            {selectedTagIds.length > 0 
-              ? "No markets found for selected tags"
-              : "No trending markets available"
-            }
+            No trending markets available
           </p>
         </div>
       ) : (
@@ -208,10 +169,12 @@ export function TrendingMarkets() {
       {/* Manual Show More Button - appears after 2 auto-loads */}
       {shouldShowManual && marketsData?.hasMore && (
         <div className="text-center">
-          <button
+          <Button
             onClick={() => handleLoadMore(false)}
             disabled={marketsLoading || isLoadingMore}
-            className={`${components.button.base} ${components.button.variant.secondary} ${components.button.size.lg} gap-2 touch-manipulation`}
+            variant="secondary"
+            size="lg"
+            className="gap-2 touch-manipulation"
             aria-label="Load more trending markets"
           >
             {isLoadingMore ? (
@@ -225,7 +188,7 @@ export function TrendingMarkets() {
                 <ChevronDown className={`${components.disclosure.icon} ${components.disclosure.iconMd}`} />
               </>
             )}
-          </button>
+          </Button>
         </div>
       )}
 

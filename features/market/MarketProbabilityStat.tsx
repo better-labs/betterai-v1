@@ -2,8 +2,7 @@
 
 import { Stat } from "@/shared/ui/stat"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
-import { components } from "@/lib/design-system"
-import { formatPercent } from "@/lib/utils"
+import { OutcomeDisplay } from "@/shared/ui/outcome-display"
 
 interface MarketProbabilityStatProps {
   outcomes?: string[] | null
@@ -29,16 +28,11 @@ export function MarketProbabilityStat({
               <Stat
                 label={label}
                 value={
-                  <div className={components.outcome.container}>
-                    {(outcomes || []).map((outcome, i) => (
-                      <div key={i} className={components.outcome.row}>
-                        <span className={components.outcome.label}>{outcome}</span>
-                        <span className={components.outcome.value}>
-                          {formatPercent(outcomePrices?.[i])}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  <OutcomeDisplay
+                    outcomes={outcomes || []}
+                    values={outcomePrices || []}
+                    variant="compact"
+                  />
                 }
                 density="compact"
                 align="left"
