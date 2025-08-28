@@ -4,30 +4,40 @@
  * This file contains consistent spacing, typography, and layout patterns
  * used throughout the application for professional, polished layouts.
  * 
- * For comprehensive documentation and usage examples, see DESIGN_SYSTEM.md
+ * Key Principles:
+ * - Consistency: Always use design system tokens instead of hardcoded values
+ * - Accessibility: Include proper focus states and WCAG compliant touch targets
+ * - Mobile First: Design for mobile, then enhance for larger screens
+ * - Performance: Prefer CSS classes over inline styles
+ * - Maintainability: Keep the design system centralized and well-documented
  */
 
 // ============================================================================
-// SPACING SYSTEM
+// SPACING SYSTEM - Consistent spacing for professional layouts
 // ============================================================================
 
+/**
+ * Spacing tokens for consistent vertical and horizontal rhythm throughout the app.
+ * Use these tokens to maintain consistent spacing between major sections, content areas,
+ * and component elements.
+ */
 export const spacing = {
-  // Major section spacing
-  section: 'mb-24',        // 6rem/96px between major sections
+  // Major section spacing (large visual separation)
+  section: 'mb-24',        // 6rem/96px - between major page sections
   hero: 'py-16 mb-24',     // 4rem/64px vertical padding, 6rem/96px bottom margin
-  divider: 'my-16',        // 4rem/64px margin for border separators
+  divider: 'my-16',        // 4rem/64px - for visual border separators
   
-  // Content spacing within sections
-  content: 'mb-12',        // 3rem/48px between content areas within sections
-  cta: 'mt-8',            // 2rem/32px top margin for secondary actions
+  // Content spacing within sections (moderate visual separation) 
+  content: 'mb-12',        // 3rem/48px - between content areas within sections
+  cta: 'mt-8',            // 2rem/32px - top margin for secondary actions
   
-  // Typography spacing
-  heading: 'mb-6',        // 1.5rem/24px bottom margin for headings
+  // Typography spacing (text rhythm)
+  heading: 'mb-6',        // 1.5rem/24px - bottom margin for headings
   
-  // Component spacing
-  card: 'p-6',            // 1.5rem/24px padding for cards
-  button: 'px-4 py-2',    // 1rem/16px horizontal, 0.5rem/8px vertical for buttons
-  input: 'px-3 py-2',     // 0.75rem/12px horizontal, 0.5rem/8px vertical for inputs
+  // Component spacing (internal component padding)
+  card: 'p-6',            // 1.5rem/24px - padding for cards and containers
+  button: 'px-4 py-2',    // 1rem/16px horizontal, 0.5rem/8px vertical
+  input: 'px-3 py-2',     // 0.75rem/12px horizontal, 0.5rem/8px vertical
 } as const;
 
 // ============================================================================
@@ -62,28 +72,27 @@ export const layout = {
 } as const;
 
 // ============================================================================
-// INTERACTION TOKENS (touch targets, interactive elements)
+// INTERACTION TOKENS - Touch targets and interactive elements (WCAG Compliant)
 // ============================================================================
 
+/**
+ * Touch target and interactive element sizing following WCAG guidelines.
+ * These tokens ensure accessibility across all devices and input methods.
+ */
 export const interaction = {
   // Touch target sizes following WCAG and platform guidelines
   touchTarget: {
-    // Minimum for WCAG 2.2 AA compliance
-    minimum: 'w-10 h-10',   // 40px - WCAG AA compliance
-    // Recommended for WCAG 2.1 AAA and optimal UX  
-    standard: 'w-11 h-11',  // 44px - WCAG AAA compliance
-    // Enhanced for complex interactive elements
-    enhanced: 'w-12 h-12',  // 48px - complex controls
+    minimum: 'w-10 h-10',   // 40px - WCAG 2.2 AA compliance (minimum)
+    standard: 'w-11 h-11',  // 44px - WCAG 2.1 AAA compliance (recommended)
+    enhanced: 'w-12 h-12',  // 48px - complex interactive elements
   },
   
-  // Interactive container widths (for icon containers, etc.)
+  // Interactive container widths for icon containers and flex layouts
   container: {
-    // Minimum functional width for icon containers
-    minWidth: 'w-11',       // 44px - matches standard touch target
-    // Standard width for most interactive containers  
-    standard: 'w-10',       // 40px - basic icon containers
-    // Compact width for tight layouts
-    compact: 'w-8',         // 32px - minimal but functional
+    minWidth: 'w-11',       // 44px - matches standard touch target (WCAG AAA)
+    standard: 'w-10',       // 40px - basic icon containers (WCAG AA)
+    compact: 'w-8',         // 32px - minimal but functional for tight layouts
+    searchIcon: 'w-16',     // 64px - optimized for search input flex layouts
   }
 } as const;
 
@@ -230,15 +239,43 @@ export const components = {
   input: {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
     
-    // Simplified search input using flex-based layout (INDUSTRY STANDARD)
+    // Flex-based search input (INDUSTRY STANDARD PATTERN)
+    // Used by Google, GitHub, and most modern web apps
+    // Advantages: predictable layout, no z-index conflicts, better accessibility
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: 'w-11 flex items-center justify-center text-muted-foreground px-2',
+      iconLeft: `${interaction.container.searchIcon} flex items-center justify-center text-muted-foreground px-2`,
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
-      iconRight: 'w-11 flex items-center justify-center text-muted-foreground px-2',
+      iconRight: `${interaction.container.searchIcon} flex items-center justify-center text-muted-foreground px-2`,
       button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
+  },
+  
+  // Dropdown menu patterns
+  dropdown: {
+    // Content container
+    content: 'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-background py-2 text-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+    
+    // Menu items
+    item: 'relative flex cursor-default select-none items-center gap-2 rounded-sm px-3 py-2.5 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+    
+    // Sub-trigger for nested menus
+    subTrigger: 'flex cursor-default gap-2 select-none items-center rounded-sm px-3 py-2.5 text-base outline-none focus:bg-accent data-[state=open]:bg-accent [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+    
+    // Labels and separators
+    label: 'px-3 py-2 text-sm font-semibold',
+    separator: '-mx-1 my-2 h-px bg-muted',
+    
+    // Shortcut text
+    shortcut: 'ml-auto text-xs tracking-widest opacity-60',
+    
+    // Checkbox and radio items
+    checkboxItem: 'relative flex cursor-default select-none items-center rounded-sm py-2.5 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    radioItem: 'relative flex cursor-default select-none items-center rounded-sm py-2.5 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    
+    // Indicator positioning
+    indicator: 'absolute left-2 flex h-3.5 w-3.5 items-center justify-center',
   },
   
   // Tooltip patterns
@@ -278,25 +315,21 @@ export const components = {
     timestamp: 'tabular-nums',
   },
   
-  // Navigation link patterns (BEST PRACTICE: NO ARROWS/CHEVRONS)
+  // Navigation link patterns (CLEAN DESIGN - NO ARROWS/CHEVRONS)
+  // Following modern web accessibility standards and clean design principles
   navigation: {
     // Primary navigation links
     link: {
-      // Default navigation link styling
       base: 'text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors',
-      // Active state for current page
-      active: 'text-foreground font-medium',
-      // Subtle variant for secondary navigation
+      active: 'text-foreground font-medium', // Current page indicator
       subtle: 'text-muted-foreground/70 hover:text-muted-foreground transition-colors',
     },
     
-    // "View all" style links (common pattern)
+    // "View all" style links - clean without decorative elements
+    // Modern design principle: let content and behavior indicate clickability
     viewAll: {
-      // Standard "View all" link without decorative elements
       base: 'text-sm text-primary hover:text-primary/80 font-medium transition-colors',
-      // Muted variant for less prominent contexts
       muted: 'text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors',
-      // With focus states for accessibility
       accessible: `text-sm text-primary hover:text-primary/80 font-medium transition-colors ${accessibility.focus.default}`,
     },
     
@@ -305,6 +338,22 @@ export const components = {
       item: 'text-muted-foreground hover:text-foreground transition-colors',
       separator: 'text-muted-foreground/50 mx-2',
       current: 'text-foreground font-medium',
+    },
+    
+    // Mobile navigation menu patterns
+    mobileMenu: {
+      // Container for mobile dropdown menu
+      container: 'bg-background border border-border shadow-lg',
+      // Menu items with larger text for mobile
+      item: 'flex items-center gap-3 px-3 py-3 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Icon sizing for menu items
+      icon: 'h-5 w-5 flex-shrink-0',
+      // Separator styling
+      separator: 'my-2 border-t border-border',
+      // Submenu trigger styling
+      subTrigger: 'flex items-center justify-between w-full px-3 py-3 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Submenu content styling
+      subContent: 'bg-background border border-border shadow-lg',
     },
   },
   
@@ -439,3 +488,69 @@ export type LayoutKey = keyof typeof layout;
 export type TypographyKey = keyof typeof typography;
 export type ComponentKey = keyof typeof components;
 export type InteractionKey = keyof typeof interaction;
+
+// ============================================================================
+// USAGE EXAMPLES AND PATTERNS
+// ============================================================================
+
+/**
+ * Common usage patterns and examples for the design system.
+ * Copy these patterns for consistent implementation across the app.
+ */
+export const usageExamples = {
+  // Basic card with proper spacing
+  card: `
+    <div className={\`\${components.card.base} \${spacing.card}\`}>
+      <h3 className={\`\${typography.h3} \${spacing.heading}\`}>Card Title</h3>
+      <p className={typography.body}>Card content goes here.</p>
+    </div>
+  `,
+  
+  // Search input with flex layout (industry standard)
+  searchInput: `
+    <div className={components.input.search.container}>
+      <div className={components.input.search.iconLeft}>
+        <Search className="h-4 w-4" />
+      </div>
+      <input 
+        className={components.input.search.input}
+        placeholder="Search markets..."
+      />
+      <div className={components.input.search.iconRight}>
+        <button className={components.input.search.button}>
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  `,
+  
+  // Button with proper accessibility
+  button: `
+    <button className={\`\${components.button.base} \${components.button.size.md} \${components.button.variant.primary}\`}>
+      Predict with AI
+    </button>
+  `,
+  
+  // Navigation link without decorative arrows
+  navigationLink: `
+    <Link 
+      href="/predictions" 
+      className={components.navigation.viewAll.accessible}
+    >
+      View all predictions
+    </Link>
+  `,
+  
+  // Dropdown menu with proper spacing
+  dropdownMenu: `
+    <DropdownMenuContent className={components.dropdown.content}>
+      <DropdownMenuItem className={components.dropdown.item}>
+        Profile
+      </DropdownMenuItem>
+      <DropdownMenuSeparator className={components.dropdown.separator} />
+      <DropdownMenuItem className={components.dropdown.item}>
+        Settings
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  `
+} as const;

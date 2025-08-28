@@ -139,7 +139,7 @@ export function Header() {
                     <Menu className="h-7 w-7" />
                   </Button>
                 </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 shadow-lg">
+              <DropdownMenuContent align="end" className="w-56 shadow-lg">
                 {/* Mobile Search */}
                 {/* {flags.showSearch && (
                   <>
@@ -171,26 +171,26 @@ export function Header() {
                 
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>
-                  <Link href="/" className={`w-full flex items-center space-x-2 ${isActive("/") ? "bg-accent" : ""}`}>
-                    <Home className="h-4 w-4" />
+                  <Link href="/" className={`w-full flex items-center gap-3 px-3 py-3 text-base font-medium ${isActive("/") ? "bg-accent" : ""}`}>
+                    <Home className="h-5 w-5 flex-shrink-0" />
                     <span>Home</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/leaderboard" className={`w-full flex items-center space-x-2 ${isActive("/leaderboard") ? "bg-accent" : ""}`}>
-                    <Trophy className="h-4 w-4" />
+                  <Link href="/leaderboard" className={`w-full flex items-center gap-3 px-3 py-3 text-base font-medium ${isActive("/leaderboard") ? "bg-accent" : ""}`}>
+                    <Trophy className="h-5 w-5 flex-shrink-0" />
                     <span>AI Leaderboard</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/about" className={`w-full flex items-center space-x-2 ${isActive("/about") ? "bg-accent" : ""}`}>
-                    <Info className="h-4 w-4" />
+                  <Link href="/about" className={`w-full flex items-center gap-3 px-3 py-3 text-base font-medium ${isActive("/about") ? "bg-accent" : ""}`}>
+                    <Info className="h-5 w-5 flex-shrink-0" />
                     <span>About</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="https://docs.betterai.tools" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center space-x-2 ${isActive("/docs") ? "bg-accent" : ""}`}>
-                    <BookOpen className="h-4 w-4" />
+                  <Link href="https://docs.betterai.tools" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center gap-3 px-3 py-3 text-base font-medium ${isActive("/docs") ? "bg-accent" : ""}`}>
+                    <BookOpen className="h-5 w-5 flex-shrink-0" />
                     <span>Docs</span>
                   </Link>
                 </DropdownMenuItem>
@@ -208,15 +208,15 @@ export function Header() {
                 <DropdownMenuSeparator />
                 {flags.showActivity && (
                   <DropdownMenuItem asChild>
-                    <Link href="/activity" className={`w-full ${isActive("/activity") ? "bg-accent" : ""}`}>
+                    <Link href="/activity" className={`w-full px-3 py-3 text-base font-medium ${isActive("/activity") ? "bg-accent" : ""}`}>
                       <span>Activity</span>
                     </Link>
                   </DropdownMenuItem>
                 )}
                 {authenticated && (
                   <DropdownMenuItem asChild>
-                    <Link href="/credits" className={`w-full flex items-center space-x-2 ${isActive("/credits") ? "bg-accent" : ""}`}>
-                      <CreditCard className="h-4 w-4" />
+                    <Link href="/credits" className={`w-full flex items-center gap-3 px-3 py-3 text-base font-medium ${isActive("/credits") ? "bg-accent" : ""}`}>
+                      <CreditCard className="h-5 w-5 flex-shrink-0" />
                       <span>Credits</span>
                     </Link>
                   </DropdownMenuItem>
@@ -224,13 +224,13 @@ export function Header() {
                 
                 {/* Support & Social Section */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4" />
+                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 text-base font-medium">
+                  <Mail className="h-5 w-5 flex-shrink-0" />
                   <span>Contact Us</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="https://x.com/HelloBetterAI" target="_blank" rel="noopener noreferrer" className="w-full flex items-center space-x-2">
-                    <Twitter className="h-4 w-4" />
+                  <Link href="https://x.com/HelloBetterAI" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-3 py-3 text-base font-medium">
+                    <Twitter className="h-5 w-5 flex-shrink-0" />
                     <span>Follow us on X</span>
                   </Link>
                 </DropdownMenuItem>
@@ -238,39 +238,39 @@ export function Header() {
                 {/* Settings & Legal Section */}
                 <DropdownMenuSeparator />
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
+                  <DropdownMenuSubTrigger className="flex items-center justify-between w-full px-3 py-3 text-base font-medium">
                     <span>Theme</span>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <DropdownMenuItem onClick={() => setTheme("light")}>
-                      <Sun className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => setTheme("light")} className="px-3 py-3 text-base font-medium">
+                      <Sun className="mr-3 h-5 w-5 flex-shrink-0" />
                       <span>Light</span>
                       {theme === "light" && <span className="ml-auto">✓</span>}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("dark")}>
-                      <Moon className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => setTheme("dark")} className="px-3 py-3 text-base font-medium">
+                      <Moon className="mr-3 h-5 w-5 flex-shrink-0" />
                       <span>Dark</span>
                       {theme === "dark" && <span className="ml-auto">✓</span>}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("system")}>
-                      <Monitor className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => setTheme("system")} className="px-3 py-3 text-base font-medium">
+                      <Monitor className="mr-3 h-5 w-5 flex-shrink-0" />
                       <span>System</span>
                       {theme === "system" && <span className="ml-auto">✓</span>}
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
+                  <DropdownMenuSubTrigger className="flex items-center justify-between w-full px-3 py-3 text-base font-medium">
                     <span>Legal</span>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem asChild>
-                      <Link href="/privacy" className={`w-full ${isActive("/privacy") ? "bg-accent" : ""}`}>
+                      <Link href="/privacy" className={`w-full px-3 py-3 text-base font-medium ${isActive("/privacy") ? "bg-accent" : ""}`}>
                         <span>Privacy Policy</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/tos" className={`w-full ${isActive("/tos") ? "bg-accent" : ""}`}>
+                      <Link href="/tos" className={`w-full px-3 py-3 text-base font-medium ${isActive("/tos") ? "bg-accent" : ""}`}>
                         <span>Terms of Service</span>
                       </Link>
                     </DropdownMenuItem>
