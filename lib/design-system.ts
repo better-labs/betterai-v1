@@ -257,11 +257,11 @@ export const components = {
     // Content container
     content: 'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-background py-2 text-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
     
-    // Menu items
-    item: 'relative flex cursor-default select-none items-center gap-2 rounded-sm px-3 py-2.5 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+    // Menu items - using margin for vertical spacing to avoid box model conflicts
+    item: 'relative flex cursor-default select-none items-center gap-2 rounded-sm px-3 py-2 my-1 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
     
-    // Sub-trigger for nested menus
-    subTrigger: 'flex cursor-default gap-2 select-none items-center rounded-sm px-3 py-2.5 text-base outline-none focus:bg-accent data-[state=open]:bg-accent [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+    // Sub-trigger for nested menus - consistent margin spacing
+    subTrigger: 'flex cursor-default gap-2 select-none items-center rounded-sm px-3 py-2 my-1 text-base outline-none focus:bg-accent data-[state=open]:bg-accent [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
     
     // Labels and separators
     label: 'px-3 py-2 text-sm font-semibold',
@@ -270,9 +270,9 @@ export const components = {
     // Shortcut text
     shortcut: 'ml-auto text-xs tracking-widest opacity-60',
     
-    // Checkbox and radio items
-    checkboxItem: 'relative flex cursor-default select-none items-center rounded-sm py-2.5 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-    radioItem: 'relative flex cursor-default select-none items-center rounded-sm py-2.5 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    // Checkbox and radio items - using margin spacing consistent with other items
+    checkboxItem: 'relative flex cursor-default select-none items-center rounded-sm py-2 my-1 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    radioItem: 'relative flex cursor-default select-none items-center rounded-sm py-2 my-1 pl-8 pr-3 text-base outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
     
     // Indicator positioning
     indicator: 'absolute left-2 flex h-3.5 w-3.5 items-center justify-center',
@@ -344,14 +344,14 @@ export const components = {
     mobileMenu: {
       // Container for mobile dropdown menu
       container: 'bg-background border border-border shadow-lg',
-      // Menu items with consistent py-2.5 spacing to match dropdown
-      item: 'flex items-center gap-3 px-3 py-2.5 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Menu items with margin spacing to match dropdown
+      item: 'flex items-center gap-3 px-3 py-2 my-1 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
       // Icon sizing for menu items
       icon: 'h-5 w-5 flex-shrink-0',
       // Separator styling
       separator: 'my-2 border-t border-border',
-      // Submenu trigger styling with consistent py-2.5 spacing
-      subTrigger: 'flex items-center justify-between w-full px-3 py-2.5 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
+      // Submenu trigger styling with consistent margin spacing
+      subTrigger: 'flex items-center justify-between w-full px-3 py-2 my-1 text-base font-medium transition-colors hover:bg-accent focus:bg-accent',
       // Submenu content styling
       subContent: 'bg-background border border-border shadow-lg',
     },
