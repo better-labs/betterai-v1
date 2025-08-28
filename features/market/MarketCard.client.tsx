@@ -6,15 +6,15 @@ import { usePrivy } from '@privy-io/react-auth'
 import { useEffect, useState } from 'react'
 import { trpc } from '@/lib/trpc/client'
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
-import { Badge } from "@/shared/ui/badge"
+
 import { Button } from "@/shared/ui/button"
-import { Stat, StatGroup } from "@/shared/ui/stat"
+import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import { ViewAllLink } from "@/shared/ui/view-all-link"
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 import { formatPercent } from '@/lib/utils'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip"
+
 import { Brain } from 'lucide-react'
 import { components } from '@/lib/design-system'
 import { OutcomeStat } from '@/shared/ui/outcome-stat'

@@ -126,8 +126,8 @@ export const typography = {
   h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
   
   // Body text with fluid scaling
-  body: 'text-[clamp(0.875rem,1.5vw,1rem)] leading-relaxed', // 14px-16px
-  bodyLarge: 'text-[clamp(1rem,2vw,1.125rem)] leading-relaxed', // 16px-18px
+  body: 'text-[clamp(0.9375rem,1.5vw,1.0625rem)] leading-relaxed', // 15px-17px
+  bodyLarge: 'text-[clamp(1.0625rem,2vw,1.1875rem)] leading-relaxed', // 17px-19px
   bodySmall: 'text-sm leading-relaxed',
   
   // Special text
@@ -135,6 +135,9 @@ export const typography = {
   label: 'text-sm font-medium',
   statLabel: 'text-[11px] tracking-wide text-muted-foreground',
   
+  // Outcome display typography
+  outcomeValue: 'text-sm font-semibold tabular-nums',
+  outcomeLabel: 'text-sm truncate',
 } as const;
 
 // ============================================================================

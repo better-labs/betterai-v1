@@ -60,7 +60,8 @@ export function TRPCProvider({ children }: TRPCProviderProps) {
   // Create trpcClient that can access the current getAccessToken function
   // Depend on authentication state to recreate client when auth changes
   const trpcClient = useMemo(() => {
-    return createTRPCClient(getBaseUrl(), getAccessToken)
+    // Only pass getAccessToken if Privy is ready to avoid race conditions
+    return createTRPCClient(getBaseUrl(), ready ? getAccessToken : undefined)
   }, [getAccessToken, authenticated, ready])
 
   return (

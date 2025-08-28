@@ -34,7 +34,7 @@ export function OutcomeStat({
         const value = values?.[i]
         return (
           <div key={i} className={components.outcome.row}>
-            <span className={typography.label}>{outcome}</span>
+            <span className={typography.body}>{outcome}</span>
             <span className={typography.body}>
               {value !== undefined && value !== null
                 ? formatPercent(value)

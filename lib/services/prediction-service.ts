@@ -1,7 +1,7 @@
 import type { PrismaClient, Prediction, Market, Event } from '@/lib/generated/prisma'
-import { mapPredictionToDTO, mapPredictionsToDTO } from '@/lib/dtos'
+import { mapPredictionToDTO } from '@/lib/dtos'
 import type { PredictionDTO } from '@/lib/types'
-import { toNumberOrNull } from "@/lib/utils"
+
 
 /**
  * Prediction service functions following clean service pattern:
