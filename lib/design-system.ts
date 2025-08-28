@@ -3,6 +3,8 @@
  * 
  * This file contains consistent spacing, typography, and layout patterns
  * used throughout the application for professional, polished layouts.
+ * 
+ * For comprehensive documentation and usage examples, see DESIGN_SYSTEM.md
  */
 
 // ============================================================================
@@ -20,7 +22,6 @@ export const spacing = {
   cta: 'mt-8',            // 2rem/32px top margin for secondary actions
   
   // Typography spacing
-  title: 'mb-6',          // 1.5rem/24px bottom margin for titles
   heading: 'mb-6',        // 1.5rem/24px bottom margin for headings
   
   // Component spacing
@@ -41,72 +42,22 @@ export const layout = {
     hero: spacing.hero,
   },
   
-  // Enhanced grid systems with auto-fit and CSS Grid areas
+  // Essential grid systems
   grid: {
-    // Traditional responsive columns
+    // Responsive columns
     cols: {
       '1': 'grid-cols-1',
       '2': 'grid-cols-1 md:grid-cols-2',
       '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
       '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
-      '6': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6',
     },
     
-    // Auto-fit columns for flexible layouts
-    autoFit: {
-      xs: 'grid-cols-[repeat(auto-fit,minmax(150px,1fr))]',
-      sm: 'grid-cols-[repeat(auto-fit,minmax(200px,1fr))]',
-      md: 'grid-cols-[repeat(auto-fit,minmax(250px,1fr))]',
-      lg: 'grid-cols-[repeat(auto-fit,minmax(300px,1fr))]',
-      xl: 'grid-cols-[repeat(auto-fit,minmax(350px,1fr))]',
-    },
-    
-    // Auto-fill columns for consistent sizing
-    autoFill: {
-      xs: 'grid-cols-[repeat(auto-fill,minmax(150px,1fr))]',
-      sm: 'grid-cols-[repeat(auto-fill,minmax(200px,1fr))]',
-      md: 'grid-cols-[repeat(auto-fill,minmax(250px,1fr))]',
-      lg: 'grid-cols-[repeat(auto-fill,minmax(300px,1fr))]',
-      xl: 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]',
-    },
-    
+    // Grid gaps
     gap: {
-      xs: 'gap-2',
       sm: 'gap-4',
       md: 'gap-6',
       lg: 'gap-8',
-      xl: 'gap-12',
     },
-    
-    // CSS Grid template areas for complex layouts
-    areas: {
-      dashboard: `[grid-template-areas:'header_header''sidebar_main''footer_footer'] md:[grid-template-areas:'header_header''sidebar_main''sidebar_main']`,
-      profile: `[grid-template-areas:'avatar_info''bio_bio''actions_actions'] lg:[grid-template-areas:'avatar_info_actions''bio_bio_bio']`,
-      card: `[grid-template-areas:'header''content''footer'] md:[grid-template-areas:'header_header''content_sidebar''footer_footer']`,
-    },
-    
-    // Grid area utilities
-    area: {
-      header: '[grid-area:header]',
-      sidebar: '[grid-area:sidebar]',
-      main: '[grid-area:main]',
-      footer: '[grid-area:footer]',
-      avatar: '[grid-area:avatar]',
-      info: '[grid-area:info]',
-      bio: '[grid-area:bio]',
-      actions: '[grid-area:actions]',
-      content: '[grid-area:content]',
-    }
-  },
-  
-  // Flexbox patterns
-  flex: {
-    center: 'flex items-center justify-center',
-    between: 'flex items-center justify-between',
-    start: 'flex items-center justify-start',
-    end: 'flex items-center justify-end',
-    col: 'flex flex-col',
-    row: 'flex flex-row',
   }
 } as const;
 
@@ -118,21 +69,21 @@ export const interaction = {
   // Touch target sizes following WCAG and platform guidelines
   touchTarget: {
     // Minimum for WCAG 2.2 AA compliance
-    minimum: 'w-6 h-6',     // 24px - basic compliance
+    minimum: 'w-10 h-10',   // 40px - WCAG AA compliance
     // Recommended for WCAG 2.1 AAA and optimal UX  
-    standard: 'w-11 h-11',  // 44px - iOS/Android standard
+    standard: 'w-11 h-11',  // 44px - WCAG AAA compliance
     // Enhanced for complex interactive elements
-    enhanced: 'w-16 h-16',  // 64px - search icons, complex controls
+    enhanced: 'w-12 h-12',  // 48px - complex controls
   },
   
   // Interactive container widths (for icon containers, etc.)
   container: {
     // Minimum functional width for icon containers
-    minWidth: 'w-16',       // 64px - ensures proper flex layout
+    minWidth: 'w-11',       // 44px - matches standard touch target
     // Standard width for most interactive containers  
-    standard: 'w-12',       // 48px - basic icon containers
+    standard: 'w-10',       // 40px - basic icon containers
     // Compact width for tight layouts
-    compact: 'w-10',        // 40px - minimal but functional
+    compact: 'w-8',         // 32px - minimal but functional
   }
 } as const;
 
@@ -153,7 +104,7 @@ export const elevation = {
   lg: 'shadow-lg',
 } as const;
 
-// Enhanced animation system with modern easing and durations
+// Animation system with modern easing and durations
 export const animation = {
   duration: {
     instant: 'duration-0',
@@ -175,15 +126,6 @@ export const animation = {
     natural: 'ease-[cubic-bezier(0.4,0.0,0.2,1)]',
     sharp: 'ease-[cubic-bezier(0.4,0.0,0.6,1)]',
     emphasized: 'ease-[cubic-bezier(0.2,0.0,0,1)]',
-  },
-  
-  // Combined animation classes
-  transitions: {
-    all: 'transition-all duration-300 ease-in-out',
-    colors: 'transition-colors duration-200 ease-in-out',
-    transform: 'transition-transform duration-300 ease-out',
-    shadow: 'transition-shadow duration-200 ease-in-out',
-    size: 'transition-[width,height] duration-300 ease-in-out',
   }
 } as const;
 
@@ -238,12 +180,11 @@ export const accessibility = {
 // ============================================================================
 
 export const typography = {
- 
-    h1: 'text-2xl md:text-3xl lg:text-4xl font-bold leading-tight',
-    h2: 'text-xl md:text-2xl lg:text-3xl font-semibold leading-tight',
-    h3: 'text-lg md:text-xl lg:text-2xl font-semibold leading-tight',
-    h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
- 
+  // Headings
+  h1: 'text-2xl md:text-3xl lg:text-4xl font-bold leading-tight',
+  h2: 'text-xl md:text-2xl lg:text-3xl font-semibold leading-tight',
+  h3: 'text-lg md:text-xl lg:text-2xl font-semibold leading-tight',
+  h4: 'text-base md:text-lg lg:text-xl font-medium leading-tight',
   
   // Body text with fluid scaling
   body: 'text-[clamp(0.875rem,1.5vw,1rem)] leading-relaxed', // 14px-16px
@@ -263,7 +204,6 @@ export const components = {
   // Card patterns
   card: {
     base: 'bg-card border border-border rounded-lg shadow-sm',
-    padding: 'p-6',
     hover: 'hover:shadow-md transition-shadow duration-200',
   },
   
@@ -293,9 +233,9 @@ export const components = {
     // Simplified search input using flex-based layout (INDUSTRY STANDARD)
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',
-      iconLeft: `${interaction.container.minWidth} flex items-center justify-center text-muted-foreground px-2`,   // semantic min width for proper layout
+      iconLeft: 'w-11 flex items-center justify-center text-muted-foreground px-2',
       input: 'flex-1 px-3 py-2 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground',
-      iconRight: `${interaction.container.minWidth} flex items-center justify-center text-muted-foreground px-2`, // semantic min width for proper layout
+      iconRight: 'w-11 flex items-center justify-center text-muted-foreground px-2',
       button: 'h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
     }
 
@@ -467,136 +407,6 @@ export const components = {
 
 
 } as const;
-
-// ============================================================================
-// INPUT LAYOUT PATTERNS & BEST PRACTICES
-// ============================================================================
-
-/**
- * FLEX-BASED SEARCH INPUT PATTERN (INDUSTRY STANDARD)
- * 
- * This pattern uses flexbox with fixed-width icon containers for predictable, 
- * accessible search inputs. This is the most common approach used by major web applications.
- * 
- * Structure:
- * ```html
- * <div className={components.input.search.container}>
- *   <div className={components.input.search.iconLeft}>
- *     <SearchIcon />
- *   </div>
- *   <input className={components.input.search.input} />
- *   <div className={components.input.search.iconRight}>
- *     <button className={components.input.search.button}>
- *       <XIcon />
- *     </button>
- *   </div>
- * </div>
- * ```
- * 
- * Advantages:
- * - Fixed 48px (w-12) icon containers ensure consistent spacing
- * - Predictable layout across all screen sizes and browsers
- * - No z-index or absolute positioning conflicts
- * - Better accessibility and tab order
- * - Industry standard used by Google, GitHub, and most modern web apps
- * - Easy to add multiple icons or adjust spacing
- * 
- * Spacing Standards:
- * - Left icon: 64px minimum width (interaction.container.minWidth) - ensures proper flex layout
- * - Right icon: 64px minimum width (interaction.container.minWidth) - ensures proper flex layout
- * - Input padding: 12px horizontal (px-3)
- * - Icon size: 16px (h-4)
- * - Additional padding: 8px horizontal (px-2) on icon containers
- * 
- * Avoid: Absolute positioning with multiple overlapping elements
- */
-
-/**
- * CARD FOOTER METADATA PATTERN (RECOMMENDED)
- * 
- * Consistent system for displaying metadata in card footers.
- * Maintains visual hierarchy while providing essential context.
- * 
- * Basic Structure:
- * ```html
- * <div className={components.cardFooter.container}>
- *   <div className={`${components.cardFooter.item} ${components.cardFooter.layout.single}`}>
- *     <a href="..." className={components.cardFooter.link}>
- *       View on Provider
- *     </a>
- *   </div>
- * </div>
- * ```
- * 
- * Multiple Items:
- * ```html
- * <div className={components.cardFooter.container}>
- *   <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split}`}>
- *     <span className={components.cardFooter.timestamp}>
- *       Updated: 12/15/24 3:45 PM
- *     </span>
- *     <span className={components.cardFooter.metadataBadge}>
- *       Trending
- *     </span>
- *   </div>
- * </div>
- * ```
- * 
- * Guidelines:
- * - Always use border-t separator for visual grouping
- * - Keep metadata secondary to main content (muted colors)
- * - Use tabular-nums for timestamps and numbers
- * - Limit to 1-2 metadata items to avoid clutter
- * - Prefer links and badges over plain text when actionable
- * 
- * Avoid:
- * - Multiple border separators in the same card
- * - Prominent colors that compete with main content
- * - More than 3 metadata items in footer
- */
-
-/**
- * NAVIGATION LINKS PATTERN (BEST PRACTICE)
- * 
- * Clean navigation links without decorative elements like arrows or chevrons.
- * Follows web accessibility standards and modern design principles.
- * 
- * "View All" Example:
- * ```html
- * <Link 
- *   href="/predictions" 
- *   className={components.navigation.viewAll.accessible}
- * >
- *   View all predictions
- * </Link>
- * ```
- * 
- * Primary Navigation Example:
- * ```html
- * <nav>
- *   <Link 
- *     href="/dashboard" 
- *     className={components.navigation.link.base}
- *   >
- *     Dashboard
- *   </Link>
- * </nav>
- * ```
- * 
- * Guidelines:
- * - NO arrows, chevrons, or decorative symbols on clickable links
- * - Use underline and color changes to indicate hover/focus states
- * - Maintain consistent spacing and typography hierarchy
- * - Include proper focus states for keyboard navigation
- * - Use semantic HTML elements (Link, <a>) for navigation
- * 
- * Why No Arrows/Chevrons:
- * - Creates visual noise and reduces clarity
- * - Not necessary for users to understand clickability
- * - Can interfere with text selection and accessibility
- * - Modern web design favors minimal, clean interfaces
- * - Hover and focus states provide sufficient interaction feedback
- */
 
 // ============================================================================
 // UTILITY FUNCTIONS
