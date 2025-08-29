@@ -21,20 +21,19 @@ export async function getTrendingEvents(
 }
 
 /**
- * Gets trending events with their associated markets, sorted by volume.
+ * Gets trending events with their associated markets, sorted by prediction status then volume.
  * Applies business filters to show relevant, active events for predictions.
  * 
  * @param db - Prisma database client
- * @param withPredictions - If true, only include events with markets that have recent predictions
+ * @param withPredictions - If true, prioritize markets with predictions (sort first)
  * @param predictionDaysLookBack - Number of days to look back for recent predictions (default: 3)
  * @returns Array of events with their highest-volume markets and prediction data
  * 
  * Applied filters:
  * - Future events only (endDate > now)
  * - Excludes crypto-tagged events
- * - When withPredictions=true: only events with markets having predictions from last {predictionDaysLookBack} days
- * - Sorts by event volume DESC, markets by volume DESC
- * - Returns one market per event (highest volume/delta)
+ * - Sorts markets with predictions first, then high-volume markets without predictions
+ * - Returns one market per event (highest priority by prediction status, then volume/delta)
  */
 export async function getTrendingEventsWithMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
@@ -45,20 +44,6 @@ export async function getTrendingEventsWithMarkets(
   const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
   
   const whereClause: any = {}
-  
-  if (withPredictions) {
-    whereClause.markets = {
-      some: {
-        predictions: {
-          some: {
-            createdAt: {
-              gte: filterDate
-            }
-          }
-        }
-      }
-    }
-  }
   
   // Only show events that haven't ended yet
   whereClause.endDate = {
@@ -90,19 +75,10 @@ export async function getTrendingEventsWithMarkets(
     take: 50, // Get more events since we'll filter down to one market per event
     include: {
       markets: {
-        where: withPredictions ? {
-          predictions: {
-            some: {
-              createdAt: {
-                gte: filterDate
-              }
-            }
-          }
-        } : {},
         orderBy: {
           volume: 'desc'
         },
-        include: withPredictions ? {
+        include: {
           predictions: {
             where: {
               createdAt: {
@@ -120,7 +96,7 @@ export async function getTrendingEventsWithMarkets(
               predictionResult: true,
             }
           }
-        } : {}
+        }
       },
       eventTags: {
         include: {
@@ -137,15 +113,24 @@ export async function getTrendingEventsWithMarkets(
     }
   })
 
-  // For each event, find the market with the highest delta
+  // For each event, find the best market prioritizing predictions then volume
   const eventsWithBestMarket = events
     .map((event: any) => {
       if (!event.markets || event.markets.length === 0) return null
       
-      // Calculate delta for each market with predictions
-      const marketsWithDelta = event.markets
-        .filter((market: any) => market.predictions && market.predictions.length > 0)
-        .map((market: any) => {
+      // Split markets into those with and without predictions
+      const marketsWithPredictions = event.markets.filter((market: any) => 
+        market.predictions && market.predictions.length > 0
+      )
+      const marketsWithoutPredictions = event.markets.filter((market: any) => 
+        !market.predictions || market.predictions.length === 0
+      )
+      
+      let bestMarket = null
+      
+      if (marketsWithPredictions.length > 0) {
+        // Calculate delta for markets with predictions
+        const marketsWithDelta = marketsWithPredictions.map((market: any) => {
           const prediction = market.predictions[0]
           const marketProb = Array.isArray(market.outcomePrices) 
             ? market.outcomePrices[0] 
@@ -162,20 +147,39 @@ export async function getTrendingEventsWithMarkets(
           
           return {
             ...market,
-            delta
+            delta,
+            hasPrediction: true
           }
         })
+        
+        // Find markets with significant delta
+        const significantDeltaMarkets = marketsWithDelta.filter((market: any) => market.delta > 0.009)
+        
+        if (significantDeltaMarkets.length > 0) {
+          // Sort by highest delta and take the best one
+          bestMarket = significantDeltaMarkets.sort((a: any, b: any) => b.delta - a.delta)[0]
+        } else {
+          // If no significant delta, take the highest volume market with predictions
+          bestMarket = marketsWithDelta.sort((a: any, b: any) => 
+            parseFloat(b.volume?.toString() || '0') - parseFloat(a.volume?.toString() || '0')
+          )[0]
+          bestMarket.hasPrediction = true
+        }
+      }
       
-      // Filter markets with significant delta (> 0.009) and sort by highest delta
-      const significantDeltaMarkets = marketsWithDelta.filter((market: any) => market.delta > 0.009)
+      // If no best market with predictions found, fall back to highest volume market
+      if (!bestMarket && marketsWithoutPredictions.length > 0) {
+        bestMarket = marketsWithoutPredictions.sort((a: any, b: any) => 
+          parseFloat(b.volume?.toString() || '0') - parseFloat(a.volume?.toString() || '0')
+        )[0]
+        bestMarket.hasPrediction = false
+      }
       
-      // If no markets have significant delta, skip this event
-      const bestMarket = significantDeltaMarkets.length > 0
-        ? significantDeltaMarkets.sort((a: any, b: any) => b.delta - a.delta)[0]
-        : null
-      
-      // Skip events without significant delta markets
-      if (!bestMarket) return null
+      // If still no market found, take any market
+      if (!bestMarket) {
+        bestMarket = event.markets[0]
+        bestMarket.hasPrediction = marketsWithPredictions.includes(bestMarket)
+      }
       
       return {
         ...event,
@@ -184,7 +188,22 @@ export async function getTrendingEventsWithMarkets(
     })
     .filter((event: any) => event !== null)
   
-  return eventsWithBestMarket
+  // Sort events: predicted markets first, then by volume
+  const sortedEvents = eventsWithBestMarket.sort((a: any, b: any) => {
+    const aHasPrediction = a.markets[0]?.hasPrediction || false
+    const bHasPrediction = b.markets[0]?.hasPrediction || false
+    
+    // Predicted markets first
+    if (aHasPrediction && !bHasPrediction) return -1
+    if (!aHasPrediction && bHasPrediction) return 1
+    
+    // Within same prediction status, sort by volume
+    const aVolume = parseFloat(a.volume?.toString() || '0')
+    const bVolume = parseFloat(b.volume?.toString() || '0')
+    return bVolume - aVolume
+  })
+  
+  return sortedEvents
 }
 
 export async function getEventById(

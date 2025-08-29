@@ -27,7 +27,6 @@ export function TrendingMarkets() {
     refetch: refetchMarkets,
   } = trpc.markets.trending.useQuery({
     limit: marketLimit,
-    withPredictions: true,
   })
 
   const markets = marketsData?.items || []

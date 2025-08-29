@@ -57,7 +57,7 @@ async function main() {
         topMarketsCount: 14,
         endDateRangeHours: 168, // 7 days (wider range to catch more events)
         targetDaysFromNow: 10,
-        categoryMix: true
+        categoryMix: false // Get top 14 by volume regardless of category
       },
       modelName || DEFAULT_MODEL,
       {
