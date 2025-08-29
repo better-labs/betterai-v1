@@ -9,8 +9,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  shadowDatabaseUrl =env("SHADOW_DATABASE_URL")
+  url = env("DATABASE_URL") // pooled (for app & Prisma client)
+  shadowDatabaseUrl = env("DATABASE_URL_UNPOOLED_SHADOW")   // unpooled (for migrations only)
 }
 
 model AiModel {

@@ -144,9 +144,17 @@ Validate all inputs and implement proper authentication
 
 
 ### Database Migrations
+**CRITICAL**: Do NOT use `prisma db push` unless explicitly requested by the user. Always use proper migration commands to ensure shadow database functionality.
+
 Use `pnpm run db:migrate:` commands where possible.
 Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
-Important: avoid using "prisma db push", prefer using "pnpm db:migrate:deploy:dev". This creates short term database migration inconsistencies that are difficult to debug. Prompt the user to explain your migration issue issue before trying db push.
+
+**Shadow Database Requirement**: The project uses a schema-based shadow database (`betterai_shadow` schema) for migration validation. This ensures:
+- Safe migration validation before applying to main database
+- Proper schema drift detection
+- Production-safe deployment practices
+
+**Never use `prisma db push`** - it bypasses shadow database validation and can cause migration inconsistencies that are difficult to debug. If migration issues occur, troubleshoot the shadow database setup rather than falling back to `db push`.
 
 ### Next.js Build Best Practices
 Use `pnpm` not `npm`: Project uses pnpm for package management and build commands

@@ -1,6 +1,7 @@
 import type { PrismaClient, User, UserWatchlist, Market, Prediction } from '@/lib/generated/prisma'
 import { mapUserToDTO, type UserDTO } from '@/lib/dtos'
 import type { CreditBalance } from '@/lib/services/credit-manager'
+import { addToMailingList } from '@/lib/services/loops-service'
 
 /**
  * User service functions following clean service pattern:
@@ -85,11 +86,36 @@ export async function upsertUser(
     avatar?: string
   }
 ): Promise<User> {
-  return await db.user.upsert({
+  const user = await db.user.upsert({
     where: { id: userData.id },
     update: { ...userData, updatedAt: new Date() },
     create: userData
   })
+
+  // Asynchronously add user to Loops mailing list
+  // This runs in the background and doesn't block user registration
+  if (user.email) {
+    try {
+      // Extract first name from username (handle spaces)
+      const firstName = user.username?.split(' ')[0] || user.username || 'User'
+
+      console.log(`Adding user ${user.email} to Loops mailing list...`)
+      const loopsResult = await addToMailingList(user.email, firstName)
+
+      if (loopsResult) {
+        console.log(`Successfully added user ${user.email} to Loops mailing list`)
+      } else {
+        console.warn(`Failed to add user ${user.email} to Loops mailing list (non-blocking)`)
+      }
+    } catch (error) {
+      console.error(`Error adding user ${user.email} to Loops mailing list:`, error)
+      // Don't throw error - Loops failures shouldn't break user registration
+    }
+  } else {
+    console.log(`User ${user.id} has no email, skipping Loops integration`)
+  }
+
+  return user
 }
 
 export async function deleteUser(
