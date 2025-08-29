@@ -54,10 +54,10 @@ async function main() {
     
     await runBatchPredictionGeneration(
       {
-        topMarketsCount: 10,
-        endDateRangeHours: 48,
-        targetDaysFromNow: 7,
-        categoryMix: true
+        topMarketsCount: 14,
+        endDateRangeHours: 168, // 7 days (wider range to catch more events)
+        targetDaysFromNow: 10,
+        categoryMix: false // Get top 14 by volume regardless of category
       },
       modelName || DEFAULT_MODEL,
       {

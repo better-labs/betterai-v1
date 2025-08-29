@@ -105,8 +105,8 @@ export const marketsRouter = router({
   trending: publicProcedure
     .input(GetTrendingMarketsInput)
     .query(async ({ input }) => {
-      // Get events with markets using the event service with configurable filter days
-      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, input.withPredictions, 4)
+      // Get events with markets using the event service - always prioritize predictions in sorting
+      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, false, 4)
 
             // Extract markets from events and flatten
       const trendingMarkets = eventsWithMarkets.flatMap((event: any) =>

@@ -18,11 +18,11 @@ const privy = new PrivyClient(privyAppId, privyAppSecret)
  * Extracts and verifies the Privy access token from a request
  * Following Privy's documentation: https://docs.privy.io/authentication/user-authentication/access-tokens
  */
-export async function requireAuth(request: Request): Promise<{ userId: string; sessionId: string }> {
+export async function requireAuth(request: Request, silent = false): Promise<{ userId: string; sessionId: string }> {
   // Extract token from Authorization header (Bearer token approach)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.error('Authentication failed: No valid authorization header provided')
+    if (!silent) console.error('Authentication failed: No valid authorization header provided')
     throw new Error('No valid authorization header provided')
   }
 
@@ -70,7 +70,7 @@ export async function requireAuth(request: Request): Promise<{ userId: string; s
  */
 export async function optionalAuth(request: Request): Promise<{ userId: string; sessionId: string } | null> {
   try {
-    return await requireAuth(request)
+    return await requireAuth(request, true)
   } catch (error) {
     return null
   }

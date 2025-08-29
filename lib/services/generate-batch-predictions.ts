@@ -216,7 +216,7 @@ export async function generateBatchPredictions(
  */
 export async function runBatchPredictionGeneration(
   config: BatchPredictionConfig = {
-    topMarketsCount: 3,
+    topMarketsCount: 10,
     endDateRangeHours: 12,
     targetDaysFromNow: 7, 
     categoryMix: false,

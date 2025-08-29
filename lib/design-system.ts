@@ -130,6 +130,11 @@ export const typography = {
   bodyLarge: 'text-[clamp(1.0625rem,2vw,1.1875rem)] leading-relaxed', // 17px-19px
   bodySmall: 'text-sm leading-relaxed',
   
+  // Navigation text sizing
+  navDefault: 'text-md', // 14px - compact navigation
+  navLarge: 'text-xl',   // 18px - prominent navigation
+  navXLarge: 'text-2xl',  // 20px - hero navigation
+  
   // Special text
   caption: 'text-sm text-muted-foreground',
   label: 'text-sm font-medium',
@@ -268,7 +273,7 @@ export const components = {
   // Navigation link patterns (CLEAN DESIGN - NO ARROWS/CHEVRONS)
   // Following modern web accessibility standards and clean design principles
   navigation: {
-    // Primary navigation links
+    // Primary navigation links (size-agnostic - combine with typography.nav* tokens)
     link: {
       base: 'text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors',
       active: 'text-foreground font-medium', // Current page indicator
@@ -371,6 +376,30 @@ export const components = {
         exit: { opacity: 0 },
         duration: 0.15,
       },
+    }
+  },
+
+  // Loading overlay patterns - centered viewport overlays using React portals
+  loading: {
+    // Viewport-centered overlay that bypasses parent container constraints
+    // Uses React portals to render directly to document.body for reliable positioning
+    overlay: {
+      // Full viewport overlay (use with React createPortal)
+      container: 'fixed inset-0 flex items-center justify-center pointer-events-none z-50',
+      // Loading card with backdrop blur
+      card: 'bg-card/95 backdrop-blur-sm border rounded-lg p-4 shadow-lg pointer-events-auto',
+      // Content inside loading card
+      content: 'inline-flex items-center gap-2 text-muted-foreground',
+      // Standard spinner animation
+      spinner: 'animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full',
+    },
+    
+    // Alternative inline loading states (within containers)
+    inline: {
+      // Center within container
+      container: 'flex items-center justify-center py-8',
+      content: 'inline-flex items-center gap-2 text-muted-foreground',
+      spinner: 'animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full',
     }
   },
 
@@ -478,5 +507,51 @@ export const usageExamples = {
         Settings
       </DropdownMenuItem>
     </DropdownMenuContent>
+  `,
+
+  // Centered loading overlay (bypasses parent constraints using portal)
+  loadingOverlay: `
+    import { createPortal } from 'react-dom'
+    import { useState, useEffect } from 'react'
+    
+    function MyComponent() {
+      const [isBrowser, setIsBrowser] = useState(false)
+      const [isLoading, setIsLoading] = useState(false)
+      
+      useEffect(() => {
+        setIsBrowser(true)
+      }, [])
+      
+      return (
+        <>
+          {/* Your component content */}
+          
+          {/* Loading overlay using portal for reliable centering */}
+          {isBrowser && isLoading && 
+            createPortal(
+              <div className={components.loading.overlay.container}>
+                <div className={components.loading.overlay.card}>
+                  <div className={components.loading.overlay.content}>
+                    <div className={components.loading.overlay.spinner} />
+                    Loading more content...
+                  </div>
+                </div>
+              </div>,
+              document.body
+            )
+          }
+        </>
+      )
+    }
+  `,
+
+  // Inline loading state (within container)
+  inlineLoading: `
+    <div className={components.loading.inline.container}>
+      <div className={components.loading.inline.content}>
+        <div className={components.loading.inline.spinner} />
+        Loading...
+      </div>
+    </div>
   `
 } as const;

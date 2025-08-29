@@ -13,7 +13,6 @@ export async function updatePolymarketEventsAndMarketData(options: {
   timeoutMs?: number,
   userAgent?: string,
   daysToFetchPast?: number,
-  daysToFetchFuture?: number,
   maxBatchFailuresBeforeAbort?: number,
   sortBy?: string,
   maxEvents?: number,
@@ -27,15 +26,14 @@ export async function updatePolymarketEventsAndMarketData(options: {
   const {
     batchSize = 100,
     delayMs = 1000,
-    daysToFetchPast = 8,
-    daysToFetchFuture = 21,
+    daysToFetchPast = 3,
     maxBatchFailuresBeforeAbort = 3,
-    sortBy,
+    sortBy = 'volume', // Default to volume sorting for higher quality markets
     maxEvents,
     ...fetchOptions
   } = options
 
-  console.log(`Starting Polymarket data sync (${batchSize} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future)`)
+  console.log(`Starting Polymarket data sync (${batchSize} batch, ${daysToFetchPast}d past, no end limit, sortBy: ${sortBy})`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
@@ -46,10 +44,9 @@ export async function updatePolymarketEventsAndMarketData(options: {
   let totalFetched = 0
   let consecutiveErrors = 0
   
-  // Compute a fixed date window for this run
+  // Compute start date (no end date limit)
   const MS_IN_DAY = 24 * 60 * 60 * 1000
   const startDateMin = new Date(Date.now() - daysToFetchPast * MS_IN_DAY)
-  const endDateMax = new Date(Date.now() + daysToFetchFuture * MS_IN_DAY)
   
   // Helper function to calculate current batch size
   const getCurrentBatchSize = (processed: number, batchSize: number, maxEvents?: number) => {
@@ -70,7 +67,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
         break
       }
       
-      const eventsData = await fetchPolymarketEvents(offset, currentBatchSize, startDateMin, endDateMax, fetchOptions, sortBy)
+      const eventsData = await fetchPolymarketEvents(offset, currentBatchSize, startDateMin, null, fetchOptions, sortBy)
       
       if (eventsData.length > 0) {
         const batchResult = await processAndUpsertPolymarketBatch(eventsData, { 
@@ -110,6 +107,44 @@ export async function updatePolymarketEventsAndMarketData(options: {
   }
 
   console.log(`Finished processing all batches. Total: ${totalFetched}, Requests: ${totalRequests}, Errors: ${errors.length}`)
+  
+  // Summary statistics for fetched events
+  if (allInsertedEvents.length > 0) {
+    const endDates = allInsertedEvents
+      .map(e => e.endDate)
+      .filter((date): date is Date => date !== null)
+      .sort((a, b) => a.getTime() - b.getTime())
+    
+    const volumes = allInsertedEvents
+      .map(e => e.volume ? parseFloat(e.volume.toString()) : 0)
+      .filter(v => v > 0)
+      .sort((a, b) => b - a)
+    
+    const now = new Date()
+    const pastEvents = endDates.filter(date => date < now).length
+    const futureEvents = endDates.filter(date => date >= now).length
+    const next7Days = endDates.filter(date => 
+      date >= now && date.getTime() - now.getTime() <= 7 * 24 * 60 * 60 * 1000
+    ).length
+    const beyond7Days = futureEvents - next7Days
+    
+    console.log('\n📊 Event Distribution Summary:')
+    console.log(`├─ Date Range: ${endDates[0]?.toISOString().split('T')[0] || 'N/A'} → ${endDates[endDates.length - 1]?.toISOString().split('T')[0] || 'N/A'}`)
+    console.log(`├─ Past Events: ${pastEvents} (${(pastEvents/endDates.length*100).toFixed(1)}%)`)
+    console.log(`├─ Future Events: ${futureEvents} (${(futureEvents/endDates.length*100).toFixed(1)}%)`)
+    console.log(`├─── Next 7 Days: ${next7Days} (${(next7Days/endDates.length*100).toFixed(1)}%)`)
+    console.log(`├─── Beyond 7 Days: ${beyond7Days} (${(beyond7Days/endDates.length*100).toFixed(1)}%)`)
+    console.log(`├─ Events w/ Dates: ${endDates.length}/${allInsertedEvents.length}`)
+    if (volumes.length > 0) {
+      console.log(`├─ Volume Range: $${volumes[volumes.length - 1].toFixed(0)} → $${volumes[0].toFixed(0)}`)
+      console.log(`├─ Median Volume: $${volumes[Math.floor(volumes.length/2)].toFixed(0)}`)
+      console.log(`└─ Events w/ Volume: ${volumes.length}/${allInsertedEvents.length}`)
+    } else {
+      console.log(`└─ No volume data available`)
+    }
+  } else {
+    console.log('\n📊 No events were inserted in this run')
+  }
   
   return {
     insertedEvents: allInsertedEvents,

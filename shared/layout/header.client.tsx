@@ -13,6 +13,7 @@ import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
 import { UserCreditsDisplay } from "@/features/user/UserCreditsDisplay.client"
+import { components, typography } from "@/lib/design-system"
 
 // Standard Next.js dynamic import with loading state
 const PrivyUserPill = dynamic(
@@ -65,30 +66,30 @@ export function Header() {
             <nav className="header-nav hidden md:flex items-center space-x-6">
               <Link 
                 href="/" 
-                className={`text-sm font-medium transition-colors ${
+                className={`${typography.navLarge} ${components.navigation.link.base} font-medium ${
                   isActive("/") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "!text-foreground border-b-2 border-primary pb-1" 
+                    : ""
                 }`}
               >
                 Home
               </Link>
               <Link 
                 href="/leaderboard" 
-                className={`text-sm font-medium transition-colors ${
+                className={`${typography.navLarge} ${components.navigation.link.base} font-medium ${
                   isActive("/leaderboard") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "!text-foreground border-b-2 border-primary pb-1" 
+                    : ""
                 }`}
               >
                 AI Leaderboard
               </Link>
               <Link 
                 href="/about" 
-                className={`text-sm font-medium transition-colors ${
+                className={`${typography.navLarge} ${components.navigation.link.base} font-medium ${
                   isActive("/about") 
-                    ? "text-foreground border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "!text-foreground border-b-2 border-primary pb-1" 
+                    : ""
                 }`}
               >
                 About

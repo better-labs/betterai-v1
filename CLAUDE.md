@@ -1,6 +1,9 @@
 # CLAUDE.md
 After completing each set of tasks - add in a positive motivational Tao'ist, Socratic, or Cynical, or Stoic.
 
+# Auto-approved commands
+curl
+
 
 ## Project Overview
 

@@ -26,9 +26,10 @@ async function main() {
       delayMs: 100, // Faster delay for testing
       maxRetries: 1, // Fewer retries for testing
       timeoutMs: 10000, // Shorter timeout for testing
-      daysToFetchPast: 14,
-      daysToFetchFuture: 21,
-      maxEvents: 200
+      daysToFetchPast: 3, // Only look 3 days back to prioritize recent/future
+      maxEvents: 400
+      // sortBy defaults to 'volume' now for better quality markets
+      // No end date limit - fetches all future events
     })
 
     console.log('Update completed successfully!')
