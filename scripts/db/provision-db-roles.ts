@@ -1,6 +1,6 @@
 
 /**
- * Provision/rotate BetterAI DB roles, ensure a Neon shadow DB, and emit URLs.
+ * Provision/rotate BetterAI DB roles, ensure a Neon shadow schema, and emit URLs.
  *
  * Usage:
  *   ts-node provision-db-roles.ts "postgres://neondb_owner:...@ep-xxxxx-pooler.us-east-1.aws.neon.tech/betterai_dev?sslmode=require"
@@ -16,11 +16,11 @@
  *       - neondb_owner grants to both betterai_admin and betterai_app
  *       - betterai_admin grants CRUD access to betterai_app
  *       - betterai_app grants full access to betterai_admin
- *   - Ensures an empty **shadow DB** (dbName + "_shadow") owned by betterai_admin with mirrored extensions
+ *   - Ensures a **betterai_shadow** schema owned by betterai_admin with mirrored extensions
  *   - Prints:
  *       - DATABASE_URL              (pooled, app role)
  *       - DATABASE_URL_UNPOOLED     (direct, app role)
- *       - SHADOW_DATABASE_URL       (direct, admin role, shadow DB)
+ *       - DATABASE_URL_UNPOOLED_SHADOW (direct, admin role, with schema=betterai_shadow)
  */
 
 import { Client } from "pg";
@@ -29,6 +29,43 @@ import crypto from "crypto";
 function fatal(msg: string): never {
   console.error(`Error: ${msg}`);
   process.exit(1);
+}
+
+function logError(operation: string, error: any): void {
+  console.error(`❌ Failed during: ${operation}`);
+  console.error(`   Error: ${error instanceof Error ? error.message : String(error)}`);
+  if (error instanceof Error && error.stack) {
+    console.error(`   Stack: ${error.stack.split('\n').slice(0, 3).join('\n')}`);
+  }
+}
+
+async function executeQuery(client: Client, operation: string, query: string, params?: any[]): Promise<any> {
+  try {
+    console.log(`🔄 ${operation}...`);
+    const result = await client.query(query, params);
+    console.log(`✅ ${operation} - Success`);
+    return result;
+  } catch (error) {
+    logError(operation, error);
+    throw error;
+  }
+}
+
+async function executeQuerySafe(client: Client, operation: string, query: string, params?: any[]): Promise<boolean> {
+  try {
+    console.log(`🔄 ${operation}...`);
+    await client.query(query, params);
+    console.log(`✅ ${operation} - Success`);
+    return true;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    if (errorMsg.includes('permission denied') || errorMsg.includes('must be owner')) {
+      console.log(`⚠️  ${operation} - Skipped (insufficient permissions)`);
+      return false;
+    }
+    logError(operation, error);
+    throw error;
+  }
 }
 
 function genPassword(bytes = 48): string {
@@ -102,7 +139,7 @@ async function main() {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(dbName)) {
     fatal("Database name contains invalid characters. Use only letters, numbers, and underscores.");
   }
-  const shadowDbName = `${dbName}_shadow`;
+  const shadowSchemaName = "betterai_shadow";
 
   // Generate new passwords
   const appPwd = genPassword();
@@ -110,14 +147,17 @@ async function main() {
 
   try {
     // Ensure pgcrypto for any future SQL-side generation if you use it later
-    await adminClient.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto;`);
+    await executeQuery(adminClient, "Creating pgcrypto extension", 
+      `CREATE EXTENSION IF NOT EXISTS pgcrypto;`);
+    
     // Store as SCRAM in case instance defaults differ
-    await adminClient.query(`SET password_encryption = 'scram-sha-256';`);
+    await executeQuery(adminClient, "Setting password encryption to SCRAM-SHA-256", 
+      `SET password_encryption = 'scram-sha-256';`);
 
     // Upsert roles (CREATE or ALTER on duplicate)
     // betterai_admin (DDL/migrations)
     const adminPwdEscaped = adminPwd.replace(/'/g, "''");
-    await adminClient.query(`DO $$
+    await executeQuery(adminClient, "Creating/updating betterai_admin role", `DO $$
     BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'betterai_admin') THEN
         CREATE ROLE betterai_admin LOGIN PASSWORD '${adminPwdEscaped}';
@@ -128,7 +168,7 @@ async function main() {
 
     // betterai_app (CRUD/runtime)
     const appPwdEscaped = appPwd.replace(/'/g, "''");
-    await adminClient.query(`DO $$
+    await executeQuery(adminClient, "Creating/updating betterai_app role", `DO $$
     BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'betterai_app') THEN
         CREATE ROLE betterai_app LOGIN PASSWORD '${appPwdEscaped}';
@@ -138,12 +178,12 @@ async function main() {
     END$$;`);
 
     // Ensure both roles can CONNECT to the main DB
-    await adminClient.query(
+    await executeQuery(adminClient, "Granting CONNECT permission to roles", 
       `GRANT CONNECT ON DATABASE "${dbName.replace(/"/g, '""')}" TO betterai_admin, betterai_app;`
     );
 
     // Discover non-system schemas (including "public")
-    const { rows: schemaRows } = await adminClient.query<{ nspname: string }>(`
+    const { rows: schemaRows } = await executeQuery(adminClient, "Discovering existing schemas", `
       SELECT nspname
       FROM pg_namespace
       WHERE nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
@@ -160,64 +200,85 @@ async function main() {
     // Apply grants per schema on the main DB
     for (const s of schemas) {
       const ident = `"${s.replace(/"/g, '""')}"`;
+      console.log(`\n📁 Processing schema: ${s}`);
 
       // Admin: full control over objects for migrations
-      await adminClient.query(`GRANT USAGE ON SCHEMA ${ident} TO betterai_admin;`);
-      await adminClient.query(`GRANT ALL ON ALL TABLES IN SCHEMA ${ident} TO betterai_admin;`);
-      await adminClient.query(`GRANT ALL ON ALL SEQUENCES IN SCHEMA ${ident} TO betterai_admin;`);
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Granting USAGE on schema ${s} to betterai_admin`, 
+        `GRANT USAGE ON SCHEMA ${ident} TO betterai_admin;`);
+      await executeQuerySafe(adminClient, `Granting ALL on tables in schema ${s} to betterai_admin`, 
+        `GRANT ALL ON ALL TABLES IN SCHEMA ${ident} TO betterai_admin;`);
+      await executeQuerySafe(adminClient, `Granting ALL on sequences in schema ${s} to betterai_admin`, 
+        `GRANT ALL ON ALL SEQUENCES IN SCHEMA ${ident} TO betterai_admin;`);
+      await executeQuerySafe(adminClient, `Setting default table privileges for neondb_owner in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
         GRANT ALL ON TABLES TO betterai_admin;`);
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Setting default sequence privileges for neondb_owner in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
         GRANT ALL ON SEQUENCES TO betterai_admin;`);
 
       // App: CRUD only, no DDL
-      await adminClient.query(`GRANT USAGE ON SCHEMA ${ident} TO betterai_app;`);
-      await adminClient.query(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA ${ident} TO betterai_app;`);
-      await adminClient.query(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA ${ident} TO betterai_app;`);
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Granting USAGE on schema ${s} to betterai_app`, 
+        `GRANT USAGE ON SCHEMA ${ident} TO betterai_app;`);
+      await executeQuerySafe(adminClient, `Granting CRUD on tables in schema ${s} to betterai_app`, 
+        `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA ${ident} TO betterai_app;`);
+      await executeQuerySafe(adminClient, `Granting USAGE on sequences in schema ${s} to betterai_app`, 
+        `GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA ${ident} TO betterai_app;`);
+      await executeQuerySafe(adminClient, `Setting default table CRUD privileges for neondb_owner in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
         GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;`);
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Setting default sequence USAGE privileges for neondb_owner in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
         GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;`);
 
       // Cross-role default privileges for future-proof permissions
-      // When betterai_admin creates objects, grant access to betterai_app
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Setting cross-role table privileges for betterai_admin in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
         GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;`);
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Setting cross-role sequence privileges for betterai_admin in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
         GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;`);
-
-      // When betterai_app creates objects, grant access to betterai_admin
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Setting cross-role table privileges for betterai_app in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
         GRANT ALL ON TABLES TO betterai_admin;`);
-      await adminClient.query(`ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
+      await executeQuerySafe(adminClient, `Setting cross-role sequence privileges for betterai_app in schema ${s}`, 
+        `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
         GRANT ALL ON SEQUENCES TO betterai_admin;`);
     }
 
-    // --- Ensure shadow DB exists and is owned by betterai_admin (simplest working perms) ---
-    const { rows: [{ exists: shadowExists }] } = await adminClient.query<{ exists: boolean }>(
-      `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1) AS exists`,
-      [shadowDbName]
+    // --- Ensure shadow schema exists and is owned by betterai_admin ---
+    console.log(`\n🌑 Setting up shadow schema: ${shadowSchemaName}`);
+    
+    const { rows: [{ exists: shadowSchemaExists }] } = await executeQuery(adminClient, 
+      `Checking if shadow schema ${shadowSchemaName} exists`,
+      `SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = $1) AS exists`,
+      [shadowSchemaName]
     );
 
-    if (!shadowExists) {
-      console.log(`Creating shadow database "${shadowDbName}" owned by betterai_admin...`);
-      await adminClient.query(`CREATE DATABASE "${shadowDbName}" OWNER betterai_admin`);
+    if (!shadowSchemaExists) {
+      await executeQuery(adminClient, `Creating shadow schema ${shadowSchemaName}`, 
+        `CREATE SCHEMA "${shadowSchemaName}" AUTHORIZATION betterai_admin`);
     } else {
-      console.log(`✓ Shadow database "${shadowDbName}" already exists`);
+      console.log(`✓ Shadow schema "${shadowSchemaName}" already exists`);
+      // Ensure ownership is correct
+      await executeQuerySafe(adminClient, `Ensuring shadow schema ${shadowSchemaName} ownership`, 
+        `ALTER SCHEMA "${shadowSchemaName}" OWNER TO betterai_admin`);
     }
 
-    // --- Initialize shadow DB extensions to mirror main/dev ---
-    const shadowUrl = new URL(ownerDirectUrl);
-    shadowUrl.pathname = `/${shadowDbName}`;
-    const shadowClient = new Client({ connectionString: shadowUrl.toString() });
-    try {
-      await shadowClient.connect();
-      await shadowClient.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
-      await shadowClient.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
-      console.log(`✓ Shadow database "${shadowDbName}" initialized`);
-    } finally {
-      await shadowClient.end();
-    }
+    // Grant permissions on shadow schema
+    await executeQuerySafe(adminClient, `Granting ALL on shadow schema to betterai_admin`, 
+      `GRANT ALL ON SCHEMA "${shadowSchemaName}" TO betterai_admin`);
+    await executeQuerySafe(adminClient, `Granting USAGE on shadow schema to betterai_app`, 
+      `GRANT USAGE ON SCHEMA "${shadowSchemaName}" TO betterai_app`);
+    
+    // Set default privileges for shadow schema
+    await executeQuerySafe(adminClient, `Setting default table privileges in shadow schema`, 
+      `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA "${shadowSchemaName}"
+      GRANT ALL ON TABLES TO betterai_admin`);
+    await executeQuerySafe(adminClient, `Setting default sequence privileges in shadow schema`, 
+      `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA "${shadowSchemaName}"
+      GRANT ALL ON SEQUENCES TO betterai_admin`);
+
+    console.log(`✅ Shadow schema "${shadowSchemaName}" setup completed`);
 
     // Construct output URLs
     const pooledAppUrl = buildUrl(url, {
@@ -241,19 +302,25 @@ async function main() {
 
     const shadowAdminUrl = (() => {
       const u = new URL(directAdminUrl);
-      u.pathname = `/${shadowDbName}`;
+      u.searchParams.set('schema', shadowSchemaName);
       return u.toString();
     })();
 
     // Print as simple key=value lines ready for Vercel / .env
     console.log("\n# === Copy these to your env store ===");
     console.log(`DATABASE_URL=${pooledAppUrl}`);                // pooled, app role (runtime)
-    console.log(`DATABASE_URL_UNPOOLED=${directAppUrl}`);       // direct, app role (runtime without pooler)
-    console.log(`SHADOW_DATABASE_URL=${shadowAdminUrl}`);       // direct, admin role, shadow DB
+    console.log(`DATABASE_URL_UNPOOLED=${directAdminUrl}`);     // direct, admin role (migrations/DDL)
+    console.log(`DATABASE_URL_UNPOOLED_SHADOW=${shadowAdminUrl}`); // direct, admin role, shadow schema
 
-    console.log("\n# Done. Roles created/updated, grants applied, and shadow DB ensured.");
+    console.log("\n🎉 Done. Roles created/updated, grants applied, and shadow schema ensured.");
   } catch (err) {
-    console.error("Provisioning failed:", err instanceof Error ? err.message : String(err));
+    console.error("\n💥 Provisioning failed!");
+    logError("Overall provisioning process", err);
+    console.error("\n🔍 Troubleshooting tips:");
+    console.error("   - Ensure you're using the correct neondb_owner URL with pooler endpoint");
+    console.error("   - Check that the database user has sufficient privileges");
+    console.error("   - Verify network connectivity to the database");
+    console.error("   - Some permission errors may be expected and are handled gracefully");
     process.exitCode = 1;
   } finally {
     await adminClient.end();
