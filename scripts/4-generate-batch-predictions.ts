@@ -56,7 +56,7 @@ async function main() {
       {
         topMarketsCount: 10,
         endDateRangeHours: 48,
-        targetDaysFromNow: 7,
+        targetDaysFromNow: 7, // Look 7 days in the past to find available events
         categoryMix: true
       },
       modelName || DEFAULT_MODEL,

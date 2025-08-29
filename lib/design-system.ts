@@ -130,6 +130,11 @@ export const typography = {
   bodyLarge: 'text-[clamp(1.0625rem,2vw,1.1875rem)] leading-relaxed', // 17px-19px
   bodySmall: 'text-sm leading-relaxed',
   
+  // Navigation text sizing
+  navDefault: 'text-md', // 14px - compact navigation
+  navLarge: 'text-xl',   // 18px - prominent navigation
+  navXLarge: 'text-2xl',  // 20px - hero navigation
+  
   // Special text
   caption: 'text-sm text-muted-foreground',
   label: 'text-sm font-medium',
@@ -268,7 +273,7 @@ export const components = {
   // Navigation link patterns (CLEAN DESIGN - NO ARROWS/CHEVRONS)
   // Following modern web accessibility standards and clean design principles
   navigation: {
-    // Primary navigation links
+    // Primary navigation links (size-agnostic - combine with typography.nav* tokens)
     link: {
       base: 'text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors',
       active: 'text-foreground font-medium', // Current page indicator

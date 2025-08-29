@@ -1,7 +1,6 @@
 "use client"
 
 import { usePrivy } from "@privy-io/react-auth"
-import { LandingPage } from "@/components/landing-page"
 import { useEffect } from "react"
 import { LoadingCard } from "@/shared/ui/loading"
 import { useUser } from "@/hooks/use-user"
@@ -30,9 +29,19 @@ export function HomePage() {
     )
   }
 
-  // If not authenticated, show landing page
+  // Show trending markets for both authenticated and unauthenticated users
   if (!authenticated) {
-    return <LandingPage />
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container mx-auto px-4 py-8">
+          <PageTransition>
+            <div className="space-y-8">
+              <TrendingMarkets />
+            </div>
+          </PageTransition>
+        </main>
+      </div>
+    )
   }
 
   // If there's a user sync error, show error state
