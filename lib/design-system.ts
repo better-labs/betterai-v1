@@ -379,6 +379,30 @@ export const components = {
     }
   },
 
+  // Loading overlay patterns - centered viewport overlays using React portals
+  loading: {
+    // Viewport-centered overlay that bypasses parent container constraints
+    // Uses React portals to render directly to document.body for reliable positioning
+    overlay: {
+      // Full viewport overlay (use with React createPortal)
+      container: 'fixed inset-0 flex items-center justify-center pointer-events-none z-50',
+      // Loading card with backdrop blur
+      card: 'bg-card/95 backdrop-blur-sm border rounded-lg p-4 shadow-lg pointer-events-auto',
+      // Content inside loading card
+      content: 'inline-flex items-center gap-2 text-muted-foreground',
+      // Standard spinner animation
+      spinner: 'animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full',
+    },
+    
+    // Alternative inline loading states (within containers)
+    inline: {
+      // Center within container
+      container: 'flex items-center justify-center py-8',
+      content: 'inline-flex items-center gap-2 text-muted-foreground',
+      spinner: 'animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full',
+    }
+  },
+
   // Outcome display patterns
   outcome: {
     container: 'space-y-1',
@@ -483,5 +507,51 @@ export const usageExamples = {
         Settings
       </DropdownMenuItem>
     </DropdownMenuContent>
+  `,
+
+  // Centered loading overlay (bypasses parent constraints using portal)
+  loadingOverlay: `
+    import { createPortal } from 'react-dom'
+    import { useState, useEffect } from 'react'
+    
+    function MyComponent() {
+      const [isBrowser, setIsBrowser] = useState(false)
+      const [isLoading, setIsLoading] = useState(false)
+      
+      useEffect(() => {
+        setIsBrowser(true)
+      }, [])
+      
+      return (
+        <>
+          {/* Your component content */}
+          
+          {/* Loading overlay using portal for reliable centering */}
+          {isBrowser && isLoading && 
+            createPortal(
+              <div className={components.loading.overlay.container}>
+                <div className={components.loading.overlay.card}>
+                  <div className={components.loading.overlay.content}>
+                    <div className={components.loading.overlay.spinner} />
+                    Loading more content...
+                  </div>
+                </div>
+              </div>,
+              document.body
+            )
+          }
+        </>
+      )
+    }
+  `,
+
+  // Inline loading state (within container)
+  inlineLoading: `
+    <div className={components.loading.inline.container}>
+      <div className={components.loading.inline.content}>
+        <div className={components.loading.inline.spinner} />
+        Loading...
+      </div>
+    </div>
   `
 } as const;
