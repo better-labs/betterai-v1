@@ -29,6 +29,7 @@ async function main() {
       daysToFetchPast: 14,
       daysToFetchFuture: 21,
       maxEvents: 200
+      // sortBy defaults to 'volume' now for better quality markets
     })
 
     console.log('Update completed successfully!')

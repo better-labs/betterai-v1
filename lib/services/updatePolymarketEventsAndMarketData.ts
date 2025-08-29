@@ -30,12 +30,12 @@ export async function updatePolymarketEventsAndMarketData(options: {
     daysToFetchPast = 8,
     daysToFetchFuture = 21,
     maxBatchFailuresBeforeAbort = 3,
-    sortBy,
+    sortBy = 'volume', // Default to volume sorting for higher quality markets
     maxEvents,
     ...fetchOptions
   } = options
 
-  console.log(`Starting Polymarket data sync (${batchSize} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future)`)
+  console.log(`Starting Polymarket data sync (${batchSize} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future, sortBy: ${sortBy})`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
