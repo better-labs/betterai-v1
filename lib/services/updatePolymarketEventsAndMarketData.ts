@@ -13,7 +13,6 @@ export async function updatePolymarketEventsAndMarketData(options: {
   timeoutMs?: number,
   userAgent?: string,
   daysToFetchPast?: number,
-  daysToFetchFuture?: number,
   maxBatchFailuresBeforeAbort?: number,
   sortBy?: string,
   maxEvents?: number,
@@ -27,15 +26,14 @@ export async function updatePolymarketEventsAndMarketData(options: {
   const {
     batchSize = 100,
     delayMs = 1000,
-    daysToFetchPast = 8,
-    daysToFetchFuture = 21,
+    daysToFetchPast = 3,
     maxBatchFailuresBeforeAbort = 3,
     sortBy = 'volume', // Default to volume sorting for higher quality markets
     maxEvents,
     ...fetchOptions
   } = options
 
-  console.log(`Starting Polymarket data sync (${batchSize} batch, ${daysToFetchPast}d past, ${daysToFetchFuture}d future, sortBy: ${sortBy})`)
+  console.log(`Starting Polymarket data sync (${batchSize} batch, ${daysToFetchPast}d past, no end limit, sortBy: ${sortBy})`)
 
   const allInsertedEvents: Event[] = []
   const allInsertedMarkets: Market[] = []
@@ -46,10 +44,9 @@ export async function updatePolymarketEventsAndMarketData(options: {
   let totalFetched = 0
   let consecutiveErrors = 0
   
-  // Compute a fixed date window for this run
+  // Compute start date (no end date limit)
   const MS_IN_DAY = 24 * 60 * 60 * 1000
   const startDateMin = new Date(Date.now() - daysToFetchPast * MS_IN_DAY)
-  const endDateMax = new Date(Date.now() + daysToFetchFuture * MS_IN_DAY)
   
   // Helper function to calculate current batch size
   const getCurrentBatchSize = (processed: number, batchSize: number, maxEvents?: number) => {
@@ -70,7 +67,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
         break
       }
       
-      const eventsData = await fetchPolymarketEvents(offset, currentBatchSize, startDateMin, endDateMax, fetchOptions, sortBy)
+      const eventsData = await fetchPolymarketEvents(offset, currentBatchSize, startDateMin, null, fetchOptions, sortBy)
       
       if (eventsData.length > 0) {
         const batchResult = await processAndUpsertPolymarketBatch(eventsData, { 

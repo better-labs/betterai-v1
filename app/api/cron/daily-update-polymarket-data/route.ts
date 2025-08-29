@@ -12,7 +12,6 @@ function validateQueryParams(
   batchSize: number,
   delayMs: number,
   daysToFetchPast: number,
-  daysToFetchFuture: number,
   maxRetries: number,
   retryDelayMs: number,
   timeoutMs: number,
@@ -35,10 +34,6 @@ function validateQueryParams(
     errors.push('daysToFetchPast must be a number between 0 and 365')
   }
   
-  // Validate daysToFetchFuture (0-365 days)
-  if (isNaN(daysToFetchFuture) || daysToFetchFuture < 0 || daysToFetchFuture > 365) {
-    errors.push('daysToFetchFuture must be a number between 0 and 365')
-  }
   
   // Validate maxRetries (0-10)
   if (isNaN(maxRetries) || maxRetries < 0 || maxRetries > 10) {
@@ -77,7 +72,6 @@ export async function GET(request: NextRequest) {
     const defaultBatchSize = Math.min(Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50), 100)
     const defaultDelayMs = Number(process.env.POLYMARKET_UPDATE_DELAY_MS ?? 1000)
     const defaultDaysPast = Number(process.env.POLYMARKET_UPDATE_DAYS_PAST ?? 8)
-    const defaultDaysFuture = Number(process.env.POLYMARKET_UPDATE_DAYS_FUTURE ?? 21)
     const defaultMaxRetries = Number(process.env.POLYMARKET_UPDATE_MAX_RETRIES ?? 3)
     const defaultRetryDelayMs = Number(process.env.POLYMARKET_UPDATE_RETRY_DELAY_MS ?? 2000)
     const defaultTimeoutMs = Number(process.env.POLYMARKET_UPDATE_TIMEOUT_MS ?? 30000)
@@ -88,7 +82,6 @@ export async function GET(request: NextRequest) {
     const batchSize = Number(url.searchParams.get('batchSize') ?? url.searchParams.get('limit') ?? defaultBatchSize)
     const delayMs = Number(url.searchParams.get('delayMs') ?? defaultDelayMs)
     const daysToFetchPast = Number(url.searchParams.get('daysToFetchPast') ?? defaultDaysPast)
-    const daysToFetchFuture = Number(url.searchParams.get('daysToFetchFuture') ?? defaultDaysFuture)
     const maxRetries = Number(url.searchParams.get('maxRetries') ?? defaultMaxRetries)
     const retryDelayMs = Number(url.searchParams.get('retryDelayMs') ?? defaultRetryDelayMs)
     const timeoutMs = Number(url.searchParams.get('timeoutMs') ?? defaultTimeoutMs)
@@ -103,7 +96,6 @@ export async function GET(request: NextRequest) {
       batchSize,
       delayMs,
       daysToFetchPast,
-      daysToFetchFuture,
       maxRetries,
       retryDelayMs,
       timeoutMs,
@@ -128,7 +120,6 @@ export async function GET(request: NextRequest) {
       timeoutMs,
       userAgent,
       daysToFetchPast,
-      daysToFetchFuture,
       maxBatchFailuresBeforeAbort,
       sortBy,
       maxEvents: maxEventsNumber,
