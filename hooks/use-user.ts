@@ -25,6 +25,12 @@ export function useUser() {
       return
     }
 
+    // Debug: Log Privy user object to understand data structure
+    console.log('🔍 Privy User Object:', privyUser)
+    console.log('🔍 Privy User Email:', privyUser.email)
+    console.log('🔍 Privy User Google Data:', (privyUser as any).google)
+    console.log('🔍 Privy User Linked Accounts:', (privyUser as any).linkedAccounts)
+
     const syncUser = async () => {
       setLoading(true)
       setError(null)
@@ -38,6 +44,18 @@ export function useUser() {
 
         // Create a wrapper function that returns Promise<string>
         const getToken = () => Promise.resolve(accessToken)
+
+        // Debug: Log what data we're sending to the API
+        const userDataToSend = {
+          email: privyUser.email?.address || privyUser.google?.email,
+          walletAddress: privyUser.wallet?.address,
+          username: (privyUser as any)?.google?.name || (privyUser as any)?.email?.name,
+          avatar: (privyUser as any)?.google?.picture || (privyUser as any)?.email?.picture,
+          // Include identity token if available for verification
+          identityToken: (privyUser as any)?.identityToken
+        }
+        console.log('📤 Sending user data to API:', userDataToSend)
+        console.log('🔐 Identity token available:', !!userDataToSend.identityToken)
 
         // First try to get existing user
         const response = await authenticatedFetch(
@@ -59,7 +77,7 @@ export function useUser() {
             {
               method: 'POST',
               body: JSON.stringify({
-                email: privyUser.email?.address,
+                email: privyUser.email?.address || privyUser.google?.email,
                 walletAddress: privyUser.wallet?.address,
                 username: (privyUser as any)?.google?.name || (privyUser as any)?.email?.name,
                 avatar: (privyUser as any)?.google?.picture || (privyUser as any)?.email?.picture

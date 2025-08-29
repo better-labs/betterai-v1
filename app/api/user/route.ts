@@ -44,7 +44,13 @@ export async function POST(request: NextRequest) {
     }
     
     const userData = await request.json()
-    
+
+    // Debug: Log received user data
+    console.log('📨 Received user data:', {
+      email: userData.email,
+      username: userData.username,
+    })
+
     // Upsert user with provided data
     const user = await userService.upsertUser(prisma, {
       id: userId,
