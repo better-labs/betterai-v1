@@ -27,8 +27,8 @@ async function main() {
       maxRetries: 1, // Fewer retries for testing
       timeoutMs: 10000, // Shorter timeout for testing
       daysToFetchPast: 14,
-      daysToFetchFuture: 21,
-      maxEvents: 200
+      daysToFetchFuture: 45,
+      maxEvents: 400
       // sortBy defaults to 'volume' now for better quality markets
     })
 

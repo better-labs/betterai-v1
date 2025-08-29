@@ -54,9 +54,9 @@ async function main() {
     
     await runBatchPredictionGeneration(
       {
-        topMarketsCount: 10,
-        endDateRangeHours: 48,
-        targetDaysFromNow: 7, // Look 7 days in the past to find available events
+        topMarketsCount: 14,
+        endDateRangeHours: 168, // 7 days (wider range to catch more events)
+        targetDaysFromNow: 10,
         categoryMix: true
       },
       modelName || DEFAULT_MODEL,
