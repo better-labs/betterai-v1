@@ -156,13 +156,19 @@ export async function processAndUpsertPolymarketBatch(
   const startTime = enableTiming ? Date.now() : 0
   if (enableTiming) console.time(`${logPrefix}-events-upsert`)
   
-  const [processedEvents, processedMarkets] = await withDeadlockRetry(
-    async () => Promise.all([
-      eventService.upsertEvents(prisma, eventsToInsert),
-      marketsToInsert.length > 0 ? marketService.upsertMarkets(prisma, marketsToInsert) : Promise.resolve([])
-    ]),
-    { logPrefix: `${logPrefix}-upsert` }
+  // First: Upsert events (parent records must exist before markets)
+  const processedEvents = await withDeadlockRetry(
+    async () => eventService.upsertEvents(prisma, eventsToInsert),
+    { logPrefix: `${logPrefix}-events-upsert` }
   )
+
+  // Then: Upsert markets (now that events exist, FK constraint will be satisfied)
+  const processedMarkets = marketsToInsert.length > 0 
+    ? await withDeadlockRetry(
+        async () => marketService.upsertMarkets(prisma, marketsToInsert),
+        { logPrefix: `${logPrefix}-markets-upsert` }
+      )
+    : []
 
   if (enableTiming) {
     console.timeEnd(`${logPrefix}-events-upsert`)
