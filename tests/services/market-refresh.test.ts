@@ -56,7 +56,7 @@ describe('Market Refresh Service', () => {
       const mockMarketDTO = {
         ...mockUpdatedMarket,
         updatedAt: mockUpdatedMarket.updatedAt.toISOString()
-      }
+      } as any
 
       // Mock the dynamic imports
       const { fetchPolymarketMarket } = await import('@/lib/services/polymarket-client')
@@ -138,7 +138,7 @@ describe('Market Refresh Service', () => {
       
       vi.mocked(fetchPolymarketMarket).mockResolvedValue(mockPolymarketData)
       vi.mocked(transformMarketToDbFormat).mockReturnValue(mockTransformedData)
-      vi.mocked(mapMarketToDTO).mockReturnValue({ id: marketId })
+      vi.mocked(mapMarketToDTO).mockReturnValue({ id: marketId } as any)
       
       mockDb.market.upsert.mockResolvedValue({ id: marketId })
 

@@ -53,8 +53,10 @@ describe('useMarketStaleness Hook', () => {
         updatedAt: thirteenHoursAgo,
         outcomePrices: [0.5, 0.5],
         volume: '1000',
-        liquidity: '500'
-      }
+        liquidity: '500',
+        eventId: 'event-123',
+        outcomes: ['Yes', 'No']
+      } as any
 
       const result = useMarketStaleness(staleMarket)
 
@@ -71,7 +73,7 @@ describe('useMarketStaleness Hook', () => {
         outcomePrices: [0.6, 0.4],
         volume: '2000',
         liquidity: '1000'
-      }
+      } as any
 
       const result = useMarketStaleness(freshMarket)
 
@@ -86,7 +88,7 @@ describe('useMarketStaleness Hook', () => {
         outcomePrices: [0.3, 0.7],
         volume: '500',
         liquidity: '250'
-      }
+      } as any
 
       const result = useMarketStaleness(marketWithoutTimestamp)
 
@@ -109,7 +111,7 @@ describe('useMarketStaleness Hook', () => {
         outcomePrices: [0.4, 0.6],
         volume: '3000',
         liquidity: '1500'
-      }
+      } as any
 
       // Mock useEffect to simulate component mount
       mockUseEffect.mockImplementation((callback, deps) => {
@@ -132,7 +134,7 @@ describe('useMarketStaleness Hook', () => {
         outcomePrices: [0.8, 0.2],
         volume: '4000',
         liquidity: '2000'
-      }
+      } as any
 
       mockUseEffect.mockImplementation((callback, deps) => {
         callback()
@@ -153,7 +155,7 @@ describe('useMarketStaleness Hook', () => {
         outcomePrices: [0.5, 0.5],
         volume: '1000',
         liquidity: '500'
-      }
+      } as any
 
       const result = useMarketStaleness(market)
 

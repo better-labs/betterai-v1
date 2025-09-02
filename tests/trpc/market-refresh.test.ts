@@ -22,14 +22,14 @@ describe('tRPC Markets Router - Refresh Endpoint', () => {
       const { getMarketById, refreshMarketFromPolymarket } = await import('@/lib/services/market-service')
       
       // Mock successful responses
-      const mockExistingMarket = { id: 'market-123', question: 'Test market' }
+      const mockExistingMarket = { id: 'market-123', question: 'Test market' } as any
       const mockRefreshedMarket = { 
         id: 'market-123', 
         question: 'Test market',
         updatedAt: new Date().toISOString(),
         volume: '50000',
         liquidity: '25000'
-      }
+      } as any
 
       vi.mocked(getMarketById).mockResolvedValue(mockExistingMarket)
       vi.mocked(refreshMarketFromPolymarket).mockResolvedValue(mockRefreshedMarket)
@@ -93,7 +93,7 @@ describe('tRPC Markets Router - Refresh Endpoint', () => {
       const { getMarketById, refreshMarketFromPolymarket } = await import('@/lib/services/market-service')
       
       // Mock existing market but failed refresh
-      vi.mocked(getMarketById).mockResolvedValue({ id: 'market-123' })
+      vi.mocked(getMarketById).mockResolvedValue({ id: 'market-123' } as any)
       vi.mocked(refreshMarketFromPolymarket).mockResolvedValue(null)
 
       const { marketsRouter } = await import('@/lib/trpc/routers/markets')
@@ -119,7 +119,7 @@ describe('tRPC Markets Router - Refresh Endpoint', () => {
       
       // Create mock context without userId (unauthenticated)
       const unauthenticatedContext = {
-        userId: null,
+        userId: undefined,
         req: undefined,
         rateLimitId: undefined
       }

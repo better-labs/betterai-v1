@@ -12,7 +12,7 @@ interface MarketStalenessHandlerProps {
 }
 
 export function MarketStalenessHandler({ market }: MarketStalenessHandlerProps) {
-  const { isStale, isRefreshing, refreshError, triggerRefresh } = useMarketStaleness(market)
+  const { isStale, isRefreshing, refreshError, isAuthenticated, isReady, triggerRefresh } = useMarketStaleness(market)
 
   // Don't render anything while refreshing - let the automatic refresh happen
   if (isRefreshing) {
@@ -47,8 +47,21 @@ export function MarketStalenessHandler({ market }: MarketStalenessHandlerProps) 
     )
   }
 
-  // Show manual refresh option if data is stale but auto-refresh hasn't triggered yet
-  if (isStale) {
+  // Show manual refresh option if data is stale
+  if (isStale && isReady) {
+    if (!isAuthenticated) {
+      // Show informational message for unauthenticated users
+      return (
+        <Alert className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Market data is more than 12 hours old. Log in to refresh market data automatically.
+          </AlertDescription>
+        </Alert>
+      )
+    }
+
+    // Show refresh button for authenticated users
     return (
       <Alert className="mb-6">
         <AlertCircle className="h-4 w-4" />

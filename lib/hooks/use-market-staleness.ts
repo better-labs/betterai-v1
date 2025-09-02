@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { trpc } from '@/lib/trpc/client'
+import { useUser } from '@/hooks/use-user'
 import type { MarketDTO } from '@/lib/types'
 
 const STALENESS_THRESHOLD_HOURS = 12
 
 /**
  * Hook to detect and handle stale market data
- * Automatically refreshes market data if it's older than 12 hours
+ * Automatically refreshes market data if it's older than 12 hours (only for authenticated users)
  */
 export function useMarketStaleness(market: MarketDTO | null) {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [refreshError, setRefreshError] = useState<string | null>(null)
+  const { user, isAuthenticated, isReady } = useUser()
   
   const refreshMarket = trpc.markets.refresh.useMutation({
     onMutate: () => {
@@ -44,20 +46,28 @@ export function useMarketStaleness(market: MarketDTO | null) {
     return hoursDiff > STALENESS_THRESHOLD_HOURS
   }
 
-  // Auto-refresh on mount if data is stale
+  // Auto-refresh on mount if data is stale AND user is authenticated
   useEffect(() => {
+    // Wait for authentication state to be ready before attempting refresh
+    if (!isReady) return
+    
+    // Only auto-refresh for authenticated users
+    if (!isAuthenticated || !user?.id) return
+    
     if (market && isStale(market) && !isRefreshing && !refreshError) {
-      console.log(`Market ${market.id} is stale (${market.updatedAt}), triggering refresh`)
+      console.log(`Market ${market.id} is stale (${market.updatedAt}), triggering refresh for authenticated user ${user.id}`)
       refreshMarket.mutate({ marketId: market.id })
     }
-  }, [market?.id, market?.updatedAt]) // Only depend on market ID and update time
+  }, [market?.id, market?.updatedAt, isReady, isAuthenticated, user?.id]) // Include auth dependencies
 
   return {
     isStale: market ? isStale(market) : false,
     isRefreshing,
     refreshError,
+    isAuthenticated,
+    isReady,
     triggerRefresh: () => {
-      if (market && !isRefreshing) {
+      if (market && !isRefreshing && isAuthenticated) {
         refreshMarket.mutate({ marketId: market.id })
       }
     }
