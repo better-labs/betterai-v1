@@ -278,6 +278,17 @@ export async function refreshMarketFromPolymarket(
   try {
     console.log(`Refreshing market data for market ${marketId}`)
     
+    // First check if market exists in our database to get eventId
+    const existingMarket = await db.market.findUnique({
+      where: { id: marketId },
+      select: { eventId: true }
+    })
+    
+    if (!existingMarket) {
+      console.warn(`Market ${marketId} not found in database - cannot refresh without eventId`)
+      return null
+    }
+    
     // Dynamic imports to avoid bundling in client
     const [
       { fetchPolymarketMarket }, 
@@ -295,8 +306,14 @@ export async function refreshMarketFromPolymarket(
       return null
     }
     
+    // Add eventId from existing market to polymarket data
+    const polymarketDataWithEventId = {
+      ...polymarketData,
+      eventId: existingMarket.eventId
+    }
+    
     // Transform to database format
-    const rawMarketData = transformMarketToDbFormat(polymarketData)
+    const rawMarketData = transformMarketToDbFormat(polymarketDataWithEventId)
     
     // Filter out null values (Prisma doesn't accept null in upserts)
     const marketData = Object.entries(rawMarketData).reduce((acc, [key, value]) => {
@@ -306,17 +323,16 @@ export async function refreshMarketFromPolymarket(
       return acc
     }, {} as any)
     
-    // Clean up data for Prisma upsert by removing fields that shouldn't be in update
-    const { id, ...updateData } = marketData
+    // Clean up data for Prisma update by removing fields that shouldn't be updated
+    const { id, eventId, ...updateData } = marketData
     
-    // Update the market in database
-    const updatedMarket = await db.market.upsert({
+    // Update the market in database (no create since we're only refreshing existing markets)
+    const updatedMarket = await db.market.update({
       where: { id: marketId },
-      update: {
+      data: {
         ...updateData,
         updatedAt: new Date(),
       },
-      create: marketData,
     })
     
     console.log(`Successfully refreshed market ${marketId}`)

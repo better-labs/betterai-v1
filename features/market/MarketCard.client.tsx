@@ -213,7 +213,7 @@ export default function MarketDetailsCard({
           {/* Date metadata row */}
           <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
             <span className={components.cardFooter.timestamp}>
-              Market updated: {event?.updatedAt ? new Date(event.updatedAt).toLocaleDateString() : 'Unknown'}
+              Market updated: {market.updatedAt ? new Date(market.updatedAt).toLocaleDateString() : 'Unknown'}
             </span>
             {latestPrediction && (
               <span className={components.cardFooter.timestamp}>
