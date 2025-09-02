@@ -285,7 +285,7 @@ export function Header() {
         </div>
       </div>
              <div className="mobile-search" data-testid="mobile-search">
-         <div className="container mx-auto">
+         
            <form onSubmit={handleSearch} className="w-full">
              <SearchInput
                value={searchQuery}
@@ -295,7 +295,7 @@ export function Header() {
              />
            </form>
          </div>
-       </div>
+       
     </header>
   )
 }

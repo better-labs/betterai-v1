@@ -112,21 +112,16 @@ export function TrendingMarkets() {
             Trending Markets
           </h1>
           <p className={components.pageHeader.subtitle}>
-            Markets with the highest dailytrading volume
+            Markets with the highest daily trading volume
           </p>
         </div>
 
-        {/* Popular Tags Filter */}
+        {/* Popular Tags List */}
         {/* todo: fix */}
         {/* {!tagsLoading && popularTags.length > 0 && (
           <div className="flex justify-center">
-            <div className="w-full max-w-4xl">
               <PopularTagsList 
-                tags={popularTags} 
-                selectedTagIds={selectedTagIds}
-                onTagSelect={handleTagSelect}
-                onClearFilters={handleClearFilters}
-                isFiltered={selectedTagIds.length > 0}
+                
               />
             </div>
           </div>
