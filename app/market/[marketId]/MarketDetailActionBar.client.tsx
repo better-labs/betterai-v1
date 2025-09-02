@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { usePrivy } from '@privy-io/react-auth'
+import { useUser } from '@/hooks/use-user'
 import { trpc } from '@/lib/trpc/client'
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
@@ -14,25 +15,26 @@ interface MarketDetailActionBarProps {
 
 export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) {
   const router = useRouter()
-  const { authenticated, login } = usePrivy()
+  const { login } = usePrivy()
+  const { user, isAuthenticated, isReady } = useUser()
 
   // Get user credits
   const { data: userCreditsResponse, isLoading: creditsLoading } = trpc.users.getCredits.useQuery(
     {},
-    { enabled: authenticated }
+    { enabled: isReady && isAuthenticated && !!user?.id }
   )
 
   // Check for recent sessions
   const { data: recentSessions } = trpc.predictionSessions.recentByMarket.useQuery(
     { marketId },
-    { enabled: authenticated }
+    { enabled: isReady && isAuthenticated && !!user?.id }
   )
 
   const credits = userCreditsResponse?.credits?.credits || 0
   const hasRecentSession = recentSessions && recentSessions.length > 0
 
   const handlePredictClick = () => {
-    if (!authenticated) {
+    if (!isAuthenticated) {
       login()
       return
     }
@@ -57,7 +59,7 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Credits Display */}
-            {authenticated && (
+            {isAuthenticated && (
               <div className="flex items-center gap-2">
                 <Coins className="h-4 w-4 text-yellow-600" />
                 <span className="text-sm text-muted-foreground">Credits:</span>
@@ -90,7 +92,7 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
 
             <Button
               onClick={handlePredictClick}
-              disabled={authenticated && credits < 1}
+              disabled={isAuthenticated && credits < 1}
               variant="primary"
               size="md"
               data-debug-id="market-detail-predict-button"
@@ -101,13 +103,13 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
         </div>
 
         {/* Helper Text */}
-        {!authenticated && (
+        {!isAuthenticated && (
           <p className="text-xs text-muted-foreground mt-3">
             Sign in to generate AI predictions for this market
           </p>
         )}
 
-        {authenticated && credits < 1 && (
+        {isAuthenticated && credits < 1 && (
           <p className="text-xs text-muted-foreground mt-3">
             You need credits to generate predictions. Purchase credits to continue.
           </p>
