@@ -5,11 +5,12 @@ import * as predictionService from '@/lib/services/prediction-service'
 import * as eventService from '@/lib/services/event-service'
 import { Button } from "@/shared/ui/button"
 import Link from 'next/link'
-import { generateMarketURL } from '@/lib/utils'
+import { generateMarketURL } from '@/lib/server-utils'
 import type { PredictionResult } from '@/lib/types'
 import MarketDetailsCard from '@/features/market/MarketCard.client'
 import { MarketEventHeader } from '@/features/market/MarketEventHeader'
 import { MarketDescriptionCard } from '@/features/market/MarketDescriptionCard.client'
+import { MarketStalenessHandler } from '@/features/market/MarketStalenessHandler.client'
 import { PredictionDetailCard } from '@/features/prediction/PredictionDetailCard.client'
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
@@ -60,6 +61,9 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
             Market Detail
           </h1>
         </div>
+
+        {/* Market Staleness Handler - Auto-refresh if data is old */}
+        <MarketStalenessHandler market={serializedMarket} />
 
         {/* Main Content Sections */}
         <div className={components.page.sections}>

@@ -1,8 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { prisma } from './db/prisma'
-import * as eventService from './services/event-service'
-import * as marketService from './services/market-service'
 import type { Prediction, Market } from "./types"
 import { z } from "zod"
 import type { PredictionResult, PolymarketEvent } from "./types"
@@ -343,58 +340,6 @@ export function getPredictionDisplayData(
   return { aiProbability, reasoning, marketProbability }
 }
 
-/**
- * Builds a canonical external URL for an event on its source market provider
- * using the stored `slug` and `marketProvider`.
- *
- * Example: polymarket → https://polymarket.com/event/<slug>
- */
-export async function generateEventURL(eventId: string): Promise<string | null> {
-  if (!eventId) return null
-
-  // Fetch event to get slug and provider
-  const event = await eventService.getEventById(prisma, eventId)
-  if (!event || !event.slug) return null
-
-  const providerRaw = (event.marketProvider || 'polymarket').trim().toLowerCase()
-
-  // Map known providers to their domains; default to <provider>.com
-  let domain: string
-  switch (providerRaw) {
-    case 'polymarket':
-      domain = 'polymarket.com'
-      break
-    case 'kalshi':
-      domain = 'kalshi.com'
-      break
-    default:
-      domain = `${providerRaw}.com`
-  }
-
-  return `https://${domain}/event/${encodeURIComponent(event.slug)}`
-}
-
-// Alias helper matching requested name in other parts of the app/spec
-export async function getEventURL(eventId: string): Promise<string | null> {
-  return generateEventURL(eventId)
-}
-
-/**
- * Builds a canonical external URL for a market by composing the event URL
- * with the market slug: <event-url>/<market-slug>
- */
-export async function generateMarketURL(marketId: string): Promise<string | null> {
-  if (!marketId) return null
-
-  const market = await marketService.getMarketById(prisma, marketId)
-  if (!market) return null
-
-  const baseEventUrl = market.eventId ? await getEventURL(market.eventId) : null
-  if (!baseEventUrl) return null
-
-  const marketSlug = market.slug ? `/${encodeURIComponent(market.slug)}` : ''
-  return `${baseEventUrl}${marketSlug}`
-}
 
 /**
  * Makes an authenticated API call using Privy access token
