@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/daily-generate-batch-predictions",
-      "schedule": "15 */6 * * *"
+      "schedule": "15 */12 * * *"
     },
     {
       "path": "/api/cron/prediction-check",
@@ -19,10 +19,6 @@
     {
       "path": "/api/cron/daily-update-polymarket-data?limit=100&delayMs=1000&daysToFetchPast=8&daysToFetchFuture=180&maxRetries=3&retryDelayMs=2000&timeoutMs=30000&userAgent=BetterAI-6Month%2F1.0&sortBy=volume1yr&totalEventLimit=100",
       "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/daily-generate-batch-predictions?topMarketsCount=25&endDateRangeHours=4320&targetDaysFromNow=180&modelName=google%2Fgemini-2.0-flash-001&concurrencyPerModel=3",
-      "schedule": "30 2 * * *"
     },
     {
       "path": "/api/cron/update-active-events",

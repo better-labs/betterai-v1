@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       return authResponse
     }
 
-    const topMarketsCount = Number(request.nextUrl.searchParams.get('topMarketsCount') ?? 20)
+    const topMarketsCount = Number(request.nextUrl.searchParams.get('topMarketsCount') ?? 5)
     const endDateRangeHours = Number(request.nextUrl.searchParams.get('endDateRangeHours') ?? 48)
     const targetDaysFromNow = Number(request.nextUrl.searchParams.get('targetDaysFromNow') ?? 7)
     const modelNameParam = request.nextUrl.searchParams.get('modelName') || undefined
@@ -64,7 +64,12 @@ export async function GET(request: NextRequest) {
     const modelsToRun = Array.from(new Set(modelNameParam ? [...modelList, modelNameParam] : modelList))
 
     // Run models concurrently but with a safeguard to avoid exhausting runtime
-    const perModelConfig = { topMarketsCount, endDateRangeHours, targetDaysFromNow, concurrencyPerModel: Math.max(1, Math.min(concurrencyParam, 6)) }
+    const perModelConfig = { 
+      topMarketsCount, 
+      endDateRangeHours, 
+      targetDaysFromNow, 
+      concurrencyPerModel: Math.max(1, Math.min(concurrencyParam, 6))
+    }
     // categoryMix: false,  // DISABLED: Category data no longer meaningful
     await Promise.all(modelsToRun.map((modelName) => runBatchPredictionGeneration(perModelConfig, modelName)))
 

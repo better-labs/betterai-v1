@@ -3,7 +3,11 @@
  * Provision BetterAI DB roles for DEVELOPMENT environments (preserves existing passwords).
  *
  * Usage:
- *   ts-node provision-db-roles-dev.ts "postgres://neondb_owner:...@ep-xxxxx-pooler.us-east-1.aws.neon.tech/betterai_dev?sslmode=require"
+ *   Set DATABASE_URL_NEONDB_OWNER in .env.local, then run:
+ *   ts-node provision-db-roles-dev.ts
+ *   
+ * Options:
+ *   --generate-new-passwords : Force generation of new passwords even for existing roles
  *
  * DEVELOPMENT FOCUSED:
  *   - Does NOT rotate passwords if roles already exist (dev-friendly)
@@ -30,6 +34,10 @@
 
 import { Client } from "pg";
 import crypto from "crypto";
+import * as dotenv from "dotenv";
+
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
 
 function fatal(msg: string): never {
   console.error(`Error: ${msg}`);
@@ -95,8 +103,14 @@ function buildUrl(
 }
 
 async function main() {
-  const input = process.argv[2];
-  if (!input) fatal("Provide a Neon connection URL as the first argument.");
+  const input = process.env.DATABASE_URL_NEONDB_OWNER;
+  if (!input) fatal("DATABASE_URL_NEONDB_OWNER environment variable is required in .env.local");
+  
+  // Check for --generate-new-passwords flag
+  const forceNewPasswords = process.argv.includes('--generate-new-passwords');
+  if (forceNewPasswords) {
+    console.log("🔄 --generate-new-passwords flag detected: Will generate new passwords for all roles");
+  }
 
   let url: URL;
   try {
@@ -156,11 +170,11 @@ async function main() {
   const adminExists = existingRoles.some((r: { rolname: string }) => r.rolname === 'betterai_admin');
   const appExists = existingRoles.some((r: { rolname: string }) => r.rolname === 'betterai_app');
   
-  // Only generate new passwords for roles that don't exist (dev-friendly)
-  const appPwd = appExists ? null : genPassword();
-  const adminPwd = adminExists ? null : genPassword();
+  // Generate new passwords based on existence and flag
+  const appPwd = (!appExists || forceNewPasswords) ? genPassword() : null;
+  const adminPwd = (!adminExists || forceNewPasswords) ? genPassword() : null;
   
-  console.log(`📋 Role status: admin=${adminExists ? 'exists (password preserved)' : 'new'}, app=${appExists ? 'exists (password preserved)' : 'new'}`);
+  console.log(`📋 Role status: admin=${adminExists ? (adminPwd ? 'exists (new password)' : 'exists (password preserved)') : 'new'}, app=${appExists ? (appPwd ? 'exists (new password)' : 'exists (password preserved)') : 'new'}`);
 
   try {
     // Ensure pgcrypto for any future SQL-side generation if you use it later
@@ -175,9 +189,15 @@ async function main() {
     // betterai_admin (DDL/migrations)
     if (adminPwd) {
       const adminPwdEscaped = adminPwd.replace(/'/g, "''");
-      await executeQuery(adminClient, "Creating betterai_admin role with new password", `
-        CREATE ROLE betterai_admin LOGIN PASSWORD '${adminPwdEscaped}';
-      `);
+      if (!adminExists) {
+        await executeQuery(adminClient, "Creating betterai_admin role with new password", `
+          CREATE ROLE betterai_admin LOGIN PASSWORD '${adminPwdEscaped}';
+        `);
+      } else {
+        await executeQuery(adminClient, "Updating betterai_admin password", `
+          ALTER ROLE betterai_admin WITH LOGIN PASSWORD '${adminPwdEscaped}';
+        `);
+      }
     } else {
       await executeQuery(adminClient, "Ensuring betterai_admin role has LOGIN privilege", `
         ALTER ROLE betterai_admin WITH LOGIN;
@@ -187,9 +207,15 @@ async function main() {
     // betterai_app (CRUD/runtime)
     if (appPwd) {
       const appPwdEscaped = appPwd.replace(/'/g, "''");
-      await executeQuery(adminClient, "Creating betterai_app role with new password", `
-        CREATE ROLE betterai_app LOGIN PASSWORD '${appPwdEscaped}';
-      `);
+      if (!appExists) {
+        await executeQuery(adminClient, "Creating betterai_app role with new password", `
+          CREATE ROLE betterai_app LOGIN PASSWORD '${appPwdEscaped}';
+        `);
+      } else {
+        await executeQuery(adminClient, "Updating betterai_app password", `
+          ALTER ROLE betterai_app WITH LOGIN PASSWORD '${appPwdEscaped}';
+        `);
+      }
     } else {
       await executeQuery(adminClient, "Ensuring betterai_app role has LOGIN privilege", `
         ALTER ROLE betterai_app WITH LOGIN;
@@ -300,32 +326,36 @@ async function main() {
     console.log(`✅ Shadow schema "${shadowSchemaName}" setup completed`);
 
     // Construct output URLs
-    if (appPwd && adminPwd) {
-      // New roles created - show URLs with new passwords
-      const pooledAppUrl = buildUrl(url, {
-        username: "betterai_app",
-        password: appPwd,
-        host: pooledHost, // keep -pooler for app runtime
-      });
-
-      // Direct (non-pooled) admin URL for migrations/DDL
-      const directAdminUrl = buildUrl(url, {
-        username: "betterai_admin",
-        password: adminPwd,
-        host: directHost, // remove -pooler
-      });
-
-      const shadowAdminUrl = (() => {
-        const u = new URL(directAdminUrl);
-        u.searchParams.set('schema', shadowSchemaName);
-        return u.toString();
-      })();
-
-      // Print as simple key=value lines ready for Vercel / .env
+    if (appPwd || adminPwd) {
+      // Show URLs with new passwords (only for roles that got new passwords)
       console.log("\n# === Copy these to your env store ===");
-      console.log(`DATABASE_URL=${pooledAppUrl}`);                // pooled, app role (runtime)
-      console.log(`DATABASE_URL_UNPOOLED=${directAdminUrl}`);     // direct, admin role (migrations/DDL)
-      console.log(`DATABASE_URL_UNPOOLED_SHADOW=${shadowAdminUrl}`); // direct, admin role, shadow schema
+      
+      if (appPwd) {
+        const pooledAppUrl = buildUrl(url, {
+          username: "betterai_app",
+          password: appPwd,
+          host: pooledHost, // keep -pooler for app runtime
+        });
+        console.log(`DATABASE_URL=${pooledAppUrl}`);                // pooled, app role (runtime)
+      }
+
+      if (adminPwd) {
+        // Direct (non-pooled) admin URL for migrations/DDL
+        const directAdminUrl = buildUrl(url, {
+          username: "betterai_admin",
+          password: adminPwd,
+          host: directHost, // remove -pooler
+        });
+
+        const shadowAdminUrl = (() => {
+          const u = new URL(directAdminUrl);
+          u.searchParams.set('schema', shadowSchemaName);
+          return u.toString();
+        })();
+
+        console.log(`DATABASE_URL_UNPOOLED=${directAdminUrl}`);     // direct, admin role (migrations/DDL)
+        console.log(`DATABASE_URL_UNPOOLED_SHADOW=${shadowAdminUrl}`); // direct, admin role, shadow schema
+      }
     } else {
       // Existing roles - passwords preserved, URLs unchanged
       console.log("\n📋 Existing roles detected - passwords preserved for development.");
