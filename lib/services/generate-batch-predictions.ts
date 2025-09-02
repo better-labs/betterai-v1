@@ -122,6 +122,7 @@ export async function generateBatchPredictions(
     concurrency?: number
     experimentTag?: string
     experimentNotes?: string
+    useWebSearch?: boolean
   }
 ): Promise<Array<{marketId: string, success: boolean, message: string}>> {
   const results: Array<{marketId: string, success: boolean, message: string}> = []
@@ -137,7 +138,7 @@ export async function generateBatchPredictions(
       index += 1
       const marketId = marketIds[current]
       try {
-        const result = await generatePredictionForMarket(marketId, undefined, modelName, undefined, options?.experimentTag, options?.experimentNotes)
+        const result = await generatePredictionForMarket(marketId, undefined, modelName, undefined, options?.experimentTag, options?.experimentNotes, options?.useWebSearch)
         results.push({
           marketId,
           success: result.success,
@@ -199,11 +200,17 @@ export async function runBatchPredictionGeneration(
     // Generate predictions for the selected markets
     console.log(`
 Generating predictions for ${marketIds.length} markets...`)
+    // Determine if web search should be enabled for batch predictions
+    const batchPredictionsWebSearch = process.env.BATCH_PREDICTIONS_WEB_SEARCH === 'true'
+    
     const results = await generateBatchPredictions(marketIds, modelName, { 
       concurrency: config.concurrencyPerModel ?? 3,
       experimentTag: experimentOptions?.experimentTag,
-      experimentNotes: experimentOptions?.experimentNotes
+      experimentNotes: experimentOptions?.experimentNotes,
+      useWebSearch: batchPredictionsWebSearch
     })
+    
+    console.log(`🌐 Batch predictions web search ${batchPredictionsWebSearch ? 'ENABLED' : 'DISABLED'}`)
     
     // Log summary
     const successful = results.filter(r => r.success).length

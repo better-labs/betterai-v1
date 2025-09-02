@@ -179,7 +179,7 @@ async function savePrediction(
   return createdPrediction.id
 }
 
-export async function generatePredictionForMarket(marketId: string, userId?: string, modelName?: string, additionalUserMessageContext?: string, experimentTag?: string, experimentNotes?: string): Promise<PredictionServiceResponse> {
+export async function generatePredictionForMarket(marketId: string, userId?: string, modelName?: string, additionalUserMessageContext?: string, experimentTag?: string, experimentNotes?: string, useWebSearch?: boolean): Promise<PredictionServiceResponse> {
   try {
     if (!marketId) {
       return { success: false, message: "Market ID is required" }
@@ -191,7 +191,17 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
     }
 
     console.log(`Generating AI prediction for market: ${marketId}`)
-    const model = modelName || DEFAULT_MODEL
+    let model = modelName || DEFAULT_MODEL
+    
+    // Determine if web search should be enabled
+    const singlePredictionsWebSearch = process.env.SINGLE_PREDICTIONS_WEB_SEARCH === 'true'
+    
+    // Auto-append :online suffix for web search if not already present
+    if (singlePredictionsWebSearch && !model.includes(':online')) {
+      model = `${model}:online`
+      console.log(`🌐 Web search enabled for model: ${model}`)
+    }
+    
     const { systemMessage, userMessage } = constructPredictionPrompt(market, additionalUserMessageContext)
 
     await new Promise(resolve => setTimeout(resolve, 2000)) // Increased delay to avoid rate limiting
