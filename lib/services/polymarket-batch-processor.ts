@@ -4,7 +4,8 @@ import * as marketService from '@/lib/services/market-service'
 import * as tagService from '@/lib/services/tag-service'
 import type { NewMarket, NewEvent } from '@/lib/types/database'
 import type { Event, Market, PolymarketEvent, PolymarketMarket } from '@/lib/types'
-import { mapTagsToCategory } from '@/lib/categorize'
+import { Category } from '@/lib/generated/prisma'
+// import { mapTagsToCategory } from '@/lib/categorize'  // DISABLED: No longer used
 import { withDeadlockRetry } from '@/lib/utils/deadlock-retry'
 import { Decimal } from '@prisma/client/runtime/library'
 
@@ -52,9 +53,11 @@ export function validatePolymarketMarket(market: any): boolean {
  * Transforms a PolymarketEvent to NewEvent database format
  */
 export function transformEventToDbFormat(event: PolymarketEvent): NewEvent {
-  const tags = event.tags || []
-  const tagLabels = tags.map(tag => tag.label)
-  const category = mapTagsToCategory(tagLabels)
+  // DISABLED: Polymarket no longer provides meaningful category data
+  // const tags = event.tags || []
+  // const tagLabels = tags.map(tag => tag.label)
+  // const category = mapTagsToCategory(tagLabels)
+  const category = Category.OTHER  // Default since category data is no longer available
   
   return {
     id: event.id,

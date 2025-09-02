@@ -64,7 +64,8 @@ export async function GET(request: NextRequest) {
     const modelsToRun = Array.from(new Set(modelNameParam ? [...modelList, modelNameParam] : modelList))
 
     // Run models concurrently but with a safeguard to avoid exhausting runtime
-    const perModelConfig = { topMarketsCount, endDateRangeHours, targetDaysFromNow, categoryMix: false, concurrencyPerModel: Math.max(1, Math.min(concurrencyParam, 6)) }
+    const perModelConfig = { topMarketsCount, endDateRangeHours, targetDaysFromNow, concurrencyPerModel: Math.max(1, Math.min(concurrencyParam, 6)) }
+    // categoryMix: false,  // DISABLED: Category data no longer meaningful
     await Promise.all(modelsToRun.map((modelName) => runBatchPredictionGeneration(perModelConfig, modelName)))
 
     // Optional: Use tRPC server caller for consistency if needed

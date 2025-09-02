@@ -115,9 +115,11 @@ describe('PredictionSessions tRPC Integration', () => {
         createdAt: new Date('2024-01-01T10:00:00.000Z'),
         completedAt: new Date('2024-01-01T10:05:00.000Z'),
         predictions: [{
-          id: 1,
+          id: '1',
           modelName: 'anthropic/claude-3.7-sonnet',
           predictionResult: { prediction: 'Yes', confidence: 0.8 },
+          outcomes: ['Yes', 'No'],
+          outcomesProbabilities: [0.8, 0.2],
           aiResponse: 'AI reasoning',
           createdAt: new Date('2024-01-01T10:03:00.000Z')
         }],
