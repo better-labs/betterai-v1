@@ -37,7 +37,7 @@ async function main() {
   console.log(`Market question: ${topMarkets[0].question}`);
 
   //const result = await performMarketResearch(marketId, 'openai/gpt-oss-120b');
-  const result = await performMarketResearch(marketId, 'anthropic/claude-opus-4.1:online');
+  const result = await performMarketResearch(marketId, 'anthropic/claude-opus-4.1');
 
   if (result.success) {
     console.log('Market research successful:');

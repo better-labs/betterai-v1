@@ -37,13 +37,6 @@ export const AI_MODELS: AIModel[] = [
     description: 'Quick and reliable predictions'
   },
   {
-    id: 'deepseek/deepseek-chat-v3-0324',
-    name: 'DeepSeek Chat v3',
-    provider: 'DeepSeek',
-    creditCost: 1,
-    description: 'High-quality reasoning model'
-  },
-  {
     id: 'openai/gpt-5-mini',
     name: 'GPT-5 Mini',
     provider: 'OpenAI',
