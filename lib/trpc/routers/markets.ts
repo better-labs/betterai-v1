@@ -106,7 +106,7 @@ export const marketsRouter = router({
     .input(GetTrendingMarketsInput)
     .query(async ({ input }) => {
       // Get events with markets using the event service - always prioritize predictions in sorting
-      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, false, 4)
+      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, false, 4, input.tagIds)
 
             // Extract markets from events and flatten
       const trendingMarkets = eventsWithMarkets.flatMap((event: any) =>
@@ -159,8 +159,38 @@ export const marketsRouter = router({
       const paginatedMarkets = trendingMarkets.slice(0, input.limit)
       const hasMore = totalMarkets > input.limit
 
+      // Extract unique tags from the trending markets for guaranteed alignment
+      const activeTagsMap = new Map()
+      trendingMarkets.forEach((market: any) => {
+        market.event?.tags?.forEach((tag: any) => {
+          if (activeTagsMap.has(tag.id)) {
+            activeTagsMap.get(tag.id).marketCount++
+          } else {
+            activeTagsMap.set(tag.id, {
+              id: tag.id,
+              label: tag.label,
+              slug: tag.slug,
+              marketCount: 1,
+              totalVolume: 0
+            })
+          }
+          // Add market volume to tag
+          const volume = parseFloat(market.volume) || 0
+          activeTagsMap.get(tag.id).totalVolume += volume
+        })
+      })
+
+      // Convert to array and sort by market count, then volume
+      const activeTags = Array.from(activeTagsMap.values())
+        .sort((a, b) => {
+          if (b.marketCount !== a.marketCount) return b.marketCount - a.marketCount
+          return b.totalVolume - a.totalVolume
+        })
+        .slice(0, 12) // Limit to top 12 most active tags
+
       return {
         items: paginatedMarkets,
+        activeTags, // Include active tags in response
         nextCursor: hasMore ? String(input.limit) : null,
         hasMore,
       }

@@ -11,6 +11,7 @@ import { trpc } from "@/shared/providers/trpc-provider"
 import { LoadingCard } from "@/shared/ui/loading"
 import { Button } from "@/shared/ui/button"
 import MarketDetailsCard from "@/features/market/MarketCard.client"
+import { PopularTagsList } from "@/shared/ui/popular-tag-list.client"
 
 // Use tRPC's inferred types
 type TrendingMarketsResponse = inferProcedureOutput<AppRouter['markets']['trending']>
@@ -20,8 +21,9 @@ export function TrendingMarkets() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [autoLoadCount, setAutoLoadCount] = useState(0)
   const [isBrowser, setIsBrowser] = useState(false)
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null)
   
-  // Fetch trending markets using tRPC
+  // Fetch trending markets using tRPC (includes active tags)
   const {
     data: marketsData,
     isLoading: marketsLoading,
@@ -29,7 +31,12 @@ export function TrendingMarkets() {
     refetch: refetchMarkets,
   } = trpc.markets.trending.useQuery({
     limit: marketLimit,
+    tagIds: selectedTagId ? [selectedTagId] : undefined,
   })
+
+  // Extract active tags from markets response (guaranteed alignment)
+  const activeTags = marketsData?.activeTags || []
+  const tagsLoading = marketsLoading
 
   const markets = marketsData?.items || []
   const shouldShowManual = autoLoadCount >= 2
@@ -39,6 +46,14 @@ export function TrendingMarkets() {
   useEffect(() => {
     setIsBrowser(true)
   }, [])
+
+  // Tag selection handler
+  const handleTagSelect = (tagId: string | null) => {
+    setSelectedTagId(tagId)
+    // Reset pagination when filtering changes
+    setMarketLimit(10)
+    setAutoLoadCount(0)
+  }
 
   // Auto-load on scroll for first 2 times
   useEffect(() => {
@@ -79,8 +94,12 @@ export function TrendingMarkets() {
     }
   }
 
-  // No filtering currently applied
-  const filteredMarkets = markets
+  // Client-side filtering with perfect alignment
+  const filteredMarkets = selectedTagId 
+    ? markets.filter(market => 
+        market.event?.tags?.some((tag: any) => tag.id === selectedTagId)
+      )
+    : markets
 
   if (marketsLoading && markets.length === 0) {
     return <LoadingCard />
@@ -112,25 +131,20 @@ export function TrendingMarkets() {
             Trending Markets
           </h1>
           <p className={components.pageHeader.subtitle}>
-            Markets with the highest dailytrading volume
+            Markets with the highest daily trading volume
           </p>
         </div>
 
-        {/* Popular Tags Filter */}
-        {/* todo: fix */}
-        {/* {!tagsLoading && popularTags.length > 0 && (
-          <div className="flex justify-center">
-            <div className="w-full max-w-4xl">
-              <PopularTagsList 
-                tags={popularTags} 
-                selectedTagIds={selectedTagIds}
-                onTagSelect={handleTagSelect}
-                onClearFilters={handleClearFilters}
-                isFiltered={selectedTagIds.length > 0}
-              />
-            </div>
+        {/* Active Tags List */}
+        {!tagsLoading && activeTags.length > 0 && (
+          <div className="w-full">
+            <PopularTagsList 
+              tags={activeTags} 
+              selectedTagId={selectedTagId}
+              onTagSelect={handleTagSelect}
+            />
           </div>
-        )} */}
+        )}
 
         {/* Markets Grid */}
         {filteredMarkets.length === 0 ? (

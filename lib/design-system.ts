@@ -177,7 +177,7 @@ export const components = {
   pageHeader: {
     container: 'text-center mb-6',
     title: typography.h1,
-    subtitle: `${typography.body} text-muted-foreground`,
+    subtitle: `${typography.bodySmall} text-muted-foreground`,
     icon: 'text-primary',
   },
 
@@ -193,7 +193,7 @@ export const components = {
     base: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
     
     // Flex-based search input (INDUSTRY STANDARD PATTERN)
-    // Used by Google, GitHub, and most modern web apps
+    
     // Advantages: predictable layout, no z-index conflicts, better accessibility
     search: {
       container: 'flex items-center bg-muted/50 border border-muted-foreground/20 rounded-md focus-within:bg-background transition-colors w-full',

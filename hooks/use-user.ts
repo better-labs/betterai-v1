@@ -26,10 +26,10 @@ export function useUser() {
     }
 
     // Debug: Log Privy user object to understand data structure
-    console.log('🔍 Privy User Object:', privyUser)
-    console.log('🔍 Privy User Email:', privyUser.email)
-    console.log('🔍 Privy User Google Data:', (privyUser as any).google)
-    console.log('🔍 Privy User Linked Accounts:', (privyUser as any).linkedAccounts)
+    // console.log('🔍 Privy User Object:', privyUser)
+    // console.log('🔍 Privy User Email:', privyUser.email)
+    // console.log('🔍 Privy User Google Data:', (privyUser as any).google)
+    // console.log('🔍 Privy User Linked Accounts:', (privyUser as any).linkedAccounts)
 
     const syncUser = async () => {
       setLoading(true)
@@ -54,8 +54,8 @@ export function useUser() {
           // Include identity token if available for verification
           identityToken: (privyUser as any)?.identityToken
         }
-        console.log('📤 Sending user data to API:', userDataToSend)
-        console.log('🔐 Identity token available:', !!userDataToSend.identityToken)
+        // console.log('📤 Sending user data to API:', userDataToSend)
+        // console.log('🔐 Identity token available:', !!userDataToSend.identityToken)
 
         // First try to get existing user
         const response = await authenticatedFetch(

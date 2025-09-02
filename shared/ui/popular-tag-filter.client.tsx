@@ -31,7 +31,7 @@ export function TagFilter({ selectedTag, onTagChange }: TagFilterProps) {
         <Filter className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium text-muted-foreground">Filter by category</span>
       </div>
-      
+
       <div className="flex flex-wrap gap-2">
         <Button
           variant={selectedTag === null ? "default" : "outline"}
@@ -41,7 +41,7 @@ export function TagFilter({ selectedTag, onTagChange }: TagFilterProps) {
         >
           All Categories
         </Button>
-        
+
         {popularTags.map((tag) => (
           <Button
             key={tag.id}

@@ -4,6 +4,11 @@ import type { EventDTO } from '@/lib/types'
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
 /**
+ * Global tag filter for excluding certain types of markets from trending
+ */
+export const tagFilter = ["Crypto", "Hide From New", "Weekly", "Recurring"] 
+
+/**
  * Event service functions following clean service pattern:
  * - Accept db instance for dependency injection
  * - Return DTOs (never raw Prisma models)
@@ -38,9 +43,9 @@ export async function getTrendingEvents(
 export async function getTrendingEventsWithMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   withPredictions = false,
-  predictionDaysLookBack = 4
+  predictionDaysLookBack = 4,
+  tagIds?: string[]
 ): Promise<any[]> {
-  const cryptoLabelFilter = ["Crypto"] // Exclude crypto markets from trending
   const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
   
   const whereClause: any = {}
@@ -55,14 +60,26 @@ export async function getTrendingEventsWithMarkets(
     gte: filterDate  
   }
   
-  // Exclude events with crypto tags
-  whereClause.NOT = {
-    eventTags: {
+  // Handle tag filtering
+  if (tagIds && tagIds.length > 0) {
+    // If specific tags are requested, include only events with those tags
+    whereClause.eventTags = {
       some: {
-        tag: {
-          label: {
-            in: cryptoLabelFilter,
-            mode: 'insensitive' as any
+        tagId: {
+          in: tagIds
+        }
+      }
+    }
+  } else {
+    // Default behavior: exclude events with crypto tags
+    whereClause.NOT = {
+      eventTags: {
+        some: {
+          tag: {
+            label: {
+              in: tagFilter,
+              mode: 'insensitive' as any
+            }
           }
         }
       }
