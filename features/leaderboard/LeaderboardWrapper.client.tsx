@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { LeaderboardTable } from "@/features/leaderboard/LeaderboardTable"
-import { TagFilter } from "@/components/tag-filter"
+import { TagFilter } from "./leaderboard-tag-filter.client"
 import { LoadingCard } from "@/shared/ui/loading"
 import { TrendingUp, Trophy, Target, Activity } from "lucide-react"
 import { Badge } from "@/shared/ui/badge"

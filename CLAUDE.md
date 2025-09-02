@@ -295,3 +295,4 @@ Prefer fat services for writes (transactions, idempotency), thin for reads.
 Any updates made to CLAUDE.md, please also update .cursor/rules/general-cursor-project-rule.mdc accordingly and vice versa.
 Try to remove inline styling wherever possible, instead leverage /lib/design-system.ts
 Try to leverage dimensions and styles from /lib/design-system.ts rather than inline css wherever possible.
+Use kebab-case for filenames.
