@@ -17,6 +17,7 @@ import {
   DeleteMarketInput,
   GetTrendingMarketsInput,
 } from '../schemas/market'
+import { z } from 'zod'
 
 export const marketsRouter = router({
   // Single market query by ID
@@ -291,6 +292,54 @@ export const marketsRouter = router({
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to delete market',
+          cause: error,
+        })
+      }
+    }),
+
+  // Refresh single market from Polymarket (authenticated)
+  refresh: authenticatedProcedure
+    .input(z.object({ 
+      marketId: z.string().min(1, 'Market ID is required') 
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log(`User ${ctx.userId} refreshing market ${input.marketId}`)
+        
+        // Check if market exists first
+        const existingMarket = await marketService.getMarketById(prisma, input.marketId)
+        if (!existingMarket) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Market not found',
+          })
+        }
+
+        // Refresh from Polymarket
+        const refreshedMarket = await marketService.refreshMarketFromPolymarket(prisma, input.marketId)
+        
+        if (!refreshedMarket) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to fetch updated market data from Polymarket',
+          })
+        }
+
+        return {
+          success: true,
+          market: refreshedMarket,
+          message: 'Market data refreshed successfully'
+        }
+      } catch (error) {
+        console.error('Refresh market error:', error)
+        
+        if (error instanceof TRPCError) {
+          throw error
+        }
+        
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to refresh market data',
           cause: error,
         })
       }

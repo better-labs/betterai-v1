@@ -195,3 +195,31 @@ export async function fetchPolymarketEventById(
     return null;
   }
 }
+
+/**
+ * Fetch a single Polymarket market by ID  
+ */
+export async function fetchPolymarketMarket(
+  marketId: string,
+  options: FetchOptions = {}
+): Promise<any | null> {
+  const url = `${POLYMARKET_API_BASE_URL}/markets/${marketId}`;
+
+  console.log(`Fetching Polymarket market by ID: ${url}`);
+  
+  try {
+    const response = await fetchWithRetry(url, options);
+    const data = await response.json();
+
+    if (data && typeof data === 'object' && data.id === marketId) {
+      console.log(`Successfully fetched market ${marketId}: ${data.question || 'Unknown question'}`);
+      return data;
+    } else {
+      console.error(`Invalid market data for ${marketId}:`, data);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Failed to fetch market ${marketId}:`, error);
+    return null;
+  }
+}

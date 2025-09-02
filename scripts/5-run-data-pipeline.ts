@@ -26,8 +26,8 @@ async function main() {
     const config = {
       topMarketsCount: 15,
       endDateRangeHours: 24,
-      targetDaysFromNow: 7,
-      categoryMix: true
+      targetDaysFromNow: 7
+      // categoryMix: true  // DISABLED: Category data no longer meaningful
     }
     const topMarkets = await getTopMarketsByVolumeAndEndDate(config);
 

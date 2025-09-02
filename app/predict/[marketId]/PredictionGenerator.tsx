@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@/hooks/use-user'
 import { usePrivy } from '@privy-io/react-auth'
 import { trpc } from '@/lib/trpc/client'
 import { AI_MODELS } from '@/lib/config/ai-models'
@@ -20,20 +21,21 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
   const [selectedModels, setSelectedModels] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const router = useRouter()
-  const { authenticated, login } = usePrivy()
+  const { user, isAuthenticated, isReady } = useUser()
+  const { login } = usePrivy() // Keep login function from usePrivy
 
-  // Get user credits
+  // Get user credits - using robust enabled condition
   const { data: userCreditsResponse, isLoading: creditsLoading } = trpc.users.getCredits.useQuery(
     {},
-    { enabled: authenticated }
+    { enabled: isReady && isAuthenticated && !!user?.id }
   )
 
   const userCredits = userCreditsResponse?.credits
 
-  // Check for recent sessions
+  // Check for recent sessions - using robust enabled condition
   const { data: recentSessions } = trpc.predictionSessions.recentByMarket.useQuery(
     { marketId },
-    { enabled: authenticated }
+    { enabled: isReady && isAuthenticated && !!user?.id }
   )
 
   // Start prediction session mutation
@@ -56,7 +58,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
   }
 
   const handleGenerate = async () => {
-    if (!authenticated) {
+    if (!isAuthenticated) {
       login()
       return
     }
@@ -73,7 +75,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
     return cost + (model?.creditCost || 0)
   }, 0)
 
-  const canGenerate = authenticated && 
+  const canGenerate = isReady && isAuthenticated && 
     selectedModels.length > 0 && 
     userCredits && 
     userCredits.credits >= totalCost
@@ -83,7 +85,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
   return (
     <div className="space-y-6">
       {/* Credits Display */}
-      {authenticated && (
+      {isAuthenticated && (
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -159,7 +161,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
           )}
 
           {/* Error States */}
-          {!authenticated && (
+          {!isAuthenticated && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -168,7 +170,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
             </Alert>
           )}
 
-          {authenticated && userCredits && userCredits.credits < totalCost && selectedModels.length > 0 && (
+          {isAuthenticated && userCredits && userCredits.credits < totalCost && selectedModels.length > 0 && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>

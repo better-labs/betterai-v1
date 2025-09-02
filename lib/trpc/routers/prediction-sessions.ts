@@ -24,7 +24,9 @@ export const predictionSessionsRouter = router({
   start: authenticatedProcedure
     .input(StartPredictionSessionInput)
     .mutation(async ({ input, ctx }) => {
-      return await prisma.$transaction(async (tx) => {
+      let createdSessionId: string | null = null
+      
+      const result = await prisma.$transaction(async (tx) => {
         try {
           // Check rate limit (10/hour, 50/day per user)
           if (ctx.rateLimitId) {
@@ -78,19 +80,11 @@ export const predictionSessionsRouter = router({
             selectedModels: validModels
           })
 
+          // Store sessionId for later use
+          createdSessionId = sessionId
+          
           // Log session creation
           structuredLogger.predictionSessionStarted(sessionId, ctx.userId, input.marketId, validModels)
-
-          // Fire worker job immediately (Phase 3)
-          // Note: Using setImmediate to execute after transaction commits
-          setImmediate(async () => {
-            try {
-              await executePredictionSession(prisma, sessionId)
-            } catch (workerError) {
-              console.error(`Worker failed for session ${sessionId}:`, workerError)
-              // Worker failure is logged but doesn't affect the session creation response
-            }
-          })
 
           return { sessionId }
         } catch (error) {
@@ -114,6 +108,26 @@ export const predictionSessionsRouter = router({
           })
         }
       })
+
+      // Fire worker job after transaction commits (Phase 3)
+      if (createdSessionId) {
+        setImmediate(async () => {
+          try {
+            await executePredictionSession(prisma, createdSessionId!)
+          } catch (workerError) {
+            // Log worker failure but don't fail the session creation
+            structuredLogger.predictionSessionError(
+              createdSessionId!,
+              ctx.userId, 
+              workerError instanceof Error ? workerError : new Error('Unknown worker error'),
+              { step: 'worker_execution' }
+            )
+            console.error(`Worker failed for session ${createdSessionId}:`, workerError)
+          }
+        })
+      }
+
+      return result
     }),
 
   // Get prediction session status

@@ -12,6 +12,35 @@ interface User {
   updatedAt?: string
 }
 
+/**
+ * Enhanced authentication hook that provides full user context from database.
+ * 
+ * **Use this hook when you need:**
+ * - User data (id, email, credits, etc.) from database
+ * - Business logic requiring authenticated user context  
+ * - tRPC queries that need user information
+ * - Components displaying user-specific information
+ * 
+ * **DON'T use this hook for:**
+ * - Simple auth checks where performance matters
+ * - Login/logout UI components (use usePrivy instead)
+ * - Components that don't need user data
+ * 
+ * **Best Practice tRPC Pattern:**
+ * ```typescript
+ * const { user, isReady, isAuthenticated } = useUser()
+ * const { data } = trpc.someQuery.useQuery({}, {
+ *   enabled: isReady && isAuthenticated && !!user?.id
+ * })
+ * ```
+ * 
+ * @returns {Object} User state with database synchronization
+ * @returns {User | null} user - Full user object from database 
+ * @returns {boolean} isAuthenticated - User is logged in AND synced to database
+ * @returns {boolean} isReady - Authentication state is fully loaded
+ * @returns {boolean} loading - User sync operation in progress
+ * @returns {string | null} error - User sync error message
+ */
 export function useUser() {
   const { ready, authenticated, user: privyUser, getAccessToken } = usePrivy()
   const [user, setUser] = useState<User | null>(null)

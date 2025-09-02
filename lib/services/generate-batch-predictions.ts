@@ -6,8 +6,8 @@ export interface BatchPredictionConfig {
   topMarketsCount: number
   endDateRangeHours: number // Default 12 hours
   targetDaysFromNow: number // Default 7 days
-  categoryMix: boolean // Default false
-  excludeCategories?: Category[] // Default [Category.CRYPTOCURRENCY]
+  // categoryMix: boolean // DISABLED: Category data no longer meaningful
+  excludeCategories?: Category[] // Default [Category.CRYPTOCURRENCY]  
   /** How many OpenRouter jobs to run in parallel per model. Defaults to 3. */
   concurrencyPerModel?: number
 }
@@ -29,7 +29,6 @@ export async function getTopMarketsByVolumeAndEndDate(
     topMarketsCount: 1,
     endDateRangeHours: 12,
     targetDaysFromNow: 7,
-    categoryMix: false,
     excludeCategories: [Category.CRYPTOCURRENCY]
   }
 ): Promise<MarketWithEndDate[]> {
@@ -43,53 +42,7 @@ export async function getTopMarketsByVolumeAndEndDate(
 
     console.log(`Searching for markets with events ending between ${rangeStart.toISOString()} and ${rangeEnd.toISOString()}`)
 
-    // If categoryMix is true, pick the top market by volume for each category (via related event.category)
-    if (config.categoryMix) {
-      const query = {
-        where: {
-          event: {
-            endDate: {
-              gte: rangeStart,
-              lte: rangeEnd,
-            },
-          },
-        },
-        orderBy: { volume: 'desc' } as const,
-        include: {
-          event: {
-            select: { category: true, endDate: true },
-          },
-        },
-      }
-      
-      console.log('Prisma query structure:', JSON.stringify(query, null, 2))
-      console.log(`Query date range: ${rangeStart.toISOString()} to ${rangeEnd.toISOString()}`)
-      
-      const marketsInRange = await prisma.market.findMany(query)
-      console.log(`Found ${marketsInRange.length} markets in range`)
-      const seenCategories = new Set<Category>()
-      const selected: MarketWithEndDate[] = []
-
-      for (const m of marketsInRange) {
-        const category = (m.event?.category as unknown as Category) || null
-        if (!category) continue
-        if (config.excludeCategories && config.excludeCategories.includes(category)) continue
-        if (seenCategories.has(category)) continue
-        seenCategories.add(category)
-        selected.push({
-          id: m.id,
-          question: m.question,
-          volume: m.volume ? m.volume.toNumber() : null,
-          endDate: m.event?.endDate ?? null,
-        })
-        if (selected.length >= config.topMarketsCount) break
-      }
-      console.log(`Selected ${selected.length} markets`)
-      
-      return selected
-    }
-
-    // Otherwise: Query the top markets by volume in the range
+    // Query the top markets by volume in the range
     const whereClause: {
       event: {
         endDate: {
@@ -219,7 +172,6 @@ export async function runBatchPredictionGeneration(
     topMarketsCount: 10,
     endDateRangeHours: 12,
     targetDaysFromNow: 7, 
-    categoryMix: false,
     excludeCategories: [Category.CRYPTOCURRENCY],
     concurrencyPerModel: 3,
   },

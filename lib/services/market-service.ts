@@ -270,3 +270,75 @@ export async function searchMarkets(
 
   return { items, nextCursor }
 }
+
+export async function refreshMarketFromPolymarket(
+  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
+  marketId: string
+): Promise<MarketDTO | null> {
+  try {
+    console.log(`Refreshing market data for market ${marketId}`)
+    
+    // First check if market exists in our database to get eventId
+    const existingMarket = await db.market.findUnique({
+      where: { id: marketId },
+      select: { eventId: true }
+    })
+    
+    if (!existingMarket) {
+      console.warn(`Market ${marketId} not found in database - cannot refresh without eventId`)
+      return null
+    }
+    
+    // Dynamic imports to avoid bundling in client
+    const [
+      { fetchPolymarketMarket }, 
+      { transformMarketToDbFormat }
+    ] = await Promise.all([
+      import('./polymarket-client').then(m => ({ fetchPolymarketMarket: m.fetchPolymarketMarket })),
+      import('./polymarket-batch-processor').then(m => ({ transformMarketToDbFormat: m.transformMarketToDbFormat }))
+    ])
+    
+    // Fetch fresh data from Polymarket
+    const polymarketData = await fetchPolymarketMarket(marketId)
+    
+    if (!polymarketData) {
+      console.warn(`No data found for market ${marketId} from Polymarket`)
+      return null
+    }
+    
+    // Add eventId from existing market to polymarket data
+    const polymarketDataWithEventId = {
+      ...polymarketData,
+      eventId: existingMarket.eventId
+    }
+    
+    // Transform to database format
+    const rawMarketData = transformMarketToDbFormat(polymarketDataWithEventId)
+    
+    // Filter out null values (Prisma doesn't accept null in upserts)
+    const marketData = Object.entries(rawMarketData).reduce((acc, [key, value]) => {
+      if (value !== null) {
+        acc[key] = value
+      }
+      return acc
+    }, {} as any)
+    
+    // Clean up data for Prisma update by removing fields that shouldn't be updated
+    const { id, eventId, ...updateData } = marketData
+    
+    // Update the market in database (no create since we're only refreshing existing markets)
+    const updatedMarket = await db.market.update({
+      where: { id: marketId },
+      data: {
+        ...updateData,
+        updatedAt: new Date(),
+      },
+    })
+    
+    console.log(`Successfully refreshed market ${marketId}`)
+    return mapMarketToDTO(updatedMarket)
+  } catch (error) {
+    console.error(`Failed to refresh market ${marketId}:`, error)
+    throw new Error(`Failed to refresh market data: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}

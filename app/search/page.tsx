@@ -7,7 +7,7 @@ import { TrendingUp, Calendar, Tag } from "lucide-react"
 import { prisma } from '@/lib/db/prisma'
 import * as searchService from '@/lib/services/search-service'
 import MarketDetailsCard from "@/features/market/MarketCard.client"
-import { generateMarketURL } from "@/lib/utils"
+import { generateMarketURL } from "@/lib/server-utils"
 import { SearchInput } from "@/features/search/SearchInput.client"
 
 // Force dynamic rendering to avoid build-time database queries
