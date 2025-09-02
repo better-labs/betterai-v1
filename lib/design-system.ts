@@ -177,7 +177,7 @@ export const components = {
   pageHeader: {
     container: 'text-center mb-6',
     title: typography.h1,
-    subtitle: `${typography.body} text-muted-foreground`,
+    subtitle: `${typography.bodySmall} text-muted-foreground`,
     icon: 'text-primary',
   },
 

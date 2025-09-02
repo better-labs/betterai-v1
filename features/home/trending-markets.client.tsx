@@ -23,17 +23,7 @@ export function TrendingMarkets() {
   const [isBrowser, setIsBrowser] = useState(false)
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null)
   
-  // Fetch popular tags
-  const { 
-    data: popularTagsData, 
-    isLoading: tagsLoading 
-  } = trpc.tags.getPopular.useQuery(
-    { limit: 20 }, 
-    { refetchOnWindowFocus: false, staleTime: 5 * 60 * 1000 }
-  )
-  const popularTags = popularTagsData?.data || []
-
-  // Fetch trending markets using tRPC
+  // Fetch trending markets using tRPC (includes active tags)
   const {
     data: marketsData,
     isLoading: marketsLoading,
@@ -43,6 +33,10 @@ export function TrendingMarkets() {
     limit: marketLimit,
     tagIds: selectedTagId ? [selectedTagId] : undefined,
   })
+
+  // Extract active tags from markets response (guaranteed alignment)
+  const activeTags = marketsData?.activeTags || []
+  const tagsLoading = marketsLoading
 
   const markets = marketsData?.items || []
   const shouldShowManual = autoLoadCount >= 2
@@ -100,8 +94,12 @@ export function TrendingMarkets() {
     }
   }
 
-  // No filtering currently applied
-  const filteredMarkets = markets
+  // Client-side filtering with perfect alignment
+  const filteredMarkets = selectedTagId 
+    ? markets.filter(market => 
+        market.event?.tags?.some((tag: any) => tag.id === selectedTagId)
+      )
+    : markets
 
   if (marketsLoading && markets.length === 0) {
     return <LoadingCard />
@@ -137,11 +135,11 @@ export function TrendingMarkets() {
           </p>
         </div>
 
-        {/* Popular Tags List */}
-        {!tagsLoading && popularTags.length > 0 && (
+        {/* Active Tags List */}
+        {!tagsLoading && activeTags.length > 0 && (
           <div className="w-full">
             <PopularTagsList 
-              tags={popularTags} 
+              tags={activeTags} 
               selectedTagId={selectedTagId}
               onTagSelect={handleTagSelect}
             />
