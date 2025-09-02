@@ -54,7 +54,7 @@ async function main() {
     
     await runBatchPredictionGeneration(
       {
-        topMarketsCount: 14,
+        topMarketsCount: 3,
         endDateRangeHours: 168, // 7 days (wider range to catch more events)
         targetDaysFromNow: 10
         // categoryMix: false // DISABLED: Category data no longer meaningful
