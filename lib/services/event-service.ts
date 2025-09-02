@@ -4,6 +4,11 @@ import type { EventDTO } from '@/lib/types'
 import { CATEGORY_DISPLAY_NAME } from '@/lib/categorize'
 
 /**
+ * Global tag filter for excluding certain types of markets from trending
+ */
+export const tagFilter = ["Crypto", "Hide From New", "Weekly", "Recurring"] 
+
+/**
  * Event service functions following clean service pattern:
  * - Accept db instance for dependency injection
  * - Return DTOs (never raw Prisma models)
@@ -40,7 +45,6 @@ export async function getTrendingEventsWithMarkets(
   withPredictions = false,
   predictionDaysLookBack = 4
 ): Promise<any[]> {
-  const cryptoLabelFilter = ["Crypto"] // Exclude crypto markets from trending
   const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
   
   const whereClause: any = {}
@@ -61,7 +65,7 @@ export async function getTrendingEventsWithMarkets(
       some: {
         tag: {
           label: {
-            in: cryptoLabelFilter,
+            in: tagFilter,
             mode: 'insensitive' as any
           }
         }

@@ -1,4 +1,5 @@
 import type { PrismaClient, Tag } from '@/lib/generated/prisma'
+import { tagFilter } from './event-service'
 
 /**
  * Tag service functions following clean service pattern:
@@ -102,7 +103,7 @@ export async function getPopularTagsByMarketVolume(
   const result = await db.tag.findMany({
     where: {
       label: {
-        notIn: ["Hide From New", "Weekly", "Recurring"]
+        notIn: tagFilter
       }
     },
     include: {
