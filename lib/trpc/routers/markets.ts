@@ -106,7 +106,7 @@ export const marketsRouter = router({
     .input(GetTrendingMarketsInput)
     .query(async ({ input }) => {
       // Get events with markets using the event service - always prioritize predictions in sorting
-      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, false, 4)
+      const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma, false, 4, input.tagIds)
 
             // Extract markets from events and flatten
       const trendingMarkets = eventsWithMarkets.flatMap((event: any) =>

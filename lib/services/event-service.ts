@@ -43,7 +43,8 @@ export async function getTrendingEvents(
 export async function getTrendingEventsWithMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   withPredictions = false,
-  predictionDaysLookBack = 4
+  predictionDaysLookBack = 4,
+  tagIds?: string[]
 ): Promise<any[]> {
   const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
   
@@ -59,14 +60,26 @@ export async function getTrendingEventsWithMarkets(
     gte: filterDate  
   }
   
-  // Exclude events with crypto tags
-  whereClause.NOT = {
-    eventTags: {
+  // Handle tag filtering
+  if (tagIds && tagIds.length > 0) {
+    // If specific tags are requested, include only events with those tags
+    whereClause.eventTags = {
       some: {
-        tag: {
-          label: {
-            in: tagFilter,
-            mode: 'insensitive' as any
+        tagId: {
+          in: tagIds
+        }
+      }
+    }
+  } else {
+    // Default behavior: exclude events with crypto tags
+    whereClause.NOT = {
+      eventTags: {
+        some: {
+          tag: {
+            label: {
+              in: tagFilter,
+              mode: 'insensitive' as any
+            }
           }
         }
       }

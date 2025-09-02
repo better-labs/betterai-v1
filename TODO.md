@@ -14,8 +14,13 @@ Add "Popular Tags Filter" functionality to trending markets page by completing m
 - Add state management in trending-markets.client.tsx to keep track of which tag is currently selected by the user.
 - Add the list of tags as a horizontal scrollable div that stretches across the page, similar to polymarket.com landing page.
 - Leverage existing best practices, components and typography from design-system.ts or suggest additions to the design system if they do not yet exist for this component.
+- Single selection instead of multiple selection
+- No "Clear filters" button needed ("All" serves this purpose)
+- Simplified props interface
+- Mobile-first horizontal scrolling design
 
-## Updated Plan with Mobile-First Polymarket UI
+
+## Mobile-First Polymarket Style UI
 
 **Design Requirements** (based on Polymarket screenshots):
 - **Horizontal scrollable pills**: Tags display as rounded pill buttons in a horizontal scrolling row
@@ -44,11 +49,7 @@ const handleTagSelect = (tagId: string | null) => {
 }
 ```
 
-**Key Changes from Original Plan**:
-- Single selection instead of multiple selection
-- No "Clear filters" button needed ("All" serves this purpose)
-- Simplified props interface
-- Mobile-first horizontal scrolling design
+
 
 
 ## Implementation Tasks
@@ -131,7 +132,6 @@ const handleTagSelect = (tagId: string | null) => {
    - Test horizontal scrolling on mobile devices
    - Verify mobile responsiveness and touch targets
    - Check design system token usage
-   - Ensure existing leaderboard TagFilter component still works
    - Test edge cases (no tags available, network errors)
 
 ## Acceptance Criteria
@@ -142,7 +142,7 @@ const handleTagSelect = (tagId: string | null) => {
 - [ ] Component follows design system patterns with mobile-first horizontal scrolling
 - [ ] Touch-friendly design (minimum 44px touch targets)
 - [ ] Smooth horizontal scrolling on mobile devices
-- [ ] No breaking changes to existing leaderboard TagFilter functionality
+
 
 ## Notes
 - Existing TagFilter component already uses design system tokens correctly

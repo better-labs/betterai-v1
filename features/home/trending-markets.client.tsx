@@ -11,6 +11,7 @@ import { trpc } from "@/shared/providers/trpc-provider"
 import { LoadingCard } from "@/shared/ui/loading"
 import { Button } from "@/shared/ui/button"
 import MarketDetailsCard from "@/features/market/MarketCard.client"
+import { PopularTagsList } from "@/shared/ui/popular-tag-list.client"
 
 // Use tRPC's inferred types
 type TrendingMarketsResponse = inferProcedureOutput<AppRouter['markets']['trending']>
@@ -20,7 +21,18 @@ export function TrendingMarkets() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [autoLoadCount, setAutoLoadCount] = useState(0)
   const [isBrowser, setIsBrowser] = useState(false)
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null)
   
+  // Fetch popular tags
+  const { 
+    data: popularTagsData, 
+    isLoading: tagsLoading 
+  } = trpc.tags.getPopular.useQuery(
+    { limit: 20 }, 
+    { refetchOnWindowFocus: false, staleTime: 5 * 60 * 1000 }
+  )
+  const popularTags = popularTagsData?.data || []
+
   // Fetch trending markets using tRPC
   const {
     data: marketsData,
@@ -29,6 +41,7 @@ export function TrendingMarkets() {
     refetch: refetchMarkets,
   } = trpc.markets.trending.useQuery({
     limit: marketLimit,
+    tagIds: selectedTagId ? [selectedTagId] : undefined,
   })
 
   const markets = marketsData?.items || []
@@ -39,6 +52,14 @@ export function TrendingMarkets() {
   useEffect(() => {
     setIsBrowser(true)
   }, [])
+
+  // Tag selection handler
+  const handleTagSelect = (tagId: string | null) => {
+    setSelectedTagId(tagId)
+    // Reset pagination when filtering changes
+    setMarketLimit(10)
+    setAutoLoadCount(0)
+  }
 
   // Auto-load on scroll for first 2 times
   useEffect(() => {
@@ -117,15 +138,15 @@ export function TrendingMarkets() {
         </div>
 
         {/* Popular Tags List */}
-        {/* todo: fix */}
-        {/* {!tagsLoading && popularTags.length > 0 && (
-          <div className="flex justify-center">
-              <PopularTagsList 
-                
-              />
-            </div>
+        {!tagsLoading && popularTags.length > 0 && (
+          <div className="w-full">
+            <PopularTagsList 
+              tags={popularTags} 
+              selectedTagId={selectedTagId}
+              onTagSelect={handleTagSelect}
+            />
           </div>
-        )} */}
+        )}
 
         {/* Markets Grid */}
         {filteredMarkets.length === 0 ? (
