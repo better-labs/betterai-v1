@@ -196,9 +196,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
     // Determine if web search should be enabled
     const singlePredictionsWebSearch = process.env.SINGLE_PREDICTIONS_WEB_SEARCH === 'true'
     
-    // Auto-append :online suffix for web search if not already present
-    if (singlePredictionsWebSearch && !model.includes(':online')) {
-      model = `${model}:online`
+    if (singlePredictionsWebSearch) {
       console.log(`🌐 Web search enabled for model: ${model}`)
     }
     
@@ -208,7 +206,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
 
     let predictionResult: OpenRouterPredictionResult;
     try {
-      predictionResult = await fetchPredictionFromOpenRouter(model, systemMessage, userMessage)
+      predictionResult = await fetchPredictionFromOpenRouter(model, systemMessage, userMessage, singlePredictionsWebSearch)
     } catch (error) {
       console.error(`Error generating prediction for market ${marketId}:`, error)
       
@@ -221,7 +219,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
           // Retry with Claude which tends to be more reliable with JSON
           const fallbackModel = 'anthropic/claude-3-haiku:beta'
           await new Promise(resolve => setTimeout(resolve, 1000)) // Additional delay for retry
-          predictionResult = await fetchPredictionFromOpenRouter(fallbackModel, systemMessage, userMessage)
+          predictionResult = await fetchPredictionFromOpenRouter(fallbackModel, systemMessage, userMessage, singlePredictionsWebSearch)
           console.log(`✅ Fallback model succeeded for market ${marketId}`)
         } catch (fallbackError) {
           // If fallback also fails with empty content, log and return gracefully

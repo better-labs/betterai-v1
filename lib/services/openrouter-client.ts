@@ -39,7 +39,8 @@ export class EmptyContentError extends Error {
 export async function fetchPredictionFromOpenRouter(
   model: string,
   systemMessage: string,
-  userMessage: string
+  userMessage: string,
+  enableWebSearch: boolean = false
 ): Promise<OpenRouterPredictionResult> {
   const PREDICTION_JSON_SCHEMA = {
     name: 'prediction_result',
@@ -78,7 +79,15 @@ export async function fetchPredictionFromOpenRouter(
     }
     
     const userMessageLength = (body.messages as Array<{content?: string}> | undefined)?.[1]?.content?.length || 0;
-    console.log(`Making OpenRouter API request to ${body.model} (user message length: ${userMessageLength})`);
+    const webSearchStatus = enableWebSearch ? 'with web search' : 'without web search';
+    console.log(`Making OpenRouter API request to ${body.model} (user message length: ${userMessageLength}, ${webSearchStatus})`);
+    
+    // Add web plugin if web search is enabled
+    const requestBody = { 
+      temperature: OPENROUTER_DEFAULT_TEMPERATURE, 
+      ...body,
+      ...(enableWebSearch && { plugins: [{ id: "web" }] })
+    };
     
     return fetch(`${OPENROUTER_API_BASE_URL}/chat/completions`, {
       method: 'POST',
@@ -88,7 +97,7 @@ export async function fetchPredictionFromOpenRouter(
         'X-Title': OPENROUTER_SITE_NAME,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ temperature: OPENROUTER_DEFAULT_TEMPERATURE, ...body }),
+      body: JSON.stringify(requestBody),
     })
   }
 
@@ -238,6 +247,7 @@ export async function fetchStructuredFromOpenRouter<T>(
   userMessage: string,
   jsonSchema: Record<string, unknown>,
   zodValidator?: ZodSchema<T>,
+  enableWebSearch: boolean = false
 ): Promise<T> {
   function wrapSchema(schema: Record<string, unknown>) {
     return {
@@ -248,6 +258,12 @@ export async function fetchStructuredFromOpenRouter<T>(
   }
 
   async function postWithBody(body: Record<string, unknown>) {
+    // Add web plugin if web search is enabled
+    const requestBody = { 
+      ...body,
+      ...(enableWebSearch && { plugins: [{ id: "web" }] })
+    };
+    
     return fetch(`${OPENROUTER_API_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -256,7 +272,7 @@ export async function fetchStructuredFromOpenRouter<T>(
         'X-Title': OPENROUTER_SITE_NAME,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(requestBody),
     })
   }
 

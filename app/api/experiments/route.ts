@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 
+type ExperimentStats = {
+  experimentTag: string
+  experimentNotes: string | null
+  modelName: string | null
+  totalPredictions: number
+  checkedPredictions: number
+  avgAccuracy: number | null
+  firstCreated: Date
+  lastCreated: Date
+}
+
 export async function GET() {
   try {
     // Get experiment summary with accuracy metrics
@@ -29,7 +40,7 @@ export async function GET() {
     })
 
     // Group by experiment tag and calculate stats
-    const experimentStats = experiments.reduce((acc: any, pred: any) => {
+    const experimentStats = experiments.reduce((acc: Record<string, ExperimentStats>, pred) => {
       const tag = pred.experimentTag!
       if (!acc[tag]) {
         acc[tag] = {
@@ -39,31 +50,31 @@ export async function GET() {
           totalPredictions: 0,
           checkedPredictions: 0,
           avgAccuracy: null,
-          firstCreated: pred.createdAt,
-          lastCreated: pred.createdAt,
+          firstCreated: pred.createdAt || new Date(),
+          lastCreated: pred.createdAt || new Date(),
         }
       }
 
       acc[tag].totalPredictions += 1
       
       // Update date range
-      if (pred.createdAt < acc[tag].firstCreated) {
+      if (pred.createdAt && pred.createdAt < acc[tag].firstCreated) {
         acc[tag].firstCreated = pred.createdAt
       }
-      if (pred.createdAt > acc[tag].lastCreated) {
+      if (pred.createdAt && pred.createdAt > acc[tag].lastCreated) {
         acc[tag].lastCreated = pred.createdAt
       }
 
       // Calculate accuracy from prediction checks
       if (pred.predictionChecks && pred.predictionChecks.length > 0) {
-        const validChecks = pred.predictionChecks.filter((check: any) => 
+        const validChecks = pred.predictionChecks.filter((check) => 
           check.absDelta !== null && check.marketClosed === true
         )
         
         if (validChecks.length > 0) {
           acc[tag].checkedPredictions += 1
-          const avgDelta = validChecks.reduce((sum: number, check: any) => 
-            sum + parseFloat(check.absDelta.toString()), 0
+          const avgDelta = validChecks.reduce((sum: number, check) => 
+            sum + (check.absDelta ? parseFloat(check.absDelta.toString()) : 0), 0
           ) / validChecks.length
           
           // Accuracy = 100 - (avgDelta * 100) to convert delta to percentage accuracy
@@ -73,7 +84,7 @@ export async function GET() {
             acc[tag].avgAccuracy = accuracy
           } else {
             // Running average
-            acc[tag].avgAccuracy = ((acc[tag].avgAccuracy * (acc[tag].checkedPredictions - 1)) + accuracy) / acc[tag].checkedPredictions
+            acc[tag].avgAccuracy = (((acc[tag].avgAccuracy || 0) * (acc[tag].checkedPredictions - 1)) + accuracy) / acc[tag].checkedPredictions
           }
         }
       }
@@ -81,7 +92,7 @@ export async function GET() {
       return acc
     }, {})
 
-    const results = Object.values(experimentStats).sort((a: any, b: any) => 
+    const results = Object.values(experimentStats).sort((a, b) => 
       new Date(b.lastCreated).getTime() - new Date(a.lastCreated).getTime()
     )
 

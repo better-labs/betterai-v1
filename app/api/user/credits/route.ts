@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth, createAuthErrorResponse } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { creditManager } from '@/lib/services/credit-manager'
 import { prisma } from '@/lib/db/prisma'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'

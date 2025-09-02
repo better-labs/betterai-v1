@@ -112,6 +112,7 @@ Focus on recent news, developments, and any factors that could influence the out
       userMessage,
       webResearchSchemaJson as unknown as Record<string, unknown>,
       webResearchZod,
+      true // Enable web search for market research
     );
 
     const result: MarketResearchResponse = {

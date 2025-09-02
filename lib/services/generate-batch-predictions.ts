@@ -202,6 +202,7 @@ export async function runBatchPredictionGeneration(
 Generating predictions for ${marketIds.length} markets...`)
     // Determine if web search should be enabled for batch predictions
     const batchPredictionsWebSearch = process.env.BATCH_PREDICTIONS_WEB_SEARCH === 'true'
+    console.log(`🌐 Batch predictions web search ${batchPredictionsWebSearch ? 'ENABLED' : 'DISABLED'}`)
     
     const results = await generateBatchPredictions(marketIds, modelName, { 
       concurrency: config.concurrencyPerModel ?? 3,
@@ -210,7 +211,7 @@ Generating predictions for ${marketIds.length} markets...`)
       useWebSearch: batchPredictionsWebSearch
     })
     
-    console.log(`🌐 Batch predictions web search ${batchPredictionsWebSearch ? 'ENABLED' : 'DISABLED'}`)
+    
     
     // Log summary
     const successful = results.filter(r => r.success).length
