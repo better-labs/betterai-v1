@@ -2,6 +2,11 @@
  * Inngest Scheduled Function: Batch Prediction Generation
  * Native cron-scheduled function - no events or API endpoints needed
  * Runs daily at 6 AM UTC to generate predictions for trending markets
+ * 
+ * Following Inngest best practices:
+ * - Uses step functions for durable execution
+ * - Implements proper error handling and logging
+ * - Designed for reliability and observability
  */
 
 import { inngest } from '../client'
@@ -20,8 +25,8 @@ import { Category } from '../../generated/prisma'
 export const dailyBatchPredictions = inngest.createFunction(
   { 
     id: 'daily-batch-predictions',
+    name: 'Daily Batch Predictions',
     retries: 3,
-    timeout: '15m', // Allow up to 15 minutes for batch processing
   },
   { 
     cron: 'TZ=UTC 0 6 * * *' // Daily at 6:00 AM UTC

@@ -14,6 +14,8 @@
 
 ### Code Changes - Batch Jobs
 
+Note: reference https://www.inngest.com/docs in case of any questions on best practices.
+
 #### 1. Create Inngest Client (Already installed above)
 - [ ] **Create** `lib/inngest/client.ts` with app ID only (no env keys needed initially)
 
@@ -86,7 +88,12 @@ export const updatePolymarketData = inngest.createFunction(
 3. **Test each function** individually in Inngest dashboard
 4. **Remove all `/api/cron/` endpoints** (complete directory deletion)
 5. **Remove ALL cron configuration** from `vercel.json`
-6. **Verify Inngest scheduling** is working for all jobs
+6. **Clean up CRON_SECRET dependencies** (no longer needed with Inngest)
+   - Remove `CRON_SECRET` from Vercel environment variables
+   - Remove `CRON_SECRET` from `.env.example`
+   - Update documentation to remove CRON_SECRET references
+   - Delete obsolete `scripts/cron/` manual trigger files
+7. **Verify Inngest scheduling** is working for all jobs
 
 #### Benefits:
 - **Complete vendor independence** - No Vercel cron dependency
