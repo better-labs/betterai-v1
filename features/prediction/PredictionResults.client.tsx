@@ -35,6 +35,12 @@ const STATUS_CONFIG = {
     color: 'text-muted-foreground',
     bgColor: 'bg-muted'
   },
+  QUEUED: {
+    label: 'Queued',
+    icon: Clock,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-100'
+  },
   RESEARCHING: {
     label: 'Researching',
     icon: Loader2,
@@ -145,7 +151,7 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
 
   const statusConfig = STATUS_CONFIG[session.status]
   const StatusIcon = statusConfig.icon
-  const isActive = session.status === 'RESEARCHING' || session.status === 'GENERATING'
+  const isActive = session.status === 'QUEUED' || session.status === 'RESEARCHING' || session.status === 'GENERATING'
 
   return (
     <PredictionPollingErrorBoundary>
