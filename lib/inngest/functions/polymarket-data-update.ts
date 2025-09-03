@@ -11,6 +11,7 @@
 
 import { inngest } from '../client'
 import { updatePolymarketEventsAndMarketData } from '../../services/updatePolymarketEventsAndMarketData'
+import { updateActivePolymarketEvents } from '../../services/updateActivePolymarketEvents'
 import { sendHeartbeatSafe, HeartbeatType } from '../../services/heartbeat'
 import { structuredLogger } from '../../utils/structured-logger'
 
@@ -21,7 +22,7 @@ import { structuredLogger } from '../../utils/structured-logger'
 export const polymarketDataUpdate = inngest.createFunction(
   { 
     id: 'polymarket-data-update',
-    name: 'Polymarket Data Update (Every 6 Hours)',
+    name: 'Polymarket Data Update: Top Events by Volume (Every 6 Hours)',
     retries: 3,
   },
   { 
@@ -39,7 +40,8 @@ export const polymarketDataUpdate = inngest.createFunction(
     // Step 1: Update Polymarket data with default parameters
     const updateResult = await step.run('update-polymarket-data', async () => {
       const config = {
-        batchSize: Math.min(Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50), 100),
+        batchSize: Math.min(Number(process.env.POLYMARKET_UPDATE_BATCH_SIZE ?? 50), 100),
+        maxEvents: Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50),
         delayMs: Number(process.env.POLYMARKET_UPDATE_DELAY_MS ?? 1000),
         daysToFetchPast: Number(process.env.POLYMARKET_UPDATE_DAYS_PAST ?? 8),
         maxRetries: Number(process.env.POLYMARKET_UPDATE_MAX_RETRIES ?? 3),
@@ -102,7 +104,7 @@ export const polymarketDataUpdate = inngest.createFunction(
 export const polymarketDataUpdateExtended = inngest.createFunction(
   { 
     id: 'polymarket-data-update-extended',
-    name: 'Polymarket Data Update Extended (Daily 2 AM)',
+    name: 'Polymarket Data Update Extended: Top Events by Volume for 6 Months (Daily 2 AM)',
     retries: 3,
   },
   { 
@@ -175,6 +177,84 @@ export const polymarketDataUpdateExtended = inngest.createFunction(
       executionId,
       updateType: 'extended',
       ...updateResult
+    }
+  }
+)
+
+/**
+ * Update active events - runs every 12 hours
+ * Replaces: /api/cron/update-active-events (schedule: "15 star/12 star star star")
+ */
+export const polymarketUpdateActiveEvents = inngest.createFunction(
+  { 
+    id: 'polymarket-update-active-events',
+    name: 'Polymarket Update Active Events (Every 12 Hours)',
+    retries: 3,
+  },
+  { 
+    cron: 'TZ=UTC 15 */12 * * *' // Every 12 hours at :15 minutes
+  },
+  async ({ step }) => {
+    const executionId = `polymarket-active-events-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    
+    structuredLogger.info('polymarket_update_active_events_started', 'Starting active events update', {
+      executionId,
+      scheduledTime: new Date().toISOString()
+    })
+
+    // Step 1: Update active Polymarket events
+    const updateResult = await step.run('update-active-events', async () => {
+      const config = {
+        delayMs: Number(process.env.POLYMARKET_UPDATE_DELAY_MS ?? 500),
+        maxRetries: Number(process.env.POLYMARKET_UPDATE_MAX_RETRIES ?? 3),
+        retryDelayMs: Number(process.env.POLYMARKET_UPDATE_RETRY_DELAY_MS ?? 2000),
+        timeoutMs: Number(process.env.POLYMARKET_UPDATE_TIMEOUT_MS ?? 30000),
+        userAgent: process.env.POLYMARKET_UPDATE_USER_AGENT || 'BetterAI/1.0',
+        maxBatchFailuresBeforeAbort: Number(process.env.POLYMARKET_UPDATE_MAX_BATCH_FAILURES ?? 3),
+      }
+
+      structuredLogger.info('polymarket_update_active_events_config', 'Using active events update configuration', {
+        executionId,
+        config
+      })
+
+      try {
+        const result = await updateActivePolymarketEvents(config)
+        
+        structuredLogger.info('polymarket_update_active_events_completed', 'Active events update completed successfully', {
+          executionId,
+          activeEventsCount: result.activeEventsCount,
+          updatedEvents: result.updatedEvents.length,
+          updatedMarkets: result.updatedMarkets.length
+        })
+
+        return result
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        
+        structuredLogger.error('polymarket_update_active_events_failed', 'Active events update failed', {
+          executionId,
+          error: {
+            message: errorMessage,
+            stack: error instanceof Error ? error.stack : undefined
+          }
+        })
+
+        throw error
+      }
+    })
+
+    // Step 2: Send heartbeat
+    await step.run('send-heartbeat', async () => {
+      await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
+    })
+
+    return {
+      success: true,
+      executionId,
+      activeEventsCount: updateResult.activeEventsCount,
+      updatedEvents: updateResult.updatedEvents.length,
+      updatedMarkets: updateResult.updatedMarkets.length
     }
   }
 )

@@ -17,9 +17,9 @@ import {
   // Phase 2: All remaining cron jobs (COMPLETE)
   polymarketDataUpdate,
   polymarketDataUpdateExtended,
+  polymarketUpdateActiveEvents,
   predictionCheck,
   sessionRecovery,
-  updateActiveEvents,
   updateAIModelsWeekly
 } from '@/lib/inngest/functions'
 
@@ -33,9 +33,9 @@ export const { GET, POST, PUT } = serve({
     // Phase 2: Complete Vercel cron elimination
     polymarketDataUpdate,           // Every 6 hours
     polymarketDataUpdateExtended,   // Daily at 2 AM (extended params)
+    polymarketUpdateActiveEvents,   // Every 12 hours
     predictionCheck,                // Daily at 3:30 AM
     sessionRecovery,                // Every 15 minutes
-    updateActiveEvents,             // Every 12 hours
     updateAIModelsWeekly,           // Weekly Sunday 4 AM
     
     // Phase 3: Event-driven functions will be added here

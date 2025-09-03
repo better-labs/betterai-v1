@@ -29,7 +29,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
     daysToFetchPast = 3,
     maxBatchFailuresBeforeAbort = 3,
     sortBy = 'volume', // Default to volume sorting for higher quality markets
-    maxEvents,
+    maxEvents = 50,
     ...fetchOptions
   } = options
 
