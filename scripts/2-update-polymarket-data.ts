@@ -27,7 +27,7 @@ async function main() {
       maxRetries: 1, // Fewer retries for testing
       timeoutMs: 10000, // Shorter timeout for testing
       daysToFetchPast: 3, // Only look 3 days back to prioritize recent/future
-      maxEvents: 400
+      maxEvents: 100
       // sortBy defaults to 'volume' now for better quality markets
       // No end date limit - fetches all future events
     })

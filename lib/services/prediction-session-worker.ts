@@ -33,8 +33,8 @@ export async function executePredictionSession(
       throw new Error(`Session not found: ${sessionId}`)
     }
 
-    if (session.status !== 'INITIALIZING') {
-      throw new Error(`Session ${sessionId} is not in INITIALIZING state: ${session.status}`)
+    if (!['INITIALIZING', 'GENERATING'].includes(session.status)) {
+      throw new Error(`Session ${sessionId} is not in processable state: ${session.status}`)
     }
 
     const { selectedModels, userId, marketId } = session
