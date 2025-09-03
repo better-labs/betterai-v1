@@ -1,6 +1,8 @@
 import type { PrismaClient, Prediction, Market, Event, Prisma } from '@/lib/generated/prisma'
 import { mapPredictionToDTO } from '@/lib/dtos'
-import type { PredictionDTO, MarketDTO, PredictionResult } from '@/lib/types'
+import { mapMarketToDTO } from '@/lib/dtos/market-dto'
+import { mapEventToDTO } from '@/lib/dtos/event-dto'
+import type { PredictionDTO, MarketDTO, PredictionResult, PredictionWithRelationsDTO, EventDTO } from '@/lib/types'
 
 
 /**
@@ -30,21 +32,15 @@ export async function getPredictionWithRelationsById(
 export async function getPredictionWithRelationsByIdSerialized(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   id: number
-): Promise<(PredictionDTO & { market: MarketDTO | null }) | null> {
+): Promise<PredictionWithRelationsDTO | null> {
   const prediction = await getPredictionWithRelationsById(db, id)
   if (!prediction) return null
   
   return {
     ...mapPredictionToDTO(prediction),
     market: prediction.market ? {
-      ...prediction.market,
-      volume: prediction.market.volume ? Number(prediction.market.volume) : null,
-      liquidity: prediction.market.liquidity ? Number(prediction.market.liquidity) : null,
-      outcomePrices: prediction.market.outcomePrices ? prediction.market.outcomePrices.map(p => Number(p)) : [],
-      event: prediction.market.event ? {
-        ...prediction.market.event,
-        volume: prediction.market.event.volume ? Number(prediction.market.event.volume) : null,
-      } : null,
+      ...mapMarketToDTO(prediction.market),
+      event: prediction.market.event ? mapEventToDTO(prediction.market.event) : null,
     } : null,
   }
 }
