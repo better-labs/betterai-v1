@@ -197,7 +197,7 @@ export const manualSessionRecovery = inngest.createFunction(
 
 /**
  * Scheduled session recovery function 
- * Runs every 15 minutes to find and recover stuck sessions
+ * Runs every hour to find and recover stuck sessions
  */
 export const scheduledSessionRecovery = inngest.createFunction(
   {
@@ -205,7 +205,7 @@ export const scheduledSessionRecovery = inngest.createFunction(
     retries: 2,
     timeouts: { finish: '10m' }
   },
-  { cron: 'TZ=UTC */15 * * * *' }, // Every 15 minutes
+  { cron: 'TZ=UTC 0 * * * *' }, // Every hour
   async ({ step }) => {
     const recoveryResults = await step.run('find-and-recover-stuck-sessions', async () => {
       // Find stuck sessions older than 5 minutes
