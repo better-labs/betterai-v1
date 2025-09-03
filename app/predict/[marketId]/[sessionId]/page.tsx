@@ -37,7 +37,7 @@ export default async function PredictionResultsPage({ params }: PredictionResult
 
   // Normalize Prisma Decimal[] -> number[] for UI components
   const outcomePrices: number[] | null = Array.isArray(market.outcomePrices)
-    ? (market.outcomePrices as any[]).map((v) => Number(v))
+    ? market.outcomePrices.map((v) => Number(v))
     : null
 
   return (

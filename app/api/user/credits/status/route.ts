@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth, createAuthErrorResponse } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { creditManager } from '@/lib/services/credit-manager'
 import { prisma } from '@/lib/db/prisma'
 import { checkRateLimit, getRateLimitIdentifier, createRateLimitResponse } from '@/lib/rate-limit'
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     try {
       const authResult = await requireAuth(request)
       userId = authResult.userId
-    } catch (authError) {
+    } catch {
       // User is not authenticated
       return NextResponse.json({
         shouldShowAddCredits: false,

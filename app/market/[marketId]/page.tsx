@@ -3,12 +3,9 @@ import { prisma } from '@/lib/db/prisma'
 import * as marketService from '@/lib/services/market-service'
 import * as predictionService from '@/lib/services/prediction-service'
 import * as eventService from '@/lib/services/event-service'
-import { Button } from "@/shared/ui/button"
-import Link from 'next/link'
 import { generateMarketURL } from '@/lib/server-utils'
 import type { PredictionResult } from '@/lib/types'
 import MarketDetailsCard from '@/features/market/MarketCard.client'
-import { MarketEventHeader } from '@/features/market/MarketEventHeader'
 import { MarketDescriptionCard } from '@/features/market/MarketDescriptionCard.client'
 import { MarketStalenessHandler } from '@/features/market/MarketStalenessHandler.client'
 import { PredictionDetailCard } from '@/features/prediction/PredictionDetailCard.client'
@@ -88,7 +85,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
         {/* Past Predictions */}
         {serializedAllPredictions.length > 1 && (
           <PredictionHistoryList
-            predictions={mapPredictionsToDTO(serializedAllPredictions as any)}
+            predictions={mapPredictionsToDTO(serializedAllPredictions)}
             marketId={marketId}
             showChecks={false}
             showPredictions={true}

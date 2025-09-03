@@ -11,7 +11,7 @@ import { useRateLimit } from './use-rate-limit';
 // Example 1: Simple API call with automatic error handling
 export function PredictButton({ marketId }: { marketId: string }) {
   const [loading, setLoading] = useState(false);
-  const { getRateLimitInfo, isRateLimited, updateFromResponse } = useRateLimit();
+  const { getRateLimitInfo, isRateLimited } = useRateLimit();
   
   const handlePredict = async () => {
     if (isRateLimited('/api/predict')) {

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     try {
       const authResult = await requireAuth(request)
       userId = authResult.userId
-    } catch (authError) {
+    } catch {
       // User is not authenticated, return guest response
       return NextResponse.json({
         credits: null,
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     try {
       const authResult = await requireAuth(request)
       userId = authResult.userId
-    } catch (authError) {
+    } catch {
       // User is not authenticated
       return NextResponse.json({
         error: 'Authentication required',

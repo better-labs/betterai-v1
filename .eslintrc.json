@@ -2,5 +2,11 @@
   "extends": [
     "next/core-web-vitals",
     "next/typescript"
+  ],
+  "ignorePatterns": [
+    "lib/generated/**",
+    "node_modules/**",
+    ".next/**",
+    "out/**"
   ]
 }
