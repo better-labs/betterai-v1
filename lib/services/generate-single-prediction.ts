@@ -162,7 +162,7 @@ async function savePrediction(
     userMessage: userMessage,
     predictionResult: internalPredictionResult,
     outcomes,
-    outcomesProbabilities: probs.map((p) => new Decimal(p)),
+    outcomesProbabilities: probs.map((p) => p != null && Number.isFinite(p) ? new Decimal(p.toString()) : new Decimal('0')),
     modelName,
     systemPrompt: systemMessage,
     aiResponse,
