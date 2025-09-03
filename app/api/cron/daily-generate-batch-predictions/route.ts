@@ -71,14 +71,11 @@ export async function GET(request: NextRequest) {
       concurrencyPerModel: Math.max(1, Math.min(concurrencyParam, 6))
     }
     // categoryMix: false,  // DISABLED: Category data no longer meaningful
-    await Promise.all(modelsToRun.map((modelName) => runBatchPredictionGeneration(perModelConfig, modelName)))
-
-    // Optional: Use tRPC server caller for consistency if needed
-    // Example: const trpc = await createServerCaller()
-    // const recentPredictions = await trpc.predictions.recent({ limit: 5 })
-
-    // Send heartbeat to BetterStack on successful completion
-    await sendHeartbeatSafe(HeartbeatType.BATCH_PREDICTIONS)
+    
+    // Run async - don't await to avoid timeouts, let background processing continue
+    Promise.all(modelsToRun.map((modelName) => runBatchPredictionGeneration(perModelConfig, modelName)))
+      .then(() => sendHeartbeatSafe(HeartbeatType.BATCH_PREDICTIONS))
+      .catch((error) => console.error('Batch generation error:', error))
 
     return new Response(
       JSON.stringify({

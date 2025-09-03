@@ -112,7 +112,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const result = await updatePolymarketEventsAndMarketData({
+    // Run async - don't await to avoid timeouts, let background processing continue
+    updatePolymarketEventsAndMarketData({
       batchSize,
       delayMs,
       maxRetries,
@@ -123,22 +124,17 @@ export async function GET(request: NextRequest) {
       maxBatchFailuresBeforeAbort,
       sortBy,
       maxEvents: maxEventsNumber,
+    }).then((result) => {
+      sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
+      console.log(`Polymarket data update completed: ${result.totalRequests} requests, ${result.totalFetched} fetched, ${result.insertedEvents.length} events, ${result.insertedMarkets.length} markets`)
+    }).catch((error) => {
+      console.error('Polymarket data update error:', error)
     })
-
-    // Send heartbeat to BetterStack on successful completion
-    await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Polymarket data update completed. Requests: ${result.totalRequests}, Total fetched events: ${result.totalFetched}, Upserted: ${result.insertedEvents.length} events / ${result.insertedMarkets.length} markets` ,
-        data: {
-          totalRequests: result.totalRequests,
-          totalFetched: result.totalFetched,
-          insertedEvents: result.insertedEvents.length,
-          insertedMarkets: result.insertedMarkets.length,
-          errors: result.errors.slice(0, 10),
-        }
+        message: `Polymarket data update started with batch size ${batchSize}, ${daysToFetchPast} days lookback`
       } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )
