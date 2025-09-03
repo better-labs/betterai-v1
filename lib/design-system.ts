@@ -143,6 +143,10 @@ export const typography = {
   // Outcome display typography
   outcomeValue: 'text-sm font-semibold tabular-nums',
   outcomeLabel: 'text-sm truncate',
+  // Size variants for outcome stats
+  outcomeValueMd: 'text-base md:text-lg font-semibold tabular-nums',
+  outcomeValueLg: 'text-lg md:text-xl font-semibold tabular-nums',
+  outcomeLabelMd: 'text-sm md:text-base truncate',
 } as const;
 
 // ============================================================================
@@ -407,7 +411,14 @@ export const components = {
   outcome: {
     container: 'space-y-1',
     row: 'flex items-center gap-2 px-2 py-1.5',
-    
+    // Compact alternative for tight cards
+    rowCompact: 'flex items-center justify-between px-2 py-1',
+  },
+
+  // Metrics layout group for side-by-side comparisons
+  metrics: {
+    row: 'grid grid-cols-1 md:grid-cols-2 gap-4',
+    stat: 'min-w-0',
   },
 
 } as const;

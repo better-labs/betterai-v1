@@ -6,7 +6,7 @@ import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import { ViewAllLink } from "@/shared/ui/view-all-link"
 import { OutcomeStat } from '@/shared/ui/outcome-stat'
-import { components, spacing, typography, layout } from '@/lib/design-system'
+import { components, spacing, typography } from '@/lib/design-system'
 import { formatPercent } from '@/lib/utils'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
@@ -92,14 +92,15 @@ export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) 
   }) : 'Unknown'}`
 
   return (
-    <div className={`grid ${layout.grid.cols['2']} ${layout.grid.gap.md}`}>
-      <div>
+    <div className={components.metrics.row}>
+      <div className={components.metrics.stat}>
         <OutcomeStat
           label="Market Probability"
           outcomes={market.outcomes || []}
           values={market.outcomePrices as number[] || []}
           tooltip={lastUpdatedLabel}
           href={`/market/${market.id}`}
+          size="md"
         />
       </div>
         
@@ -120,6 +121,7 @@ export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) 
             : 'No AI prediction yet'
           }
           href={`/prediction/${latestPrediction.id}`}
+          size="md"
         />
       )}
     </div>
