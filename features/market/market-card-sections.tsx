@@ -92,7 +92,7 @@ export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) 
   }) : 'Unknown'}`
 
   return (
-    <div className={components.metrics.row}>
+    <div className={components.metrics.rowTwoCol}>
       <div className={components.metrics.stat}>
         <OutcomeStat
           label="Market Probability"

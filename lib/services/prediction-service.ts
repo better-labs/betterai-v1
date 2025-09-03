@@ -36,7 +36,16 @@ export async function getPredictionWithRelationsByIdSerialized(
   
   return {
     ...mapPredictionToDTO(prediction),
-    market: prediction.market ?? null,
+    market: prediction.market ? {
+      ...prediction.market,
+      volume: prediction.market.volume ? Number(prediction.market.volume) : null,
+      liquidity: prediction.market.liquidity ? Number(prediction.market.liquidity) : null,
+      outcomePrices: prediction.market.outcomePrices ? prediction.market.outcomePrices.map(p => Number(p)) : [],
+      event: prediction.market.event ? {
+        ...prediction.market.event,
+        volume: prediction.market.event.volume ? Number(prediction.market.event.volume) : null,
+      } : null,
+    } : null,
   }
 }
 

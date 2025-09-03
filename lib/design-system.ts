@@ -418,6 +418,7 @@ export const components = {
   // Metrics layout group for side-by-side comparisons
   metrics: {
     row: 'grid grid-cols-1 md:grid-cols-2 gap-4',
+    rowTwoCol: 'grid grid-cols-2 gap-4',
     stat: 'min-w-0',
   },
 
