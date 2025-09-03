@@ -31,7 +31,7 @@ export const predictionSessionProcessor = inngest.createFunction(
   {
     id: 'prediction-session-processor',
     retries: 3,
-    timeout: '15m' // Allow up to 15 minutes for complete session
+    timeouts: { finish: '15m' } // Allow up to 15 minutes for complete session execution
   },
   { event: 'prediction.session.requested' },
   async ({ event, step }) => {
@@ -130,7 +130,7 @@ export const predictionSessionRecovery = inngest.createFunction(
   {
     id: 'prediction-session-recovery',
     retries: 1,
-    timeout: '5m'
+    timeouts: { finish: '5m' }
   },
   { event: 'prediction.session.recovery' },
   async ({ event, step }) => {
