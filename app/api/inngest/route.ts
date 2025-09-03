@@ -19,12 +19,12 @@ import {
   polymarketDataUpdateExtended,
   polymarketUpdateActiveEvents,
   predictionCheck,
-  sessionRecovery,
   updateAIModelsWeekly,
   
   // Phase 3: Real-time prediction flow (NEW)
   predictionSessionProcessor,
-  predictionSessionRecovery
+  manualSessionRecovery,
+  scheduledSessionRecovery
 } from '@/lib/inngest/functions'
 
 // Configure the Inngest serve handler with all functions
@@ -39,11 +39,11 @@ export const { GET, POST, PUT } = serve({
     polymarketDataUpdateExtended,   // Daily at 2 AM (extended params)
     polymarketUpdateActiveEvents,   // Every 12 hours
     predictionCheck,                // Daily at 3:30 AM
-    sessionRecovery,                // Every 15 minutes
     updateAIModelsWeekly,           // Weekly Sunday 4 AM
     
     // Phase 3: Real-time prediction flow (COMPLETE)
     predictionSessionProcessor,     // Event: prediction.session.requested
-    predictionSessionRecovery,      // Event: prediction.session.recovery
+    manualSessionRecovery,          // Event: prediction.session.recovery
+    scheduledSessionRecovery,       // Cron: Every 15 minutes
   ],
 })

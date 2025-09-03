@@ -70,7 +70,8 @@ describe('PredictionSessions tRPC Integration', () => {
       
       const result = await caller.predictionSessions.start({
         marketId: 'market-456',
-        selectedModels: ['anthropic/claude-3.7-sonnet', 'openai/gpt-4o-mini']
+        selectedModels: ['anthropic/claude-sonnet-4', 'x-ai/grok-3-mini'],
+        useInngest: true
       })
 
       expect(result.sessionId).toBe('session-789')
@@ -96,7 +97,8 @@ describe('PredictionSessions tRPC Integration', () => {
       await expect(
         caller.predictionSessions.start({
           marketId: 'market-456',
-          selectedModels: ['anthropic/claude-3.7-sonnet', 'openai/gpt-4o-mini', 'google/gemini-2.5-flash']
+          selectedModels: ['anthropic/claude-sonnet-4', 'x-ai/grok-3-mini', 'google/gemini-2.5-flash'],
+          useInngest: true
         })
       ).rejects.toThrow('Insufficient credits')
     })

@@ -10,9 +10,9 @@ export {
   polymarketUpdateActiveEvents
 } from './functions/polymarket-data-update'
 export { predictionCheck } from './functions/prediction-check'
-export { sessionRecovery } from './functions/session-recovery'
 export { updateAIModelsWeekly } from './functions/update-ai-models'
 export { 
   predictionSessionProcessor, 
-  predictionSessionRecovery 
+  manualSessionRecovery,
+  scheduledSessionRecovery
 } from './functions/prediction-sessions'

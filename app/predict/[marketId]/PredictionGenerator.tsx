@@ -38,7 +38,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
     { enabled: isReady && isAuthenticated && !!user?.id }
   )
 
-  // Start prediction session mutation
+  // Start prediction session mutation with Inngest
   const startSession = trpc.predictionSessions.start.useMutation({
     onSuccess: ({ sessionId }) => {
       router.push(`/predict/${marketId}/${sessionId}`)
@@ -66,7 +66,8 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
     setIsGenerating(true)
     await startSession.mutateAsync({
       marketId,
-      selectedModels
+      selectedModels,
+      useInngest: true
     })
   }
 
