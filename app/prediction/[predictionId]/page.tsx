@@ -1,15 +1,12 @@
 import { notFound } from "next/navigation"
 import { prisma } from '@/lib/db/prisma'
 import * as predictionService from '@/lib/services/prediction-service'
-import { getPredictionDisplayData } from "@/lib/utils"
 
 import * as predictionCheckService from '@/lib/services/prediction-check-service'
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
 import MarketDetailsCard from '@/features/market/MarketCard.client'
 import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
-import { mapPredictionToDTO } from '@/lib/dtos/prediction-dto'
-import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
 import { PredictionDetailCard } from "@/features/prediction/PredictionDetailCard.client"
 import { components } from "@/lib/design-system"
@@ -30,8 +27,6 @@ export default async function PredictionDetailPage({ params }: PageProps) {
 
   const market = prediction.market
   const event = market?.event || null
-
-  getPredictionDisplayData(prediction)
 
   // const eventExternalUrl = event?.id ? await generateEventURL(event.id) : null
   // const marketExternalUrl = market?.id ? await generateMarketURL(market.id) : null
@@ -66,7 +61,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
             <MarketDetailsCard
               market={marketDTO}
               event={eventDTO}
-              latestPrediction={mapPredictionToDTO(prediction)}
+              latestPrediction={prediction}
               className="w-full"
               hideReasoning={true}
             />
@@ -75,7 +70,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           {/* Prediction Detail Card */}
           <PredictionDetailCard
             predictionResult={prediction.predictionResult}
-            serializedPrediction={mapPredictionToDTO(prediction)}
+            serializedPrediction={prediction}
             title="Prediction Detail"
             description="AI-generated prediction for this market"
             showMakePredictionButton={false}
@@ -85,7 +80,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
           {/* Prediction History */}
           <PredictionHistoryList
             checks={checks}
-            predictions={mapPredictionsToDTO(pastPredictions)}
+            predictions={pastPredictions}
             marketId={marketId ?? null}
             showChecks={false}
             showPredictions={true}

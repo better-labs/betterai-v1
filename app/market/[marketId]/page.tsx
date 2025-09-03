@@ -10,7 +10,6 @@ import { MarketDescriptionCard } from '@/features/market/MarketDescriptionCard.c
 import { MarketStalenessHandler } from '@/features/market/MarketStalenessHandler.client'
 import { PredictionDetailCard } from '@/features/prediction/PredictionDetailCard.client'
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
-import { mapPredictionsToDTO } from '@/lib/dtos/prediction-dto'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 import { components } from '@/lib/design-system'
 
@@ -85,7 +84,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
         {/* Past Predictions */}
         {serializedAllPredictions.length > 1 && (
           <PredictionHistoryList
-            predictions={mapPredictionsToDTO(serializedAllPredictions)}
+            predictions={serializedAllPredictions}
             marketId={marketId}
             showChecks={false}
             showPredictions={true}
