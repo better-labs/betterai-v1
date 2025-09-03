@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { PrismaClient } from '@/lib/generated/prisma'
 import * as predictionSessionService from '@/lib/services/prediction-session-service'
-import { predictionSessionProcessor, predictionSessionRecovery } from '@/lib/inngest/functions/prediction-sessions'
+import { predictionSessionProcessor, manualSessionRecovery } from '@/lib/inngest/functions/prediction-sessions'
 
 // Mock dependencies
 vi.mock('@/lib/inngest/client', () => ({
@@ -54,7 +54,7 @@ describe('Inngest Prediction Session Service', () => {
     vi.clearAllMocks()
   })
 
-  describe('createPredictionSessionWithInngest', () => {
+  describe('createPredictionSession', () => {
     it('should create session with QUEUED status when useInngest is true', async () => {
       // Arrange
       const input = {
@@ -72,7 +72,7 @@ describe('Inngest Prediction Session Service', () => {
       vi.mocked(inngest.send).mockResolvedValue(undefined as any)
 
       // Act
-      const result = await predictionSessionService.createPredictionSessionWithInngest(
+      const result = await predictionSessionService.createPredictionSession(
         mockDb,
         input
       )
@@ -113,7 +113,7 @@ describe('Inngest Prediction Session Service', () => {
       })
 
       // Act
-      const result = await predictionSessionService.createPredictionSessionWithInngest(
+      const result = await predictionSessionService.createPredictionSession(
         mockDb,
         input
       )
@@ -153,7 +153,7 @@ describe('Inngest Prediction Session Service', () => {
 
       // Act & Assert
       await expect(
-        predictionSessionService.createPredictionSessionWithInngest(mockDb, input)
+        predictionSessionService.createPredictionSession(mockDb, input)
       ).rejects.toThrow('Failed to queue prediction session: Inngest service unavailable')
 
       expect(mockDb.predictionSession.update).toHaveBeenCalledWith({
@@ -216,9 +216,9 @@ describe('Inngest Function Event Processing', () => {
     })
   })
 
-  describe('predictionSessionRecovery', () => {
+  describe('manualSessionRecovery', () => {
     it('should be defined and ready for recovery events', () => {
-      expect(predictionSessionRecovery).toBeDefined()
+      expect(manualSessionRecovery).toBeDefined()
     })
   })
 })

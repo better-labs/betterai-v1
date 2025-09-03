@@ -71,7 +71,7 @@ export async function requireAuth(request: Request, silent = false): Promise<{ u
 export async function optionalAuth(request: Request): Promise<{ userId: string; sessionId: string } | null> {
   try {
     return await requireAuth(request, true)
-  } catch (error) {
+  } catch {
     return null
   }
 }

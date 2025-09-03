@@ -226,6 +226,7 @@ export interface PredictionDTO {
   outcomes: string[]
   outcomesProbabilities: number[]
   userId?: string | null
+  sessionId?: string | null
   experimentTag?: string | null
   experimentNotes?: string | null
 }
@@ -242,6 +243,7 @@ export interface PredictionWithRelationsDTO {
   outcomes: string[]
   outcomesProbabilities: number[]
   userId?: string | null
+  sessionId?: string | null
   experimentTag?: string | null
   experimentNotes?: string | null
   market: (MarketDTO & { event: EventDTO | null }) | null

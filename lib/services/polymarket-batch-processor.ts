@@ -71,7 +71,7 @@ export function transformEventToDbFormat(event: PolymarketEvent): NewEvent {
     providerCategory: event.category,
     startDate: event.startDate ? new Date(event.startDate) : null,
     endDate: event.endDate ? new Date(event.endDate) : null,
-    volume: new Decimal(event.volume),
+    volume: event.volume != null ? new Decimal(event.volume.toString()) : new Decimal('0'),
     marketProvider: "Polymarket",
     updatedAt: new Date(),
   }
@@ -83,8 +83,10 @@ export function transformEventToDbFormat(event: PolymarketEvent): NewEvent {
 export function transformMarketToDbFormat(market: PolymarketMarket & { eventId: string }): NewMarket {
   let outcomePricesArray: Decimal[] = []
   try {
-    const parsed = JSON.parse(market.outcomePrices)
-    outcomePricesArray = Array.isArray(parsed) ? parsed.map(p => new Decimal(p.toString())) : []
+    if (market.outcomePrices) {
+      const parsed = JSON.parse(market.outcomePrices)
+      outcomePricesArray = Array.isArray(parsed) ? parsed.map(p => p != null ? new Decimal(p.toString()) : new Decimal('0')) : []
+    }
   } catch (error) {
     console.error(`Failed to parse outcomePrices for market ${market.id}:`, error)
   }
@@ -106,8 +108,8 @@ export function transformMarketToDbFormat(market: PolymarketMarket & { eventId: 
         return null
       }
     })(),
-    volume: new Decimal(market.volume),
-    liquidity: new Decimal(market.liquidity),
+    volume: market.volume ? new Decimal(market.volume.toString()) : new Decimal('0'),
+    liquidity: market.liquidity ? new Decimal(market.liquidity.toString()) : new Decimal('0'),
     active: market.active ?? null,
     closed: market.closed ?? null,
     startDate: market.startDate ? new Date(market.startDate) : null,

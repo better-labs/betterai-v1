@@ -51,9 +51,9 @@ export default async function MarketPredictionsPage({ params }: PageProps) {
         ) : (
           <div className="space-y-6">
             {serializedPredictions.map((p) => {
-              const predictionResult = (p as any).predictionResult as PredictionResult | null
-              const aiOutcomes = (p as any).outcomes ?? null
-              const aiOutcomesProbabilities = (p as any).outcomesProbabilities ?? null
+              const predictionResult = 'predictionResult' in p ? p.predictionResult as PredictionResult | null : null
+              const aiOutcomes = 'outcomes' in p ? p.outcomes : null
+              const aiOutcomesProbabilities = 'outcomesProbabilities' in p ? p.outcomesProbabilities : null
               const confidenceLevel = predictionResult?.confidence_level ?? null
 
               return (
@@ -64,7 +64,7 @@ export default async function MarketPredictionsPage({ params }: PageProps) {
                   aiOutcomes={aiOutcomes}
                   aiOutcomesProbabilities={aiOutcomesProbabilities}
                   confidenceLevel={confidenceLevel}
-                  modelName={(p as any).modelName ?? null}
+                  modelName={'modelName' in p ? (p.modelName ?? null) : null}
                   createdAt={p.createdAt}
                   marketId={marketId}
                 />

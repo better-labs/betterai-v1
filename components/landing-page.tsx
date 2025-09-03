@@ -1,7 +1,6 @@
 "use client"
 
-import { TrendingUp, Shield } from "lucide-react"
-import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
+import { TrendingUp } from "lucide-react"
 import { BetaSignupForm } from "@/components/beta-signup-form"
 import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
 
@@ -50,7 +49,7 @@ export function LandingPage() {
               <span className="text-3xl sm:text-4xl font-bold">improved in accuracy or performance</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              <a href="https://hai.stanford.edu/ai-index/2025-ai-index-report" className="hover:underline">Leading AI models are close to beating our most difficult benchmarks. The world needs better, infinitely difficult benchmarks, to properly measure the AI model's intelligence growth beyond super intelligence.</a>
+              <a href="https://hai.stanford.edu/ai-index/2025-ai-index-report" className="hover:underline">Leading AI models are close to beating our most difficult benchmarks. The world needs better, infinitely difficult benchmarks, to properly measure the AI model&apos;s intelligence growth beyond super intelligence.</a>
             </p>
           </div>
         </section>

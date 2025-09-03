@@ -46,22 +46,12 @@ export interface CreatePredictionSessionWithInngestInput extends CreatePredictio
   useInngest?: boolean
 }
 
-/**
- * Create a new prediction session
- * Legacy function for backward compatibility
- */
-export async function createPredictionSession(
-  db: DbClient,
-  input: CreatePredictionSessionInput
-): Promise<{ sessionId: string }> {
-  return createPredictionSessionWithInngest(db, { ...input, useInngest: false })
-}
 
 /**
- * Create a new prediction session with optional Inngest integration
- * Modern function that supports both direct execution and Inngest queuing
+ * Create a new prediction session with Inngest integration
+ * Uses event-driven architecture for reliable processing
  */
-export async function createPredictionSessionWithInngest(
+export async function createPredictionSession(
   db: DbClient,
   input: CreatePredictionSessionWithInngestInput
 ): Promise<{ sessionId: string }> {

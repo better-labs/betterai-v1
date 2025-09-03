@@ -23,6 +23,7 @@ export function mapPredictionToDTO(prediction: Prediction): PredictionDTO {
       ? serialized.outcomesProbabilities.map((prob: unknown) => toNumberOrNull(prob) ?? 0) 
       : [],
     userId: serialized.userId ?? null,
+    sessionId: serialized.sessionId ?? null,
     experimentTag: serialized.experimentTag ?? null,
     experimentNotes: serialized.experimentNotes ?? null,
   }
@@ -48,6 +49,7 @@ export function mapPredictionsToDTO(predictions: Prediction[]): PredictionDTO[] 
       ? prediction.outcomesProbabilities.map((prob: unknown) => toNumberOrNull(prob) ?? 0) 
       : [],
     userId: prediction.userId ?? null,
+    sessionId: prediction.sessionId ?? null,
     experimentTag: prediction.experimentTag ?? null,
     experimentNotes: prediction.experimentNotes ?? null,
   }))

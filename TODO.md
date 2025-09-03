@@ -1,251 +1,58 @@
-# Inngest Migration Plan: Complete Cron Job Takeover
+## Market Card UX Alignment Plan (incremental)
 
-**Goal: Eliminate all Vercel cron dependency and migrate to 100% Inngest-managed scheduling**
+Context: The landing page market card is information-dense with inconsistent spacing. Align it to `lib/design-system.ts` for clear hierarchy, mobile-first layout, and predictable spacing.
 
-## COMPLETE: Phase 1: Inngest Foundation & Initial Migration (Lower Risk)
+### Phase 1 — Quick wins (low risk, 1–2 PRs)
+- [ ] Normalize spacing and hierarchy in `features/market/MarketCard.client.tsx`
+  - Replace ad‑hoc spacers with tokens: `spacing.card`, `spacing.heading`, `components.cardFooter.*`, `typography.*`
+  - Header: event icon + question. Make question `typography.h3` and tighten header padding (`CardHeader` `pb-2`).
+  - Metrics row: use a 2‑column responsive layout for `OutcomeStat` blocks (grid on md+, stacked on mobile).
+  - Delta row: keep left `Stat` for AI Delta; right side shows collapsed reasoning preview.
+  - CTA row: `Button` full‑width on mobile; external market link uses `components.cardFooter.link` styling.
+- [ ] Use existing DS motion helpers for reasoning
+  - Apply `components.motion.expandable.container` with `fadeOverlay` and Show More/Less chevron (use `components.disclosure.*`).
+- [ ] Footer metadata
+  - Use `components.cardFooter.layout.split` for the two lines (updated dates, end date + model).
 
-### Setup & Account Creation
-- [x] **Create Inngest Account** - Sign up at inngest.com with GitHub
-- [x] **Install Dependencies** locally first (`pnpm add inngest`)
-- [ ] **Create basic Inngest code structure** (client + API route)
-- [ ] **Deploy to Vercel** to establish webhook endpoint
-- [ ] **Configure Vercel sync** in Inngest dashboard (Step 3 of 4 in your screenshot)
-- [ ] **Test webhook connectivity** and sync
+Success criteria: visual rhythm matches DS, consistent margins, clear 5‑section structure (Header → Metrics → Delta/Reasoning → CTA → Meta).
 
-### Code Changes - Batch Jobs
-
-Note: reference https://www.inngest.com/docs in case of any questions on best practices.
-
-#### 1. Create Inngest Client (Already installed above)
-- [ ] **Create** `lib/inngest/client.ts` with app ID only (no env keys needed initially)
-
-#### 2. Create Batch Prediction Function (Native Inngest Cron)
-- [ ] **Create** `lib/inngest/functions/batch-predictions.ts`
-  - Convert to Inngest scheduled function (no events needed)
-  - Use native cron scheduling: `{ cron: 'TZ=UTC 0 6 * * *' }`
-  - Implement step-by-step processing for each model
-  - Add proper error handling and retries
-
-#### 3. Create Inngest API Route
-- [ ] **Create** `app/api/inngest/route.ts`
-  - Inngest webhook handler for Vercel
-  - Register batch prediction function
-  - Handle Inngest HTTP requests
-
-#### 4. Remove Batch Cron Endpoint
-- [ ] **Delete** `app/api/cron/daily-generate-batch-predictions/route.ts` (no longer needed)
-- [ ] **Remove cron config** from `vercel.json` for batch predictions
-- [ ] **Test** that Inngest scheduled function runs correctly
-
-#### 5. Testing & Validation
-- [ ] **Test locally** with Inngest Dev Server (`npx inngest-cli dev`)
-- [ ] **Deploy to staging** and verify webhook connectivity
-- [ ] **Monitor** first production batch job execution
-- [ ] **Validate** BetterStack heartbeat still works
-
-### Rollback Plan
-- [ ] Keep original batch function as fallback
-- [ ] Feature flag to switch between old/new implementation
+Files to touch: `features/market/MarketCard.client.tsx`, `features/home/trending-markets.client.tsx` (grid spacing only).
 
 ---
 
-## COMPLETE: Phase 2: Complete Vercel Cron Elimination (Medium Risk)
+### Phase 2 — Componentize + light DS additions (medium)
+- [ ] Extract self‑contained sections for reuse
+  - `features/market/market-card-sections.tsx` with: `MarketHeader`, `MarketMetrics`, `MarketDelta`, `MarketCTA`, `MarketMeta`.
+  - Keep props typed with tRPC‑inferred types; no Prisma models in UI.
+- [ ] Add minimal DS primitives to reduce custom classes
+  - DS: `components.metrics = { row: 'grid grid-cols-1 md:grid-cols-2 gap-4', stat: 'min-w-0' }`
+  - DS: `components.badge.delta = 'px-2 py-1 rounded text-xs font-medium bg-muted/50'` (used as optional delta chip)
+  - DS: `components.cta.row = 'pt-2 space-y-3'` for consistent CTA block spacing.
+- [ ] Replace hardcoded class strings in Market card with the above DS tokens.
 
-### Migrate All Remaining Cron Jobs to Inngest Native Scheduling
+Success criteria: Market card uses section components; class strings consolidated behind DS tokens; easier to reuse card layout elsewhere.
 
-**Objective: Zero Vercel cron dependencies - 100% Inngest-managed scheduling**
-
-#### All Cron Jobs for Migration:
-- [ ] **daily-update-polymarket-data** - Sync Polymarket events and markets (`cron: '0 6 * * *'`)
-- [ ] **prediction-check** - Validate and score existing predictions (`cron: '0 */4 * * *'`)
-- [ ] **session-recovery** - Recover stuck prediction sessions (`cron: '*/10 * * * *'`)
-- [ ] **update-active-events** - Update active event status (`cron: '0 */2 * * *'`)
-- [ ] **update-ai-models** - Refresh available AI model list (`cron: '0 0 * * 0'`)
-
-#### Architecture Change:
-```typescript
-// ELIMINATE: Vercel cron → API route → logic
-// IMPLEMENT: Inngest native cron → logic directly (no API routes)
-
-export const updatePolymarketData = inngest.createFunction(
-  { 
-    id: 'update-polymarket-data',
-    retries: 3,
-    timeout: '10m'
-  },
-  { cron: 'TZ=UTC 0 6 * * *' }, // Native Inngest scheduling
-  async ({ step }) => {
-    // Import and execute service directly
-    const { updatePolymarketEventsAndMarketData } = await import('@/lib/services/...')
-    return await step.run('update-data', () => updatePolymarketEventsAndMarketData())
-  }
-)
-```
-
-#### Migration Steps:
-1. **Create 5 new Inngest scheduled functions** in `lib/inngest/functions/cron/`
-2. **Register all functions** in `/api/inngest/route.ts`
-3. **Test each function** individually in Inngest dashboard
-4. **Remove all `/api/cron/` endpoints** (complete directory deletion)
-5. **Remove ALL cron configuration** from `vercel.json`
-6. **Clean up CRON_SECRET dependencies** (no longer needed with Inngest)
-   - Remove `CRON_SECRET` from Vercel environment variables
-   - Remove `CRON_SECRET` from `.env.example`
-   - Update documentation to remove CRON_SECRET references
-   - Delete obsolete `scripts/cron/` manual trigger files
-7. **Verify Inngest scheduling** is working for all jobs
-
-#### Benefits:
-- **Complete vendor independence** - No Vercel cron dependency
-- **Superior scheduling** - Better timezone handling, more flexible expressions
-- **Unified monitoring** - All jobs visible in single Inngest dashboard
-- **Enhanced reliability** - Inngest's purpose-built cron vs Vercel's general-purpose
-- **Cleaner codebase** - Eliminate entire `/api/cron/` directory
+Files to touch: `features/market/MarketCard.client.tsx`, `features/market/market-card-sections.tsx` (new), `lib/design-system.ts` (add `components.metrics`, `components.badge.delta`, `components.cta.row`).
 
 ---
 
-## Phase 3: Real-time Prediction Flow (Higher Risk)
+### Phase 3 — Mobile polish + interaction (optional polish)
+- [ ] Mobile first refinements
+  - Ensure metrics stack cleanly with consistent `gap-4`; ensure long questions wrap without layout shift (`whitespace-pre-wrap` in header title container).
+  - Make Predict button sticky within card while expanding reasoning on small screens only if it doesn’t cause layout jump.
+- [ ] Loading & accessibility
+  - Use `components.loading.inline` in the CTA while generating predictions.
+  - Ensure focus order and `aria-expanded` on the reasoning disclosure; verify tooltips announce via `aria-describedby`.
+- [ ] Visual QA checklist
+  - Baseline spacing: header 0.5rem below, section gaps 1rem–1.5rem per DS tokens.
+  - Delta tones use `getDeltaTone` and DS badge color tokens.
 
-### Code Changes - Interactive Sessions
-
-#### 1. Create Prediction Session Function
-- [ ] **Create** `lib/inngest/functions/prediction-sessions.ts`
-  - Convert `executePredictionSession()` to Inngest function
-  - Handle event: `prediction.session.requested`
-  - Implement sequential model processing with steps
-  - Add credit validation and refund logic
-
-#### 2. Update Prediction Session Service
-- [ ] **Modify** `lib/services/prediction-session-service.ts`
-  - Add function to send Inngest events
-  - Keep existing DTO patterns
-  - Add `QUEUED` status to session enum
-
-#### 3. Update tRPC Router
-- [ ] **Modify** `lib/trpc/routers/prediction-sessions.ts`
-  - Replace direct worker execution
-  - Send Inngest event on session creation
-  - Update status polling to handle `QUEUED` state
-
-#### 4. Update Frontend Components
-- [ ] **Modify** `app/predict/[marketId]/PredictionGenerator.tsx`
-  - Handle new `QUEUED` status in UI
-  - Update loading states and messages
-  - Ensure polling continues during queue processing
-
-#### 5. Update Recovery Service
-- [ ] **Modify** `lib/services/prediction-session-recovery.ts`
-  - Handle stuck sessions that are `QUEUED` but not processing
-  - Add logic to re-trigger Inngest events for recovery
-  - Update cleanup logic for new status
-
-#### 6. Security & Validation
-- [ ] **Add event data validation** schemas for all Inngest events (`lib/inngest/schemas/events.ts`)
-- [ ] **Implement session ownership validation** in Inngest functions  
-- [ ] **Add Inngest webhook signature verification** in `/api/inngest` route
-- [ ] **Update tRPC procedures** to validate auth before queuing events
-- [ ] **Add QUEUED status** to client polling states for real-time UI updates
-
-### Database Changes
-- [ ] **Create migration** to add `QUEUED` to PredictionSessionStatus enum
-- [ ] **Update Prisma schema** if needed for new status
-
-### Testing Strategy
-#### Local Development
-- [ ] **Run Inngest Dev Server** alongside Next.js dev
-- [ ] **Test complete session flow** with polling UI
-- [ ] **Verify credit handling** and refund logic
-
-#### Staging Deployment  
-- [ ] **Deploy with feature flag** to enable/disable new flow
-- [ ] **Test with small batch** of users
-- [ ] **Monitor error rates** and performance
-- [ ] **Test unauthorized access scenarios** to verify security measures
-
-#### Production Rollout
-- [ ] **Gradual rollout** (10% � 50% � 100% of users)
-- [ ] **Monitor session success rates** 
-- [ ] **Compare performance** with old system
-
-### Rollback Plan
-- [ ] **Feature flag** to instantly revert to old system
-- [ ] **Database cleanup** script for orphaned `QUEUED` sessions
-- [ ] **Credit refund** script for failed migrations
+Files to touch: `features/market/MarketCard.client.tsx`, `lib/design-system.ts` (if sticky CTA token added later).
 
 ---
 
-## Configuration & Monitoring
+Notes
+- Keep edits small per PR: Phase 1 first; Phase 2 extraction next; Phase 3 polish last.
+- Favor DS tokens over custom CSS; if a token is missing, add it once to `lib/design-system.ts` and reuse.
 
-### Inngest Configuration
-- [ ] **Set retry policies** (3 attempts with exponential backoff)
-- [ ] **Configure timeouts** (15 minutes max per function)
-- [ ] **Set up rate limiting** to respect OpenRouter limits
-- [ ] **Configure dead letter queue** for failed jobs
 
-### Monitoring Setup
-- [ ] **Inngest Dashboard** monitoring for job success/failure rates
-- [ ] **Custom logging** to track migration performance
-- [ ] **Alert setup** for high failure rates or timeout issues
-- [ ] **Cost monitoring** to track Inngest usage vs free tier
-
-### Manual Steps Required
-
-#### Account Setup (You)
-1. **Create Inngest account** at inngest.com
-2. **Generate API keys** for dev/staging/production
-3. **Add environment variables** to Vercel projects
-4. **Set up webhook URLs** in Inngest dashboard
-
-#### Production Deployment (You)
-1. **Deploy Inngest webhook endpoint** (`/api/inngest`)
-2. **Verify webhook connectivity** in Inngest dashboard
-3. **Enable batch job migration** first
-4. **Monitor and validate** before proceeding to Phase 2
-5. **Gradually enable** real-time migration with feature flags
-
----
-
-## Success Metrics
-
-### Phase 1 (Foundation)
-- [ ] **Inngest infrastructure** successfully deployed and synced
-- [ ] **First cron job** (batch predictions) migrated successfully
-- [ ] **Zero failed jobs** due to Vercel timeouts
-- [ ] **BetterStack heartbeats** continue working
-
-### Phase 2 (Complete Cron Takeover)
-- [ ] **All 5 cron jobs** running on Inngest native scheduling
-- [ ] **Zero Vercel cron dependencies** remaining in codebase
-- [ ] **Entire `/api/cron/` directory** successfully removed
-- [ ] **vercel.json cron config** completely eliminated
-- [ ] **Unified job monitoring** in Inngest dashboard only
-
-### Real-time Predictions (Phase 3)
-- [ ] **<10 second** queue-to-processing time
-- [ ] **Same or better** overall session completion rates
-- [ ] **Improved user experience** with immediate queue feedback
-- [ ] **No increase** in credit handling errors
-- [ ] **No security vulnerabilities** from session ownership bypass
-- [ ] **Event data contains no sensitive information** (audit logs)
-
----
-
-## Estimated Timeline
-
-**Phase 1 (Foundation + Initial): 1-2 weeks**
-- Inngest setup & first migration: 1-2 days
-- Development: 3-5 days  
-- Testing & Deployment: 2-3 days
-
-**Phase 2 (Complete Cron Takeover): 1-2 weeks**
-- Convert 5 remaining cron jobs: 3-5 days
-- Testing & validation: 3-4 days
-- Remove all Vercel cron dependencies: 1-2 days
-- Monitor stability: 2-3 days
-
-**Phase 3 (Real-time Predictions): 2-3 weeks**
-- Development: 1 week
-- Testing: 3-5 days
-- Gradual rollout: 3-5 days
-
-**Total: 4-7 weeks** with complete Vercel cron elimination

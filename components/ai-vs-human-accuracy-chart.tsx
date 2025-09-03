@@ -80,7 +80,7 @@ export default function AiVsHumanAccuracyChart() {
       }
     }, 350)
     return () => clearInterval(interval)
-  }, [])
+  }, [fullData])
 
   const axisColor = "#9CA3AF" // gray-400
   const gridColor = "#E5E7EB" // gray-200
@@ -115,7 +115,7 @@ export default function AiVsHumanAccuracyChart() {
             <Tooltip
               contentStyle={{ backgroundColor: "rgba(31, 41, 55, 0.8)", borderColor: "#4B5563", backdropFilter: "blur(4px)" }}
               labelStyle={{ color: "#E5E7EB" }}
-              formatter={(value: unknown, name: string, props: any) => {
+              formatter={(value: unknown, name: string) => {
                 return [`${value as number}%`, name]
               }}
             />

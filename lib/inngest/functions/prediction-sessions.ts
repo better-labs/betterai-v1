@@ -8,7 +8,6 @@ import { inngest } from '../client'
 import { prisma } from '@/lib/db/prisma'
 import { executePredictionSession } from '@/lib/services/prediction-session-worker'
 import { updatePredictionSession, getPredictionSessionById } from '@/lib/services/prediction-session-service'
-import { creditManager } from '@/lib/services/credit-manager'
 import { structuredLogger } from '@/lib/utils/structured-logger'
 import { z } from 'zod'
 
@@ -44,7 +43,7 @@ export const predictionSessionProcessor = inngest.createFunction(
     }
 
     // Step 1: Validate session exists and is in correct state
-    const session = await step.run('validate-session', async () => {
+    await step.run('validate-session', async () => {
       const session = await getPredictionSessionById(prisma, sessionId, userId)
       
       if (!session) {
@@ -123,12 +122,12 @@ export const predictionSessionProcessor = inngest.createFunction(
 )
 
 /**
- * Session recovery function for stuck QUEUED sessions
- * Can be triggered manually or by cron job
+ * Manual session recovery function for specific stuck sessions
+ * Triggered by events when you need to recover a specific session
  */
-export const predictionSessionRecovery = inngest.createFunction(
+export const manualSessionRecovery = inngest.createFunction(
   {
-    id: 'prediction-session-recovery',
+    id: 'manual-session-recovery',
     retries: 1,
     timeouts: { finish: '5m' }
   },
@@ -143,14 +142,14 @@ export const predictionSessionRecovery = inngest.createFunction(
         throw new Error(`Session not found for recovery: ${sessionId}`)
       }
 
-      // Only recover sessions that are stuck in QUEUED state
-      if (session.status !== 'QUEUED') {
-        structuredLogger.info('prediction_session_recovery_skipped', `Session ${sessionId} not in QUEUED state`, {
+      // Only recover sessions that are stuck in QUEUED or GENERATING state
+      if (!['QUEUED', 'GENERATING'].includes(session.status)) {
+        structuredLogger.info('prediction_session_recovery_skipped', `Session ${sessionId} not in recoverable state`, {
           sessionId,
           currentStatus: session.status,
           reason
         })
-        return { recovered: false, reason: 'not_queued' }
+        return { recovered: false, reason: 'not_recoverable_state' }
       }
 
       // Check if session has been stuck for more than 5 minutes
@@ -159,6 +158,15 @@ export const predictionSessionRecovery = inngest.createFunction(
       
       if (timeSinceCreated < stuckThreshold) {
         return { recovered: false, reason: 'not_stuck_long_enough' }
+      }
+
+      // For GENERATING sessions, first reset status to QUEUED
+      if (session.status === 'GENERATING') {
+        await updatePredictionSession(prisma, sessionId, {
+          status: 'QUEUED',
+          step: 'Reset for recovery processing',
+          error: null
+        })
       }
 
       // Re-trigger the session processing event
@@ -184,5 +192,85 @@ export const predictionSessionRecovery = inngest.createFunction(
     })
 
     return recoveredSession
+  }
+)
+
+/**
+ * Scheduled session recovery function 
+ * Runs every 15 minutes to find and recover stuck sessions
+ */
+export const scheduledSessionRecovery = inngest.createFunction(
+  {
+    id: 'scheduled-session-recovery',
+    retries: 2,
+    timeouts: { finish: '10m' }
+  },
+  { cron: 'TZ=UTC */15 * * * *' }, // Every 15 minutes
+  async ({ step }) => {
+    const recoveryResults = await step.run('find-and-recover-stuck-sessions', async () => {
+      // Find stuck sessions older than 5 minutes
+      const stuckThreshold = new Date(Date.now() - 5 * 60 * 1000)
+      
+      const stuckSessions = await prisma.predictionSession.findMany({
+        where: {
+          status: { in: ['QUEUED', 'GENERATING'] },
+          createdAt: { lt: stuckThreshold }
+        },
+        select: { id: true, userId: true, marketId: true, selectedModels: true, status: true }
+      })
+
+      const results = {
+        found: stuckSessions.length,
+        recovered: 0,
+        failed: 0
+      }
+
+      // Trigger recovery for each stuck session
+      for (const session of stuckSessions) {
+        try {
+          // Reset GENERATING sessions to QUEUED
+          if (session.status === 'GENERATING') {
+            await updatePredictionSession(prisma, session.id, {
+              status: 'QUEUED',
+              step: 'Reset by scheduled recovery',
+              error: null
+            })
+          }
+
+          // Send recovery event
+          await inngest.send({
+            name: 'prediction.session.requested',
+            data: {
+              sessionId: session.id,
+              userId: session.userId,
+              marketId: session.marketId,
+              selectedModels: session.selectedModels,
+              retryCount: 1
+            }
+          })
+
+          results.recovered++
+          
+          structuredLogger.info('scheduled_session_recovery', `Recovered stuck session ${session.id}`, {
+            sessionId: session.id,
+            previousStatus: session.status
+          })
+        } catch (error) {
+          results.failed++
+          structuredLogger.error('scheduled_session_recovery_failed', `Failed to recover session ${session.id}`, {
+            sessionId: session.id,
+            error: error instanceof Error ? { message: error.message, stack: error.stack } : { message: 'Unknown error' }
+          })
+        }
+      }
+
+      if (results.found > 0) {
+        structuredLogger.info('scheduled_session_recovery_completed', 'Scheduled session recovery completed', results)
+      }
+
+      return results
+    })
+
+    return recoveryResults
   }
 )

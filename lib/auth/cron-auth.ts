@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
 import type { ApiResponse } from '@/lib/types';
 
 /**

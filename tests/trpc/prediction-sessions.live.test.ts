@@ -105,7 +105,8 @@ describe('PredictionSessions Live Database Integration', () => {
     // Start prediction session
     const startResult = await caller.predictionSessions.start({
       marketId: testMarketId,
-      selectedModels: ['anthropic/claude-3.7-sonnet', 'openai/gpt-4o-mini']
+      selectedModels: ['anthropic/claude-sonnet-4', 'x-ai/grok-3-mini'],
+      useInngest: true
     })
 
     expect(startResult.sessionId).toBeDefined()
@@ -169,7 +170,8 @@ describe('PredictionSessions Live Database Integration', () => {
     await expect(
       caller.predictionSessions.start({
         marketId: testMarketId,
-        selectedModels: ['anthropic/claude-3.7-sonnet', 'openai/gpt-4o-mini', 'google/gemini-2.5-flash']
+        selectedModels: ['anthropic/claude-sonnet-4', 'x-ai/grok-3-mini', 'google/gemini-2.5-flash'],
+        useInngest: true
       })
     ).rejects.toThrow('Insufficient credits: 1 available, 3 required')
 
@@ -196,7 +198,8 @@ describe('PredictionSessions Live Database Integration', () => {
     await expect(
       caller.predictionSessions.start({
         marketId: testMarketId,
-        selectedModels: ['invalid-model-id', 'another-invalid']
+        selectedModels: ['invalid-model-id', 'another-invalid'],
+        useInngest: true
       })
     ).rejects.toThrow('Invalid model IDs: invalid-model-id, another-invalid')
 
