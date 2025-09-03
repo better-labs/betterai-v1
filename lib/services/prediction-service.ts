@@ -1,6 +1,6 @@
-import type { PrismaClient, Prediction, Market, Event } from '@/lib/generated/prisma'
+import type { PrismaClient, Prediction, Market, Event, Prisma } from '@/lib/generated/prisma'
 import { mapPredictionToDTO } from '@/lib/dtos'
-import type { PredictionDTO } from '@/lib/types'
+import type { PredictionDTO, MarketDTO, PredictionResult } from '@/lib/types'
 
 
 /**
@@ -30,7 +30,7 @@ export async function getPredictionWithRelationsById(
 export async function getPredictionWithRelationsByIdSerialized(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   id: number
-): Promise<(PredictionDTO & { market: any | null }) | null> {
+): Promise<(PredictionDTO & { market: MarketDTO | null }) | null> {
   const prediction = await getPredictionWithRelationsById(db, id)
   if (!prediction) return null
   
@@ -209,8 +209,8 @@ export async function getRecentPredictionsWithRelationsPaginated(
   } else {
     // For predictions mode, use the original logic
     const orderBy = [{ createdAt: 'desc' as const }]
-    
-    const whereCondition: any = {
+
+    const whereCondition: Prisma.PredictionWhereInput = {
       market: {
         event: {
           eventTags: {
@@ -356,8 +356,8 @@ export async function getRecentPredictionsWithRelationsFilteredByTags(
     return { items: validPredictions, nextCursor }
   } else {
     const orderBy = [{ createdAt: 'desc' as const }]
-    
-    const whereCondition: any = {
+
+    const whereCondition: Prisma.PredictionWhereInput = {
       market: {
         event: {
           AND: [
@@ -421,7 +421,7 @@ export async function getRecentPredictionsWithRelationsFilteredByTags(
 
 export async function createPrediction(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
-  predictionData: any
+  predictionData: Prisma.PredictionCreateInput
 ): Promise<Prediction> {
   // Ensure userId is null if not provided to avoid foreign key constraint violations
   const data = {
@@ -434,7 +434,7 @@ export async function createPrediction(
 export async function updatePrediction(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   id: number,
-  predictionData: Partial<any>
+  predictionData: Prisma.PredictionUpdateInput
 ): Promise<Prediction | null> {
   return await db.prediction.update({
     where: { id },
@@ -464,7 +464,7 @@ export async function storePredictionResult(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   marketId: string,
   userMessage: string,
-  predictionResult: any,
+  predictionResult: PredictionResult,
   aiResponse?: string
 ): Promise<Prediction> {
   const predictionData = {
