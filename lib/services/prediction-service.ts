@@ -419,12 +419,7 @@ export async function createPrediction(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   predictionData: Prisma.PredictionCreateInput
 ): Promise<Prediction> {
-  // Ensure userId is null if not provided to avoid foreign key constraint violations
-  const data = {
-    ...predictionData,
-    userId: predictionData.userId || null
-  }
-  return await db.prediction.create({ data })
+  return await db.prediction.create({ data: predictionData })
 }
 
 export async function updatePrediction(
@@ -464,9 +459,11 @@ export async function storePredictionResult(
   aiResponse?: string
 ): Promise<Prediction> {
   const predictionData = {
-    marketId,
+    market: {
+      connect: { id: marketId }
+    },
     userMessage,
-    predictionResult,
+    predictionResult: predictionResult as any,
     aiResponse
   }
   

@@ -158,16 +158,20 @@ async function savePrediction(
   }
 
   const newPrediction = {
-    marketId,
+    market: {
+      connect: { id: marketId }
+    },
     userMessage: userMessage,
-    predictionResult: internalPredictionResult,
+    predictionResult: internalPredictionResult as any,
     outcomes,
     outcomesProbabilities: probs.map((p) => p != null && Number.isFinite(p) ? new Decimal(p.toString()) : new Decimal('0')),
     modelName,
     systemPrompt: systemMessage,
     aiResponse,
     createdAt: new Date(),
-    userId: userId || null, // Store user ID if provided
+    user: userId ? {
+      connect: { id: userId }
+    } : undefined, // Connect user if provided
     experimentTag: experimentTag || null,
     experimentNotes: experimentNotes || null,
   }

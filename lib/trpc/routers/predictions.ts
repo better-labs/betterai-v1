@@ -312,14 +312,18 @@ export const predictionsRouter = router({
         // Prepare prediction data
         const predictionData = {
           userMessage: input.userMessage,
-          marketId: input.marketId,
-          predictionResult: input.predictionResult,
+          market: {
+            connect: { id: input.marketId }
+          },
+          predictionResult: input.predictionResult as any,
           modelName: input.modelName || null,
           systemPrompt: input.systemPrompt || null,
           aiResponse: input.aiResponse || null,
           outcomes: input.outcomes,
           outcomesProbabilities: input.outcomesProbabilities.map(p => p.toString()), // Convert to string for Prisma Decimal
-          userId: ctx.userId,
+          user: ctx.userId ? {
+            connect: { id: ctx.userId }
+          } : undefined,
           experimentTag: input.experimentTag || null,
           experimentNotes: input.experimentNotes || null,
         }
@@ -412,14 +416,15 @@ export const predictionsRouter = router({
         for (const predictionInput of input.predictions) {
           const predictionData = {
             userMessage: predictionInput.userMessage,
-            marketId: predictionInput.marketId,
-            predictionResult: predictionInput.predictionResult,
+            market: {
+              connect: { id: predictionInput.marketId }
+            },
+            predictionResult: predictionInput.predictionResult as any,
             modelName: predictionInput.modelName || null,
             systemPrompt: predictionInput.systemPrompt || null,
             aiResponse: predictionInput.aiResponse || null,
             outcomes: predictionInput.outcomes,
             outcomesProbabilities: predictionInput.outcomesProbabilities.map((p: number) => p.toString()),
-            userId: null, // Admin batch creation doesn't assign to specific user
             experimentTag: predictionInput.experimentTag || null,
             experimentNotes: predictionInput.experimentNotes || null,
           }
