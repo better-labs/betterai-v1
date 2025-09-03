@@ -82,29 +82,25 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const result = await updateActivePolymarketEvents({
+    // Run async - don't await to avoid timeouts, let background processing continue
+    updateActivePolymarketEvents({
       delayMs,
       maxRetries,
       retryDelayMs,
       timeoutMs,
       userAgent,
       maxBatchFailuresBeforeAbort,
+    }).then((result) => {
+      sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
+      console.log(`Active events update completed: ${result.activeEventsCount} active, ${result.updatedEvents.length} events updated, ${result.updatedMarkets.length} markets updated`)
+    }).catch((error) => {
+      console.error('Active events update error:', error)
     })
-
-    // Send heartbeat to BetterStack on successful completion
-    await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Active events update completed. Active events: ${result.activeEventsCount}, Updated events: ${result.updatedEvents.length}, Updated markets: ${result.updatedMarkets.length}`,
-        data: {
-          activeEventsCount: result.activeEventsCount,
-          updatedEvents: result.updatedEvents.length,
-          updatedMarkets: result.updatedMarkets.length,
-          totalRequests: result.totalRequests,
-          errors: result.errors.slice(0, 10),
-        }
+        message: `Active events update started with ${maxBatchFailuresBeforeAbort} max batch failures`,
       } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )

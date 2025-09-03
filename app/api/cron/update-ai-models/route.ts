@@ -14,22 +14,22 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('Starting AI models update...')
-    const result = await updateAIModels()
     
-    if (!result.success) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: result.error || 'Failed to update AI models'
-        } as ApiResponse),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
+    // Run async - don't await to avoid timeouts, let background processing continue
+    updateAIModels().then((result) => {
+      if (result.success) {
+        console.log(`AI models update completed: Fetched ${result.totalFetched}, Upserted ${result.totalUpserted}`)
+      } else {
+        console.error('AI models update failed:', result.error)
+      }
+    }).catch((error) => {
+      console.error('AI models update error:', error)
+    })
     
     return new Response(
       JSON.stringify({
         success: true,
-        message: `AI models updated successfully. Fetched: ${result.totalFetched}, Upserted: ${result.totalUpserted}`
+        message: 'AI models update started'
       } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )

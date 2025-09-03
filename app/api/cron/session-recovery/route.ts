@@ -18,25 +18,25 @@ export async function GET(request: NextRequest) {
 
     console.log('🔄 Starting prediction session recovery...')
 
-    // Recover stuck sessions (>10 minutes old)
-    const recoveryResult = await recoverStuckSessions(prisma, 10)
-
-    // Cleanup old failed sessions (>24 hours old) 
-    const cleanupResult = await cleanupOldSessions(prisma, 24)
-
-    const result = {
-      recovery: recoveryResult,
-      cleanup: cleanupResult,
-      timestamp: new Date().toISOString()
-    }
-
-    console.log('✅ Session recovery completed:', result)
+    // Run async - don't await to avoid timeouts, let background processing continue
+    Promise.all([
+      recoverStuckSessions(prisma, 10),
+      cleanupOldSessions(prisma, 24)
+    ]).then(([recoveryResult, cleanupResult]) => {
+      const result = {
+        recovery: recoveryResult,
+        cleanup: cleanupResult,
+        timestamp: new Date().toISOString()
+      }
+      console.log('✅ Session recovery completed:', result)
+    }).catch((error) => {
+      console.error('❌ Session recovery failed:', error)
+    })
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Session recovery completed',
-        data: result
+        message: 'Session recovery started'
       } as ApiResponse),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )

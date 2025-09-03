@@ -53,27 +53,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const result = await generatePredictionVsMarketDelta({
+    // Run async - don't await to avoid timeouts, let background processing continue
+    generatePredictionVsMarketDelta({
       daysLookback,
       maxPredictions,
       includeClosedMarkets,
       excludeCategories,
+    }).then((result) => {
+      sendHeartbeatSafe(HeartbeatType.PREDICTION_CHECK)
+      console.log(`Prediction check completed: checked ${result.checkedCount}, saved ${result.savedCount}`)
+    }).catch((error) => {
+      console.error('Prediction check error:', error)
     })
-
-    // Send heartbeat to BetterStack on successful completion
-    await sendHeartbeatSafe(HeartbeatType.PREDICTION_CHECK)
-
-    const sample = result.results.slice(0, 20)
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Checked ${result.checkedCount} predictions; saved ${result.savedCount} results`,
-        data: {
-          checkedCount: result.checkedCount,
-          savedCount: result.savedCount,
-          sample,
-        },
+        message: `Prediction check started for ${maxPredictions} predictions over ${daysLookback} days`,
       } as ApiResponse),
       { headers: { 'Content-Type': 'application/json' } }
     )
