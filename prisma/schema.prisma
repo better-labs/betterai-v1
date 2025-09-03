@@ -10,7 +10,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url = env("DATABASE_URL") // pooled (for app & Prisma client)
-  shadowDatabaseUrl = env("DATABASE_URL_UNPOOLED_SHADOW")   // unpooled (for migrations only)
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model AiModel {
@@ -259,6 +259,7 @@ enum Category {
 
 enum PredictionSessionStatus {
   INITIALIZING @map("initializing")
+  QUEUED       @map("queued")
   RESEARCHING  @map("researching")
   GENERATING   @map("generating")
   FINISHED     @map("finished")

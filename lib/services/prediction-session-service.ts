@@ -7,6 +7,8 @@
 
 import { PrismaClient, PredictionSessionStatus } from '@/lib/generated/prisma'
 import type { DbClient } from './types'
+import { inngest } from '@/lib/inngest/client'
+import { structuredLogger } from '@/lib/utils/structured-logger'
 
 export interface PredictionSessionDTO {
   id: string
@@ -40,24 +42,86 @@ export interface CreatePredictionSessionInput {
   selectedModels: string[]
 }
 
+export interface CreatePredictionSessionWithInngestInput extends CreatePredictionSessionInput {
+  useInngest?: boolean
+}
+
 /**
  * Create a new prediction session
+ * Legacy function for backward compatibility
  */
 export async function createPredictionSession(
   db: DbClient,
   input: CreatePredictionSessionInput
 ): Promise<{ sessionId: string }> {
+  return createPredictionSessionWithInngest(db, { ...input, useInngest: false })
+}
+
+/**
+ * Create a new prediction session with optional Inngest integration
+ * Modern function that supports both direct execution and Inngest queuing
+ */
+export async function createPredictionSessionWithInngest(
+  db: DbClient,
+  input: CreatePredictionSessionWithInngestInput
+): Promise<{ sessionId: string }> {
+  const { useInngest = false, ...sessionData } = input
+  
   const session = await db.predictionSession.create({
     data: {
-      userId: input.userId,
-      marketId: input.marketId,
-      selectedModels: input.selectedModels,
-      status: 'INITIALIZING'
+      userId: sessionData.userId,
+      marketId: sessionData.marketId,
+      selectedModels: sessionData.selectedModels,
+      status: useInngest ? 'QUEUED' : 'INITIALIZING'
     },
     select: {
       id: true
     }
   })
+
+  // If using Inngest, send event to trigger processing
+  if (useInngest) {
+    try {
+      await inngest.send({
+        name: 'prediction.session.requested',
+        data: {
+          sessionId: session.id,
+          userId: sessionData.userId,
+          marketId: sessionData.marketId,
+          selectedModels: sessionData.selectedModels
+        }
+      })
+
+      structuredLogger.info('prediction_session_inngest_event_sent', `Inngest event sent for session ${session.id}`, {
+        sessionId: session.id,
+        userId: sessionData.userId,
+        marketId: sessionData.marketId,
+        modelCount: sessionData.selectedModels.length
+      })
+    } catch (error) {
+      // If Inngest event fails, update session to ERROR state
+      await db.predictionSession.update({
+        where: { id: session.id },
+        data: {
+          status: 'ERROR',
+          error: `Failed to queue Inngest event: ${error instanceof Error ? error.message : 'Unknown error'}`
+        }
+      })
+
+      if (error instanceof Error) {
+        structuredLogger.error('prediction_session_inngest_event_failed', `Failed to send Inngest event for session ${session.id}`, {
+          sessionId: session.id,
+          userId: sessionData.userId,
+          error: {
+            message: error.message,
+            stack: error.stack
+          }
+        })
+      }
+
+      throw new Error(`Failed to queue prediction session: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
 
   return { sessionId: session.id }
 }
@@ -207,4 +271,41 @@ export async function getUserRecentSessions(
   })
 
   return sessions
+}
+
+/**
+ * Send recovery event for stuck sessions
+ * Used by session recovery service
+ */
+export async function sendRecoveryEvent(
+  sessionId: string,
+  reason: string = 'manual_recovery'
+): Promise<void> {
+  try {
+    await inngest.send({
+      name: 'prediction.session.recovery',
+      data: {
+        sessionId,
+        reason
+      }
+    })
+
+    structuredLogger.info('prediction_session_recovery_event_sent', `Recovery event sent for session ${sessionId}`, {
+      sessionId,
+      reason
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      structuredLogger.error('prediction_session_recovery_event_failed', `Failed to send recovery event for session ${sessionId}`, {
+        sessionId,
+        reason,
+        error: {
+          message: error.message,
+          stack: error.stack
+        }
+      })
+    }
+
+    throw new Error(`Failed to send recovery event: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }

@@ -25,11 +25,9 @@
  *       - neondb_owner grants to both betterai_admin and betterai_app
  *       - betterai_admin grants CRUD access to betterai_app
  *       - betterai_app grants full access to betterai_admin
- *   - Ensures a **betterai_shadow** schema owned by betterai_admin with mirrored extensions
  *   - Prints:
  *       - DATABASE_URL              (pooled, app role for runtime)
  *       - DATABASE_URL_UNPOOLED     (direct, admin role for migrations/DDL)
- *       - DATABASE_URL_UNPOOLED_SHADOW (direct, admin role, with schema=betterai_shadow)
  */
 
 import { Client } from "pg";
@@ -158,7 +156,6 @@ async function main() {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(dbName)) {
     fatal("Database name contains invalid characters. Use only letters, numbers, and underscores.");
   }
-  const shadowSchemaName = "betterai_shadow";
 
   // Check if roles already exist to preserve passwords in dev environments
   const { rows: existingRoles } = await executeQuery(adminClient, "Checking existing roles", `
@@ -290,40 +287,6 @@ async function main() {
         GRANT ALL ON SEQUENCES TO betterai_admin;`);
     }
 
-    // --- Ensure shadow schema exists and is owned by betterai_admin ---
-    console.log(`\n🌑 Setting up shadow schema: ${shadowSchemaName}`);
-    
-    const { rows: [{ exists: shadowSchemaExists }] } = await executeQuery(adminClient, 
-      `Checking if shadow schema ${shadowSchemaName} exists`,
-      `SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = $1) AS exists`,
-      [shadowSchemaName]
-    );
-
-    if (!shadowSchemaExists) {
-      await executeQuery(adminClient, `Creating shadow schema ${shadowSchemaName}`, 
-        `CREATE SCHEMA "${shadowSchemaName}" AUTHORIZATION betterai_admin`);
-    } else {
-      console.log(`✓ Shadow schema "${shadowSchemaName}" already exists`);
-      // Ensure ownership is correct
-      await executeQuerySafe(adminClient, `Ensuring shadow schema ${shadowSchemaName} ownership`, 
-        `ALTER SCHEMA "${shadowSchemaName}" OWNER TO betterai_admin`);
-    }
-
-    // Grant permissions on shadow schema
-    await executeQuerySafe(adminClient, `Granting ALL on shadow schema to betterai_admin`, 
-      `GRANT ALL ON SCHEMA "${shadowSchemaName}" TO betterai_admin`);
-    await executeQuerySafe(adminClient, `Granting USAGE on shadow schema to betterai_app`, 
-      `GRANT USAGE ON SCHEMA "${shadowSchemaName}" TO betterai_app`);
-    
-    // Set default privileges for shadow schema
-    await executeQuerySafe(adminClient, `Setting default table privileges in shadow schema`, 
-      `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA "${shadowSchemaName}"
-      GRANT ALL ON TABLES TO betterai_admin`);
-    await executeQuerySafe(adminClient, `Setting default sequence privileges in shadow schema`, 
-      `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA "${shadowSchemaName}"
-      GRANT ALL ON SEQUENCES TO betterai_admin`);
-
-    console.log(`✅ Shadow schema "${shadowSchemaName}" setup completed`);
 
     // Construct output URLs
     if (appPwd || adminPwd) {
@@ -347,19 +310,12 @@ async function main() {
           host: directHost, // remove -pooler
         });
 
-        const shadowAdminUrl = (() => {
-          const u = new URL(directAdminUrl);
-          u.searchParams.set('schema', shadowSchemaName);
-          return u.toString();
-        })();
-
         console.log(`DATABASE_URL_UNPOOLED=${directAdminUrl}`);     // direct, admin role (migrations/DDL)
-        console.log(`DATABASE_URL_UNPOOLED_SHADOW=${shadowAdminUrl}`); // direct, admin role, shadow schema
       }
     } else {
       // Existing roles - passwords preserved, URLs unchanged
       console.log("\n📋 Existing roles detected - passwords preserved for development.");
-      console.log("💡 Your existing DATABASE_URL, DATABASE_URL_UNPOOLED, and DATABASE_URL_UNPOOLED_SHADOW remain valid.");
+      console.log("💡 Your existing DATABASE_URL and DATABASE_URL_UNPOOLED remain valid.");
       console.log("   No need to update environment variables.");
       
       if (!appPwd && !adminPwd) {
@@ -371,7 +327,7 @@ async function main() {
       }
     }
 
-    console.log("\n🎉 Done. Roles created/updated, grants applied, and shadow schema ensured.");
+    console.log("\n🎉 Done. Roles created/updated and grants applied.");
   } catch (err) {
     console.error("\n💥 Provisioning failed!");
     logError("Overall provisioning process", err);
