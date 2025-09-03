@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Brain, ChevronDown } from 'lucide-react'
+import { Brain } from 'lucide-react'
 import { Button } from "@/shared/ui/button"
 import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
@@ -64,7 +63,7 @@ export function MarketHeader({ market, event, href }: MarketHeaderProps) {
           className="flex-shrink-0"
         />
       )}
-      <h3 className={`${typography.h3} ${spacing.heading} whitespace-pre-wrap break-words`}>
+      <h3 className={`${typography.h2} ${spacing.heading} whitespace-pre-wrap break-words`}>
         {market.question}
       </h3>
     </div>
@@ -136,65 +135,16 @@ interface ExpandableReasoningProps {
 }
 
 function ExpandableReasoning({ reasoning }: ExpandableReasoningProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const shouldShowToggle = reasoning.length > 120
-
-  if (!shouldShowToggle) {
-    return (
-      <div className="flex-1 min-w-0">
-        <div className={typography.statLabel}>Reasoning</div>
-        <p className={`${typography.bodySmall} text-muted-foreground leading-relaxed`}>
-          {reasoning}
-        </p>
-      </div>
-    )
-  }
+  const truncatedReasoning = reasoning.length > 200 
+    ? `${reasoning.slice(0, 200)}...`
+    : reasoning
 
   return (
     <div className="flex-1 min-w-0">
       <div className={typography.statLabel}>Reasoning</div>
-      <div className={components.motion.expandable.container}>
-        <motion.div
-          animate={{
-            height: isExpanded ? 'auto' : components.motion.expandable.collapsedHeight
-          }}
-          transition={{
-            duration: components.motion.expandable.animation.duration,
-            ease: components.motion.expandable.animation.ease
-          }}
-          style={components.motion.expandable.textWrap}
-        >
-          <p className={`${typography.bodySmall} text-muted-foreground leading-relaxed`}>
-            {reasoning}
-          </p>
-        </motion.div>
-        
-        <AnimatePresence>
-          {!isExpanded && (
-            <motion.div
-              className={components.motion.fadeOverlay.container}
-              initial={components.motion.fadeOverlay.animation.initial}
-              animate={components.motion.fadeOverlay.animation.animate}
-              exit={components.motion.fadeOverlay.animation.exit}
-              transition={{ duration: components.motion.fadeOverlay.animation.duration }}
-            />
-          )}
-        </AnimatePresence>
-        
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className={`flex items-center gap-1 mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors ${components.interactive.focus}`}
-          aria-expanded={isExpanded}
-          aria-label={isExpanded ? 'Show less reasoning' : 'Show more reasoning'}
-        >
-          {isExpanded ? 'Show Less' : 'Show More'}
-          <ChevronDown 
-            className={`${components.disclosure.iconSm} ${components.disclosure.icon} ${
-              isExpanded ? components.disclosure.expanded : components.disclosure.collapsed
-            }`}
-          />
-        </button>
-      </div>
+      <p className={`${typography.bodySmall} text-muted-foreground leading-relaxed`}>
+        {truncatedReasoning}
+      </p>
     </div>
   )
 }

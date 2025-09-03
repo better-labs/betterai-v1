@@ -34,8 +34,8 @@ export function OutcomeStat({
         const value = values?.[i]
         return (
           <div key={i} className={components.outcome.row}>
-            <span className={typography.body}>{outcome}</span>
-            <span className={typography.body}>
+            <span className={typography.bodyLarge}>{outcome}</span>
+            <span className={`${typography.h3} font-semibold tabular-nums`}>
               {value !== undefined && value !== null
                 ? formatPercent(value)
                 : '--'
