@@ -422,6 +422,15 @@ export const components = {
     stat: 'min-w-0',
   },
 
+  // Toggle action buttons (select all, clear all, etc.)
+  toggleAction: {
+    // Small outline button for toggle actions
+    button: 'w-fit mt-2',
+    // Variant classes for different states
+    variant: 'outline',
+    size: 'sm',
+  },
+
 } as const;
 
 // ============================================================================

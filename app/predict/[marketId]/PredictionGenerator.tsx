@@ -12,6 +12,7 @@ import { Checkbox } from '@/shared/ui/checkbox'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Badge } from '@/shared/ui/badge'
 import { Loader2, AlertCircle, Coins } from 'lucide-react'
+import { components } from '@/lib/design-system'
 
 interface PredictionGeneratorProps {
   marketId: string
@@ -55,6 +56,16 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
         ? prev.filter(id => id !== modelId)
         : [...prev, modelId]
     )
+  }
+
+  const handleSelectAll = () => {
+    if (selectedModels.length === AI_MODELS.length) {
+      // Deselect all
+      setSelectedModels([])
+    } else {
+      // Select all
+      setSelectedModels(AI_MODELS.map(model => model.id))
+    }
   }
 
   const handleGenerate = async () => {
@@ -114,13 +125,23 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
       {/* Model Selection */}
       <Card>
         <CardHeader>
-          <CardTitle>Select AI Models</CardTitle>
+          <CardTitle>Choose AI Models</CardTitle>
           <p className="text-sm text-muted-foreground">
             Choose 1-5 AI models to generate predictions. Each model costs 1 credit.
           </p>
+          
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Mobile-first: Stack vertically, large touch targets */}
+          <Button
+            variant={components.toggleAction.variant}
+            size={components.toggleAction.size}
+            onClick={handleSelectAll}
+            className={components.toggleAction.button}
+            data-debug-id="select-all-models-button"
+          >
+            {selectedModels.length === AI_MODELS.length ? 'Deselect All' : 'Select All'}
+          </Button>
           <div className="space-y-3">
             {AI_MODELS.map((model) => (
               <label
