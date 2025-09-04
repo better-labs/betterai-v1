@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button"
 import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import { ViewAllLink } from "@/shared/ui/view-all-link"
-import { OutcomeStat } from '@/shared/ui/outcome-stat'
+import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { components, spacing, typography } from '@/lib/design-system'
 import { formatPercent } from '@/lib/utils'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
@@ -19,6 +19,7 @@ export interface MarketHeaderProps {
   market: Market
   event?: Event | null
   href?: string | null
+  showActiveStatus?: boolean
 }
 
 export interface MarketMetricsProps {
@@ -83,46 +84,37 @@ export function MarketHeader({ market, event, href }: MarketHeaderProps) {
 // ============================================================================
 
 export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) {
-  const lastUpdatedLabel = `Last updated: ${market.updatedAt ? new Date(market.updatedAt).toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }) : 'Unknown'}`
+  const marketStats = (market.outcomes || []).map((outcome, index) => ({
+    label: outcome,
+    value: market.outcomePrices?.[index] || null
+  }))
+
+  const predictionStats = latestPrediction?.outcomes?.map((outcome, index) => ({
+    label: outcome,
+    value: latestPrediction.outcomesProbabilities?.[index] || null
+  })) || []
 
   return (
     <div className={components.metrics.rowTwoCol}>
       <div className={components.metrics.stat}>
-        <OutcomeStat
-          label="Market Probability"
-          outcomes={market.outcomes || []}
-          values={market.outcomePrices as number[] || []}
-          tooltip={lastUpdatedLabel}
-          href={`/market/${market.id}`}
-          size="md"
-        />
+        <Link href={`/market/${market.id}`} className="block hover:opacity-80 transition-opacity">
+          <StatsDisplaySection
+            title="Market Probability"
+            stats={marketStats}
+          />
+        </Link>
       </div>
         
       {/* AI Prediction Stats - only show if prediction exists */}
       {latestPrediction && (
-        <OutcomeStat
-          label="AI Prediction"
-          outcomes={latestPrediction.outcomes || []}
-          values={latestPrediction.outcomesProbabilities || []}
-          tooltip={latestPrediction.createdAt 
-            ? `Last generated: ${new Date(latestPrediction.createdAt).toLocaleString(undefined, {
-                year: 'numeric',
-                month: 'numeric', 
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              })}`
-            : 'No AI prediction yet'
-          }
-          href={`/prediction/${latestPrediction.id}`}
-          size="md"
-        />
+        <div className={components.metrics.stat}>
+          <Link href={`/prediction/${latestPrediction.id}`} className="block hover:opacity-80 transition-opacity">
+            <StatsDisplaySection
+              title="AI Prediction"
+              stats={predictionStats}
+            />
+          </Link>
+        </div>
       )}
     </div>
   )

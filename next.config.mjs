@@ -8,11 +8,14 @@ const nextConfig = {
     // Reduce memory usage in development
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
-  // Reduce Fast Refresh logging verbosity
+  // Reduce development logging verbosity
   logging: {
     fetches: {
-      fullUrl: process.env.NODE_ENV === 'development',
+      fullUrl: false, // Reduce verbose fetch logging
+      hmrRefreshes: process.env.NODE_ENV === 'development',
     },
+    // Suppress verbose development logs including Inngest
+    level: process.env.NODE_ENV === 'development' ? 'error' : 'error',
   },
   // Externalize Prisma for server components (Next.js 15 best practice)
   serverExternalPackages: ['@prisma/client'],

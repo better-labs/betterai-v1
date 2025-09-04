@@ -4,30 +4,35 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/u
 import { Calendar, DollarSign, BarChart2, ExternalLink } from 'lucide-react'
 import { formatVolume } from '@/lib/utils'
 import { typography, components } from '@/lib/design-system'
-import type { MarketDTO } from '@/lib/types'
-import { StatsDisplaySection } from './stats-display-section.client'
+import type { EventDTO, MarketDTO } from '@/lib/types'
+import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
+import { MarketHeader } from "./market-card-sections"
 
 interface MarketOverviewCardProps {
   market: MarketDTO
-  externalMarketUrl?: string | null
+  externalMarketUrl?: string | null 
+  event?: EventDTO | null
 }
 
-export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverviewCardProps) {
+export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOverviewCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Market Overview</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Market Active Status */}
-          {typeof market.active !== 'undefined' && market.active !== null && (
+      <MarketHeader market={market} event={event}  />
+
+      {/* Market Active Status */}
+      {typeof market.active !== 'undefined' && market.active !== null && (
             <div className="flex justify-start">
               <span className={components.cardFooter.metadataBadge}>
                 {market.active ? 'Active' : 'Inactive'}
               </span>
             </div>
           )}
+
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          
 
           {/* Market Question */}
           <div>
@@ -36,6 +41,7 @@ export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverview
             </h3>
           </div>
 
+        
           {/* Market Outcomes & Prices */}
           {market.outcomePrices && market.outcomePrices.length > 0 && market.outcomes && (
             <StatsDisplaySection
@@ -46,6 +52,17 @@ export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverview
               }))}
             />
           )}
+
+          {/* Market Description */}
+          {market.description && (
+            <div>
+              <h4 className={components.statsDisplay.sectionTitle}>Description</h4>
+              <div className={`${typography.bodySmall} whitespace-pre-wrap`}>
+                {market.description}
+              </div>
+            </div>
+          )}
+
 
           {/* Market Metrics */}
           <div className={components.marketMetrics.grid}>
@@ -82,31 +99,27 @@ export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverview
             )}
           </div>
 
-          {/* External Market Link */}
-          {externalMarketUrl && (
-            <div className="pt-2 border-t">
+        </div>
+      </CardContent>
+      
+      <CardFooter>
+        {/* External Market Link */}
+        {externalMarketUrl && (
+          <div className={components.cardFooter.container}>
+            <div className={components.cardFooter.item}>
               <a
                 href={externalMarketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
               >
                 <ExternalLink className="h-3 w-3" />
                 View on Polymarket
               </a>
             </div>
-          )}
-
-          {/* Resolution Source */}
-          {market.resolutionSource && (
-            <div className={components.cardFooter.container}>
-              <div className={components.cardFooter.item}>
-                <strong>Resolution Source:</strong> {market.resolutionSource}
-              </div>
-            </div>
-          )}
-        </div>
-      </CardContent>
+          </div>
+        )}
+      </CardFooter>
       
     </Card>
   )

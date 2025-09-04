@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { PredictionResults } from '@/features/prediction/PredictionResults.client'
 import { Card, CardContent } from '@/shared/ui/card'
-import { OutcomeStat } from '@/shared/ui/outcome-stat'
+import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 interface PredictionResultsPageProps {
@@ -54,10 +54,12 @@ export default async function PredictionResultsPage({ params }: PredictionResult
           <CardContent className="p-6">
             <div className="space-y-4">
               <h2 className="text-lg font-semibold">{market.question}</h2>
-              <OutcomeStat
-                label="Market Probability"
-                outcomes={market.outcomes || []}
-                values={outcomePrices || []}
+              <StatsDisplaySection
+                title="Market Probability"
+                stats={(market.outcomes || []).map((outcome, index) => ({
+                  label: outcome,
+                  value: outcomePrices?.[index] || null
+                }))}
               />
             </div>
           </CardContent>
