@@ -6,7 +6,7 @@ import * as predictionCheckService from '@/lib/services/prediction-check-service
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
 import MarketWithPredictionCard from '@/features/market/market-with-prediction-card.client'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
-import { PredictionDetailCard } from "@/features/prediction/PredictionDetailCard.client"
+import { PredictionDetailCard } from "@/features/prediction/prediction-detail-card.client"
 import { components } from "@/lib/design-system"
 
 // Force dynamic rendering to avoid build-time database queries

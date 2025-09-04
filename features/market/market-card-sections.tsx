@@ -39,7 +39,6 @@ export interface MarketCTAProps {
   externalMarketUrl?: string | null
   onGeneratePrediction: () => void
   hidePredictionButton?: boolean
-  isGeneratingPrediction?: boolean
 }
 
 export interface MarketMetaProps {
@@ -193,8 +192,7 @@ export function MarketCTA({
   event, 
   externalMarketUrl, 
   onGeneratePrediction, 
-  hidePredictionButton = false,
-  isGeneratingPrediction = false
+  hidePredictionButton = false
 }: MarketCTAProps) {
   if (hidePredictionButton) return null
 
@@ -205,21 +203,11 @@ export function MarketCTA({
         variant="primary"
         size="md"
         className="w-full"
-        disabled={isGeneratingPrediction}
         data-debug-id="generate-prediction-btn"
-        aria-label={isGeneratingPrediction ? 'Generating prediction...' : 'Generate AI prediction'}
+        aria-label="Generate AI prediction"
       >
-        {isGeneratingPrediction ? (
-          <div className={components.loading.inline.content}>
-            <div className={components.loading.inline.spinner} />
-            Generating...
-          </div>
-        ) : (
-          <>
-            <Brain className="h-4 w-4" />
-            Predict with AI
-          </>
-        )}
+        <Brain className="h-4 w-4" />
+        Predict with AI
       </Button>
       
       {/* External Market Link */}

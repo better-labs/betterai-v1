@@ -42,7 +42,6 @@ export default function MarketWithPredictionCard({
 
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const [isGeneratingPrediction, setIsGeneratingPrediction] = useState(false)
   const { authenticated, login } = usePrivy()
 
   // Ensure client-side hydration
@@ -71,8 +70,7 @@ export default function MarketWithPredictionCard({
       return
     }
 
-    // Set loading state and route to predict page
-    setIsGeneratingPrediction(true)
+    // Route to predict page
     router.push(`/predict/${market.id}`)
   }
 
@@ -99,7 +97,6 @@ export default function MarketWithPredictionCard({
           externalMarketUrl={externalMarketUrl}
           onGeneratePrediction={handleGeneratePrediction}
           hidePredictionButton={hidePredictionButton}
-          isGeneratingPrediction={isGeneratingPrediction}
         />
         
         <MarketMeta 
