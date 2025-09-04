@@ -24,12 +24,7 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
         <div className="space-y-4">
           
 
-          {/* Market Question */}
-          <div>
-            <h3 className={`font-semibold ${typography.h4} mb-2`}>
-              {market.question}
-            </h3>
-          </div>
+          
 
         
           {/* Market Outcomes & Prices */}
