@@ -193,7 +193,7 @@ export async function updateUserCredits(
   })
 }
 
-export async function resetUserDailyCredits(
+export async function resetUserWeeklyCredits(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   id: string,
   minCredits: number = 100

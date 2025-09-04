@@ -245,7 +245,7 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
             market={marketDTO}
             event={eventDTO}
             externalMarketUrl={externalMarketUrl}
-            onGeneratePrediction={() => router.push(`/predict/${marketId}`)}
+            onGeneratePrediction={() => router.push(`/prediction-builder/${marketId}`)}
             hidePredictionButton={false}
           />
         )}

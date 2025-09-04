@@ -44,12 +44,12 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
       return
     }
 
-    router.push(`/predict/${marketId}`)
+    router.push(`/prediction-builder/${marketId}`)
   }
 
   const handleViewLastRun = () => {
     if (hasRecentSession) {
-      router.push(`/predict/${marketId}/${recentSessions[0].id}`)
+      router.push(`/prediction-builder/${marketId}/${recentSessions[0].id}`)
     }
   }
 

@@ -9,40 +9,56 @@ export interface AIModel {
   provider: string
   creditCost: number
   description: string
+  internalCostPerMOutputTokens: number
 }
 
 // Default model for predictions and research
 export const DEFAULT_MODEL = 'openai/gpt-5-mini'
 
+// Note: 1 credit equals approx $0.5/M output tokens
+
 export const AI_MODELS: AIModel[] = [
+  {
+    id: 'openai/gpt-5',
+    name: 'ChatGPT 5',
+    provider: 'OpenAI',
+    creditCost: 10,
+    description: 'Latest OpenAI model with cutting-edge reasoning',
+    internalCostPerMOutputTokens: 10
+  },
+  {
+    id: 'openai/gpt-5-mini',
+    name: 'Chat GPT 5 Mini',
+    provider: 'OpenAI',
+    creditCost: 2,
+    description: 'Fast and low cost predictions from OpenAI',
+    internalCostPerMOutputTokens: 2
+  },
+  {
+    id: 'google/gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
+    provider: 'Google',
+    creditCost: 10,
+    description: 'Latest Google model with cutting-edge reasoning',
+    internalCostPerMOutputTokens: 10
+  },
+  {
+    id: 'x-ai/grok-4',
+    name: 'Grok 4',
+    provider: 'xAI',
+    creditCost: 15,
+    description: 'Latest xAI model with cutting-edge reasoning and access to the latest news from X (Twitter)',
+    internalCostPerMOutputTokens: 15
+  },
   {
     id: 'anthropic/claude-sonnet-4',
     name: 'Claude Sonnet 4',
     provider: 'Anthropic',
-    creditCost: 1,
-    description: 'Advanced reasoning and analysis'
+    creditCost: 15,
+    description: 'Latest middle grade model from Anthropic with advanced reasoning',
+    internalCostPerMOutputTokens: 15
   },
-  {
-    id: 'x-ai/grok-3-mini',
-    name: 'Grok 3 Mini',
-    provider: 'xAI',
-    creditCost: 1,
-    description: 'Fast and efficient predictions'
-  },
-  {
-    id: 'google/gemini-2.5-flash',
-    name: 'Gemini 2.5 Flash',
-    provider: 'Google',
-    creditCost: 1,
-    description: 'Quick and reliable predictions'
-  },
-  {
-    id: 'openai/gpt-5-mini',
-    name: 'GPT-5 Mini',
-    provider: 'OpenAI',
-    creditCost: 1,
-    description: 'Compact and efficient model'
-  }
+  
 ]
 
 /**
