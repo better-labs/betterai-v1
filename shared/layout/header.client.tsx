@@ -136,7 +136,7 @@ export function Header() {
             <div className="flex-shrink-0">
               <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className={`h-6 px-2 shadow-md hover:shadow-lg transition-shadow ${components.button.menu.largeIcon}`}>
+                    <Button variant="ghost" className={`h-10 px-2 shadow-md hover:shadow-lg dark:shadow-xl dark:shadow-black/20 dark:border dark:border-white/10 transition-all ${components.button.menu.largeIcon}`}>
                       <Menu />
                     </Button>
                   </DropdownMenuTrigger>
