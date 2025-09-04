@@ -72,7 +72,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
           <PredictionDetailCard
             predictionResult={predictionResult}
             serializedPrediction={serializedPrediction}
-            makePredictionHref={`/predict/${marketId}`}
+            makePredictionHref={`/prediction-builder/${marketId}`}
           />
         </div>
 

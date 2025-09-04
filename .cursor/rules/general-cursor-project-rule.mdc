@@ -38,7 +38,6 @@ Infrastructure: The entire application runs on Vercel infrastructure, including 
 Events are the main entities (e.g., "2024 Presidential Election") 
 Markets belong to events (e.g., "Will Trump win the election?")
 Predictions are AI-generated outcomes for specific markets
-Users authenticate via Privy and have predictions and watchlists
 Categories use enum for consistent categorization (elections, geopolitics, etc.)
 Tags provide flexible labeling via many-to-many relationship with events
 

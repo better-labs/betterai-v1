@@ -93,7 +93,7 @@ export default function CreditsPage() {
 													</Badge>
 												)}
 																							<div className="text-sm text-muted-foreground">
-												Next reset: {formatDistanceToNow(new Date(new Date(credits.creditsLastReset).getTime() + 24 * 60 * 60 * 1000), { addSuffix: true })}
+												Next reset: {formatDistanceToNow(new Date(new Date(credits.creditsLastReset).getTime() + 7 * 24 * 60 * 60 * 1000), { addSuffix: true })}
 											</div>
 											</div>
 										</div>
@@ -171,7 +171,7 @@ export default function CreditsPage() {
 									</CardHeader>
 									<CardContent className="space-y-3">
 										<p className="text-sm text-muted-foreground">
-											Each AI model selection costs 1 credit. Credits are used when generating predictions.
+											Each AI model selection costs a different amount based on the model chosen. Credit balance will reset weekly during the public beta.
 										</p>
 										<div className="text-sm">
 											<strong>Cost per prediction:</strong> 1 credit

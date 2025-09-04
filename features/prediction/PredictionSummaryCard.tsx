@@ -69,7 +69,7 @@ export function PredictionSummaryCard(props: PredictionSummaryCardProps) {
         {marketId && (
           <div className={components.cardFooter.container}>
             <div className={components.cardFooter.layout.single}>
-              <Link href={`/predict/${marketId}`}>
+              <Link href={`/prediction-builder/${marketId}`}>
                 <Button 
                   variant="outline" 
                   className="w-full flex items-center gap-2"

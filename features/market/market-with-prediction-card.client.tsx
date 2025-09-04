@@ -71,7 +71,7 @@ export default function MarketWithPredictionCard({
     }
 
     // Route to predict page
-    router.push(`/predict/${market.id}`)
+    router.push(`/prediction-builder/${market.id}`)
   }
 
   const card = (

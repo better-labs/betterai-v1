@@ -42,7 +42,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
   // Start prediction session mutation with Inngest
   const startSession = trpc.predictionSessions.start.useMutation({
     onSuccess: ({ sessionId }) => {
-      router.push(`/predict/${marketId}/${sessionId}`)
+      router.push(`/prediction-builder/${marketId}/${sessionId}`)
     },
     onError: (error) => {
       console.error('Failed to start prediction session:', error)
@@ -113,7 +113,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
                   variant={components.toggleAction.variant}
                   size={components.toggleAction.sizePrimary}
                   className={components.toggleAction.buttonPrimary}
-                  onClick={() => router.push(`/predict/${marketId}/${recentSessions[0].id}`)}
+                  onClick={() => router.push(`/prediction-builder/${marketId}/${recentSessions[0].id}`)}
                 >
                   View Last Run
                 </Button>

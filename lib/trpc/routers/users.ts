@@ -119,7 +119,7 @@ export const usersRouter = router({
     .input(ResetUserDailyCreditsInput)
     .mutation(async ({ input }) => {
       try {
-        const user = await userService.resetUserDailyCredits(
+        const user = await userService.resetUserWeeklyCredits(
           prisma,
           input.userId,
           input.minCredits
