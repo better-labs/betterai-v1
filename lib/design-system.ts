@@ -424,11 +424,14 @@ export const components = {
 
   // Toggle action buttons (select all, clear all, etc.)
   toggleAction: {
-    // Small outline button for toggle actions
-    button: 'w-fit mt-2',
+    // Small outline button for secondary toggle actions
+    buttonSecondary: 'w-fit mt-2',
+    // Medium outline button for primary actions
+    buttonPrimary: 'w-fit',
     // Variant classes for different states
     variant: 'outline',
-    size: 'sm',
+    sizeSecondary: 'sm',
+    sizePrimary: 'default',
   },
 
 } as const;

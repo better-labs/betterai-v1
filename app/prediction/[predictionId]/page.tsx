@@ -4,7 +4,7 @@ import * as predictionService from '@/lib/services/prediction-service'
 
 import * as predictionCheckService from '@/lib/services/prediction-check-service'
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
-import MarketDetailsCard from '@/features/market/MarketCard.client'
+import MarketDetailsCard from '@/features/market/market-with-prediction-card.client'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
 import { PredictionDetailCard } from "@/features/prediction/PredictionDetailCard.client"
 import { components } from "@/lib/design-system"

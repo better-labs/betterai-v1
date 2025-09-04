@@ -10,7 +10,7 @@ import type { inferProcedureOutput } from "@trpc/server"
 import { trpc } from "@/shared/providers/trpc-provider"
 import { LoadingCard } from "@/shared/ui/loading"
 import { Button } from "@/shared/ui/button"
-import MarketDetailsCard from "@/features/market/MarketCard.client"
+import MarketDetailsCard from "@/features/market/market-with-prediction-card.client"
 import { PopularTagsList } from "@/shared/ui/popular-tag-list.client"
 
 // Use tRPC's inferred types

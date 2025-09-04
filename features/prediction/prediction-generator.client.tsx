@@ -110,8 +110,9 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
               </div>
               {hasRecentSession && (
                 <Button 
-                  variant="outline" 
-                  size="sm"
+                  variant={components.toggleAction.variant}
+                  size={components.toggleAction.sizePrimary}
+                  className={components.toggleAction.buttonPrimary}
                   onClick={() => router.push(`/predict/${marketId}/${recentSessions[0].id}`)}
                 >
                   View Last Run
@@ -135,9 +136,9 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
           {/* Mobile-first: Stack vertically, large touch targets */}
           <Button
             variant={components.toggleAction.variant}
-            size={components.toggleAction.size}
+            size={components.toggleAction.sizeSecondary}
             onClick={handleSelectAll}
-            className={components.toggleAction.button}
+            className={components.toggleAction.buttonSecondary}
             data-debug-id="select-all-models-button"
           >
             {selectedModels.length === AI_MODELS.length ? 'Deselect All' : 'Select All'}

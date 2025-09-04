@@ -1,10 +1,10 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
-import { PredictionGenerator } from './PredictionGenerator'
+import { PredictionGenerator } from '@/features/prediction/prediction-generator.client'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Skeleton } from '@/shared/ui/skeleton'
-import MarketDetailsCard from '@/features/market/MarketCard.client'
+import MarketDetailsCard from '@/features/market/market-with-prediction-card.client'
 import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
 
