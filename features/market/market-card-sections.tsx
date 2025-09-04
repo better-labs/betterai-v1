@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button"
 import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import { ViewAllLink } from "@/shared/ui/view-all-link"
-import { OutcomeStat } from '@/shared/ui/outcome-stat'
+import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { components, spacing, typography } from '@/lib/design-system'
 import { formatPercent } from '@/lib/utils'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
@@ -19,6 +19,7 @@ export interface MarketHeaderProps {
   market: Market
   event?: Event | null
   href?: string | null
+  showActiveStatus?: boolean
 }
 
 export interface MarketMetricsProps {
@@ -26,7 +27,7 @@ export interface MarketMetricsProps {
   latestPrediction?: Prediction | null
 }
 
-export interface MarketDeltaProps {
+export interface AIDeltaProps {
   market: Market
   latestPrediction: Prediction
   hideReasoning?: boolean
@@ -38,7 +39,6 @@ export interface MarketCTAProps {
   externalMarketUrl?: string | null
   onGeneratePrediction: () => void
   hidePredictionButton?: boolean
-  isGeneratingPrediction?: boolean
 }
 
 export interface MarketMetaProps {
@@ -51,21 +51,33 @@ export interface MarketMetaProps {
 // MARKET HEADER COMPONENT
 // ============================================================================
 
-export function MarketHeader({ market, event, href }: MarketHeaderProps) {
+export function MarketHeader({ market, event, href, showActiveStatus = false }: MarketHeaderProps) {
   const content = (
-    <div className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity">
-      {event && (
-        <EventIcon
-          image={event.image}
-          icon={event.icon}
-          title={event.title}
-          size="twoxl"
-          className="flex-shrink-0"
-        />
+    <div className="relative">
+      
+      
+      <div className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity">
+        {event && (
+          <EventIcon
+            image={event.image}
+            icon={event.icon}
+            title={event.title}
+            size="twoxl"
+            className="flex-shrink-0"
+          />
+        )}
+        <h3 className={`${typography.h3} ${spacing.heading} whitespace-pre-wrap break-words`}>
+          {market.question}
+        </h3>
+      </div>
+
+      {/* Active Status Badge - Top Right */}
+      {showActiveStatus && typeof market.active !== 'undefined' && market.active !== null && (
+          <span className={components.cardFooter.metadataBadge}>
+            {market.active ? 'Active' : 'Inactive'}
+          </span>
+        
       )}
-      <h3 className={`${typography.h2} ${spacing.heading} whitespace-pre-wrap break-words`}>
-        {market.question}
-      </h3>
     </div>
   )
 
@@ -83,46 +95,37 @@ export function MarketHeader({ market, event, href }: MarketHeaderProps) {
 // ============================================================================
 
 export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) {
-  const lastUpdatedLabel = `Last updated: ${market.updatedAt ? new Date(market.updatedAt).toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }) : 'Unknown'}`
+  const marketStats = (market.outcomes || []).map((outcome, index) => ({
+    label: outcome,
+    value: market.outcomePrices?.[index] || null
+  }))
+
+  const predictionStats = latestPrediction?.outcomes?.map((outcome, index) => ({
+    label: outcome,
+    value: latestPrediction.outcomesProbabilities?.[index] || null
+  })) || []
 
   return (
     <div className={components.metrics.rowTwoCol}>
       <div className={components.metrics.stat}>
-        <OutcomeStat
-          label="Market Probability"
-          outcomes={market.outcomes || []}
-          values={market.outcomePrices as number[] || []}
-          tooltip={lastUpdatedLabel}
-          href={`/market/${market.id}`}
-          size="md"
-        />
+        <Link href={`/market/${market.id}`} className="block hover:opacity-80 transition-opacity">
+          <StatsDisplaySection
+            title="Market Probability"
+            stats={marketStats}
+          />
+        </Link>
       </div>
         
       {/* AI Prediction Stats - only show if prediction exists */}
       {latestPrediction && (
-        <OutcomeStat
-          label="AI Prediction"
-          outcomes={latestPrediction.outcomes || []}
-          values={latestPrediction.outcomesProbabilities || []}
-          tooltip={latestPrediction.createdAt 
-            ? `Last generated: ${new Date(latestPrediction.createdAt).toLocaleString(undefined, {
-                year: 'numeric',
-                month: 'numeric', 
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              })}`
-            : 'No AI prediction yet'
-          }
-          href={`/prediction/${latestPrediction.id}`}
-          size="md"
-        />
+        <div className={components.metrics.stat}>
+          <Link href={`/prediction/${latestPrediction.id}`} className="block hover:opacity-80 transition-opacity">
+            <StatsDisplaySection
+              title="AI Prediction"
+              stats={predictionStats}
+            />
+          </Link>
+        </div>
       )}
     </div>
   )
@@ -152,10 +155,10 @@ function ExpandableReasoning({ reasoning }: ExpandableReasoningProps) {
 }
 
 // ============================================================================
-// MARKET DELTA COMPONENT
+// AI DELTA COMPONENT
 // ============================================================================
 
-export function MarketDelta({ market, latestPrediction, hideReasoning = false }: MarketDeltaProps) {
+export function AIDelta({ market, latestPrediction, hideReasoning = false }: AIDeltaProps) {
   const delta = computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
 
   return (
@@ -189,8 +192,7 @@ export function MarketCTA({
   event, 
   externalMarketUrl, 
   onGeneratePrediction, 
-  hidePredictionButton = false,
-  isGeneratingPrediction = false
+  hidePredictionButton = false
 }: MarketCTAProps) {
   if (hidePredictionButton) return null
 
@@ -201,21 +203,11 @@ export function MarketCTA({
         variant="primary"
         size="md"
         className="w-full"
-        disabled={isGeneratingPrediction}
         data-debug-id="generate-prediction-btn"
-        aria-label={isGeneratingPrediction ? 'Generating prediction...' : 'Generate AI prediction'}
+        aria-label="Generate AI prediction"
       >
-        {isGeneratingPrediction ? (
-          <div className={components.loading.inline.content}>
-            <div className={components.loading.inline.spinner} />
-            Generating...
-          </div>
-        ) : (
-          <>
-            <Brain className="h-4 w-4" />
-            Predict with AI
-          </>
-        )}
+        <Brain className="h-4 w-4" />
+        Predict with AI
       </Button>
       
       {/* External Market Link */}

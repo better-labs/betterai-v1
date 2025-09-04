@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Button } from "@/shared/ui/button"
 import Link from 'next/link'
 import type { PredictionResult } from '@/lib/types'
-import { PredictionReasoningCard } from '@/features/prediction/PredictionReasoningCard.client'
+import { PredictionReasoningCard } from '@/features/prediction/prediction-reasoning-card.client'
 import type { PredictionDTO } from '@/lib/types'
 
 interface PredictionDetailCardProps {

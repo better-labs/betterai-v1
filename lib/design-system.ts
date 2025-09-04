@@ -190,6 +190,15 @@ export const components = {
     base: 'bg-card border border-border rounded-lg shadow-sm',
     hover: 'hover:shadow-md transition-shadow duration-200',
   },
+
+  // Button patterns
+  button: {
+    // Menu button with larger icons for dropdown triggers
+    menu: {
+      base: 'hover:bg-accent hover:text-accent-foreground',
+      largeIcon: '[&_svg]:!size-6', // Override default button SVG size-4 with size-6
+    },
+  },
   
 
   // Input patterns
@@ -349,7 +358,6 @@ export const components = {
     iconLg: 'w-6 h-6',
     // Rotation states
     expanded: 'rotate-180',
-    collapsed: 'rotate-0',
   },
 
   // Motion patterns for Framer Motion components
@@ -365,22 +373,9 @@ export const components = {
         duration: 0.2,
         ease: "easeInOut" as const,
       },
-      // Height settings
-      collapsedHeight: '8rem',
+      
     },
     
-    // Fade overlay for collapsed content
-    fadeOverlay: {
-      // Base classes for fade gradient
-      container: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent',
-      // Animation settings
-      animation: {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
-        duration: 0.15,
-      },
-    }
   },
 
   // Loading overlay patterns - centered viewport overlays using React portals
@@ -407,19 +402,79 @@ export const components = {
     }
   },
 
-  // Outcome display patterns
-  outcome: {
-    container: 'space-y-1',
-    row: 'flex items-center gap-2 px-2 py-1.5',
-    // Compact alternative for tight cards
-    rowCompact: 'flex items-center justify-between px-2 py-1',
-  },
 
   // Metrics layout group for side-by-side comparisons
   metrics: {
     row: 'grid grid-cols-1 md:grid-cols-2 gap-4',
     rowTwoCol: 'grid grid-cols-2 gap-4',
     stat: 'min-w-0',
+  },
+
+  // Toggle action buttons (select all, clear all, etc.)
+  toggleAction: {
+    // Small outline button for secondary toggle actions
+    buttonSecondary: 'w-fit mt-2',
+    // Medium outline button for primary actions
+    buttonPrimary: 'w-fit',
+    // Variant classes for different states
+    variant: 'outline',
+    sizeSecondary: 'sm',
+    sizePrimary: 'default',
+  },
+
+  // Statistical data displays (outcomes, predictions, metrics)
+  statsDisplay: {
+    // Container for stats section
+    container: ' rounded-lg py-3',
+    // Individual stat row
+    statRow: 'flex justify-start items-center gap-4',
+    // Stat label text
+    statLabel: 'text-xl text-foreground',
+    // Right side container with value and progress bar
+    statValue: 'flex items-center gap-2',
+    // Value text (percentage, score, etc.)
+    valueText: 'text-xl font-medium',
+    // Progress bar container
+    progressContainer: 'w-20 h-2 bg-muted rounded-full overflow-hidden',
+    // Progress bar fill
+    progressFill: 'h-full bg-primary transition-all duration-300',
+    // Section spacing
+    statSpacing: 'space-y-2',
+    // Section title
+    sectionTitle: 'text-sm font-medium mb-2 text-muted-foreground',
+  },
+
+  // Market metrics grid patterns
+  marketMetrics: {
+    // Responsive grid for metrics
+    grid: 'grid grid-cols-1 md:grid-cols-3 gap-4',
+    // Individual metric item
+    metric: 'flex items-center gap-2',
+    // Metric content container
+    metricContent: 'div',
+    // Metric label
+    metricLabel: 'text-sm font-medium',
+    // Metric value
+    metricValue: 'text-xs text-muted-foreground',
+    // Icon sizing
+    icon: 'h-4 w-4 text-muted-foreground',
+  },
+
+  // Text collapse/expand patterns
+  textCollapse: {
+    // Container for collapsible text content
+    container: 'space-y-2',
+    // Text content with proper line height and wrapping
+    content: 'text-sm leading-relaxed whitespace-pre-wrap break-words',
+    // Toggle button styling
+    toggleButton: 'text-primary hover:text-primary/80 underline underline-offset-2 text-sm font-medium transition-colors cursor-pointer',
+    // Truncated state indicator
+    truncated: 'line-clamp-3',
+    // Animation duration for expand/collapse
+    animation: {
+      duration: 0.3,
+      ease: "easeInOut" as const,
+    },
   },
 
 } as const;

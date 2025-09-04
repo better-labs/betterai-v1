@@ -136,39 +136,12 @@ export function Header() {
             <div className="flex-shrink-0">
               <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 px-3 shadow-sm hover:shadow-md transition-shadow">
-                      <Menu className="h-7 w-7" />
+                    <Button variant="ghost" className={`h-10 px-2 shadow-md hover:shadow-lg dark:shadow-xl dark:shadow-black/20 dark:border dark:border-white/10 transition-all ${components.button.menu.largeIcon}`}>
+                      <Menu />
                     </Button>
                   </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 shadow-lg">
-                {/* Mobile Search */}
-                {/* {flags.showSearch && (
-                  <>
-                    <div className="p-2">
-                      <form onSubmit={handleSearch} className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                        <Input
-                          type="text"
-                          placeholder="Search markets"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-8 pr-8 h-8 text-sm"
-                        />
-                        {searchQuery && (
-                          <button
-                            type="button"
-                            onClick={clearSearch}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        )}
-                      </form>
-                    </div>
-                    
-                    <DropdownMenuSeparator />
-                  </>
-                )} */}
+                
                 
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>

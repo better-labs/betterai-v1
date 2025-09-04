@@ -2,30 +2,28 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { usePrivy } from '@privy-io/react-auth'
 import { trpc } from '@/lib/trpc/client'
 import { AI_MODELS } from '@/lib/config/ai-models'
 import { PredictionPollingErrorBoundary } from './PredictionPollingErrorBoundary.client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import {
   Loader2,
   CheckCircle,
   AlertCircle,
   Clock,
-  RefreshCw,
-
 } from 'lucide-react'
-
-import type { PredictionSessionStatus } from '@/lib/generated/prisma'
-import { OutcomeStat } from '@/shared/ui/outcome-stat'
+import { PredictionResultCard } from './prediction-result-card.client'
+import { MarketCTA } from '@/features/market/market-card-sections'
 
 interface PredictionResultsProps {
   sessionId: string
   marketId: string
+  marketDTO?: any // MarketDTO
+  eventDTO?: any // EventDTO  
+  externalMarketUrl?: string | null
 }
 
 const STATUS_CONFIG = {
@@ -67,7 +65,7 @@ const STATUS_CONFIG = {
   }
 } as const
 
-export function PredictionResults({ sessionId, marketId }: PredictionResultsProps) {
+export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, externalMarketUrl }: PredictionResultsProps) {
   const router = useRouter()
   const [pollingInterval, setPollingInterval] = useState(5000) // Start with 5s
 
@@ -192,14 +190,15 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
                     {session.step}
                   </div>
                 )}
+                
+                {/* Caption for active states */}
+                {(session.status === 'QUEUED' || session.status === 'GENERATING') && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Gathering latest information and generating predictions. Usually takes 15-30 seconds.
+                  </div>
+                )}
               </div>
               
-              {/* Manual refresh for debugging */}
-              {session.status !== 'FINISHED' && session.status !== 'ERROR' && (
-                <Button variant="ghost" size="sm" onClick={() => refetch()}>
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -226,7 +225,7 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
             const prediction = session.predictions.find(p => p.modelName === modelId)
             
             return (
-              <ModelResultCard
+              <PredictionResultCard
                 key={modelId}
                 model={model}
                 prediction={prediction}
@@ -234,159 +233,24 @@ export function PredictionResults({ sessionId, marketId }: PredictionResultsProp
                 sessionStep={session.step}
                 modelIndex={index}
                 totalModels={session.selectedModels.length}
+                marketData={marketDTO}
               />
             )
           })}
         </div>
 
         {/* Completion Actions */}
-        {session.status === 'FINISHED' && (
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button 
-              variant="secondary"
-              size="md"
-              onClick={() => router.push(`/predict/${marketId}`)}
-              className="flex-1"
-            >
-              Generate New Prediction
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push(`/market/${marketId}`)}
-              className="flex-1"
-            >
-              View Market Details
-            </Button>
-          </div>
+        {marketDTO && (
+          <MarketCTA
+            market={marketDTO}
+            event={eventDTO}
+            externalMarketUrl={externalMarketUrl}
+            onGeneratePrediction={() => router.push(`/predict/${marketId}`)}
+            hidePredictionButton={false}
+          />
         )}
+        
       </div>
     </PredictionPollingErrorBoundary>
-  )
-}
-
-interface SessionPrediction {
-  id?: string
-  outcomes?: string[]
-  outcomesProbabilities?: number[]
-  predictionResult?: {
-    outcomes: string[]
-    probabilities: number[]
-  }
-  aiResponse?: string | null
-}
-
-interface ModelResultCardProps {
-  model?: typeof AI_MODELS[0]
-  prediction?: SessionPrediction
-  sessionStatus: PredictionSessionStatus
-  sessionStep?: string | null
-  modelIndex: number
-  totalModels: number
-}
-
-function ModelResultCard({ model, prediction, sessionStatus, sessionStep, modelIndex, totalModels }: ModelResultCardProps) {
-  const getModelStatus = () => {
-    if (prediction) {
-      return { status: 'completed', icon: CheckCircle, color: 'text-green-600', label: 'Complete' }
-    }
-    
-    if (sessionStatus === 'ERROR') {
-      return { status: 'failed', icon: AlertCircle, color: 'text-red-600', label: 'Failed' }
-    }
-    
-    // Parse current model from step if available
-    const isCurrentModel = sessionStep && model?.id && sessionStep.includes(model.id)
-    const currentModelMatch = sessionStep?.match(/Generating prediction (\d+)\/(\d+)/)
-    const currentModelIndex = currentModelMatch ? parseInt(currentModelMatch[1]) - 1 : -1
-    
-    if (sessionStatus === 'GENERATING') {
-      if (isCurrentModel || currentModelIndex === modelIndex) {
-        return { status: 'processing', icon: Loader2, color: 'text-blue-600', label: 'Generating...' }
-      } else if (currentModelIndex > modelIndex) {
-        // This model was processed but we don't have prediction yet (shouldn't happen)
-        return { status: 'processing', icon: Loader2, color: 'text-blue-600', label: 'Processing...' }
-      } else {
-        // Model is queued
-        return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Queued' }
-      }
-    }
-    
-    if (sessionStatus === 'RESEARCHING' || sessionStatus === 'INITIALIZING') {
-      return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Waiting...' }
-    }
-    
-    return { status: 'waiting', icon: Clock, color: 'text-muted-foreground', label: 'Waiting' }
-  }
-
-  const { status, icon: StatusIcon, color, label } = getModelStatus()
-
-  return (
-    <Card data-debug-id={`model-result-${model?.id}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-base">{model?.name || 'Unknown Model'}</CardTitle>
-            <p className="text-sm text-muted-foreground">{model?.provider}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <StatusIcon 
-              className={`h-5 w-5 ${color} ${status === 'processing' ? 'animate-spin' : ''}`}
-              aria-label={status === 'processing' ? "Loading" : undefined}
-            />
-            <span className={`text-sm font-medium ${color}`}>
-              {label}
-            </span>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0">
-        {status === 'waiting' && (
-          <div className="text-sm text-muted-foreground">
-            {sessionStatus === 'INITIALIZING' ? 'Initializing session...' : 
-             sessionStatus === 'RESEARCHING' ? 'Researching market...' : 
-             'Waiting in queue...'}
-          </div>
-        )}
-        
-        {status === 'processing' && (
-          <div className="text-sm text-muted-foreground">
-            Generating AI prediction...
-          </div>
-        )}
-        
-        {status === 'failed' && (
-          <div className="text-sm text-red-600">Generation failed</div>
-        )}
-        
-        {status === 'completed' && prediction && (
-          <div className="space-y-3">
-            {/* Prediction outcomes */}
-            {prediction.outcomes && prediction.outcomesProbabilities && (
-              <OutcomeStat
-                label="Predicted Probabilities"
-                outcomes={prediction.outcomes}
-                values={prediction.outcomesProbabilities}
-                className="space-y-2"
-              />
-            )}
-            
-            {/* View Prediction Details Button */}
-            {prediction.id && (
-              <div className="pt-2">
-                <Link 
-                  href={`/prediction/${prediction.id}`}
-                  target="_blank"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full"
-                >
-                  
-                  View Details
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
   )
 }

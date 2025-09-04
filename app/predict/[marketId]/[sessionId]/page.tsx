@@ -1,10 +1,13 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
-import { PredictionResults } from '@/features/prediction/PredictionResults.client'
+import { PredictionResults } from '@/features/prediction/prediction-results-section.client'
 import { Card, CardContent } from '@/shared/ui/card'
-import { OutcomeStat } from '@/shared/ui/outcome-stat'
 import { Skeleton } from '@/shared/ui/skeleton'
+import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
+import { mapMarketToDTO } from '@/lib/dtos/market-dto'
+import { mapEventToDTO } from '@/lib/dtos/event-dto'
+import { generateMarketURL } from '@/lib/server-utils'
 
 interface PredictionResultsPageProps {
   params: Promise<{ marketId: string; sessionId: string }>
@@ -15,12 +18,7 @@ async function getMarket(marketId: string) {
   const market = await prisma.market.findUnique({
     where: { id: marketId },
     include: {
-      event: {
-        select: {
-          id: true,
-          title: true,
-        }
-      }
+      event: true
     }
   })
 
@@ -35,10 +33,10 @@ export default async function PredictionResultsPage({ params }: PredictionResult
     notFound()
   }
 
-  // Normalize Prisma Decimal[] -> number[] for UI components
-  const outcomePrices: number[] | null = Array.isArray(market.outcomePrices)
-    ? market.outcomePrices.map((v) => Number(v))
-    : null
+  // Convert to DTOs for client components
+  const marketDTO = mapMarketToDTO(market)
+  const eventDTO = mapEventToDTO(market.event)
+  const externalMarketUrl = await generateMarketURL(market.id)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -49,25 +47,21 @@ export default async function PredictionResultsPage({ params }: PredictionResult
          
         </div>
 
-        {/* Market Info Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">{market.question}</h2>
-              <OutcomeStat
-                label="Market Probability"
-                outcomes={market.outcomes || []}
-                values={outcomePrices || []}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Market Card */}
+        <MarketOverviewCard
+          market={marketDTO}
+          event={eventDTO}
+          externalMarketUrl={externalMarketUrl}
+        />
 
         {/* Results Component */}
         <Suspense fallback={<ResultsSkeleton />}>
           <PredictionResults 
             sessionId={sessionId}
-            marketId={marketId} 
+            marketId={marketId}
+            marketDTO={marketDTO}
+            eventDTO={eventDTO}
+            externalMarketUrl={externalMarketUrl}
           />
         </Suspense>
       </div>

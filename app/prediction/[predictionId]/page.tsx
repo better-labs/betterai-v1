@@ -4,9 +4,9 @@ import * as predictionService from '@/lib/services/prediction-service'
 
 import * as predictionCheckService from '@/lib/services/prediction-check-service'
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
-import MarketDetailsCard from '@/features/market/MarketCard.client'
+import MarketWithPredictionCard from '@/features/market/market-with-prediction-card.client'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
-import { PredictionDetailCard } from "@/features/prediction/PredictionDetailCard.client"
+import { PredictionDetailCard } from "@/features/prediction/prediction-detail-card.client"
 import { components } from "@/lib/design-system"
 
 // Force dynamic rendering to avoid build-time database queries
@@ -56,7 +56,7 @@ export default async function PredictionDetailPage({ params }: PageProps) {
         <div className={components.page.sections}>
           {/* Market Card with current prediction */}
           {marketDTO && eventDTO && (
-            <MarketDetailsCard
+            <MarketWithPredictionCard
               market={marketDTO}
               event={eventDTO}
               latestPrediction={prediction}

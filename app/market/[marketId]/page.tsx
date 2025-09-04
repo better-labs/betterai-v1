@@ -5,13 +5,14 @@ import * as predictionService from '@/lib/services/prediction-service'
 import * as eventService from '@/lib/services/event-service'
 import { generateMarketURL } from '@/lib/server-utils'
 import type { PredictionResult } from '@/lib/types'
-import MarketDetailsCard from '@/features/market/MarketCard.client'
-import { MarketDescriptionCard } from '@/features/market/MarketDescriptionCard.client'
+import MarketWithPredictionCard from '@/features/market/market-with-prediction-card.client'
+import { MarketDescriptionCard } from '@/features/market/market-description-card.client'
 import { MarketStalenessHandler } from '@/features/market/MarketStalenessHandler.client'
-import { PredictionDetailCard } from '@/features/prediction/PredictionDetailCard.client'
+import { PredictionDetailCard } from '@/features/prediction/prediction-detail-card.client'
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 import { components } from '@/lib/design-system'
+import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -63,21 +64,15 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
 
         {/* Main Content Sections */}
         <div className={components.page.sections}>
-          {/* Market Details Card */}
-          <MarketDetailsCard
-            market={serializedMarket}
-            event={serializedEvent}
-            externalMarketUrl={externalMarketUrl}
-            latestPrediction={serializedPrediction}
-          />
-
-          {/* Market Description */}
-          <MarketDescriptionCard market={serializedMarket} />
-
+          
+          {/* Market Overview */}
+          <MarketOverviewCard market={serializedMarket} externalMarketUrl={externalMarketUrl} event={serializedEvent} />
+         
           {/* Most Recent Prediction */}
           <PredictionDetailCard
             predictionResult={predictionResult}
             serializedPrediction={serializedPrediction}
+            makePredictionHref={`/predict/${marketId}`}
           />
         </div>
 

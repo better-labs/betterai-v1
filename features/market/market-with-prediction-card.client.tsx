@@ -13,12 +13,12 @@ import { components, spacing } from '@/lib/design-system'
 import { 
   MarketHeader, 
   MarketMetrics, 
-  MarketDelta, 
+  AIDelta, 
   MarketCTA, 
   MarketMeta 
 } from './market-card-sections'
 
-interface MarketDetailsCardProps {
+interface MarketWithPredictionCardProps {
   market: Market
   event?: Event | null
   externalMarketUrl?: string | null
@@ -29,7 +29,7 @@ interface MarketDetailsCardProps {
   hideReasoning?: boolean
 }
 
-export default function MarketDetailsCard({
+export default function MarketWithPredictionCard({
   market,
   event,
   externalMarketUrl,
@@ -38,11 +38,10 @@ export default function MarketDetailsCard({
   href = null,
   hidePredictionButton = false,
   hideReasoning = false,
-}: MarketDetailsCardProps) {
+}: MarketWithPredictionCardProps) {
 
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const [isGeneratingPrediction, setIsGeneratingPrediction] = useState(false)
   const { authenticated, login } = usePrivy()
 
   // Ensure client-side hydration
@@ -71,22 +70,21 @@ export default function MarketDetailsCard({
       return
     }
 
-    // Set loading state and route to predict page
-    setIsGeneratingPrediction(true)
+    // Route to predict page
     router.push(`/predict/${market.id}`)
   }
 
   const card = (
     <Card className={`${components.card.base} ${components.card.hover} ${spacing.card} ${className}`} data-debug-id="market-card">
       <CardHeader className="pb-2">
-        <MarketHeader market={market} event={event} href={href} />
+        <MarketHeader market={market} event={event} href={href} showActiveStatus={true} />
       </CardHeader>
       
       <CardContent className={`space-y-6 ${components.interactive.safeArea}`}>
         <MarketMetrics market={market} latestPrediction={latestPrediction} />
         
         {latestPrediction && (
-          <MarketDelta 
+          <AIDelta 
             market={market} 
             latestPrediction={latestPrediction} 
             hideReasoning={hideReasoning} 
@@ -99,7 +97,6 @@ export default function MarketDetailsCard({
           externalMarketUrl={externalMarketUrl}
           onGeneratePrediction={handleGeneratePrediction}
           hidePredictionButton={hidePredictionButton}
-          isGeneratingPrediction={isGeneratingPrediction}
         />
         
         <MarketMeta 
