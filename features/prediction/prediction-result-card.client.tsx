@@ -12,6 +12,8 @@ import {
 
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
 import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
+import { AIDelta } from '@/features/market/market-card-sections'
+import type { MarketDTO, PredictionDTO } from '@/lib/types'
 
 interface SessionPrediction {
   id?: string
@@ -31,9 +33,10 @@ interface PredictionResultCardProps {
   sessionStep?: string | null
   modelIndex: number
   totalModels: number
+  marketData?: MarketDTO | null
 }
 
-export function PredictionResultCard({ model, prediction, sessionStatus, sessionStep, modelIndex, totalModels }: PredictionResultCardProps) {
+export function PredictionResultCard({ model, prediction, sessionStatus, sessionStep, modelIndex, marketData }: PredictionResultCardProps) {
   const getModelStatus = () => {
     if (prediction) {
       return { status: 'completed', icon: CheckCircle, color: 'text-green-600', label: 'Complete' }
@@ -120,6 +123,20 @@ export function PredictionResultCard({ model, prediction, sessionStatus, session
                 }))}
                 className="space-y-2"
               />
+            )}
+            
+            {/* AI Delta */}
+            {prediction.id && marketData && prediction.outcomesProbabilities && (
+              <div className="pt-2">
+                <AIDelta
+                  market={marketData}
+                  latestPrediction={{
+                    id: prediction.id,
+                    outcomesProbabilities: prediction.outcomesProbabilities
+                  } as PredictionDTO}
+                  hideReasoning={true}
+                />
+              </div>
             )}
             
             {/* View Prediction Details Button */}

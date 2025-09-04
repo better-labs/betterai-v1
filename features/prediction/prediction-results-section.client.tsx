@@ -14,7 +14,6 @@ import {
   CheckCircle,
   AlertCircle,
   Clock,
-  RefreshCw,
 } from 'lucide-react'
 import { PredictionResultCard } from './prediction-result-card.client'
 import { MarketCTA } from '@/features/market/market-card-sections'
@@ -191,14 +190,15 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
                     {session.step}
                   </div>
                 )}
+                
+                {/* Caption for active states */}
+                {(session.status === 'QUEUED' || session.status === 'GENERATING') && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Gathering latest information and generating predictions. Usually takes 15-30 seconds.
+                  </div>
+                )}
               </div>
               
-              {/* Manual refresh for debugging */}
-              {session.status !== 'FINISHED' && session.status !== 'ERROR' && (
-                <Button variant="ghost" size="sm" onClick={() => refetch()}>
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -233,6 +233,7 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
                 sessionStep={session.step}
                 modelIndex={index}
                 totalModels={session.selectedModels.length}
+                marketData={marketDTO}
               />
             )
           })}
@@ -246,7 +247,6 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
             externalMarketUrl={externalMarketUrl}
             onGeneratePrediction={() => router.push(`/predict/${marketId}`)}
             hidePredictionButton={false}
-            isGeneratingPrediction={false}
           />
         )}
         
