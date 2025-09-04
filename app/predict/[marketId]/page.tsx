@@ -4,10 +4,10 @@ import { prisma } from '@/lib/db/prisma'
 import { PredictionGenerator } from '@/features/prediction/prediction-generator.client'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Skeleton } from '@/shared/ui/skeleton'
-import MarketWithPredictionCard from '@/features/market/market-with-prediction-card.client'
+import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
 import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
-
+import {generateMarketURL} from '@/lib/server-utils'
 interface PredictPageProps {
   params: Promise<{ marketId: string }>
 }
@@ -35,6 +35,7 @@ export default async function PredictPage({ params }: PredictPageProps) {
   // Convert to DTOs for client components
   const marketDTO = mapMarketToDTO(market)
   const eventDTO = mapEventToDTO(market.event)
+  const externalMarketUrl = await generateMarketURL(market.id)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -48,11 +49,10 @@ export default async function PredictPage({ params }: PredictPageProps) {
         </div>
 
         {/* Market Card */}
-        <MarketWithPredictionCard
+        <MarketOverviewCard
           market={marketDTO}
           event={eventDTO}
-          className="w-full"
-          hidePredictionButton={true}
+          externalMarketUrl={externalMarketUrl}
         />
 
         {/* Generator Component */}

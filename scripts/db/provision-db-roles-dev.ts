@@ -8,6 +8,7 @@
  *   
  * Options:
  *   --generate-new-passwords : Force generation of new passwords even for existing roles
+ *   --update-vercel-env      : Automatically update Vercel development environment variables
  *
  * DEVELOPMENT FOCUSED:
  *   - Does NOT rotate passwords if roles already exist (dev-friendly)
@@ -33,6 +34,7 @@
 import { Client } from "pg";
 import crypto from "crypto";
 import * as dotenv from "dotenv";
+import { execSync } from "child_process";
 
 // Load environment variables from .env.local
 dotenv.config({ path: '.env.local' });
@@ -100,6 +102,21 @@ function buildUrl(
   return u.toString();
 }
 
+async function updateVercelEnvVar(varName: string, value: string): Promise<void> {
+  try {
+    console.log(`🔄 Updating Vercel env var: ${varName}...`);
+    
+    // Use echo to pipe the value to vercel env add to avoid interactive prompts
+    const command = `echo "${value}" | vercel env add ${varName} development --force`;
+    execSync(command, { stdio: ['pipe', 'pipe', 'inherit'] });
+    
+    console.log(`✅ Successfully updated ${varName} in Vercel development environment`);
+  } catch (error) {
+    console.error(`❌ Failed to update ${varName} in Vercel:`, error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}
+
 async function main() {
   const input = process.env.DATABASE_URL_NEONDB_OWNER;
   if (!input) fatal("DATABASE_URL_NEONDB_OWNER environment variable is required in .env.local");
@@ -108,6 +125,12 @@ async function main() {
   const forceNewPasswords = process.argv.includes('--generate-new-passwords');
   if (forceNewPasswords) {
     console.log("🔄 --generate-new-passwords flag detected: Will generate new passwords for all roles");
+  }
+
+  // Check for --update-vercel-env flag
+  const updateVercelEnv = process.argv.includes('--update-vercel-env');
+  if (updateVercelEnv) {
+    console.log("🔄 --update-vercel-env flag detected: Will update Vercel development environment variables");
   }
 
   let url: URL;
@@ -293,8 +316,11 @@ async function main() {
       // Show URLs with new passwords (only for roles that got new passwords)
       console.log("\n# === Copy these to your env store ===");
       
+      let pooledAppUrl = "";
+      let directAdminUrl = "";
+
       if (appPwd) {
-        const pooledAppUrl = buildUrl(url, {
+        pooledAppUrl = buildUrl(url, {
           username: "betterai_app",
           password: appPwd,
           host: pooledHost, // keep -pooler for app runtime
@@ -304,13 +330,34 @@ async function main() {
 
       if (adminPwd) {
         // Direct (non-pooled) admin URL for migrations/DDL
-        const directAdminUrl = buildUrl(url, {
+        directAdminUrl = buildUrl(url, {
           username: "betterai_admin",
           password: adminPwd,
           host: directHost, // remove -pooler
         });
 
         console.log(`DATABASE_URL_UNPOOLED=${directAdminUrl}`);     // direct, admin role (migrations/DDL)
+      }
+
+      // Update Vercel environment variables if flag is set
+      if (updateVercelEnv && (appPwd || adminPwd)) {
+        console.log("\n🔄 Updating Vercel development environment variables...");
+        
+        try {
+          if (appPwd && pooledAppUrl) {
+            await updateVercelEnvVar("DATABASE_URL", pooledAppUrl);
+          }
+          
+          if (adminPwd && directAdminUrl) {
+            await updateVercelEnvVar("DATABASE_URL_UNPOOLED", directAdminUrl);
+          }
+          
+          console.log("✅ Successfully updated Vercel environment variables");
+        } catch (error) {
+          console.error("⚠️  Failed to update some Vercel environment variables. You may need to update them manually:");
+          console.error("   Run: vercel env add DATABASE_URL development");
+          console.error("   Run: vercel env add DATABASE_URL_UNPOOLED development");
+        }
       }
     } else {
       // Existing roles - passwords preserved, URLs unchanged
