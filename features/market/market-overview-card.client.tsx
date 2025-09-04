@@ -6,6 +6,7 @@ import { formatVolume } from '@/lib/utils'
 import { typography, components } from '@/lib/design-system'
 import type { EventDTO, MarketDTO } from '@/lib/types'
 import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
+import { TextCollapse } from '@/shared/ui/text-collapse.client'
 import { MarketHeader } from "./market-card-sections"
 
 interface MarketOverviewCardProps {
@@ -42,9 +43,9 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
           {market.description && (
             <div>
               <h4 className={components.statsDisplay.sectionTitle}>Description</h4>
-              <div className={`${typography.bodySmall} whitespace-pre-wrap`}>
+              <TextCollapse maxLength={150}>
                 {market.description}
-              </div>
+              </TextCollapse>
             </div>
           )}
 

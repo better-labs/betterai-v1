@@ -451,6 +451,23 @@ export const components = {
     icon: 'h-4 w-4 text-muted-foreground',
   },
 
+  // Text collapse/expand patterns
+  textCollapse: {
+    // Container for collapsible text content
+    container: 'space-y-2',
+    // Text content with proper line height and wrapping
+    content: 'text-sm leading-relaxed whitespace-pre-wrap break-words',
+    // Toggle button styling
+    toggleButton: 'text-primary hover:text-primary/80 underline underline-offset-2 text-sm font-medium transition-colors cursor-pointer',
+    // Truncated state indicator
+    truncated: 'line-clamp-3',
+    // Animation duration for expand/collapse
+    animation: {
+      duration: 0.3,
+      ease: "easeInOut" as const,
+    },
+  },
+
 } as const;
 
 // ============================================================================
