@@ -25,7 +25,9 @@
     "cron:daily-generate-batch-predictions": "dotenv -e .env.local -- node scripts/cron/cron-daily-generate-batch-predictions.js",
     "cron:prediction-check": "dotenv -e .env.local -- node scripts/cron/cron-prediction-check.js",
     "cron:update-ai-models": "dotenv -e .env.local -- node scripts/cron/cron-update-ai-models.js",
-    "cron:daily-update-polymarket-data": "dotenv -e .env.local -- node scripts/cron/cron-daily-update-polymarket-data.js"
+    "cron:daily-update-polymarket-data": "dotenv -e .env.local -- node scripts/cron/cron-daily-update-polymarket-data.js",
+    "admin:credits": "dotenv -e .env.local -- npx tsx scripts/manage-user-credits.ts",
+    "admin:credits:prod": "dotenv -e .env.production -- npx tsx scripts/manage-user-credits.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
