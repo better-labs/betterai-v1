@@ -64,13 +64,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
 
         {/* Main Content Sections */}
         <div className={components.page.sections}>
-          {/* Market Details Card */}
-          <MarketWithPredictionCard
-            market={serializedMarket}
-            event={serializedEvent}
-            externalMarketUrl={externalMarketUrl}
-            latestPrediction={serializedPrediction}
-          />
+          
           {/* Market Overview */}
           <MarketOverviewCard market={serializedMarket} externalMarketUrl={externalMarketUrl} event={serializedEvent} />
          

@@ -55,14 +55,7 @@ export interface MarketMetaProps {
 export function MarketHeader({ market, event, href, showActiveStatus = false }: MarketHeaderProps) {
   const content = (
     <div className="relative">
-      {/* Active Status Badge - Top Right */}
-      {showActiveStatus && typeof market.active !== 'undefined' && market.active !== null && (
-        <div className="absolute -top-1 -right-1 z-10">
-          <span className={components.cardFooter.metadataBadge}>
-            {market.active ? 'Active' : 'Inactive'}
-          </span>
-        </div>
-      )}
+      
       
       <div className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity">
         {event && (
@@ -74,10 +67,18 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
             className="flex-shrink-0"
           />
         )}
-        <h3 className={`${typography.h2} ${spacing.heading} whitespace-pre-wrap break-words`}>
+        <h3 className={`${typography.h3} ${spacing.heading} whitespace-pre-wrap break-words`}>
           {market.question}
         </h3>
       </div>
+
+      {/* Active Status Badge - Top Right */}
+      {showActiveStatus && typeof market.active !== 'undefined' && market.active !== null && (
+          <span className={components.cardFooter.metadataBadge}>
+            {market.active ? 'Active' : 'Inactive'}
+          </span>
+        
+      )}
     </div>
   )
 

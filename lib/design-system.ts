@@ -349,7 +349,6 @@ export const components = {
     iconLg: 'w-6 h-6',
     // Rotation states
     expanded: 'rotate-180',
-    collapsed: 'rotate-0',
   },
 
   // Motion patterns for Framer Motion components
@@ -365,22 +364,9 @@ export const components = {
         duration: 0.2,
         ease: "easeInOut" as const,
       },
-      // Height settings
-      collapsedHeight: '8rem',
+      
     },
     
-    // Fade overlay for collapsed content
-    fadeOverlay: {
-      // Base classes for fade gradient
-      container: 'absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-muted/20 to-transparent',
-      // Animation settings
-      animation: {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
-        duration: 0.15,
-      },
-    }
   },
 
   // Loading overlay patterns - centered viewport overlays using React portals
