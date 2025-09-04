@@ -18,17 +18,7 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
   return (
     <Card>
       <CardHeader>
-      <MarketHeader market={market} event={event}  />
-
-      {/* Market Active Status */}
-      {typeof market.active !== 'undefined' && market.active !== null && (
-            <div className="flex justify-start">
-              <span className={components.cardFooter.metadataBadge}>
-                {market.active ? 'Active' : 'Inactive'}
-              </span>
-            </div>
-          )}
-
+        <MarketHeader market={market} event={event} showActiveStatus={true} />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

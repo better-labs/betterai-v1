@@ -52,21 +52,32 @@ export interface MarketMetaProps {
 // MARKET HEADER COMPONENT
 // ============================================================================
 
-export function MarketHeader({ market, event, href }: MarketHeaderProps) {
+export function MarketHeader({ market, event, href, showActiveStatus = false }: MarketHeaderProps) {
   const content = (
-    <div className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity">
-      {event && (
-        <EventIcon
-          image={event.image}
-          icon={event.icon}
-          title={event.title}
-          size="twoxl"
-          className="flex-shrink-0"
-        />
+    <div className="relative">
+      {/* Active Status Badge - Top Right */}
+      {showActiveStatus && typeof market.active !== 'undefined' && market.active !== null && (
+        <div className="absolute -top-1 -right-1 z-10">
+          <span className={components.cardFooter.metadataBadge}>
+            {market.active ? 'Active' : 'Inactive'}
+          </span>
+        </div>
       )}
-      <h3 className={`${typography.h2} ${spacing.heading} whitespace-pre-wrap break-words`}>
-        {market.question}
-      </h3>
+      
+      <div className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity">
+        {event && (
+          <EventIcon
+            image={event.image}
+            icon={event.icon}
+            title={event.title}
+            size="twoxl"
+            className="flex-shrink-0"
+          />
+        )}
+        <h3 className={`${typography.h2} ${spacing.heading} whitespace-pre-wrap break-words`}>
+          {market.question}
+        </h3>
+      </div>
     </div>
   )
 
