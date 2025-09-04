@@ -190,6 +190,15 @@ export const components = {
     base: 'bg-card border border-border rounded-lg shadow-sm',
     hover: 'hover:shadow-md transition-shadow duration-200',
   },
+
+  // Button patterns
+  button: {
+    // Menu button with larger icons for dropdown triggers
+    menu: {
+      base: 'hover:bg-accent hover:text-accent-foreground',
+      largeIcon: '[&_svg]:!size-6', // Override default button SVG size-4 with size-6
+    },
+  },
   
 
   // Input patterns
