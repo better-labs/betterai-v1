@@ -437,7 +437,7 @@ export const components = {
   // Statistical data displays (outcomes, predictions, metrics)
   statsDisplay: {
     // Container for stats section
-    container: ' rounded-lg p-3',
+    container: ' rounded-lg py-3',
     // Individual stat row
     statRow: 'flex justify-start items-center gap-4',
     // Stat label text
@@ -453,7 +453,7 @@ export const components = {
     // Section spacing
     statSpacing: 'space-y-2',
     // Section title
-    sectionTitle: 'text-sm font-medium mb-2',
+    sectionTitle: 'text-sm font-medium mb-2 text-muted-foreground',
   },
 
   // Market metrics grid patterns
