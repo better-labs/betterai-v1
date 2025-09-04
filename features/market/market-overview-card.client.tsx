@@ -5,6 +5,7 @@ import { Calendar, DollarSign, BarChart2, ExternalLink } from 'lucide-react'
 import { formatVolume } from '@/lib/utils'
 import { typography, components } from '@/lib/design-system'
 import type { MarketDTO } from '@/lib/types'
+import { StatsDisplaySection } from './stats-display-section.client'
 
 interface MarketOverviewCardProps {
   market: MarketDTO
@@ -36,31 +37,14 @@ export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverview
           </div>
 
           {/* Market Outcomes & Prices */}
-          {market.outcomePrices && market.outcomePrices.length > 0 && (
-            <div className={components.statsDisplay.container}>
-              <h4 className={components.statsDisplay.sectionTitle}>Market Probability</h4>
-              <div className={components.statsDisplay.statSpacing}>
-                {market.outcomes?.map((outcome, index) => {
-                  const price = market.outcomePrices[index]
-                  const percentage = price ? Math.round(price * 100) : 0
-                  
-                  return (
-                    <div key={index} className={components.statsDisplay.statRow}>
-                      <span className={components.statsDisplay.statLabel}>{outcome}</span>
-                      <div className={components.statsDisplay.statValue}>
-                        <span className={components.statsDisplay.valueText}>{percentage}%</span>
-                        <div className={components.statsDisplay.progressContainer}>
-                          <div 
-                            className={components.statsDisplay.progressFill}
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+          {market.outcomePrices && market.outcomePrices.length > 0 && market.outcomes && (
+            <StatsDisplaySection
+              title="Market Probability"
+              stats={market.outcomes.map((outcome, index) => ({
+                label: outcome,
+                value: market.outcomePrices[index] || null
+              }))}
+            />
           )}
 
           {/* Market Metrics */}

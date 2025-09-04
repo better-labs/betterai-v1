@@ -407,13 +407,6 @@ export const components = {
     }
   },
 
-  // Outcome display patterns
-  outcome: {
-    container: 'space-y-1',
-    row: 'flex items-center gap-2 px-2 py-1.5',
-    // Compact alternative for tight cards
-    rowCompact: 'flex items-center justify-between px-2 py-1',
-  },
 
   // Metrics layout group for side-by-side comparisons
   metrics: {

@@ -41,13 +41,13 @@ export function OutcomeStat({
     : typography.outcomeLabel
 
   const outcomeContent = (
-    <div className={components.outcome.container}>
+    <div className={components.statsDisplay.statSpacing}>
       {outcomes.map((outcome, i) => {
         const value = values?.[i]
         return (
-          <div key={i} className={components.outcome.row}>
-            <span className={labelClass}>{outcome}</span>
-            <span className={valueClass}>
+          <div key={i} className={components.statsDisplay.statRow}>
+            <span className={`${labelClass} ${components.statsDisplay.statLabel}`}>{outcome}</span>
+            <span className={`${valueClass} ${components.statsDisplay.valueText}`}>
               {value !== undefined && value !== null
                 ? formatPercent(value)
                 : '--'

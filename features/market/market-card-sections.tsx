@@ -26,7 +26,7 @@ export interface MarketMetricsProps {
   latestPrediction?: Prediction | null
 }
 
-export interface MarketDeltaProps {
+export interface AIDeltaProps {
   market: Market
   latestPrediction: Prediction
   hideReasoning?: boolean
@@ -152,10 +152,10 @@ function ExpandableReasoning({ reasoning }: ExpandableReasoningProps) {
 }
 
 // ============================================================================
-// MARKET DELTA COMPONENT
+// AI DELTA COMPONENT
 // ============================================================================
 
-export function MarketDelta({ market, latestPrediction, hideReasoning = false }: MarketDeltaProps) {
+export function AIDelta({ market, latestPrediction, hideReasoning = false }: AIDeltaProps) {
   const delta = computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
 
   return (

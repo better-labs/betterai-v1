@@ -13,7 +13,7 @@ import { components, spacing } from '@/lib/design-system'
 import { 
   MarketHeader, 
   MarketMetrics, 
-  MarketDelta, 
+  AIDelta, 
   MarketCTA, 
   MarketMeta 
 } from './market-card-sections'
@@ -86,7 +86,7 @@ export default function MarketWithPredictionCard({
         <MarketMetrics market={market} latestPrediction={latestPrediction} />
         
         {latestPrediction && (
-          <MarketDelta 
+          <AIDelta 
             market={market} 
             latestPrediction={latestPrediction} 
             hideReasoning={hideReasoning} 
