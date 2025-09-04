@@ -395,7 +395,7 @@ export const processWatchlistPredictions = inngest.createFunction({
 
 ## Future Enhancements (v2)
 
-### Phase 2 Features (Next Release)
+### Phase 5 Features (Next Release)
 1. **Automated Schedules**
    - Daily/weekly cron jobs
    - Staggered processing
@@ -416,7 +416,7 @@ export const processWatchlistPredictions = inngest.createFunction({
    - Usage analytics
    - Performance monitoring
 
-### Phase 3 Features (Future)
+### Phase 6 Features (Future)
 1. **Model Selection**
    - Choose AI model per prediction
    - Dynamic credit costs

@@ -3,7 +3,8 @@
 import "./header.css"
 import { Button } from "@/shared/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu"
-import { TrendingUp, Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail, Activity } from "lucide-react"
+import { Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail, Activity } from "lucide-react"
+import Image from "next/image"
 import { SearchInput } from "@/shared/ui/search-input"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -58,7 +59,13 @@ export function Header() {
           {/* Logo Section */}
           <div className="header-logo-section">
             <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105 duration-200">
-              <TrendingUp className="h-10 w-10 text-primary" />
+              <Image 
+                src="/icon/betterai-icon.png" 
+                alt="BetterAI Logo" 
+                width={40} 
+                height={40} 
+                className="h-10 w-10"
+              />
               <span className="text-2xl font-bold text-foreground">BetterAI</span>
             </Link>
 
