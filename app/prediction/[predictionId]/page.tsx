@@ -5,8 +5,6 @@ import * as predictionService from '@/lib/services/prediction-service'
 import * as predictionCheckService from '@/lib/services/prediction-check-service'
 import { PredictionHistoryList } from "@/features/prediction/PredictionHistoryList.client"
 import MarketDetailsCard from '@/features/market/MarketCard.client'
-import { mapMarketToDTO } from '@/lib/dtos/market-dto'
-import { mapEventToDTO } from '@/lib/dtos/event-dto'
 import type { PredictionDTO, PredictionCheckDTO } from "@/lib/types"
 import { PredictionDetailCard } from "@/features/prediction/PredictionDetailCard.client"
 import { components } from "@/lib/design-system"
@@ -40,9 +38,9 @@ export default async function PredictionDetailPage({ params }: PageProps) {
     marketId ? predictionService.getPredictionsByMarketIdSerialized(prisma, marketId) : Promise.resolve([]),
   ])
 
-  // Convert to DTOs for client components
-  const marketDTO = market ? mapMarketToDTO(market) : null
-  const eventDTO = event ? mapEventToDTO(event) : null
+  // Data is already converted to DTOs by the service
+  const marketDTO = market
+  const eventDTO = event
 
   return (
     <div className={components.page.container}>

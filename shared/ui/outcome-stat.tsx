@@ -15,6 +15,7 @@ interface OutcomeStatProps {
   className?: string
   density?: "comfortable" | "compact"
   align?: "left" | "center" | "right"
+  size?: "sm" | "md" | "lg"
 }
 
 export function OutcomeStat({
@@ -26,16 +27,27 @@ export function OutcomeStat({
   className,
   density = "compact",
   align = "left",
+  size = "md",
 }: OutcomeStatProps) {
   // Inline OutcomeDisplay logic using design system tokens
+  const valueClass = size === 'lg'
+    ? typography.outcomeValueLg
+    : size === 'md'
+      ? typography.outcomeValueMd
+      : typography.outcomeValue
+
+  const labelClass = size === 'md' || size === 'lg'
+    ? typography.outcomeLabelMd
+    : typography.outcomeLabel
+
   const outcomeContent = (
     <div className={components.outcome.container}>
       {outcomes.map((outcome, i) => {
         const value = values?.[i]
         return (
           <div key={i} className={components.outcome.row}>
-            <span className={typography.body}>{outcome}</span>
-            <span className={typography.body}>
+            <span className={labelClass}>{outcome}</span>
+            <span className={valueClass}>
               {value !== undefined && value !== null
                 ? formatPercent(value)
                 : '--'
