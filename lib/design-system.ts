@@ -434,6 +434,44 @@ export const components = {
     sizePrimary: 'default',
   },
 
+  // Statistical data displays (outcomes, predictions, metrics)
+  statsDisplay: {
+    // Container for stats section
+    container: ' rounded-lg p-3',
+    // Individual stat row
+    statRow: 'flex justify-start items-center gap-4',
+    // Stat label text
+    statLabel: 'text-md text-foreground',
+    // Right side container with value and progress bar
+    statValue: 'flex items-center gap-2',
+    // Value text (percentage, score, etc.)
+    valueText: 'text-md font-medium',
+    // Progress bar container
+    progressContainer: 'w-20 h-2 bg-muted rounded-full overflow-hidden',
+    // Progress bar fill
+    progressFill: 'h-full bg-primary transition-all duration-300',
+    // Section spacing
+    statSpacing: 'space-y-2',
+    // Section title
+    sectionTitle: 'text-sm font-medium mb-2',
+  },
+
+  // Market metrics grid patterns
+  marketMetrics: {
+    // Responsive grid for metrics
+    grid: 'grid grid-cols-1 md:grid-cols-3 gap-4',
+    // Individual metric item
+    metric: 'flex items-center gap-2',
+    // Metric content container
+    metricContent: 'div',
+    // Metric label
+    metricLabel: 'text-sm font-medium',
+    // Metric value
+    metricValue: 'text-xs text-muted-foreground',
+    // Icon sizing
+    icon: 'h-4 w-4 text-muted-foreground',
+  },
+
 } as const;
 
 // ============================================================================

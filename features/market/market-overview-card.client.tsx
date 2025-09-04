@@ -3,7 +3,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Calendar, DollarSign, BarChart2, ExternalLink } from 'lucide-react'
 import { formatVolume } from '@/lib/utils'
-import { typography } from '@/lib/design-system'
+import { typography, components } from '@/lib/design-system'
 import type { MarketDTO } from '@/lib/types'
 
 interface MarketOverviewCardProps {
@@ -19,6 +19,15 @@ export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverview
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* Market Active Status */}
+          {typeof market.active !== 'undefined' && market.active !== null && (
+            <div className="flex justify-start">
+              <span className={components.cardFooter.metadataBadge}>
+                {market.active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          )}
+
           {/* Market Question */}
           <div>
             <h3 className={`font-semibold ${typography.h4} mb-2`}>
@@ -26,34 +35,62 @@ export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverview
             </h3>
           </div>
 
+          {/* Market Outcomes & Prices */}
+          {market.outcomePrices && market.outcomePrices.length > 0 && (
+            <div className={components.statsDisplay.container}>
+              <h4 className={components.statsDisplay.sectionTitle}>Market Probability</h4>
+              <div className={components.statsDisplay.statSpacing}>
+                {market.outcomes?.map((outcome, index) => {
+                  const price = market.outcomePrices[index]
+                  const percentage = price ? Math.round(price * 100) : 0
+                  
+                  return (
+                    <div key={index} className={components.statsDisplay.statRow}>
+                      <span className={components.statsDisplay.statLabel}>{outcome}</span>
+                      <div className={components.statsDisplay.statValue}>
+                        <span className={components.statsDisplay.valueText}>{percentage}%</span>
+                        <div className={components.statsDisplay.progressContainer}>
+                          <div 
+                            className={components.statsDisplay.progressFill}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Market Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="text-sm font-medium">Volume</div>
-                <div className="text-xs text-muted-foreground">
+          <div className={components.marketMetrics.grid}>
+            <div className={components.marketMetrics.metric}>
+              <DollarSign className={components.marketMetrics.icon} />
+              <div className={components.marketMetrics.metricContent}>
+                <div className={components.marketMetrics.metricLabel}>Volume</div>
+                <div className={components.marketMetrics.metricValue}>
                   {formatVolume(Number(market.volume) || 0)}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <BarChart2 className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="text-sm font-medium">Liquidity</div>
-                <div className="text-xs text-muted-foreground">
+            <div className={components.marketMetrics.metric}>
+              <BarChart2 className={components.marketMetrics.icon} />
+              <div className={components.marketMetrics.metricContent}>
+                <div className={components.marketMetrics.metricLabel}>Liquidity</div>
+                <div className={components.marketMetrics.metricValue}>
                   {formatVolume(Number(market.liquidity) || 0)}
                 </div>
               </div>
             </div>
 
             {market.endDate && (
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <div className="text-sm font-medium">Closes</div>
-                  <div className="text-xs text-muted-foreground">
+              <div className={components.marketMetrics.metric}>
+                <Calendar className={components.marketMetrics.icon} />
+                <div className={components.marketMetrics.metricContent}>
+                  <div className={components.marketMetrics.metricLabel}>Closes</div>
+                  <div className={components.marketMetrics.metricValue}>
                     {new Date(market.endDate).toLocaleDateString()}
                   </div>
                 </div>
@@ -73,6 +110,15 @@ export function MarketOverviewCard({ market, externalMarketUrl }: MarketOverview
                 <ExternalLink className="h-3 w-3" />
                 View on Polymarket
               </a>
+            </div>
+          )}
+
+          {/* Resolution Source */}
+          {market.resolutionSource && (
+            <div className={components.cardFooter.container}>
+              <div className={components.cardFooter.item}>
+                <strong>Resolution Source:</strong> {market.resolutionSource}
+              </div>
             </div>
           )}
         </div>

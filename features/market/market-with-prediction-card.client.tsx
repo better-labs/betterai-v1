@@ -18,7 +18,7 @@ import {
   MarketMeta 
 } from './market-card-sections'
 
-interface MarketDetailsCardProps {
+interface MarketWithPredictionCardProps {
   market: Market
   event?: Event | null
   externalMarketUrl?: string | null
@@ -29,7 +29,7 @@ interface MarketDetailsCardProps {
   hideReasoning?: boolean
 }
 
-export default function MarketDetailsCard({
+export default function MarketWithPredictionCard({
   market,
   event,
   externalMarketUrl,
@@ -38,7 +38,7 @@ export default function MarketDetailsCard({
   href = null,
   hidePredictionButton = false,
   hideReasoning = false,
-}: MarketDetailsCardProps) {
+}: MarketWithPredictionCardProps) {
 
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
