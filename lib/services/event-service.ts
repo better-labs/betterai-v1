@@ -94,6 +94,9 @@ export async function getTrendingEventsWithMarkets(
     take: 50, // Get more events since we'll filter down to one market per event
     include: {
       markets: {
+        where: {
+          closed: false  // Only include open markets in trending
+        },
         orderBy: {
           volume: 'desc'
         },
