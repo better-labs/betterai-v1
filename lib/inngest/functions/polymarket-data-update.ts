@@ -14,6 +14,13 @@ import { updatePolymarketEventsAndMarketData } from '../../services/updatePolyma
 import { updateActivePolymarketEvents } from '../../services/updateActivePolymarketEvents'
 import { sendHeartbeatSafe, HeartbeatType } from '../../services/heartbeat'
 import { structuredLogger } from '../../utils/structured-logger'
+import { 
+  createExecutionId, 
+  createPolymarketConfig, 
+  handleTimeoutError, 
+  logUpdateCompletion, 
+  logConfiguration 
+} from '../utils/polymarket-update-helper'
 
 /**
  * Regular Polymarket data update - runs every 6 hours
@@ -29,7 +36,7 @@ export const polymarketDataUpdate = inngest.createFunction(
     cron: 'TZ=UTC 0 */6 * * *' // Every 6 hours
   },
   async ({ step }) => {
-    const executionId = `polymarket-update-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    const executionId = createExecutionId('polymarket-update')
     
     structuredLogger.info('polymarket_data_update_started', 'Starting Polymarket data update', {
       executionId,
@@ -39,37 +46,29 @@ export const polymarketDataUpdate = inngest.createFunction(
 
     // Step 1: Update Polymarket data with default parameters
     const updateResult = await step.run('update-polymarket-data', async () => {
-      const config = {
+      const config = createPolymarketConfig('POLYMARKET_UPDATE', {
         batchSize: Math.min(Number(process.env.POLYMARKET_UPDATE_BATCH_SIZE ?? 50), 100),
-        maxEvents: Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50),
-        delayMs: Number(process.env.POLYMARKET_UPDATE_DELAY_MS ?? 1000),
-        daysToFetchPast: Number(process.env.POLYMARKET_UPDATE_DAYS_PAST ?? 8),
-        maxRetries: Number(process.env.POLYMARKET_UPDATE_MAX_RETRIES ?? 3),
-        retryDelayMs: Number(process.env.POLYMARKET_UPDATE_RETRY_DELAY_MS ?? 2000),
-        timeoutMs: Number(process.env.POLYMARKET_UPDATE_TIMEOUT_MS ?? 30000),
-        userAgent: process.env.POLYMARKET_UPDATE_USER_AGENT || 'BetterAI/1.0',
-        maxBatchFailuresBeforeAbort: Number(process.env.POLYMARKET_UPDATE_MAX_BATCH_FAILURES ?? 3),
-      }
+        maxEvents: 50,
+        userAgent: 'BetterAI/1.0'
+      }, executionId)
 
-      structuredLogger.info('polymarket_data_update_config', 'Using Polymarket update configuration', {
-        executionId,
-        config
-      })
+      logConfiguration(config, executionId, 'polymarket_data_update_config')
 
       try {
         const result = await updatePolymarketEventsAndMarketData(config)
         
-        structuredLogger.info('polymarket_data_update_completed', 'Polymarket data update completed successfully', {
-          executionId,
-          totalRequests: result.totalRequests,
-          totalFetched: result.totalFetched,
-          insertedEvents: result.insertedEvents.length,
-          insertedMarkets: result.insertedMarkets.length
-        })
+        logUpdateCompletion(result, executionId, 'polymarket_data_update_completed', 
+          'Polymarket data update completed successfully')
 
         return result
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        
+        // Handle timeout aborts gracefully
+        const timeoutResult = handleTimeoutError(errorMessage, executionId)
+        if (timeoutResult) {
+          return timeoutResult
+        }
         
         structuredLogger.error('polymarket_data_update_failed', 'Polymarket data update failed', {
           executionId,
@@ -83,103 +82,39 @@ export const polymarketDataUpdate = inngest.createFunction(
       }
     })
 
-    // Step 2: Send heartbeat
-    await step.run('send-heartbeat', async () => {
-      await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
-    })
+    // Step 2: Send heartbeat (skip in development)
+    if (process.env.NODE_ENV !== 'development') {
+      await step.run('send-heartbeat', async () => {
+        await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
+      })
+    }
 
+    // Return clean summary without full object arrays
+    const result: any = updateResult
     return {
       success: true,
       executionId,
       updateType: 'regular',
-      ...updateResult
+      summary: {
+        totalRequests: result.totalRequests || result.summary?.totalRequests || 0,
+        totalFetched: result.totalFetched || result.summary?.totalFetched || 0,
+        eventsInserted: result.insertedEvents?.length || result.summary?.eventsInserted || 0,
+        marketsInserted: result.insertedMarkets?.length || result.summary?.marketsInserted || 0,
+        errors: result.errors?.length || result.summary?.errors || 0,
+        partialSuccess: result.partialSuccess || result.summary?.partialSuccess || false
+      }
     }
   }
 )
 
-/**
- * Extended Polymarket data update - runs daily at 2 AM
- * Replaces: /api/cron/daily-update-polymarket-data with extended parameters (schedule: "0 2 star star star")
- */
-export const polymarketDataUpdateExtended = inngest.createFunction(
-  { 
-    id: 'polymarket-data-update-extended',
-    name: 'Polymarket Data Update Extended: Top Events by Volume for 6 Months (Daily 2 AM)',
-    retries: 3,
-  },
-  { 
-    cron: 'TZ=UTC 0 2 * * *' // Daily at 2 AM UTC
-  },
-  async ({ step }) => {
-    const executionId = `polymarket-extended-${Date.now()}-${Math.random().toString(36).substring(7)}`
-    
-    structuredLogger.info('polymarket_data_update_extended_started', 'Starting extended Polymarket data update', {
-      executionId,
-      scheduledTime: new Date().toISOString(),
-      updateType: 'extended'
-    })
-
-    // Step 1: Update Polymarket data with extended parameters (from vercel.json)
-    const updateResult = await step.run('update-polymarket-data-extended', async () => {
-      const config = {
-        batchSize: 100, // limit=100
-        delayMs: 1000, // delayMs=1000
-        daysToFetchPast: 8, // daysToFetchPast=8
-        daysToFetchFuture: 180, // daysToFetchFuture=180
-        maxRetries: 3, // maxRetries=3
-        retryDelayMs: 2000, // retryDelayMs=2000
-        timeoutMs: 30000, // timeoutMs=30000
-        userAgent: 'BetterAI-6Month/1.0', // userAgent=BetterAI-6Month%2F1.0
-        sortBy: 'volume1yr', // sortBy=volume1yr
-        maxEvents: 100, // totalEventLimit=100
-        maxBatchFailuresBeforeAbort: Number(process.env.POLYMARKET_6MONTH_UPDATE_MAX_BATCH_FAILURES ?? 3),
-      }
-
-      structuredLogger.info('polymarket_data_update_extended_config', 'Using extended Polymarket update configuration', {
-        executionId,
-        config
-      })
-
-      try {
-        const result = await updatePolymarketEventsAndMarketData(config)
-        
-        structuredLogger.info('polymarket_data_update_extended_completed', 'Extended Polymarket data update completed successfully', {
-          executionId,
-          totalRequests: result.totalRequests,
-          totalFetched: result.totalFetched,
-          insertedEvents: result.insertedEvents.length,
-          insertedMarkets: result.insertedMarkets.length
-        })
-
-        return result
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-        
-        structuredLogger.error('polymarket_data_update_extended_failed', 'Extended Polymarket data update failed', {
-          executionId,
-          error: {
-            message: errorMessage,
-            stack: error instanceof Error ? error.stack : undefined
-          }
-        })
-
-        throw error
-      }
-    })
-
-    // Step 2: Send heartbeat
-    await step.run('send-heartbeat', async () => {
-      await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
-    })
-
-    return {
-      success: true,
-      executionId,
-      updateType: 'extended',
-      ...updateResult
-    }
-  }
-)
+// Extended Polymarket data update has been moved to a separate file:
+// lib/inngest/functions/polymarket-data-update-6month.ts
+// 
+// This separation provides:
+// - Clear separation of concerns (daily vs comprehensive updates)
+// - Independent scheduling (every 6h vs weekly)
+// - Dedicated configuration and monitoring
+// - Reduced complexity in this file
 
 /**
  * Update active events - runs every 12 hours
@@ -188,7 +123,7 @@ export const polymarketDataUpdateExtended = inngest.createFunction(
 export const polymarketUpdateActiveEvents = inngest.createFunction(
   { 
     id: 'polymarket-update-active-events',
-    name: 'Polymarket Update Active Events (Every 12 Hours)',
+    name: 'Polymarket Data Update: Active Events (Every 12 Hours)',
     retries: 3,
   },
   { 
@@ -244,10 +179,12 @@ export const polymarketUpdateActiveEvents = inngest.createFunction(
       }
     })
 
-    // Step 2: Send heartbeat
-    await step.run('send-heartbeat', async () => {
-      await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
-    })
+    // Step 2: Send heartbeat (skip in development)
+    if (process.env.NODE_ENV !== 'development') {
+      await step.run('send-heartbeat', async () => {
+        await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
+      })
+    }
 
     return {
       success: true,

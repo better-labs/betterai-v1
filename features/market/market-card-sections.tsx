@@ -8,6 +8,7 @@ import { ViewAllLink } from "@/shared/ui/view-all-link"
 import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { components, spacing, typography } from '@/lib/design-system'
 import { formatPercent } from '@/lib/utils'
+import { isMarketOpenForBetting } from '@/lib/utils/market-status'
 import { computeDeltaFromArrays, DELTA_TOOLTIP, getDeltaTone } from '@/lib/delta'
 import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Prediction } from '@/lib/types'
 
@@ -71,10 +72,10 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
         </h3>
       </div>
 
-      {/* Active Status Badge - Top Right */}
-      {showActiveStatus && typeof market.active !== 'undefined' && market.active !== null && (
+      {/* Market Status Badge - Top Right */}
+      {showActiveStatus && (
           <span className={components.cardFooter.metadataBadge}>
-            {market.active ? 'Active' : 'Inactive'}
+            {isMarketOpenForBetting(market) ? 'Open' : 'Closed'}
           </span>
         
       )}

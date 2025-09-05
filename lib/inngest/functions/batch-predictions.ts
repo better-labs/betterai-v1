@@ -25,7 +25,7 @@ import { Category } from '../../generated/prisma'
 export const dailyBatchPredictions = inngest.createFunction(
   { 
     id: 'daily-batch-predictions',
-    name: 'Generate Batch Predictions (Daily)',
+    name: 'Predictions: Generate Batch (Daily)',
     retries: 3,
   },
   { 
@@ -105,10 +105,12 @@ export const dailyBatchPredictions = inngest.createFunction(
       results.push(modelResult)
     }
 
-    // Step 3: Send heartbeat and log completion
-    await step.run('send-heartbeat', async () => {
-      await sendHeartbeatSafe(HeartbeatType.BATCH_PREDICTIONS)
-    })
+    // Step 3: Send heartbeat and log completion (skip in development)
+    if (process.env.NODE_ENV !== 'development') {
+      await step.run('send-heartbeat', async () => {
+        await sendHeartbeatSafe(HeartbeatType.BATCH_PREDICTIONS)
+      })
+    }
 
     const successCount = results.filter(r => r.success).length
     const failureCount = results.filter(r => !r.success).length

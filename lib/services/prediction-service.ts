@@ -2,7 +2,8 @@ import type { PrismaClient, Prediction, Market, Event, Prisma } from '@/lib/gene
 import { mapPredictionToDTO } from '@/lib/dtos'
 import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
-import type { PredictionDTO, MarketDTO, PredictionResult, PredictionWithRelationsDTO, EventDTO } from '@/lib/types'
+import type { PredictionDTO, PredictionResult, PredictionWithRelationsDTO } from '@/lib/types'
+// Removed unused imports: MarketDTO, EventDTO
 
 
 /**

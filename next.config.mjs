@@ -57,11 +57,11 @@ const nextConfig = {
                   ].join('; ')
                 : [
                     "default-src 'self'",
-                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com https://us.i.posthog.com https://us-assets.i.posthog.com https://vercel.live",
+                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com https://us.i.posthog.com https://us-assets.i.posthog.com https://vercel.live https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com",
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                     "img-src 'self' data: https: blob:",
                     "font-src 'self' data: https://fonts.gstatic.com",
-                    "connect-src 'self' https://auth.privy.io https://*.privy.io https://api.openrouter.ai https://*.neon.tech wss://*.privy.io https://fonts.googleapis.com https://fonts.gstatic.com https://pulse.walletconnect.org https://api.web3modal.org https://us.i.posthog.com https://us-assets.i.posthog.com https://explorer-api.walletconnect.com https://*.walletconnect.com https://*.walletconnect.org",
+                    "connect-src 'self' https://auth.privy.io https://*.privy.io https://api.openrouter.ai https://*.neon.tech wss://*.privy.io https://fonts.googleapis.com https://fonts.gstatic.com https://pulse.walletconnect.org https://api.web3modal.org https://us.i.posthog.com https://us-assets.i.posthog.com https://explorer-api.walletconnect.com https://*.walletconnect.com https://*.walletconnect.org https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net",
                     "frame-src 'self' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com https://vercel.live",
                     "frame-ancestors 'self' https://auth.privy.io https://*.privy.io https://*.vercel.app",
                     "worker-src 'self' blob:",

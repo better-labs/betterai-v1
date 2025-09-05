@@ -28,7 +28,7 @@ export type PredictionSessionRequestedEvent = z.infer<typeof PredictionSessionRe
  */
 export const predictionSessionProcessor = inngest.createFunction(
   {
-    id: 'prediction-session-processor',
+    id: 'Prediction Session: Process Realtime',
     retries: 3,
     timeouts: { finish: '15m' } // Allow up to 15 minutes for complete session execution
   },
@@ -127,11 +127,11 @@ export const predictionSessionProcessor = inngest.createFunction(
  */
 export const manualSessionRecovery = inngest.createFunction(
   {
-    id: 'manual-session-recovery',
+    id: 'Prediction Session: Recovery Manual',
     retries: 1,
     timeouts: { finish: '5m' }
   },
-  { event: 'prediction.session.recovery' },
+  { event: 'Prediction Session: Recovery Manual' },
   async ({ event, step }) => {
     const { sessionId, reason = 'manual_recovery' } = event.data
 
@@ -201,7 +201,7 @@ export const manualSessionRecovery = inngest.createFunction(
  */
 export const scheduledSessionRecovery = inngest.createFunction(
   {
-    id: 'scheduled-session-recovery',
+    id: 'Prediction Session: Recovery (Every Hour)',
     retries: 2,
     timeouts: { finish: '10m' }
   },

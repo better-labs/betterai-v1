@@ -5,7 +5,7 @@
   "scripts": {
     "build": "prisma generate --no-hints && next build",
     "dev": "next dev",
-    "inngest:dev": "npx inngest-cli dev --no-discovery -u http://localhost:3000/api/inngest --no-poll",
+    "inngest:dev": "npx inngest-cli dev  -u http://localhost:3000/api/inngest --no-poll",
     "env:pull:dev": "vercel env pull .env.local --environment=development",
     "db:seed": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/4-generate-batch-predictions.ts",
     "db:prisma:generate": "prisma generate --no-hints",
@@ -22,10 +22,6 @@
     "test": "vitest --run",
     "test:ui": "vitest --ui",
     "test:live": "dotenv -e .env.local -- vitest --run tests/**/*.live.test.ts",
-    "cron:daily-generate-batch-predictions": "dotenv -e .env.local -- node scripts/cron/cron-daily-generate-batch-predictions.js",
-    "cron:prediction-check": "dotenv -e .env.local -- node scripts/cron/cron-prediction-check.js",
-    "cron:update-ai-models": "dotenv -e .env.local -- node scripts/cron/cron-update-ai-models.js",
-    "cron:daily-update-polymarket-data": "dotenv -e .env.local -- node scripts/cron/cron-daily-update-polymarket-data.js",
     "admin:credits": "dotenv -e .env.local -- npx tsx scripts/manage-user-credits.ts",
     "admin:credits:prod": "dotenv -e .env.production -- npx tsx scripts/manage-user-credits.ts"
   },

@@ -16,7 +16,7 @@ import {
   
   // Phase 2: All remaining cron jobs (COMPLETE)
   polymarketDataUpdate,
-  polymarketDataUpdateExtended,
+  polymarketDataUpdate6Month,
   polymarketUpdateActiveEvents,
   predictionCheck,
   updateAIModelsWeekly,
@@ -36,7 +36,7 @@ export const { GET, POST, PUT } = serve({
     
     // Phase 2: Complete Vercel cron elimination
     polymarketDataUpdate,           // Every 6 hours
-    polymarketDataUpdateExtended,   // Daily at 2 AM (extended params)
+    polymarketDataUpdate6Month,     // Weekly on Sundays (6-month comprehensive)
     polymarketUpdateActiveEvents,   // Every 12 hours
     predictionCheck,                // Daily at 3:30 AM
     updateAIModelsWeekly,           // Weekly Sunday 4 AM

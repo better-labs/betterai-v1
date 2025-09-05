@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchPolymarketEvents } from '@/lib/services/polymarket-client';
-import type { PolymarketEvent } from '@/lib/types';
+// Removed unused import: PolymarketEvent
+// import type { PolymarketEvent } from '@/lib/types';
 
 interface UsePolymarketEventsOptions {
   offset?: number;

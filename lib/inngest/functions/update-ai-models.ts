@@ -20,7 +20,7 @@ import { structuredLogger } from '../../utils/structured-logger'
 export const updateAIModelsWeekly = inngest.createFunction(
   { 
     id: 'update-ai-models',
-    name: 'Update AI Models (Weekly Sunday 4 AM)',
+    name: 'OpenRouter Data Update: Refresh AI Models (Weekly Sunday 4 AM)',
     retries: 3,
   },
   { 

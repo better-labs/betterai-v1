@@ -28,13 +28,15 @@ export async function updateActivePolymarketEvents(options: {
 
   console.log('Starting active Polymarket events update...')
 
-  // Find all active events (end_date in the future)
+  // Find all events with open markets (betting not closed)
   const activeEvents = await prisma.event.findMany({
     where: {
-      endDate: {
-        gt: new Date()
-      },
-      marketProvider: 'Polymarket'
+      marketProvider: 'Polymarket',
+      markets: {
+        some: {
+          closed: false
+        }
+      }
     },
     select: {
       id: true,

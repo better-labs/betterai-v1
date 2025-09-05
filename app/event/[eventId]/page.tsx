@@ -9,6 +9,7 @@ import { EventIcon } from '@/shared/ui/event-icon'
 import { BarChart2, Calendar, ArrowLeft, DollarSign, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { formatVolume } from '@/lib/utils'
+import { isMarketOpenForBetting } from '@/lib/utils/market-status'
 import type { EventDTO, MarketDTO } from '@/lib/types'
 
 // Force dynamic rendering to avoid build-time database queries
@@ -183,8 +184,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   <div key={market.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-medium">{market.question}</h3>
-                      <Badge variant={market.active ? "default" : "secondary"}>
-                        {market.active ? "Active" : "Closed"}
+                      <Badge variant={isMarketOpenForBetting(market) ? "default" : "secondary"}>
+                        {isMarketOpenForBetting(market) ? "Open" : "Closed"}
                       </Badge>
                     </div>
                     
