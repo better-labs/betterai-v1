@@ -14,6 +14,13 @@ import { updatePolymarketEventsAndMarketData } from '../../services/updatePolyma
 import { updateActivePolymarketEvents } from '../../services/updateActivePolymarketEvents'
 import { sendHeartbeatSafe, HeartbeatType } from '../../services/heartbeat'
 import { structuredLogger } from '../../utils/structured-logger'
+import { 
+  createExecutionId, 
+  createPolymarketConfig, 
+  handleTimeoutError, 
+  logUpdateCompletion, 
+  logConfiguration 
+} from '../utils/polymarket-update-helper'
 
 /**
  * Regular Polymarket data update - runs every 6 hours
@@ -29,7 +36,7 @@ export const polymarketDataUpdate = inngest.createFunction(
     cron: 'TZ=UTC 0 */6 * * *' // Every 6 hours
   },
   async ({ step }) => {
-    const executionId = `polymarket-update-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    const executionId = createExecutionId('polymarket-update')
     
     structuredLogger.info('polymarket_data_update_started', 'Starting Polymarket data update', {
       executionId,
@@ -39,37 +46,29 @@ export const polymarketDataUpdate = inngest.createFunction(
 
     // Step 1: Update Polymarket data with default parameters
     const updateResult = await step.run('update-polymarket-data', async () => {
-      const config = {
+      const config = createPolymarketConfig('POLYMARKET_UPDATE', {
         batchSize: Math.min(Number(process.env.POLYMARKET_UPDATE_BATCH_SIZE ?? 50), 100),
-        maxEvents: Number(process.env.POLYMARKET_UPDATE_LIMIT ?? 50),
-        delayMs: Number(process.env.POLYMARKET_UPDATE_DELAY_MS ?? 1000),
-        daysToFetchPast: Number(process.env.POLYMARKET_UPDATE_DAYS_PAST ?? 8),
-        maxRetries: Number(process.env.POLYMARKET_UPDATE_MAX_RETRIES ?? 3),
-        retryDelayMs: Number(process.env.POLYMARKET_UPDATE_RETRY_DELAY_MS ?? 2000),
-        timeoutMs: Number(process.env.POLYMARKET_UPDATE_TIMEOUT_MS ?? 30000),
-        userAgent: process.env.POLYMARKET_UPDATE_USER_AGENT || 'BetterAI/1.0',
-        maxBatchFailuresBeforeAbort: Number(process.env.POLYMARKET_UPDATE_MAX_BATCH_FAILURES ?? 3),
-      }
+        maxEvents: 50,
+        userAgent: 'BetterAI/1.0'
+      }, executionId)
 
-      structuredLogger.info('polymarket_data_update_config', 'Using Polymarket update configuration', {
-        executionId,
-        config
-      })
+      logConfiguration(config, executionId, 'polymarket_data_update_config')
 
       try {
         const result = await updatePolymarketEventsAndMarketData(config)
         
-        structuredLogger.info('polymarket_data_update_completed', 'Polymarket data update completed successfully', {
-          executionId,
-          totalRequests: result.totalRequests,
-          totalFetched: result.totalFetched,
-          insertedEvents: result.insertedEvents.length,
-          insertedMarkets: result.insertedMarkets.length
-        })
+        logUpdateCompletion(result, executionId, 'polymarket_data_update_completed', 
+          'Polymarket data update completed successfully')
 
         return result
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        
+        // Handle timeout aborts gracefully
+        const timeoutResult = handleTimeoutError(errorMessage, executionId)
+        if (timeoutResult) {
+          return timeoutResult
+        }
         
         structuredLogger.error('polymarket_data_update_failed', 'Polymarket data update failed', {
           executionId,

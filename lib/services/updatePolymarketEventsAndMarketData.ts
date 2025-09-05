@@ -17,6 +17,10 @@ export async function updatePolymarketEventsAndMarketData(options: {
   sortBy?: string,
   maxEvents?: number,
   onBatchComplete?: (batchNumber: number, totalTimeMs: number, eventsProcessed: number) => void | Promise<void>,
+  onTimeout?: (elapsedMs: number, batchNumber: number) => void,
+  onTimeoutWarning?: (elapsedMs: number, batchNumber: number) => void,
+  timeoutWarningMs?: number,
+  timeoutAbortMs?: number,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -32,6 +36,10 @@ export async function updatePolymarketEventsAndMarketData(options: {
     sortBy = 'volume', // Default to volume sorting for higher quality markets
     maxEvents = 50,
     onBatchComplete,
+    onTimeout,
+    onTimeoutWarning,
+    timeoutWarningMs,
+    timeoutAbortMs,
     ...fetchOptions
   } = options
 
@@ -87,6 +95,20 @@ export async function updatePolymarketEventsAndMarketData(options: {
       if (onBatchComplete) {
         const totalTimeMs = Date.now() - startTime
         await onBatchComplete(totalRequests, totalTimeMs, totalFetched)
+      }
+
+      // Check for timeout warnings and aborts
+      const elapsed = Date.now() - startTime
+      
+      // Check timeout warning
+      if (timeoutWarningMs && elapsed > timeoutWarningMs) {
+        onTimeoutWarning?.(elapsed, totalRequests)
+      }
+      
+      // Check timeout abort
+      if (timeoutAbortMs && elapsed > timeoutAbortMs) {
+        onTimeout?.(elapsed, totalRequests)
+        throw new Error(`TIMEOUT_ABORT: Processed ${totalRequests} batches, elapsed ${elapsed}ms`)
       }
 
       // Single exit condition check
