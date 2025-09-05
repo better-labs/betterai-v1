@@ -54,50 +54,38 @@ export function Header() {
 
   return (
     <header className="border-b bg-background shadow-sm">
-      <div className="container mx-auto header-container">
-        <div className="header-content" data-testid="header-content">
+      <div className={`container mx-auto ${components.header.outerContainer}`}>
+        <div className={components.header.container} data-testid="header-content">
           {/* Logo Section */}
-          <div className="header-logo-section">
-            <Link href="/" className="flex items-center space-x-2 transition-transform hover:scale-105 duration-200">
+          <div className={components.header.logoSection}>
+            <Link href="/" className={`${components.header.logoLink} ${components.effects.hoverScale}`}>
               <Image 
                 src="/icon/betterai-icon.png" 
                 alt="BetterAI Logo" 
                 width={40} 
                 height={40} 
-                className="h-10 w-10"
+                className="h-11 w-11 flex-shrink-0"
               />
-              <span className="text-2xl font-bold text-foreground">BetterAI</span>
+              <span className={components.header.logoText}>BetterAI</span>
             </Link>
 
             {/* Navigation Section */}
-            <nav className="header-nav hidden md:flex items-center space-x-6">
+            <nav className={components.header.nav.container}>
               <Link 
                 href="/" 
-                className={`${typography.navLarge} ${components.navigation.link.base} font-medium ${
-                  isActive("/") 
-                    ? "!text-foreground border-b-2 border-primary pb-1" 
-                    : ""
-                }`}
+                className={`${typography.navXLarge} ${components.effects.hoverScale}`}
               >
                 Home
               </Link>
               <Link 
                 href="/leaderboard" 
-                className={`${typography.navLarge} ${components.navigation.link.base} font-medium ${
-                  isActive("/leaderboard") 
-                    ? "!text-foreground border-b-2 border-primary pb-1" 
-                    : ""
-                }`}
+                className={`${typography.navXLarge} ${components.effects.hoverScale}`}
               >
                 AI Leaderboard
               </Link>
               <Link 
                 href="/about" 
-                className={`${typography.navLarge} ${components.navigation.link.base} font-medium ${
-                  isActive("/about") 
-                    ? "!text-foreground border-b-2 border-primary pb-1" 
-                    : ""
-                }`}
+                className={`${typography.navXLarge} ${components.effects.hoverScale}`}
               >
                 About
               </Link>
@@ -108,10 +96,10 @@ export function Header() {
           </div>
 
           {/* Right side elements - directly in grid */}
-          <div className="flex items-center gap-4 md:gap-6">
+          <div className={components.header.rightSection}>
             {/* Search Bar Section - Hidden on mobile */}
-            <div className="header-search hidden md:flex flex-1 max-w-sm">
-              <form onSubmit={handleSearch} className="w-full">
+            <div className={components.header.search.container}>
+              <form onSubmit={handleSearch} className={components.header.search.form}>
                 <SearchInput
                   value={searchQuery}
                   onChange={setSearchQuery}
@@ -131,16 +119,16 @@ export function Header() {
             </div> */}
 
             {/* Auth section */}
-            <div className="flex items-center justify-center min-w-0 flex-shrink-0">
+            <div className={components.header.auth.container}>
               {ready ? (
                 <PrivyUserPill />
               ) : (
-                <div className="h-8 w-20 bg-muted/50 rounded animate-pulse" />
+                <div className={components.header.auth.loading} />
               )}
             </div>
 
             {/* Menu */}
-            <div className="flex-shrink-0">
+            <div className={components.header.menu.container}>
               <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className={`h-10 px-2 shadow-md hover:shadow-lg dark:shadow-xl dark:shadow-black/20 dark:border dark:border-white/10 transition-all ${components.button.menu.largeIcon}`}>
@@ -264,9 +252,9 @@ export function Header() {
           </div>
         </div>
       </div>
-             <div className="mobile-search" data-testid="mobile-search">
+             <div className={components.header.search.mobile} data-testid="mobile-search">
          
-           <form onSubmit={handleSearch} className="w-full">
+           <form onSubmit={handleSearch} className={components.header.search.form}>
              <SearchInput
                value={searchQuery}
                onChange={setSearchQuery}

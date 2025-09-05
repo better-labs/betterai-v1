@@ -15,17 +15,17 @@ import { recoverStuckSessions, cleanupOldSessions } from '../../services/predict
 import { structuredLogger } from '../../utils/structured-logger'
 
 /**
- * Session recovery - runs every 15 minutes
- * Replaces: /api/cron/session-recovery (schedule: "star/15 star star star star")
+ * Session recovery - runs every 60 minutes  
+ * Replaces: /api/cron/session-recovery (schedule: "0 star star star star")
  */
 export const sessionRecovery = inngest.createFunction(
   { 
     id: 'session-recovery',
-    name: 'Session Recovery (Every 15 Minutes)',
+    name: 'Session Recovery (Every 60 Minutes)',
     retries: 3,
   },
   { 
-    cron: 'TZ=UTC */15 * * * *' // Every 15 minutes
+    cron: 'TZ=UTC 0 * * * *' // Every 60 minutes (top of each hour)
   },
   async ({ step }) => {
     const executionId = `session-recovery-${Date.now()}-${Math.random().toString(36).substring(7)}`

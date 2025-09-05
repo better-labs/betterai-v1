@@ -132,8 +132,8 @@ export const typography = {
   
   // Navigation text sizing
   navDefault: 'text-md', // 14px - compact navigation
-  navLarge: 'text-xl',   // 18px - prominent navigation
-  navXLarge: 'text-2xl',  // 20px - hero navigation
+  navLarge: 'text-lg font-medium',   
+  navXLarge: 'text-xl font-medium',  
   
   // Special text
   caption: 'text-sm text-muted-foreground',
@@ -198,6 +198,11 @@ export const components = {
       base: 'hover:bg-accent hover:text-accent-foreground',
       largeIcon: '[&_svg]:!size-6', // Override default button SVG size-4 with size-6
     },
+  },
+
+  // Interactive effects
+  effects: {
+    hoverScale: 'transition-transform hover:scale-110 duration-200',
   },
   
 
@@ -283,6 +288,55 @@ export const components = {
     timestamp: 'tabular-nums',
   },
   
+  // Header layout patterns
+  header: {
+    // Outer container with consistent padding and structure
+    outerContainer: 'contain-[layout_style] min-h-[var(--header-height)] px-4 py-4',
+    
+    // Main header grid structure with responsive behavior  
+    container: 'grid grid-cols-[1fr_auto] md:grid-cols-[minmax(300px,auto)_1fr] items-center gap-4 md:gap-8 min-h-[48px] w-full',
+    
+    // Logo section layout
+    logoSection: 'flex items-center gap-12 justify-start',
+    
+    // Logo link layout (spacing between logo image and text)
+    logoLink: 'flex items-center space-x-2',
+    
+    // Logo text styling
+    logoText: 'text-2xl font-bold text-foreground leading-none',
+    
+    // Right side container
+    rightSection: 'flex items-center gap-4 md:gap-6',
+    
+    // Navigation section layout  
+    nav: {
+      container: 'hidden md:flex items-center gap-6',
+      link: {
+        base: 'text-decoration-none transition-colors pb-1 border-b-2 border-transparent',
+        hover: 'hover:text-foreground',
+        active: 'text-foreground border-primary',
+      },
+    },
+
+    // Search section
+    search: {
+      container: 'hidden md:flex flex-1 max-w-sm',
+      mobile: 'block md:hidden p-3 border-t border-border bg-background',
+      form: 'w-full',
+    },
+    
+    // Auth section
+    auth: {
+      container: 'flex items-center justify-center min-w-0 flex-shrink-0',
+      loading: 'h-8 w-20 bg-muted/50 rounded animate-pulse',
+    },
+    
+    // Menu section
+    menu: {
+      container: 'flex-shrink-0',
+    },
+  },
+
   // Navigation link patterns (CLEAN DESIGN - NO ARROWS/CHEVRONS)
   // Following modern web accessibility standards and clean design principles
   navigation: {

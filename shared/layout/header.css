@@ -1,121 +1,18 @@
-/* Header CSS - Hydration-Order Independent Styles */
-.header-container {
-  /* Force layout consistency regardless of component loading order */
-  contain: layout style;
-  
-  /* Explicit dimensions prevent shifts during hydration */
-  
+/* Header CSS - Only CSS Custom Properties */
+:root {
+  --header-height: 4rem; /* 64px - used by design system tokens */
   --header-padding-y: 1rem;
   --header-padding-x: 1rem;
-  
-  min-height: var(--header-height);
-  padding: var(--header-padding-y) var(--header-padding-x);
 }
 
-.header-content {
-  /* Grid layout provides more predictable spacing than flex */
-  display: grid;
-  grid-template-columns: minmax(300px, auto) 1fr;
-  align-items: center;
-  gap: 2rem;
-  min-height: 48px;
-  width: 100%;
-}
-
-.header-search {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: 0;
-}
-
+/* Media queries for hiding elements - hard to represent in utility classes */
 @media (max-width: 768px) {
-  .header-content {
-    grid-template-columns: 1fr auto;
-    gap: 1rem;
-  }
-  
-  .header-search {
-    display: none;
-  }
-  
-  .header-nav {
-    display: none;
-  }
-  
   .credit-display {
     display: none;
-    
   }
 }
 
-/* Simplified right side layout */
-
-/* Force consistent logo area sizing */
-.header-logo-section {
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-  
-  justify-content: flex-start;
-}
-
-/* Navigation section styling */
-.header-nav {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.header-nav a {
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.2s ease;
-  padding-bottom: 0.25rem;
-  border-bottom: 2px solid transparent;
-}
-
-.header-nav a:hover {
-  color: hsl(var(--foreground));
-}
-
-.header-nav a.active {
-  color: hsl(var(--foreground));
-  border-bottom-color: hsl(var(--primary));
-}
-
-@media (max-width: 768px) {
-  .header-nav {
-    display: none;
-  }
-}
-
-/* Mobile search section - hidden on desktop, shown on mobile */
-.mobile-search {
-  display: none;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid hsl(var(--border));
-  background-color: hsl(var(--background));
-}
-
-.mobile-search .header-container {
-  min-height: auto;
-  padding: 0;
-}
-
-.mobile-search form {
-  width: 100%;
-  max-width: 100%;
-}
-
-@media (max-width: 768px) {
-  .mobile-search {
-    display: block;
-  }
-}
+/* All structural layouts moved to design system tokens */
 
 /* Compact Privy UserPill styling */
 [data-privy-app-id] button {
