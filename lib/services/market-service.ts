@@ -1,6 +1,7 @@
 import type { PrismaClient, Prisma, Market, Event, Prediction } from '@/lib/generated/prisma'
 import { mapMarketToDTO, mapMarketsToDTO } from '@/lib/dtos'
 import type { MarketDTO } from '@/lib/types'
+import { getMarketStatusFilter } from '@/lib/utils/market-status'
 
 /**
  * Market service functions following clean service pattern:
@@ -205,16 +206,13 @@ export async function searchMarkets(
     ],
   }
 
-  // Status filter
-  if (status === 'active') {
-    where.active = true
-  } else if (status === 'resolved') {
-    // Prefer explicit closed flag if available
-    where.closed = true
-  }
-  // For "ending" sort it is sensible to constrain to active
+  // Status filter using reliable market.closed field
+  const statusFilter = getMarketStatusFilter(status)
+  Object.assign(where, statusFilter)
+  
+  // For "ending" sort it is sensible to constrain to active (open for betting)
   if (sort === 'ending') {
-    where.active = true
+    where.closed = false
   }
 
   if (sort === 'competitive') {

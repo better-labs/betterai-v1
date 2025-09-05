@@ -50,9 +50,11 @@ export async function getTrendingEventsWithMarkets(
   
   const whereClause: any = {}
   
-  // Only show events that haven't ended yet
-  whereClause.endDate = {
-    gt: new Date()
+  // Only show events with markets that are open for betting
+  whereClause.markets = {
+    some: {
+      closed: false
+    }
   }
   
   // Remove overly restrictive updatedAt filter to show more trending markets

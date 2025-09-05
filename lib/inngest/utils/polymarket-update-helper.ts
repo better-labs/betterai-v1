@@ -84,7 +84,7 @@ export function createPolymarketConfig(
     timeoutMs: Number(process.env[`${envPrefix}_TIMEOUT_MS`] ?? defaults.timeoutMs ?? 30000),
     userAgent: process.env[`${envPrefix}_USER_AGENT`] || defaults.userAgent || 'BetterAI/1.0',
     sortBy: process.env[`${envPrefix}_SORT_BY`] || defaults.sortBy,
-    maxEvents: Number(process.env[`${envPrefix}_LIMIT`] ?? process.env[`${envPrefix}_MAX_EVENTS_LIMIT`] ?? defaults.maxEvents ?? 50),
+    maxEvents: Number(process.env[`${envPrefix}_MAX_EVENTS_LIMIT`] ?? process.env[`${envPrefix}_LIMIT`] ?? defaults.maxEvents ?? 50),
     maxBatchFailuresBeforeAbort: Number(process.env[`${envPrefix}_MAX_BATCH_FAILURES`] ?? defaults.maxBatchFailuresBeforeAbort ?? 3),
     timeoutWarningMs: TIMEOUT_WARNING_MS,
     timeoutAbortMs: TIMEOUT_ABORT_MS,

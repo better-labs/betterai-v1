@@ -123,7 +123,7 @@ export const polymarketDataUpdate = inngest.createFunction(
 export const polymarketUpdateActiveEvents = inngest.createFunction(
   { 
     id: 'polymarket-update-active-events',
-    name: 'Polymarket Update Active Events (Every 12 Hours)',
+    name: 'Polymarket Data Update: Active Events (Every 12 Hours)',
     retries: 3,
   },
   { 

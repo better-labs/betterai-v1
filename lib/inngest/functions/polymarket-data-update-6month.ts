@@ -28,7 +28,7 @@ import {
 export const polymarketDataUpdate6Month = inngest.createFunction(
   { 
     id: 'polymarket-data-update-6month',
-    name: 'Polymarket 6-Month Data Update: Weekly Comprehensive Analysis (Sundays 1 AM)',
+    name: 'Polymarket Data Update: 6-Month Comprehensive Analysis (Weekly Sundays 1 AM)',
     retries: 3,
   },
   { 
@@ -45,12 +45,12 @@ export const polymarketDataUpdate6Month = inngest.createFunction(
 
     // Step 1: Update Polymarket data with 6-month specific parameters
     const updateResult = await step.run('update-polymarket-6month-data', async () => {
-      const config = createPolymarketConfig('POLYMARKET_6MONTH_UPDATE', {
+      const config = createPolymarketConfig('POLYMARKET_6MONTH', {
         batchSize: 50,
         daysToFetchFuture: 180, // 6 months
         userAgent: 'BetterAI-6Month/1.0',
         sortBy: 'volume1yr', // Annual volume sorting
-        maxEvents: 3000 // High event limit
+        maxEvents: 100 // High event limit
       }, executionId, '6month')
 
       logConfiguration(config, executionId, 'polymarket_6month_update_config')

@@ -25,7 +25,7 @@ import { Category } from '../../generated/prisma'
 export const dailyBatchPredictions = inngest.createFunction(
   { 
     id: 'daily-batch-predictions',
-    name: 'Generate Batch Predictions (Daily)',
+    name: 'Predictions: Generate Batch (Daily)',
     retries: 3,
   },
   { 
