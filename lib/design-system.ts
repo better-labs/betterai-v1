@@ -291,7 +291,7 @@ export const components = {
   // Header layout patterns
   header: {
     // Outer container with consistent padding and structure
-    outerContainer: 'contain-[layout_style] min-h-[var(--header-height)] px-4 py-4',
+    outerContainer: 'contain-[layout_style] min-h-[var(--header-height)] px-3 py-3',
     
     // Main header grid structure with responsive behavior  
     container: 'grid grid-cols-[1fr_auto] md:grid-cols-[minmax(300px,auto)_1fr] items-center gap-4 md:gap-8 min-h-[48px] w-full',
@@ -327,7 +327,7 @@ export const components = {
     
     // Auth section
     auth: {
-      container: 'flex items-center justify-center min-w-0 flex-shrink-0',
+      container: 'flex items-center justify-center min-w-0 flex-shrink-0 ',
       loading: 'h-8 w-20 bg-muted/50 rounded animate-pulse',
     },
     

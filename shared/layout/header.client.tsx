@@ -73,19 +73,19 @@ export function Header() {
             <nav className={components.header.nav.container}>
               <Link 
                 href="/" 
-                className={`${typography.navXLarge} ${components.effects.hoverScale}`}
+                className={`${typography.navLarge} ${components.effects.hoverScale}`}
               >
                 Home
               </Link>
               <Link 
                 href="/leaderboard" 
-                className={`${typography.navXLarge} ${components.effects.hoverScale}`}
+                className={`${typography.navLarge} ${components.effects.hoverScale}`}
               >
                 AI Leaderboard
               </Link>
               <Link 
                 href="/about" 
-                className={`${typography.navXLarge} ${components.effects.hoverScale}`}
+                className={`${typography.navLarge} ${components.effects.hoverScale}`}
               >
                 About
               </Link>

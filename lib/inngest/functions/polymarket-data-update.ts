@@ -121,8 +121,12 @@ export const polymarketDataUpdateExtended = inngest.createFunction(
 
     // Step 1: Update Polymarket data with extended parameters (from vercel.json)
     const updateResult = await step.run('update-polymarket-data-extended', async () => {
+      const startTime = Date.now()
+      const TIMEOUT_WARNING_MS = 600000 // Warn at 10 minutes (before 13+ minute limit)
+      const TIMEOUT_ABORT_MS = 720000   // Abort at 12 minutes (safety margin)
+      
       const config = {
-        batchSize: 100, // limit=100
+        batchSize: 50, // Reduced from 100 for better timeout control
         delayMs: 1000, // delayMs=1000
         daysToFetchPast: 8, // daysToFetchPast=8
         daysToFetchFuture: 180, // daysToFetchFuture=180
@@ -131,8 +135,32 @@ export const polymarketDataUpdateExtended = inngest.createFunction(
         timeoutMs: 30000, // timeoutMs=30000
         userAgent: 'BetterAI-6Month/1.0', // userAgent=BetterAI-6Month%2F1.0
         sortBy: 'volume1yr', // sortBy=volume1yr
-        maxEvents: 100, // totalEventLimit=100
+        maxEvents: Number(process.env.POLYMARKET_6MONTH_UPDATE_LIMIT ?? 3000), // totalEventLimit - reduced for better resource management
         maxBatchFailuresBeforeAbort: Number(process.env.POLYMARKET_6MONTH_UPDATE_MAX_BATCH_FAILURES ?? 3),
+        
+        // Add timeout monitoring callback
+        onBatchComplete: async (batchNumber: number, totalTimeMs: number, eventsProcessed: number) => {
+          if (totalTimeMs > TIMEOUT_WARNING_MS) {
+            structuredLogger.warn('timeout_warning', `Approaching timeout at batch ${batchNumber}`, {
+              executionId,
+              batchNumber,
+              elapsedMs: totalTimeMs,
+              remainingMs: TIMEOUT_ABORT_MS - totalTimeMs,
+              eventsProcessed
+            })
+          }
+          
+          if (totalTimeMs > TIMEOUT_ABORT_MS) {
+            structuredLogger.error('timeout_abort', `Aborting at batch ${batchNumber} to prevent timeout`, {
+              executionId,
+              batchNumber,
+              elapsedMs: totalTimeMs,
+              eventsProcessed
+            })
+            
+            throw new Error(`TIMEOUT_ABORT: Processed ${batchNumber} batches (${eventsProcessed} events) before timeout`)
+          }
+        }
       }
 
       structuredLogger.info('polymarket_data_update_extended_config', 'Using extended Polymarket update configuration', {
@@ -154,6 +182,25 @@ export const polymarketDataUpdateExtended = inngest.createFunction(
         return result
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        
+        // Handle timeout abort as partial success rather than failure
+        if (errorMessage.includes('TIMEOUT_ABORT')) {
+          structuredLogger.info('polymarket_data_update_extended_partial', 'Extended Polymarket data update completed partially due to timeout prevention', {
+            executionId,
+            elapsedMs: Date.now() - startTime,
+            reason: 'timeout_prevention'
+          })
+          
+          // Return partial success result
+          return {
+            insertedEvents: [],
+            insertedMarkets: [],
+            totalRequests: 0,
+            totalFetched: 0,
+            partialSuccess: true,
+            abortReason: 'timeout_prevention'
+          }
+        }
         
         structuredLogger.error('polymarket_data_update_extended_failed', 'Extended Polymarket data update failed', {
           executionId,

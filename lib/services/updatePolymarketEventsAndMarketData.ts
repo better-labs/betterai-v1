@@ -16,6 +16,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   maxBatchFailuresBeforeAbort?: number,
   sortBy?: string,
   maxEvents?: number,
+  onBatchComplete?: (batchNumber: number, totalTimeMs: number, eventsProcessed: number) => void | Promise<void>,
 } = {}): Promise<{
   insertedEvents: Event[],
   insertedMarkets: Market[],
@@ -30,6 +31,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
     maxBatchFailuresBeforeAbort = 3,
     sortBy = 'volume', // Default to volume sorting for higher quality markets
     maxEvents = 50,
+    onBatchComplete,
     ...fetchOptions
   } = options
 
@@ -43,6 +45,7 @@ export async function updatePolymarketEventsAndMarketData(options: {
   let hasMoreData = true
   let totalFetched = 0
   let consecutiveErrors = 0
+  const startTime = Date.now() // Track total execution time for timeout monitoring
   
   // Compute start date (no end date limit)
   const MS_IN_DAY = 24 * 60 * 60 * 1000
@@ -78,6 +81,12 @@ export async function updatePolymarketEventsAndMarketData(options: {
         allInsertedMarkets.push(...batchResult.processedMarkets)
         totalFetched += batchResult.totalProcessed
         console.log(`Batch ${totalRequests}: Processed ${eventsData.length} events, ${batchResult.processedEvents.length} events upserted, ${batchResult.processedMarkets.length} markets upserted (total: ${totalFetched})`)
+      }
+
+      // Call timeout monitoring callback after each batch
+      if (onBatchComplete) {
+        const totalTimeMs = Date.now() - startTime
+        await onBatchComplete(totalRequests, totalTimeMs, totalFetched)
       }
 
       // Single exit condition check

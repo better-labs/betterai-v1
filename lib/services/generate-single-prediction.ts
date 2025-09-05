@@ -195,7 +195,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
     }
 
     console.log(`Generating AI prediction for market: ${marketId}`)
-    let model = modelName || DEFAULT_MODEL
+    const model = modelName || DEFAULT_MODEL
     
     // Determine if web search should be enabled
     const singlePredictionsWebSearch = process.env.SINGLE_PREDICTIONS_WEB_SEARCH === 'true'
