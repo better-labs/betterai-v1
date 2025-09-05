@@ -96,9 +96,9 @@ export function Header() {
           </div>
 
           {/* Right side elements - directly in grid */}
-          <div className={components.header.rightSection}>
+          <div className={components.header.rightSection} data-testid="navbar-right-section">
             {/* Search Bar Section - Hidden on mobile */}
-            <div className={components.header.search.container}>
+            <div className={components.header.search.container} data-testid="navbar-search">
               <form onSubmit={handleSearch} className={components.header.search.form}>
                 <SearchInput
                   value={searchQuery}
@@ -110,7 +110,7 @@ export function Header() {
             </div>
             
             {/* Credits Display */}
-            {/* <div className="credit-display  md:flex ">
+            {/* <div className="credit-display  md:flex " data-testid="navbar-credits">
               {ready && authenticated ? (
                 <UserCreditsDisplay />
               ) : (
@@ -119,7 +119,7 @@ export function Header() {
             </div> */}
 
             {/* Auth section */}
-            <div className={components.header.auth.container}>
+            <div className={components.header.auth.container} data-testid="navbar-auth">
               {ready ? (
                 <PrivyUserPill />
               ) : (
@@ -128,7 +128,7 @@ export function Header() {
             </div>
 
             {/* Menu */}
-            <div className={components.header.menu.container}>
+            <div className={components.header.menu.container} data-testid="navbar-menu">
               <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className={`h-10 px-2 shadow-md hover:shadow-lg dark:shadow-xl dark:shadow-black/20 dark:border dark:border-white/10 transition-all ${components.button.menu.largeIcon}`}>
