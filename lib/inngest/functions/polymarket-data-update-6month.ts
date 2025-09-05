@@ -88,11 +88,20 @@ export const polymarketDataUpdate6Month = inngest.createFunction(
       await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
     })
 
+    // Return clean summary without full object arrays
+    const result: any = updateResult
     return {
       success: true,
       executionId,
       updateType: '6month-comprehensive',
-      ...updateResult
+      summary: {
+        totalRequests: result.totalRequests || result.summary?.totalRequests || 0,
+        totalFetched: result.totalFetched || result.summary?.totalFetched || 0,
+        eventsInserted: result.insertedEvents?.length || result.summary?.eventsInserted || 0,
+        marketsInserted: result.insertedMarkets?.length || result.summary?.marketsInserted || 0,
+        errors: result.errors?.length || result.summary?.errors || 0,
+        partialSuccess: result.partialSuccess || result.summary?.partialSuccess || false
+      }
     }
   }
 )

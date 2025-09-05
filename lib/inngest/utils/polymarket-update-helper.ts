@@ -106,20 +106,22 @@ export function handleTimeoutError(errorMessage: string, executionId: string, lo
     })
     
     return {
-      insertedEvents: [],
-      insertedMarkets: [], 
-      totalRequests: 0,
-      totalFetched: 0,
-      errors: [],
-      partialSuccess: true,
-      abortReason: 'timeout_prevention'
+      summary: {
+        totalRequests: 0,
+        totalFetched: 0,
+        eventsInserted: 0,
+        marketsInserted: 0,
+        errors: 0,
+        partialSuccess: true,
+        abortReason: 'timeout_prevention'
+      }
     }
   }
   return null
 }
 
 /**
- * Logs successful completion
+ * Logs successful completion with summary only (no full objects)
  */
 export function logUpdateCompletion(
   result: any, 
@@ -127,12 +129,29 @@ export function logUpdateCompletion(
   logEventName: string,
   message: string
 ) {
+  // Get summary stats without logging full objects
+  const eventCategories = result.insertedEvents?.reduce((acc: Record<string, number>, event: any) => {
+    const category = event.category || 'UNKNOWN'
+    acc[category] = (acc[category] || 0) + 1
+    return acc
+  }, {}) || {}
+
+  const marketStats = {
+    count: result.insertedMarkets?.length || 0,
+    withOutcomes: result.insertedMarkets?.filter((m: any) => m.outcomePrices?.length > 0).length || 0
+  }
+
   structuredLogger.info(logEventName, message, {
     executionId,
     totalRequests: result.totalRequests,
     totalFetched: result.totalFetched,
-    insertedEvents: result.insertedEvents.length,
-    insertedMarkets: result.insertedMarkets.length
+    summary: {
+      eventsInserted: result.insertedEvents?.length || 0,
+      marketsInserted: result.insertedMarkets?.length || 0,
+      eventsByCategory: eventCategories,
+      marketStats,
+      errors: result.errors?.length || 0
+    }
   })
 }
 

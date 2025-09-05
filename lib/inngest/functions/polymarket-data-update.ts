@@ -87,11 +87,20 @@ export const polymarketDataUpdate = inngest.createFunction(
       await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
     })
 
+    // Return clean summary without full object arrays
+    const result: any = updateResult
     return {
       success: true,
       executionId,
       updateType: 'regular',
-      ...updateResult
+      summary: {
+        totalRequests: result.totalRequests || result.summary?.totalRequests || 0,
+        totalFetched: result.totalFetched || result.summary?.totalFetched || 0,
+        eventsInserted: result.insertedEvents?.length || result.summary?.eventsInserted || 0,
+        marketsInserted: result.insertedMarkets?.length || result.summary?.marketsInserted || 0,
+        errors: result.errors?.length || result.summary?.errors || 0,
+        partialSuccess: result.partialSuccess || result.summary?.partialSuccess || false
+      }
     }
   }
 )
@@ -168,10 +177,12 @@ export const polymarketUpdateActiveEvents = inngest.createFunction(
       }
     })
 
-    // Step 2: Send heartbeat
-    await step.run('send-heartbeat', async () => {
-      await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
-    })
+    // Step 2: Send heartbeat (skip in development)
+    if (process.env.NODE_ENV !== 'development') {
+      await step.run('send-heartbeat', async () => {
+        await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
+      })
+    }
 
     return {
       success: true,
