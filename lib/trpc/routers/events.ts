@@ -268,7 +268,7 @@ export const eventsRouter = router({
   // Get category statistics
   categoryStats: publicProcedure
     .input(GetCategoryStatsInput)
-    .query(async ({ input }) => {
+    .query(async ({ input: _input }) => {
       return await eventService.getCategoryStats(prisma)
     }),
 

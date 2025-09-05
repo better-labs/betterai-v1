@@ -82,10 +82,12 @@ export const polymarketDataUpdate = inngest.createFunction(
       }
     })
 
-    // Step 2: Send heartbeat
-    await step.run('send-heartbeat', async () => {
-      await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
-    })
+    // Step 2: Send heartbeat (skip in development)
+    if (process.env.NODE_ENV !== 'development') {
+      await step.run('send-heartbeat', async () => {
+        await sendHeartbeatSafe(HeartbeatType.POLYMARKET_DATA)
+      })
+    }
 
     // Return clean summary without full object arrays
     const result: any = updateResult

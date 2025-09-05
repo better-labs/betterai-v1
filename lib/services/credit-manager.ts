@@ -1,4 +1,3 @@
-import { PrismaClient } from '@/lib/generated/prisma'
 import type { DbClient } from './types'
 import * as userService from './user-service'
 

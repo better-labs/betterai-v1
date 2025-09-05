@@ -1,4 +1,5 @@
-import type { Event, Market, PolymarketEvent } from '@/lib/types'
+import type { Event, Market } from '@/lib/types'
+// Removed unused import: PolymarketEvent
 import { fetchPolymarketEvents } from './polymarket-client'
 import { processAndUpsertPolymarketBatch } from './polymarket-batch-processor'
 

@@ -5,7 +5,7 @@
   "scripts": {
     "build": "prisma generate --no-hints && next build",
     "dev": "next dev",
-    "inngest:dev": "npx inngest-cli dev --no-discovery -u http://localhost:3000/api/inngest --no-poll",
+    "inngest:dev": "npx inngest-cli dev  -u http://localhost:3000/api/inngest --no-poll",
     "env:pull:dev": "vercel env pull .env.local --environment=development",
     "db:seed": "tsx scripts/2-update-polymarket-data.ts && tsx scripts/4-generate-batch-predictions.ts",
     "db:prisma:generate": "prisma generate --no-hints",

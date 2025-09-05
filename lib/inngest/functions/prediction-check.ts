@@ -74,10 +74,12 @@ export const predictionCheck = inngest.createFunction(
       }
     })
 
-    // Step 2: Send heartbeat
-    await step.run('send-heartbeat', async () => {
-      await sendHeartbeatSafe(HeartbeatType.PREDICTION_CHECK)
-    })
+    // Step 2: Send heartbeat (skip in development)
+    if (process.env.NODE_ENV !== 'development') {
+      await step.run('send-heartbeat', async () => {
+        await sendHeartbeatSafe(HeartbeatType.PREDICTION_CHECK)
+      })
+    }
 
     return {
       success: true,
