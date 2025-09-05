@@ -1,20 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
-import { validateCronAuth } from '@/lib/utils';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // Handle CRON authentication for API routes
-  if (pathname.startsWith('/api/cron/')) {
-    if (!validateCronAuth(request)) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-    return NextResponse.next();
-  }
 
   // Read feature flags per-request to avoid stale values in edge runtime
   const flags = getServerFeatureFlags();
@@ -51,7 +39,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public files (images, etc.)
      * 
-     * Note: API routes are now included to handle CRON authentication
+     * Note: API routes included for feature flag protection
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$).*)',
   ],
