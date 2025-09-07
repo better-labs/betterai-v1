@@ -13,6 +13,7 @@ export interface MarketStatusFields {
   closed?: boolean | null
   active?: boolean | null
   umaResolutionStatus?: string | null
+  endDate?: string | null
 }
 
 /**
@@ -21,7 +22,10 @@ export interface MarketStatusFields {
  * @returns true if market is accepting bets, false otherwise
  */
 export function isMarketOpenForBetting(market: MarketStatusFields): boolean {
-  return !market.closed
+  const now = new Date()
+  const endDate = market.endDate ? new Date(market.endDate) : null
+  
+  return !market.closed && (!endDate || endDate > now)
 }
 
 /**
@@ -30,7 +34,10 @@ export function isMarketOpenForBetting(market: MarketStatusFields): boolean {
  * @returns Market status: 'open', 'closed', or 'resolved'
  */
 export function getMarketStatus(market: MarketStatusFields & { umaResolutionStatus?: string | null }): MarketStatus {
-  if (!market.closed) return 'open'
+  const now = new Date()
+  const endDate = market.endDate ? new Date(market.endDate) : null
+  
+  if (!market.closed && (!endDate || endDate > now)) return 'open'
   if (market.umaResolutionStatus === 'resolved') return 'resolved'
   return 'closed'
 }
