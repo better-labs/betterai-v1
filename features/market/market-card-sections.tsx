@@ -169,9 +169,9 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
   return (
     <Link 
       href={`/prediction/${latestPrediction.id}`}
-      className={`flex items-start gap-4 hover:opacity-80 transition-opacity ${components.interactive.focus}`}
+      className={`${components.metrics.row} hover:opacity-80 transition-opacity ${components.interactive.focus}`}
     >
-      <div className="flex-shrink-0">
+      <div className={components.metrics.stat}>
         <Stat
           label="AI Delta"
           value={delta != null ? formatPercent(delta) : '—'}
@@ -182,7 +182,9 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
         />
       </div>
       {latestPrediction?.predictionResult?.reasoning && !hideReasoning && (
-        <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
+        <div className={components.metrics.stat}>
+          <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
+        </div>
       )}
     </Link>
   )
