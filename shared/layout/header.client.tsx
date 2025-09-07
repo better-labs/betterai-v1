@@ -3,7 +3,7 @@
 import "./header.css"
 import { Button } from "@/shared/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu"
-import { Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail, Activity } from "lucide-react"
+import { Menu, Twitter, Sun, Moon, Monitor, Home, Trophy, Info, BookOpen, CreditCard, Mail, Activity, User } from "lucide-react"
 import Image from "next/image"
 import { SearchInput } from "@/shared/ui/search-input"
 import Link from "next/link"
@@ -15,6 +15,7 @@ import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
 import { UserCreditsDisplay } from "@/features/user/UserCreditsDisplay.client"
 import { components, typography } from "@/lib/design-system"
+import { extractUsername } from "@/lib/utils/user-data"
 
 // Standard Next.js dynamic import with loading state
 const PrivyUserPill = dynamic(
@@ -30,7 +31,7 @@ export function Header() {
   const pathname = usePathname()
   const router = useRouter()
   const flags = useFeatureFlags()
-  const { ready, authenticated } = usePrivy()
+  const { ready, authenticated, user } = usePrivy()
   const { setTheme, theme } = useTheme()
  
 
@@ -127,6 +128,19 @@ export function Header() {
               )}
             </div>
 
+            {/* User Account Link - Show when authenticated */}
+            {ready && authenticated && user && (
+              <div className="hidden sm:flex items-center" data-testid="navbar-user-account">
+                <Link 
+                  href="/account" 
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+                >
+                  <User className="h-4 w-4" />
+                  <span className="max-w-24 truncate">{extractUsername(user) || 'Account'}</span>
+                </Link>
+              </div>
+            )}
+
             {/* Menu */}
             <div className={components.header.menu.container} data-testid="navbar-menu">
               <DropdownMenu>
@@ -137,15 +151,7 @@ export function Header() {
                   </DropdownMenuTrigger>
               <DropdownMenuContent align="end" side="bottom" alignOffset={0} className="w-56 shadow-lg">
                 
-                {/* User Profile Section - Show when authenticated */}
-                {ready && authenticated && (
-                  <>
-                    <div className="p-2">
-                      <PrivyUserPill />
-                    </div>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
+                
                 
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>
@@ -184,19 +190,11 @@ export function Header() {
                 
                 {/* App Features Section */}
                 <DropdownMenuSeparator />
-                {flags.showActivity && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/activity">
-                      <Activity className="h-5 w-5 flex-shrink-0" />
-                      <span>Activity</span>
-                    </Link>
-                  </DropdownMenuItem>
-                )}
                 {authenticated && (
                   <DropdownMenuItem asChild>
-                    <Link href="/credits">
-                      <CreditCard className="h-5 w-5 flex-shrink-0" />
-                      <span>Credits</span>
+                    <Link href="/account">
+                      <User className="h-5 w-5 flex-shrink-0" />
+                      <span>Account</span>
                     </Link>
                   </DropdownMenuItem>
                 )}
