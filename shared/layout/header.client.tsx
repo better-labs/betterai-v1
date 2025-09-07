@@ -118,10 +118,10 @@ export function Header() {
               )}
             </div> */}
 
-            {/* Auth section */}
+            {/* Auth section - Hide UserPill when authenticated */}
             <div className={components.header.auth.container} data-testid="navbar-auth">
               {ready ? (
-                <PrivyUserPill />
+                !authenticated && <PrivyUserPill />
               ) : (
                 <div className={components.header.auth.loading} />
               )}
@@ -135,8 +135,17 @@ export function Header() {
                       <Menu />
                     </Button>
                   </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 shadow-lg">
+              <DropdownMenuContent align="end" side="bottom" alignOffset={0} className="w-56 shadow-lg">
                 
+                {/* User Profile Section - Show when authenticated */}
+                {ready && authenticated && (
+                  <>
+                    <div className="p-2">
+                      <PrivyUserPill />
+                    </div>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 
                 {/* Mobile Navigation Items */}
                 <DropdownMenuItem asChild>

@@ -108,7 +108,8 @@ export function MarketMetrics({ market, latestPrediction, showProgressBar = true
   })) || []
 
   return (
-    <div className={components.metrics.rowTwoCol}>
+    // Market metrics stats
+    <div className={components.metrics.row}>
       <div className={components.metrics.stat}>
         <Link href={`/market/${market.id}`} className="block hover:opacity-80 transition-opacity">
           <StatsDisplaySection

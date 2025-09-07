@@ -81,7 +81,7 @@ export default function MarketWithPredictionCard({
       </CardHeader>
       
       <CardContent className={`space-y-6 ${components.interactive.safeArea}`}>
-        <MarketMetrics market={market} latestPrediction={latestPrediction} showProgressBar={false} />
+        <MarketMetrics market={market} latestPrediction={latestPrediction} showProgressBar={true} />
         
         {latestPrediction && (
           <AIDelta 
