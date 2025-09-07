@@ -70,9 +70,9 @@ export async function updateActivePolymarketEvents(options: {
   console.log(`Active event IDs: ${Array.from(activeEventIds).slice(0, 5).join(', ')}... (showing first 5)`)
 
   // Use batch API calls to fetch events efficiently
-  // Fetch events from now to 60 days in the future (covers most active events)
-  const startDateMin = new Date()
-  const endDateMax = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // 60 days ahead
+  // Fetch all events regardless of start date (use very early date to get everything)
+  const startDateMin = new Date('2024-01-01') // Very early date to get all events
+  const endDateMax = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days ahead
   
   const allActiveEventsData: PolymarketEvent[] = []
   let offset = 0
