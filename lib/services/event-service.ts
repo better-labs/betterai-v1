@@ -233,8 +233,6 @@ export async function getTrendingMarkets(
   return sortedEvents
 }
 
-// Legacy compatibility export
-export const getTrendingEventsWithMarkets = getTrendingMarkets
 
 export async function getEventById(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
