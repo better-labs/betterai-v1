@@ -1,6 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth'
 import { useEffect, useState } from 'react'
 import { authenticatedFetch } from '@/lib/utils'
+import { extractUserEmail, extractUsername, extractUserAvatar, extractWalletAddress } from '@/lib/utils/user-data'
 
 interface User {
   id: string
@@ -76,10 +77,10 @@ export function useUser() {
 
         // Debug: Log what data we're sending to the API
         const userDataToSend = {
-          email: privyUser.email?.address || privyUser.google?.email,
-          walletAddress: privyUser.wallet?.address,
-          username: (privyUser as any)?.google?.name || (privyUser as any)?.email?.name,
-          avatar: (privyUser as any)?.google?.picture || (privyUser as any)?.email?.picture,
+          email: extractUserEmail(privyUser),
+          walletAddress: extractWalletAddress(privyUser),
+          username: extractUsername(privyUser),
+          avatar: extractUserAvatar(privyUser),
           // Include identity token if available for verification
           identityToken: (privyUser as any)?.identityToken
         }
@@ -106,10 +107,10 @@ export function useUser() {
             {
               method: 'POST',
               body: JSON.stringify({
-                email: privyUser.email?.address || privyUser.google?.email,
-                walletAddress: privyUser.wallet?.address,
-                username: (privyUser as any)?.google?.name || (privyUser as any)?.email?.name,
-                avatar: (privyUser as any)?.google?.picture || (privyUser as any)?.email?.picture
+                email: extractUserEmail(privyUser),
+                walletAddress: extractWalletAddress(privyUser),
+                username: extractUsername(privyUser),
+                avatar: extractUserAvatar(privyUser)
               })
             },
             getToken

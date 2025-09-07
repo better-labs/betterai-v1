@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import posthog from "posthog-js"
 import { usePrivy } from "@privy-io/react-auth"
+import { extractUserEmail, extractUsername, extractWalletAddress } from "@/lib/utils/user-data"
 
 export function UserAnalyticsIdentify() {
   const { ready, user, authenticated } = usePrivy()
@@ -13,8 +14,8 @@ export function UserAnalyticsIdentify() {
     if (authenticated && user) {
       const candidateId =
         (user as any).id ||
-        (user as any)?.email?.address ||
-        (user as any)?.wallet?.address ||
+        extractUserEmail(user) ||
+        extractWalletAddress(user) ||
         posthog.get_distinct_id()
 
       const anonId = posthog.get_distinct_id()
@@ -24,12 +25,9 @@ export function UserAnalyticsIdentify() {
       }
 
       posthog.identify(candidateId, {
-        email: (user as any)?.email?.address ?? undefined,
-        wallet: (user as any)?.wallet?.address ?? undefined,
-        name:
-          (user as any)?.google?.name ||
-          (user as any)?.email?.name ||
-          undefined,
+        email: extractUserEmail(user) ?? undefined,
+        wallet: extractWalletAddress(user) ?? undefined,
+        name: extractUsername(user) ?? undefined,
       })
 
       // Now that the user is identified, record a pageview

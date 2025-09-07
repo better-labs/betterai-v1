@@ -178,7 +178,7 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
           tooltip={DELTA_TOOLTIP}
           tone={getDeltaTone(delta)}
           density="compact"
-          align="center"
+          align="left"
         />
       </div>
       {latestPrediction?.predictionResult?.reasoning && !hideReasoning && (
