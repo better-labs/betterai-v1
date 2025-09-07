@@ -75,7 +75,7 @@ export default function MarketWithPredictionCard({
   }
 
   const card = (
-    <Card className={`${components.card.base} ${components.card.hover} ${spacing.card} ${className}`} data-debug-id="market-card">
+    <Card className={`${components.card.base} ${components.card.hover} ${spacing.card} ${className} overflow-hidden`} data-debug-id="market-card">
       <CardHeader className="pb-2">
         <MarketHeader market={market} event={event} href={href} showActiveStatus={true} />
       </CardHeader>
