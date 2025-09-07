@@ -117,17 +117,17 @@ export const polymarketDataUpdate = inngest.createFunction(
 // - Reduced complexity in this file
 
 /**
- * Update active events - runs every 12 hours
- * Replaces: /api/cron/update-active-events (schedule: "15 star/12 star star star")
+ * Update active events - runs every 3 hours
+ * Replaces: /api/cron/update-active-events (schedule: "15 star/3 star star star")
  */
 export const polymarketUpdateActiveEvents = inngest.createFunction(
   { 
     id: 'polymarket-update-active-events',
-    name: 'Polymarket Data Update: Active Events (Every 12 Hours)',
+    name: 'Polymarket Data Update: Active Events (Every 3 Hours)',
     retries: 3,
   },
   { 
-    cron: 'TZ=UTC 15 */12 * * *' // Every 12 hours at :15 minutes
+    cron: 'TZ=UTC 15 */3 * * *' // Every 3 hours at :15 minutes
   },
   async ({ step }) => {
     const executionId = `polymarket-active-events-${Date.now()}-${Math.random().toString(36).substring(7)}`
