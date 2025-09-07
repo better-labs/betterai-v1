@@ -26,6 +26,7 @@ export interface MarketHeaderProps {
 export interface MarketMetricsProps {
   market: Market
   latestPrediction?: Prediction | null
+  showProgressBar?: boolean
 }
 
 export interface AIDeltaProps {
@@ -95,7 +96,7 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
 // MARKET METRICS COMPONENT
 // ============================================================================
 
-export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) {
+export function MarketMetrics({ market, latestPrediction, showProgressBar = true }: MarketMetricsProps) {
   const marketStats = (market.outcomes || []).map((outcome, index) => ({
     label: outcome,
     value: market.outcomePrices?.[index] || null
@@ -113,6 +114,7 @@ export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) 
           <StatsDisplaySection
             title="Market Probability"
             stats={marketStats}
+            showProgressBars={showProgressBar}
           />
         </Link>
       </div>
@@ -124,6 +126,7 @@ export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) 
             <StatsDisplaySection
               title="AI Prediction"
               stats={predictionStats}
+              showProgressBars={showProgressBar}
             />
           </Link>
         </div>
