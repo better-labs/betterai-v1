@@ -306,7 +306,7 @@ export const components = {
     logoText: 'text-2xl font-bold text-foreground leading-none',
     
     // Right side container
-    rightSection: 'flex items-center justify-end gap-4 md:gap-6',
+    rightSection: 'flex items-center justify-end gap-2 md:gap-3',
     
     // Navigation section layout  
     nav: {
