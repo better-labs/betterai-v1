@@ -483,11 +483,11 @@ export const components = {
     // Individual stat row
     statRow: 'flex justify-start items-center gap-4',
     // Stat label text
-    statLabel: 'text-xl text-foreground',
+    statLabel: 'text-md text-foreground',
     // Right side container with value and progress bar
     statValue: 'flex items-center gap-2',
     // Value text (percentage, score, etc.)
-    valueText: 'text-xl font-medium',
+    valueText: 'text-md font-medium',
     // Progress bar container
     progressContainer: 'w-20 h-2 bg-muted rounded-full overflow-hidden',
     // Progress bar fill

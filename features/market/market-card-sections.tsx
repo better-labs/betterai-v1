@@ -26,6 +26,7 @@ export interface MarketHeaderProps {
 export interface MarketMetricsProps {
   market: Market
   latestPrediction?: Prediction | null
+  showProgressBar?: boolean
 }
 
 export interface AIDeltaProps {
@@ -95,7 +96,7 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
 // MARKET METRICS COMPONENT
 // ============================================================================
 
-export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) {
+export function MarketMetrics({ market, latestPrediction, showProgressBar = true }: MarketMetricsProps) {
   const marketStats = (market.outcomes || []).map((outcome, index) => ({
     label: outcome,
     value: market.outcomePrices?.[index] || null
@@ -107,12 +108,14 @@ export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) 
   })) || []
 
   return (
-    <div className={components.metrics.rowTwoCol}>
+    // Market metrics stats
+    <div className={components.metrics.row}>
       <div className={components.metrics.stat}>
         <Link href={`/market/${market.id}`} className="block hover:opacity-80 transition-opacity">
           <StatsDisplaySection
             title="Market Probability"
             stats={marketStats}
+            showProgressBars={showProgressBar}
           />
         </Link>
       </div>
@@ -124,6 +127,7 @@ export function MarketMetrics({ market, latestPrediction }: MarketMetricsProps) 
             <StatsDisplaySection
               title="AI Prediction"
               stats={predictionStats}
+              showProgressBars={showProgressBar}
             />
           </Link>
         </div>
@@ -165,9 +169,9 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
   return (
     <Link 
       href={`/prediction/${latestPrediction.id}`}
-      className={`flex items-start gap-4 hover:opacity-80 transition-opacity ${components.interactive.focus}`}
+      className={`${components.metrics.row} hover:opacity-80 transition-opacity ${components.interactive.focus}`}
     >
-      <div className="flex-shrink-0">
+      <div className={components.metrics.stat}>
         <Stat
           label="AI Delta"
           value={delta != null ? formatPercent(delta) : '—'}
@@ -178,7 +182,9 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
         />
       </div>
       {latestPrediction?.predictionResult?.reasoning && !hideReasoning && (
-        <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
+        <div className={components.metrics.stat}>
+          <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
+        </div>
       )}
     </Link>
   )

@@ -31,9 +31,14 @@ next-env.d.ts
 /.idea
 *.code-workspace
 
-# documentation
+# google ai helper
 GEMINI.md
-**/.DS_Store
+
+# env files
 .env.prod
 .env*.local
+
+# ds store
 .DS_Store
+/public/.DS_Store
+**/.DS_Store
