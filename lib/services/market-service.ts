@@ -1,7 +1,7 @@
 import type { PrismaClient, Prisma, Market, Event, Prediction } from '@/lib/generated/prisma'
 import { mapMarketToDTO, mapMarketsToDTO } from '@/lib/dtos'
 import type { MarketDTO } from '@/lib/types'
-import { getMarketStatusFilter, isMarketOpenForBetting } from '@/lib/utils/market-status'
+import { getMarketStatusFilter, getOpenMarketsDatabaseFilter } from '@/lib/utils/market-status'
 import { tagFilter } from '@/lib/constants/filters'
 
 /**
@@ -90,7 +90,7 @@ export async function getTrendingMarkets(
 
   // Build WHERE clause for active markets updated recently
   const marketWhereClause: any = {
-    closed: false,
+    ...getOpenMarketsDatabaseFilter(),
     updatedAt: { gte: filterDate },
   }
 
@@ -145,16 +145,8 @@ export async function getTrendingMarkets(
     },
   })
 
-  // Filter out markets that are no longer open for betting 
-  // (handles cases where database closed field is stale)
-  const markets = marketsFromDb.filter(market => 
-    isMarketOpenForBetting({
-      closed: market.closed,
-      active: market.active,
-      closedTime: market.closedTime,
-      endDate: market.endDate,
-    })
-  )
+  // Database query already filtered for truly open markets
+  const markets = marketsFromDb
 
   // Group markets by event ID
   const eventMarketsMap = new Map<string, any[]>()
@@ -446,19 +438,9 @@ export async function searchMarkets(
     ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
   })
 
-  // Post-process for ending sort: filter to only truly open markets
-  // Database 'closed' field may be stale, so we check multiple conditions
+  // For ending sort, we already applied the filter in the database query via getMarketStatusFilter
+  // No additional JavaScript filtering needed
   let filteredRows = rows
-  if (sort === 'ending') {
-    filteredRows = rows.filter(market => 
-      isMarketOpenForBetting({
-        closed: market.closed,
-        active: market.active,
-        closedTime: market.closedTime,
-        endDate: market.endDate,
-      })
-    )
-  }
 
   // Handle pagination
   const hasMore = filteredRows.length > limit
