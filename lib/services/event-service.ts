@@ -40,7 +40,7 @@ export async function getTrendingEvents(
  * - Sorts markets with predictions first, then high-volume markets without predictions
  * - Returns one market per event (highest priority by prediction status, then volume/delta)
  */
-export async function getTrendingEventsWithMarkets(
+export async function getTrendingMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   withPredictions = false,
   predictionDaysLookBack = 4,
@@ -48,39 +48,36 @@ export async function getTrendingEventsWithMarkets(
 ): Promise<any[]> {
   const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
   
-  const whereClause: any = {}
-  
-  // Only show events with markets that are open for betting
-  whereClause.markets = {
-    some: {
-      closed: false
+  // Direct market-focused approach: query markets that are open, then group by event
+  const marketWhereClause: any = {
+    closed: false, // Only open markets
+    updatedAt: {
+      gte: filterDate
     }
   }
   
-  // Remove overly restrictive updatedAt filter to show more trending markets
-  whereClause.updatedAt = {
-    gte: filterDate  
-  }
-  
-  // Handle tag filtering
+  // Handle tag filtering at the event level
   if (tagIds && tagIds.length > 0) {
-    // If specific tags are requested, include only events with those tags
-    whereClause.eventTags = {
-      some: {
-        tagId: {
-          in: tagIds
+    marketWhereClause.event = {
+      eventTags: {
+        some: {
+          tagId: {
+            in: tagIds
+          }
         }
       }
     }
   } else {
-    // Default behavior: exclude events with crypto tags
-    whereClause.NOT = {
-      eventTags: {
-        some: {
-          tag: {
-            label: {
-              in: tagFilter,
-              mode: 'insensitive' as any
+    // Default behavior: exclude markets from events with crypto tags
+    marketWhereClause.event = {
+      NOT: {
+        eventTags: {
+          some: {
+            tag: {
+              label: {
+                in: tagFilter,
+                mode: 'insensitive' as any
+              }
             }
           }
         }
@@ -88,63 +85,71 @@ export async function getTrendingEventsWithMarkets(
     }
   }
 
-  const events = await db.event.findMany({
-    where: whereClause,
+  const markets = await db.market.findMany({
+    where: marketWhereClause,
     orderBy: { volume: 'desc' },
-    take: 50, // Get more events since we'll filter down to one market per event
+    take: 100, // Get more markets then we'll group by event
     include: {
-      markets: {
-        where: {
-          closed: false  // Only include open markets in trending
-        },
-        orderBy: {
-          volume: 'desc'
-        },
+      event: {
         include: {
-          predictions: {
-            where: {
-              createdAt: {
-                gte: filterDate
+          eventTags: {
+            include: {
+              tag: {
+                select: {
+                  id: true,
+                  label: true,
+                  slug: true,
+                  forceShow: true
+                }
               }
-            },
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            select: {
-              id: true,
-              outcomes: true,
-              outcomesProbabilities: true,
-              createdAt: true,
-              modelName: true,
-              predictionResult: true,
             }
           }
         }
       },
-      eventTags: {
-        include: {
-          tag: {
-            select: {
-              id: true,
-              label: true,
-              slug: true,
-              forceShow: true
-            }
+      predictions: {
+        where: {
+          createdAt: {
+            gte: filterDate
           }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        select: {
+          id: true,
+          outcomes: true,
+          outcomesProbabilities: true,
+          createdAt: true,
+          modelName: true,
+          predictionResult: true,
         }
       }
     }
   })
 
+  // Group markets by event and find the best market per event
+  const eventMarketsMap = new Map<string, any[]>()
+  
+  // Group markets by event
+  for (const market of markets) {
+    const eventId = market.event.id
+    if (!eventMarketsMap.has(eventId)) {
+      eventMarketsMap.set(eventId, [])
+    }
+    eventMarketsMap.get(eventId)!.push(market)
+  }
+  
   // For each event, find the best market prioritizing predictions then volume
-  const eventsWithBestMarket = events
-    .map((event: any) => {
-      if (!event.markets || event.markets.length === 0) return null
+  const eventsWithBestMarket = Array.from(eventMarketsMap.entries())
+    .map(([eventId, eventMarkets]) => {
+      if (!eventMarkets || eventMarkets.length === 0) return null
+      
+      const event = eventMarkets[0].event // All markets have the same event
       
       // Split markets into those with and without predictions
-      const marketsWithPredictions = event.markets.filter((market: any) => 
+      const marketsWithPredictions = eventMarkets.filter((market: any) => 
         market.predictions && market.predictions.length > 0
       )
-      const marketsWithoutPredictions = event.markets.filter((market: any) => 
+      const marketsWithoutPredictions = eventMarkets.filter((market: any) => 
         !market.predictions || market.predictions.length === 0
       )
       
@@ -199,7 +204,7 @@ export async function getTrendingEventsWithMarkets(
       
       // If still no market found, take any market
       if (!bestMarket) {
-        bestMarket = event.markets[0]
+        bestMarket = eventMarkets[0]
         bestMarket.hasPrediction = marketsWithPredictions.includes(bestMarket)
       }
       
@@ -227,6 +232,7 @@ export async function getTrendingEventsWithMarkets(
   
   return sortedEvents
 }
+
 
 export async function getEventById(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,

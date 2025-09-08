@@ -4,7 +4,7 @@ import * as eventService from '@/lib/services/event-service'
 
 export async function GET() {
   try {
-    const eventsWithMarkets = await eventService.getTrendingEventsWithMarkets(prisma)
+    const eventsWithMarkets = await eventService.getTrendingMarkets(prisma)
     
     return NextResponse.json({ events: eventsWithMarkets })
 
