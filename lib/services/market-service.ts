@@ -2,6 +2,7 @@ import type { PrismaClient, Prisma, Market, Event, Prediction } from '@/lib/gene
 import { mapMarketToDTO, mapMarketsToDTO } from '@/lib/dtos'
 import type { MarketDTO } from '@/lib/types'
 import { getMarketStatusFilter } from '@/lib/utils/market-status'
+import { tagFilter } from '@/lib/constants/filters'
 
 /**
  * Market service functions following clean service pattern:
@@ -56,6 +57,142 @@ export async function getMarketsByEventIdSerialized(
 ): Promise<MarketDTO[]> {
   const markets = await getMarketsByEventId(db, eventId)
   return mapMarketsToDTO(markets)
+}
+
+/**
+ * Gets trending events with their associated markets, sorted by prediction status then volume.
+ * Applies business filters to show relevant, active events for predictions.
+ *
+ * Note: Returns events with their best market (one per event) for UI sections.
+ */
+export async function getTrendingMarkets(
+  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
+  withPredictions = false,
+  predictionDaysLookBack = 4,
+  tagIds?: string[]
+): Promise<any[]> {
+  const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
+
+  const marketWhereClause: any = {
+    closed: false,
+    updatedAt: { gte: filterDate },
+  }
+
+  if (tagIds && tagIds.length > 0) {
+    marketWhereClause.event = {
+      eventTags: {
+        some: { tagId: { in: tagIds } },
+      },
+    }
+  } else {
+    marketWhereClause.event = {
+      NOT: {
+        eventTags: {
+          some: {
+            tag: { label: { in: tagFilter, mode: 'insensitive' as any } },
+          },
+        },
+      },
+    }
+  }
+
+  const markets = await db.market.findMany({
+    where: marketWhereClause,
+    orderBy: { volume: 'desc' },
+    take: 100,
+    include: {
+      event: {
+        include: {
+          eventTags: {
+            include: {
+              tag: { select: { id: true, label: true, slug: true, forceShow: true } },
+            },
+          },
+        },
+      },
+      predictions: {
+        where: { createdAt: { gte: filterDate } },
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        select: {
+          id: true,
+          outcomes: true,
+          outcomesProbabilities: true,
+          createdAt: true,
+          modelName: true,
+          predictionResult: true,
+        },
+      },
+    },
+  })
+
+  const eventMarketsMap = new Map<string, any[]>()
+  for (const market of markets) {
+    const eventId = market.event.id
+    if (!eventMarketsMap.has(eventId)) eventMarketsMap.set(eventId, [])
+    eventMarketsMap.get(eventId)!.push(market)
+  }
+
+  const eventsWithBestMarket = Array.from(eventMarketsMap.entries())
+    .map(([_, eventMarkets]) => {
+      if (!eventMarkets || eventMarkets.length === 0) return null
+      const event = eventMarkets[0].event
+
+      const marketsWithPredictions = eventMarkets.filter((m: any) => m.predictions && m.predictions.length > 0)
+      const marketsWithoutPredictions = eventMarkets.filter((m: any) => !m.predictions || m.predictions.length === 0)
+
+      let bestMarket: any = null
+      if (marketsWithPredictions.length > 0) {
+        const marketsWithDelta = marketsWithPredictions.map((m: any) => {
+          const prediction = m.predictions[0]
+          const marketProb = Array.isArray(m.outcomePrices)
+            ? m.outcomePrices[0]
+            : typeof m.outcomePrices === 'string'
+              ? JSON.parse(m.outcomePrices)[0]
+              : 0.5
+          const predictionProb = Array.isArray(prediction.outcomesProbabilities)
+            ? prediction.outcomesProbabilities[0]
+            : typeof prediction.outcomesProbabilities === 'string'
+              ? JSON.parse(prediction.outcomesProbabilities)[0]
+              : 0.5
+          const delta = Math.abs(marketProb - predictionProb)
+          return { ...m, delta, hasPrediction: true }
+        })
+
+        const significantDeltaMarkets = marketsWithDelta.filter((m: any) => m.delta > 0.009)
+        if (significantDeltaMarkets.length > 0) {
+          bestMarket = significantDeltaMarkets.sort((a: any, b: any) => b.delta - a.delta)[0]
+        } else {
+          bestMarket = marketsWithDelta.sort((a: any, b: any) => parseFloat(b.volume?.toString() || '0') - parseFloat(a.volume?.toString() || '0'))[0]
+          bestMarket.hasPrediction = true
+        }
+      }
+
+      if (!bestMarket && marketsWithoutPredictions.length > 0) {
+        bestMarket = marketsWithoutPredictions.sort((a: any, b: any) => parseFloat(b.volume?.toString() || '0') - parseFloat(a.volume?.toString() || '0'))[0]
+        bestMarket.hasPrediction = false
+      }
+
+      if (!bestMarket) {
+        bestMarket = eventMarkets[0]
+        bestMarket.hasPrediction = marketsWithPredictions.includes(bestMarket)
+      }
+
+      return { ...event, markets: [bestMarket] }
+    })
+    .filter((e: any) => e !== null)
+
+  const sortedEvents = (eventsWithBestMarket as any[]).sort((a: any, b: any) => {
+    const aHasPrediction = a.markets[0]?.hasPrediction || false
+    const bHasPrediction = b.markets[0]?.hasPrediction || false
+    if (aHasPrediction && !bHasPrediction) return -1
+    if (!aHasPrediction && bHasPrediction) return 1
+    const aVolume = parseFloat(a.volume?.toString() || '0')
+    const bVolume = parseFloat(b.volume?.toString() || '0')
+    return bVolume - aVolume
+  })
+
+  return sortedEvents
 }
 
 export async function createMarket(

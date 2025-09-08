@@ -23,7 +23,7 @@ export function TrendingMarkets() {
   const [isBrowser, setIsBrowser] = useState(false)
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null)
   
-  // Fetch trending markets using tRPC (includes active tags)
+  // Fetch trending markets using tRPC with more aggressive cache settings
   const {
     data: marketsData,
     isLoading: marketsLoading,
@@ -32,6 +32,12 @@ export function TrendingMarkets() {
   } = trpc.markets.trending.useQuery({
     limit: marketLimit,
     tagIds: selectedTagId ? [selectedTagId] : undefined,
+  }, {
+    // More aggressive cache settings to prevent stale data
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes (was cacheTime)
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
 
   // Extract active tags from markets response (guaranteed alignment)
@@ -45,7 +51,10 @@ export function TrendingMarkets() {
   // Detect if we're in the browser (for portal safety)
   useEffect(() => {
     setIsBrowser(true)
-  }, [])
+    // Force a refresh when component mounts to ensure fresh data
+    refetchMarkets()
+  }, [refetchMarkets])
+
 
   // Tag selection handler
   const handleTagSelect = (tagId: string | null) => {
