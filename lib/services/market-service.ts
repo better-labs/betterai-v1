@@ -61,20 +61,28 @@ export async function getMarketsByEventIdSerialized(
 
 /**
  * Gets trending events with their associated markets, sorted by prediction status then volume.
- * Applies business filters to show relevant, active events for predictions.
- *
- * Returns ONE best market per event based on:
- * 1. Markets with predictions that have significant delta (>0.9% difference)
- * 2. Markets with predictions (sorted by volume)
- * 3. Markets without predictions (sorted by volume)
  * 
- * @param withPredictions - Filter to only markets with predictions (unused - consider removing)
- * @param predictionDaysLookBack - How many days of recent predictions to consider
+ * FILTERING:
+ * - Returns BOTH markets with and without predictions
+ * - Only includes open markets (closed: false)
+ * - Only includes recently updated markets (within predictionDaysLookBack days)
+ * - Applies tag filtering if specified
+ * 
+ * SORTING:
+ * - Markets WITH predictions are shown FIRST
+ * - Markets WITHOUT predictions are shown SECOND
+ * - Within each group, sorted by highest volume
+ * 
+ * SELECTION (per event):
+ * - Returns ONE best market per event
+ * - Prefers markets with significant prediction delta (>0.9% difference)
+ * - Falls back to highest volume market
+ * 
+ * @param predictionDaysLookBack - How many days of recent activity to consider (default: 4)
  * @param tagIds - Optional tag filter to restrict to specific categories
  */
 export async function getTrendingMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
-  withPredictions = false,
   predictionDaysLookBack = 4,
   tagIds?: string[]
 ): Promise<any[]> {
@@ -220,6 +228,9 @@ export async function getTrendingMarkets(
     .filter((e: any) => e !== null)
 
   // Sort events: those with predictions first, then by volume
+  // Final order will be:
+  //   1. Events with predictions (sorted by volume DESC)
+  //   2. Events without predictions (sorted by volume DESC)
   const sortedEvents = (eventsWithBestMarket as any[]).sort((a: any, b: any) => {
     const aHasPrediction = a.markets[0]?.hasPrediction || false
     const bHasPrediction = b.markets[0]?.hasPrediction || false
