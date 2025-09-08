@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/prisma'
 import type { Event, Market, PolymarketEvent } from '@/lib/types'
-import { fetchPolymarketEvents } from './polymarket-client'
+import { fetchPolymarketEventsByIds } from './polymarket-client'
 import { processAndUpsertPolymarketBatch } from './polymarket-batch-processor'
 import { getOpenMarketsDatabaseFilter } from '@/lib/utils/market-status'
 
@@ -29,16 +29,18 @@ export async function updateActivePolymarketEvents(options: {
 
   console.log('Starting active Polymarket events update...')
 
+
+  const maxDaysUntilEnd = 45
   // Find all events with markets and filter for truly open markets
   // Only include events ending within the next 30 days for performance
   const eventsWithMarkets = await prisma.event.findMany({
     where: {
       marketProvider: 'Polymarket',
       endDate: {
-        lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)  // Events ending within 30 days
+        lte: new Date(Date.now() + maxDaysUntilEnd * 24 * 60 * 60 * 1000) 
       },
       markets: {
-        some: getOpenMarketsDatabaseFilter({ maxDaysUntilEnd: 30 })
+        some: getOpenMarketsDatabaseFilter({ maxDaysUntilEnd: maxDaysUntilEnd })
       }
     },
     select: {
@@ -83,78 +85,45 @@ export async function updateActivePolymarketEvents(options: {
   const errors: string[] = []
   let totalRequests = 0
 
-  // Create a Set of active event IDs for fast lookup
-  const activeEventIds = new Set(activeEvents.map(e => e.id))
-  console.log(`Active event IDs: ${Array.from(activeEventIds).slice(0, 5).join(', ')}... (showing first 5)`)
+  // Extract just the event IDs
+  const eventIds = activeEvents.map(e => e.id)
+  console.log(`Fetching ${eventIds.length} events by ID: ${eventIds.slice(0, 5).join(', ')}... (showing first 5)`)
 
-  // Use batch API calls to fetch events efficiently
-  // Fetch all events regardless of start date (use very early date to get everything)
-  const startDateMin = new Date('2024-01-01') // Very early date to get all events
-  const endDateMax = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days ahead
-  
+  // Fetch events in batches by ID (Polymarket API supports ?id=111&id=222&id=333)
   const allActiveEventsData: PolymarketEvent[] = []
-  let offset = 0
-  const batchSize = 100
-  let hasMoreData = true
-  let consecutiveErrors = 0
-
-  // Fetch all events in batches and filter for our active ones
-  while (hasMoreData && allActiveEventsData.length < activeEvents.length) {
+  const batchSize = 50 // Reasonable batch size for URL length
+  
+  for (let i = 0; i < eventIds.length; i += batchSize) {
+    const batchIds = eventIds.slice(i, i + batchSize)
+    
     try {
       totalRequests++
-      console.log(`Fetching batch ${totalRequests}: offset=${offset}, limit=${batchSize}`)
+      console.log(`Fetching batch ${totalRequests}/${Math.ceil(eventIds.length / batchSize)}: ${batchIds.length} event IDs`)
       
-      const batchEvents = await fetchPolymarketEvents(
-        offset,
-        batchSize,
-        startDateMin,
-        endDateMax,
-        fetchOptions
-      )
-
-      if (batchEvents.length === 0) {
-        hasMoreData = false
-        break
-      }
-
-      // Filter to only include our active events
-      const relevantEvents = batchEvents.filter(event => activeEventIds.has(event.id))
-      allActiveEventsData.push(...relevantEvents)
+      const batchEvents = await fetchPolymarketEventsByIds(batchIds, fetchOptions)
+      allActiveEventsData.push(...batchEvents)
       
-      console.log(`Batch ${totalRequests}: Got ${batchEvents.length} events, ${relevantEvents.length} are active in our DB`)
+      console.log(`✓ Batch ${totalRequests}: Got ${batchEvents.length}/${batchIds.length} events from Polymarket`)
 
-      // Stop if we found all our active events or got less than batch size
-      if (batchEvents.length < batchSize || allActiveEventsData.length >= activeEvents.length * 0.9) {
-        hasMoreData = false
-      } else {
-        offset += batchSize
-        // Add delay between batch requests
-        if (delayMs > 0) {
-          await new Promise(resolve => setTimeout(resolve, delayMs))
-        }
+      // Add delay between batch requests
+      if (delayMs > 0 && i + batchSize < eventIds.length) {
+        await new Promise(resolve => setTimeout(resolve, delayMs))
       }
-
-      consecutiveErrors = 0 // Reset on success
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
-      console.error(`✗ Failed to fetch batch at offset ${offset}:`, errorMsg)
+      console.error(`✗ Failed to fetch batch ${totalRequests} (IDs: ${batchIds.slice(0, 3).join(', ')}...):`, errorMsg)
       errors.push(`Batch ${totalRequests}: ${errorMsg}`)
       
-      consecutiveErrors++
-      if (consecutiveErrors >= maxBatchFailuresBeforeAbort) {
-        console.error(`Aborting after ${consecutiveErrors} consecutive batch failures`)
+      // Continue with next batch instead of aborting completely
+      if (errors.length >= maxBatchFailuresBeforeAbort) {
+        console.error(`Too many batch failures (${errors.length}), stopping`)
         break
-      } else {
-        const backoffMs = (fetchOptions.retryDelayMs ?? 2000) * consecutiveErrors
-        console.warn(`Backing off for ${backoffMs}ms before retrying batch`)
-        await new Promise(resolve => setTimeout(resolve, backoffMs))
-        // Don't increment offset, retry the same batch
       }
     }
   }
 
-  console.log(`Fetched ${allActiveEventsData.length} active events from ${totalRequests} batch requests`)
+  console.log(`Fetched ${allActiveEventsData.length}/${eventIds.length} events from ${totalRequests} API requests`)
 
   // Process all the active events we found
   if (allActiveEventsData.length > 0) {
