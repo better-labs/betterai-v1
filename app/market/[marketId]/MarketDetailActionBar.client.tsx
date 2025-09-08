@@ -8,6 +8,7 @@ import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { Card, CardContent } from "@/shared/ui/card"
 import { Coins, Brain } from 'lucide-react'
+import { isMarketOpenForBetting } from '@/lib/utils/market-status'
 
 interface MarketDetailActionBarProps {
   marketId: string
@@ -17,6 +18,9 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
   const router = useRouter()
   const { login } = usePrivy()
   const { user, isAuthenticated, isReady } = useUser()
+
+  // Get market data
+  const { data: market } = trpc.markets.getById.useQuery({ id: marketId })
 
   // Get user credits
   const { data: userCreditsResponse, isLoading: creditsLoading } = trpc.users.getCredits.useQuery(
@@ -32,6 +36,7 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
 
   const credits = userCreditsResponse?.credits?.credits || 0
   const hasRecentSession = recentSessions && recentSessions.length > 0
+  const isMarketOpen = market ? isMarketOpenForBetting(market) : false
 
   const handlePredictClick = () => {
     if (!isAuthenticated) {
@@ -90,15 +95,17 @@ export function MarketDetailActionBar({ marketId }: MarketDetailActionBarProps) 
               </Button>
             )}
 
-            <Button
-              onClick={handlePredictClick}
-              disabled={isAuthenticated && credits < 1}
-              variant="primary"
-              size="md"
-              data-debug-id="market-detail-predict-button"
-            >
-              Predict with AI
-            </Button>
+            {isMarketOpen && (
+              <Button
+                onClick={handlePredictClick}
+                disabled={isAuthenticated && credits < 1}
+                variant="primary"
+                size="md"
+                data-debug-id="market-detail-predict-button"
+              >
+                Predict with AI
+              </Button>
+            )}
           </div>
         </div>
 

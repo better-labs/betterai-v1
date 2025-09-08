@@ -201,7 +201,7 @@ export function MarketCTA({
   onGeneratePrediction, 
   hidePredictionButton = false
 }: MarketCTAProps) {
-  if (hidePredictionButton) return null
+  if (hidePredictionButton || !isMarketOpenForBetting(market)) return null
 
   return (
     <div className={`${spacing.cta} space-y-3`}>
