@@ -112,6 +112,7 @@ export function transformMarketToDbFormat(market: PolymarketMarket & { eventId: 
     liquidity: market.liquidity ? new Decimal(market.liquidity.toString()) : new Decimal('0'),
     active: market.active ?? null,
     closed: market.closed ?? null,
+    closedTime: market.closedTime ? new Date(market.closedTime) : null,
     startDate: market.startDate ? new Date(market.startDate) : null,
     endDate: market.endDate ? new Date(market.endDate) : null,
     resolutionSource: market.resolutionSource || null,

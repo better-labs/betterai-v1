@@ -16,6 +16,7 @@ export interface NewMarket {
   liquidity?: number | Decimal | null
   active?: boolean | null
   closed?: boolean | null
+  closedTime?: Date | null
   endDate?: Date | null
   startDate?: Date | null
   slug?: string | null

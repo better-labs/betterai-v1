@@ -46,7 +46,7 @@ async function main() {
   const input = process.env.DATABASE_URL_NEONDB_OWNER;
   if (!input) fatal("DATABASE_URL_NEONDB_OWNER environment variable required");
   
-  const updateVercelEnv = process.argv.includes('--update-vercel-env');
+  const shouldUpdateVercel = process.argv.includes('--update-vercel-env');
   
   let url: URL;
   try {
@@ -127,7 +127,7 @@ async function main() {
     console.log(`DATABASE_URL_UNPOOLED=${ownerUrl}`);
     
     // Update Vercel if requested
-    if (updateVercelEnv) {
+    if (shouldUpdateVercel) {
       console.log("\n🔄 Updating Vercel environment...");
       await updateVercelEnv("DATABASE_URL", appUrl);
       await updateVercelEnv("DATABASE_URL_UNPOOLED", ownerUrl);
