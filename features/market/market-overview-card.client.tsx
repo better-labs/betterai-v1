@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card"
-import { Calendar, DollarSign, BarChart2, ExternalLink, RefreshCw } from 'lucide-react'
+import { DollarSign, BarChart2, ExternalLink, RefreshCw } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import { useToast } from '@/shared/ui/use-toast'
 import { formatVolume } from '@/lib/utils'
@@ -106,17 +106,6 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
               </div>
             </div>
 
-            {market.endDate && (
-              <div className={components.marketMetrics.metric}>
-                <Calendar className={components.marketMetrics.icon} />
-                <div className={components.marketMetrics.metricContent}>
-                  <div className={components.marketMetrics.metricLabel}>Market Close Date</div>
-                  <div className={components.marketMetrics.metricValue}>
-                    {new Date(market.endDate).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
         </div>

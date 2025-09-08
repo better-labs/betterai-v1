@@ -69,7 +69,9 @@ The Watchlist feature enables users to bookmark markets and trigger batch AI pre
     add: authenticatedProcedure.input(watchlistAddSchema).mutation(),
     remove: authenticatedProcedure.input(watchlistRemoveSchema).mutation(),
     isInWatchlist: authenticatedProcedure.input(checkSchema).query(),
-    triggerPredictions: authenticatedProcedure.mutation()
+    triggerBatchPredictions: authenticatedProcedure
+      .input(z.object({ selectedModels: z.array(z.string()).min(1).max(3) }))
+      .mutation() // Creates prediction sessions for each watchlist market
   }
   ```
 
@@ -87,12 +89,19 @@ The Watchlist feature enables users to bookmark markets and trigger batch AI pre
 - Map prediction session status
 - Include email preferences
 
-### 1.5 Service Layer
+### 1.5 Service Layer (Leverages Existing Infrastructure)
 **File: `/lib/services/user-service.ts`**
 - Most methods already exist! Only add:
   - `checkWatchlistLimit()` - Enforce 10 market limit
+  - `triggerWatchlistBatchPredictions()` - Creates prediction sessions for each market
   - Reuse existing `getUserWatchlist()`, `addToWatchlist()`, `removeFromWatchlist()`
-  - Reuse credit checks from prediction flow
+
+**Key Integration**: The batch predictions will use existing `predictionSessionService.createPredictionSession()` for each market, leveraging all existing:
+- ✅ Credit validation and consumption
+- ✅ Rate limiting and queuing  
+- ✅ Error handling and retries
+- ✅ Progress tracking and monitoring
+- ✅ Recovery mechanisms
 
 ### 1.6 Testing (Manual for v1)
 - Manual testing via Postman/API calls
@@ -111,23 +120,30 @@ The Watchlist feature enables users to bookmark markets and trigger batch AI pre
 ## Phase 2: Inngest Workflow Integration (1-2 days)
 
 ### 2.1 OpenRouter Rate Limits
-**Based on research:**
-- Free tier: 50-1000 requests/day (based on credits purchased)
-- Paid accounts: Significantly higher limits (3x increase recently)
 - Strategy: Use conservative concurrency limit of 2 to avoid issues
 
-### 2.2 Simple Batch Prediction Workflow
+### 2.2 Reuse Existing Prediction Session Infrastructure ✅
+**MAJOR SIMPLIFICATION**: Instead of creating custom watchlist workflows, we'll reuse the existing robust prediction session system.
+
+**Approach**: Create one prediction session per market in the watchlist
+- ✅ **Existing Infrastructure**: `PredictionSession` model, service layer, Inngest workflows
+- ✅ **Proven Reliability**: Battle-tested with retries, recovery, and error handling
+- ✅ **Credit Management**: Built-in credit validation and consumption
+- ✅ **Rate Limiting**: OpenRouter rate limits already handled
+- ✅ **Progress Tracking**: Real-time status updates and step tracking
+
 **File: `/lib/inngest/functions/watchlist-predictions.ts`**
 ```typescript
 export const processWatchlistPredictions = inngest.createFunction({
-  id: "watchlist-predictions",
-  name: "Process Watchlist Predictions",
-  concurrency: { limit: 2 }, // Conservative for OpenRouter
-  retries: 3, // Use Inngest's built-in retry
+  id: "watchlist-batch-predictions",
+  name: "Process Watchlist Batch Predictions", 
+  concurrency: { limit: 2 }, // Conservative for batching
+  retries: 3,
   // Step 1: Get user's watchlist markets
-  // Step 2: Check credit balance
-  // Step 3: Generate predictions sequentially
-  // Step 4: Send simple text email when complete
+  // Step 2: Validate total credit cost for all markets
+  // Step 3: Create individual prediction sessions for each market
+  // Step 4: Monitor all sessions until complete
+  // Step 5: Send email summary when all complete
 })
 ```
 
@@ -148,6 +164,7 @@ export const processWatchlistPredictions = inngest.createFunction({
   ```
 - Use existing Loops.so integration
 - HTML templates moved to v2
+- Simple polling - wait for all sessions to reach terminal state, then send summary
 
 ### 2.4 Workflow Registry
 **File: `/lib/inngest/functions.ts`**
@@ -161,10 +178,10 @@ export const processWatchlistPredictions = inngest.createFunction({
 - Verify error handling and retries
 
 **Deliverables:**
-- ✅ On-demand prediction workflow
-- ✅ Daily automated workflow
-- ✅ Email notification system
-- ✅ Workflow monitoring setup
+- ✅ Watchlist batch prediction workflow (creates individual prediction sessions)
+- ✅ Email notification system for batch completion
+- ✅ Reuse existing prediction session monitoring and recovery
+- ✅ Simplified implementation leveraging proven infrastructure
 
 ---
 
@@ -183,9 +200,9 @@ interface WatchlistToggleButtonProps {
 - Show disabled with "Sign in to save" tooltip for non-authenticated users
 - Loading state during API calls
 - Toast notifications on success
-- Toast warning "Watchlist limited to 10 markets during beta" when limit reached
+- Toast warning "Watchlist limited to 5 markets during beta" when limit reached
 - Reuse existing DS tokens from `/lib/design-system.ts`
-- Reuse credit insufficiency warning from predict flow
+- Reuse credit insufficiency warning from predict flow if the user does not have sufficient credits for the weekly watchlist predictions
 
 ### 3.2 Watchlist Page
 **File: `/app/watchlist/page.tsx`**
@@ -205,10 +222,14 @@ interface WatchlistToggleButtonProps {
 
 ### 3.3 Watchlist Controls Component (Simplified)
 **File: `/features/watchlist/watchlist-controls.client.tsx`**
-- "Trigger Watchlist Predictions Now" button only
+- "Generate Predictions for All Markets" button with model selection
+- Model selector (reuse existing component from single predictions)
+- Credit cost calculator showing total cost for all markets
 - Button disabled state during processing
 - Show toast "Batch predictions initiated. You'll receive an email when complete."
-- Simple text: "Generate AI predictions for all markets in your watchlist"
+- Progress indicator showing individual prediction session statuses
+
+**Key UX Enhancement**: Users can see each market's prediction session status in real-time, just like individual predictions but in a batch view.
 
 ### 3.4 Integration Points
 **File: `/features/market/market-with-prediction-card.client.tsx`**
@@ -281,14 +302,42 @@ interface WatchlistToggleButtonProps {
 
 ---
 
+## New Implementation Approach: Leverage Existing Prediction Sessions
+
+### How It Works (Simplified Architecture)
+1. **User triggers batch predictions** → `triggerWatchlistBatchPredictions()`
+2. **For each market in watchlist** → Create individual `PredictionSession` 
+3. **Existing Inngest workflows** → Process each session independently
+4. **Monitor all sessions** → Track progress until all complete
+5. **Send email summary** → Include results from all prediction sessions
+
+### Key Benefits of This Approach
+- ✅ **90% Less Code**: Reuse existing prediction session infrastructure
+- ✅ **Battle-Tested**: Leverage proven error handling, retries, recovery
+- ✅ **Individual Progress**: Users can see each market's prediction status
+- ✅ **Partial Success**: If some predictions fail, others still succeed
+- ✅ **Credit Safety**: Existing credit validation and consumption logic
+- ✅ **Rate Limiting**: OpenRouter limits already handled by existing queuing
+- ✅ **Monitoring**: Full observability through existing Inngest dashboard
+
+### What We Still Need to Build
+- **Watchlist CRUD operations** (mostly exists)
+- **Batch trigger endpoint** (creates multiple prediction sessions)
+- **Batch progress monitoring** (polls multiple session statuses)
+- **Email summary service** (aggregates results from multiple sessions)
+- **Frontend components** (watchlist page, toggle buttons, progress indicators)
+
+---
+
 ## Implementation Timeline (Simplified)
 
-### Total: 5-7 days
-- **Day 1**: Phase 1 - Backend API setup
-- **Day 2**: Phase 2 - Inngest workflow
-- **Days 3-4**: Phase 3 - Frontend UI
-- **Day 5**: Phase 4 - Integration & manual testing
-- **Day 6**: Buffer for fixes and deployment
+### Total: 3-4 days (Reduced from 5-7 days)
+- **Day 1**: Backend API + batch prediction trigger (leverages existing sessions)
+- **Day 2**: Frontend watchlist page + controls
+- **Day 3**: Integration, email notifications, testing
+- **Day 4**: Buffer for fixes and deployment
+
+**Time Saved**: 2-3 days by reusing existing prediction session infrastructure instead of building custom watchlist workflows.
 
 ---
 
@@ -334,40 +383,27 @@ watchlist: {
 - **Error Tracking**: Use Inngest + BetterStack (not Sentry initially)
 - **Sorting/Filtering**: Defer to v2 (keep initial version simple)
 
-## Error Recovery Strategy
+## Error Recovery Strategy (Leverages Existing Infrastructure)
 
-### Failed Prediction Handling (Simplest Approach)
-**Strategy: Inngest Built-in Recovery**
-```typescript
-// Use Inngest's automatic retry with exponential backoff
-export const processWatchlistPredictions = inngest.createFunction({
-  retries: 3,
-  onFailure: async ({ error, event, step }) => {
-    // Log to BetterStack
-    await step.run("log-failure", async () => {
-      structuredLogger.error("Watchlist prediction failed", {
-        userId: event.data.userId,
-        error: error.message,
-        attempt: event.attempt
-      });
-    });
-    
-    // Send failure notification email (optional)
-    if (event.attempt === 3) {
-      await step.run("notify-user", async () => {
-        // Send "predictions temporarily unavailable" email
-      });
-    }
-  }
-})
-```
+### Failed Prediction Handling ✅ **ALREADY SOLVED**
+**Strategy: Reuse Existing Prediction Session Recovery**
+
+The existing prediction session infrastructure already handles all error recovery scenarios:
+- ✅ **Individual Session Retries**: Each prediction session has built-in retry logic
+- ✅ **Stuck Session Recovery**: Scheduled recovery runs every hour 
+- ✅ **Manual Recovery**: Recovery events for specific stuck sessions
+- ✅ **Credit Refunds**: Failed sessions don't consume credits
+- ✅ **Error Logging**: Structured logging with BetterStack integration
+- ✅ **Recovery Monitoring**: Full visibility in Inngest dashboard
+
+**For Watchlist Batches**: If individual market prediction sessions fail, they will be automatically recovered by existing infrastructure. The batch email will include both successful and failed predictions, with clear status indicators.
 
 **Benefits of this approach:**
-- ✅ No custom retry logic needed
-- ✅ Automatic exponential backoff
-- ✅ Built-in dead letter queue
-- ✅ Visibility in Inngest dashboard
-- ✅ Integrated with existing monitoring
+- ✅ Zero additional error handling code needed
+- ✅ Battle-tested recovery mechanisms
+- ✅ Individual market failures don't affect entire batch
+- ✅ Automatic credit management for failed predictions
+- ✅ Full observability through existing monitoring
 
 ## Potential Issues & Mitigation
 
@@ -383,9 +419,9 @@ export const processWatchlistPredictions = inngest.createFunction({
 - **Issue**: Users with 100+ markets could slow queries
 - **Mitigation**: 10 market beta limit solves this initially
 
-### 4. **Concurrent Prediction Limits**
-- **Issue**: OpenRouter API rate limits
-- **Mitigation**: Queue with Inngest concurrency limits (5 concurrent)
+### 4. **Concurrent Prediction Limits** ✅ **ALREADY SOLVED**
+- **Issue**: OpenRouter API rate limits  
+- **Mitigation**: Existing prediction session infrastructure already handles concurrency and rate limits through Inngest queuing
 
 ### 5. **User Notification Preferences**
 - **Issue**: Users may want granular email controls
@@ -393,7 +429,7 @@ export const processWatchlistPredictions = inngest.createFunction({
 
 ---
 
-## Future Enhancements (v2)
+## Future Enhancements (watchlist v2)
 
 ### Phase 5 Features (Next Release)
 1. **Automated Schedules**
@@ -499,11 +535,12 @@ This plan leverages 70% existing infrastructure, focusing development effort on 
 
 ### Key Simplifications Made
 1. **No database migrations needed** - Existing schema works for v1
-2. **Minimal API endpoints** - Just 5 tRPC procedures
+2. **Minimal API endpoints** - Just 5 tRPC procedures  
 3. **Manual testing only** - No automated tests initially
 4. **Simple text emails** - No HTML templates
-5. **Conservative rate limits** - Concurrency of 2 for OpenRouter
-6. **No scheduled jobs** - Manual trigger only
+5. **Reuse prediction sessions** - Leverage existing infrastructure for 90% of complexity
+6. **No scheduled jobs** - Manual trigger only (V1)
+7. **No custom error handling** - Existing prediction session recovery handles everything
 
 ### OpenRouter Rate Limits (Research Findings)
 - **Free tier**: 50-1000 requests/day based on credits

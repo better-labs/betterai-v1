@@ -254,21 +254,6 @@ export function MarketMeta({ market, event, latestPrediction }: MarketMetaProps)
         )}
       </div>
       
-      {/* Prediction metadata row */}
-      {latestPrediction && (
-        <div className={`${components.cardFooter.item} ${components.cardFooter.layout.split} mb-2`}>
-          {event?.endDate && (
-            <span className={components.cardFooter.timestamp}>
-              Event Ends: {new Date(event.endDate).toLocaleDateString()}
-            </span>
-          )}  
-          {latestPrediction.modelName && (
-            <span className={components.cardFooter.timestamp}>
-              AI Model: {latestPrediction.modelName}
-            </span>
-          )}
-        </div>
-      )}
     </div>
   )
 }
