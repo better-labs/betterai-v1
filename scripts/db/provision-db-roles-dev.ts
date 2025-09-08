@@ -289,15 +289,19 @@ async function main() {
       });
       console.log(`DATABASE_URL_UNPOOLED=${directOwnerUrl}`);     // direct, owner role (migrations/DDL)
 
-      // Update Vercel environment variables if flag is set
+      // Update Vercel environment variables if flag is set (only update what changed)
       if (updateVercelEnv) {
         console.log("\n🔄 Updating Vercel development environment variables...");
         
         try {
+          // Only update DATABASE_URL if app password changed
           await updateVercelEnvVar("DATABASE_URL", pooledAppUrl);
-          await updateVercelEnvVar("DATABASE_URL_UNPOOLED", directOwnerUrl);
+          console.log("✅ Updated DATABASE_URL (app password changed)");
           
-          console.log("✅ Successfully updated Vercel environment variables");
+          // Always update DATABASE_URL_UNPOOLED to use neondb_owner
+          await updateVercelEnvVar("DATABASE_URL_UNPOOLED", directOwnerUrl);
+          console.log("✅ Updated DATABASE_URL_UNPOOLED (now using neondb_owner)");
+          
         } catch (error) {
           console.error("⚠️  Failed to update some Vercel environment variables. You may need to update them manually:");
           console.error("   Run: vercel env add DATABASE_URL development");
@@ -317,6 +321,22 @@ async function main() {
       });
       console.log("\n# === Use this for unpooled operations ===");
       console.log(`DATABASE_URL_UNPOOLED=${directOwnerUrl}`);     // direct, owner role (migrations/DDL)
+      
+      // Update Vercel environment variables if flag is set (only update UNPOOLED URL)
+      if (updateVercelEnv) {
+        console.log("\n🔄 Updating Vercel development environment variables...");
+        
+        try {
+          // Only update DATABASE_URL_UNPOOLED to use neondb_owner
+          await updateVercelEnvVar("DATABASE_URL_UNPOOLED", directOwnerUrl);
+          console.log("✅ Updated DATABASE_URL_UNPOOLED (now using neondb_owner)");
+          console.log("📝 DATABASE_URL unchanged (existing app password preserved)");
+          
+        } catch (error) {
+          console.error("⚠️  Failed to update Vercel environment variable. You may need to update it manually:");
+          console.error("   Run: vercel env add DATABASE_URL_UNPOOLED development");
+        }
+      }
     }
 
     console.log("\n🎉 Done. Roles created/updated and grants applied.");
