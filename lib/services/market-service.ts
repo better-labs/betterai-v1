@@ -63,7 +63,14 @@ export async function getMarketsByEventIdSerialized(
  * Gets trending events with their associated markets, sorted by prediction status then volume.
  * Applies business filters to show relevant, active events for predictions.
  *
- * Note: Returns events with their best market (one per event) for UI sections.
+ * Returns ONE best market per event based on:
+ * 1. Markets with predictions that have significant delta (>0.9% difference)
+ * 2. Markets with predictions (sorted by volume)
+ * 3. Markets without predictions (sorted by volume)
+ * 
+ * @param withPredictions - Filter to only markets with predictions (unused - consider removing)
+ * @param predictionDaysLookBack - How many days of recent predictions to consider
+ * @param tagIds - Optional tag filter to restrict to specific categories
  */
 export async function getTrendingMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
@@ -73,11 +80,13 @@ export async function getTrendingMarkets(
 ): Promise<any[]> {
   const filterDate = new Date(Date.now() - predictionDaysLookBack * 24 * 60 * 60 * 1000)
 
+  // Build WHERE clause for active markets updated recently
   const marketWhereClause: any = {
     closed: false,
     updatedAt: { gte: filterDate },
   }
 
+  // Apply tag filtering - either include specified tags or exclude filtered tags
   if (tagIds && tagIds.length > 0) {
     marketWhereClause.event = {
       eventTags: {
@@ -85,6 +94,7 @@ export async function getTrendingMarkets(
       },
     }
   } else {
+    // Exclude markets with filtered tags (e.g. adult content)
     marketWhereClause.event = {
       NOT: {
         eventTags: {
@@ -96,6 +106,7 @@ export async function getTrendingMarkets(
     }
   }
 
+  // Fetch top 100 markets by volume with their events and recent predictions
   const marketsFromDb = await db.market.findMany({
     where: marketWhereClause,
     orderBy: { volume: 'desc' },
@@ -113,7 +124,7 @@ export async function getTrendingMarkets(
       predictions: {
         where: { createdAt: { gte: filterDate } },
         orderBy: { createdAt: 'desc' },
-        take: 1,
+        take: 1, // Only need latest prediction per market
         select: {
           id: true,
           outcomes: true,
@@ -126,7 +137,8 @@ export async function getTrendingMarkets(
     },
   })
 
-  // Filter out markets that are no longer open for betting (handles cases where database closed field is stale)
+  // Filter out markets that are no longer open for betting 
+  // (handles cases where database closed field is stale)
   const markets = marketsFromDb.filter(market => 
     isMarketOpenForBetting({
       closed: market.closed,
@@ -136,6 +148,7 @@ export async function getTrendingMarkets(
     })
   )
 
+  // Group markets by event ID
   const eventMarketsMap = new Map<string, any[]>()
   for (const market of markets) {
     const eventId = market.event.id
@@ -143,46 +156,60 @@ export async function getTrendingMarkets(
     eventMarketsMap.get(eventId)!.push(market)
   }
 
+  // Select the best market for each event
   const eventsWithBestMarket = Array.from(eventMarketsMap.entries())
     .map(([_, eventMarkets]) => {
       if (!eventMarkets || eventMarkets.length === 0) return null
       const event = eventMarkets[0].event
 
+      // Separate markets with/without predictions
       const marketsWithPredictions = eventMarkets.filter((m: any) => m.predictions && m.predictions.length > 0)
       const marketsWithoutPredictions = eventMarkets.filter((m: any) => !m.predictions || m.predictions.length === 0)
 
       let bestMarket: any = null
+      
+      // Prioritize markets with predictions
       if (marketsWithPredictions.length > 0) {
+        // Calculate delta (difference between market and AI prediction)
         const marketsWithDelta = marketsWithPredictions.map((m: any) => {
           const prediction = m.predictions[0]
+          
+          // Extract market probability (handle various data formats)
           const marketProb = Array.isArray(m.outcomePrices)
             ? m.outcomePrices[0]
             : typeof m.outcomePrices === 'string'
               ? JSON.parse(m.outcomePrices)[0]
               : 0.5
+              
+          // Extract prediction probability
           const predictionProb = Array.isArray(prediction.outcomesProbabilities)
             ? prediction.outcomesProbabilities[0]
             : typeof prediction.outcomesProbabilities === 'string'
               ? JSON.parse(prediction.outcomesProbabilities)[0]
               : 0.5
+              
           const delta = Math.abs(marketProb - predictionProb)
           return { ...m, delta, hasPrediction: true }
         })
 
+        // Prefer markets with significant delta (>0.9% difference)
         const significantDeltaMarkets = marketsWithDelta.filter((m: any) => m.delta > 0.009)
         if (significantDeltaMarkets.length > 0) {
           bestMarket = significantDeltaMarkets.sort((a: any, b: any) => b.delta - a.delta)[0]
         } else {
+          // Fall back to highest volume market with prediction
           bestMarket = marketsWithDelta.sort((a: any, b: any) => parseFloat(b.volume?.toString() || '0') - parseFloat(a.volume?.toString() || '0'))[0]
           bestMarket.hasPrediction = true
         }
       }
 
+      // Fall back to markets without predictions (by volume)
       if (!bestMarket && marketsWithoutPredictions.length > 0) {
         bestMarket = marketsWithoutPredictions.sort((a: any, b: any) => parseFloat(b.volume?.toString() || '0') - parseFloat(a.volume?.toString() || '0'))[0]
         bestMarket.hasPrediction = false
       }
 
+      // Final fallback: use first market
       if (!bestMarket) {
         bestMarket = eventMarkets[0]
         bestMarket.hasPrediction = marketsWithPredictions.includes(bestMarket)
@@ -192,11 +219,16 @@ export async function getTrendingMarkets(
     })
     .filter((e: any) => e !== null)
 
+  // Sort events: those with predictions first, then by volume
   const sortedEvents = (eventsWithBestMarket as any[]).sort((a: any, b: any) => {
     const aHasPrediction = a.markets[0]?.hasPrediction || false
     const bHasPrediction = b.markets[0]?.hasPrediction || false
+    
+    // Events with predictions come first
     if (aHasPrediction && !bHasPrediction) return -1
     if (!aHasPrediction && bHasPrediction) return 1
+    
+    // Within same prediction status, sort by volume
     const aVolume = parseFloat(a.volume?.toString() || '0')
     const bVolume = parseFloat(b.volume?.toString() || '0')
     return bVolume - aVolume
@@ -298,36 +330,48 @@ export async function upsertMarkets(
 
 /**
  * Full‑text style search across markets and their related event/tag data.
- * Matches on:
+ * 
+ * Search matches on:
  * - market.question
  * - market.description
  * - event.title
  * - event.description
  * - event → tags.label
- * Returns markets with the related event included for UI context.
+ * 
+ * @returns Markets with related event and latest prediction for UI context
+ * 
+ * Sort options:
+ * - trending: Markets with predictions first, then by volume
+ * - competitive: Markets closest to 50/50 probability (most uncertain)
+ * - ending: Markets closing soonest that are still open for betting
+ * - volume/liquidity/newest: Standard database sorting
  */
 export async function searchMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   searchTerm: string,
   options?: {
     limit?: number
-    onlyActive?: boolean
-    orderBy?: 'volume' | 'liquidity' | 'updatedAt' // legacy param (mapped from sort)
     sort?: 'trending' | 'liquidity' | 'volume' | 'newest' | 'ending' | 'competitive'
     status?: 'active' | 'resolved' | 'all'
     cursorId?: string | null
   }
 ): Promise<{ items: Array<Market & { event: Event | null, predictions: Prediction[] }>; nextCursor: string | null }> {
+  // Validate and constrain limit to prevent excessive data fetching
   const limit = Math.max(1, Math.min(options?.limit ?? 50, 100))
   const sort = options?.sort ?? 'trending'
-  const status = options?.status ?? (options?.onlyActive ? 'active' : 'all')
-  const orderKeyFromSort: 'volume' | 'liquidity' | 'updatedAt' | 'endDate' =
-    sort === 'liquidity' ? 'liquidity'
-    : sort === 'newest' ? 'updatedAt'
-    : sort === 'ending' ? 'endDate'
-    : 'volume' // trending and volume both map to volume for now
-  const orderKey = options?.orderBy ?? orderKeyFromSort
+  const status = options?.status ?? 'all'
   const cursorId = options?.cursorId ?? null
+  
+  // Map sort type to database column for ordering
+  const getOrderKey = (sortType: string): 'volume' | 'liquidity' | 'updatedAt' | 'endDate' => {
+    switch (sortType) {
+      case 'liquidity': return 'liquidity'
+      case 'newest': return 'updatedAt'
+      case 'ending': return 'endDate'
+      default: return 'volume' // trending, volume, and competitive use volume as base
+    }
+  }
+  const orderKey = getOrderKey(sort)
 
   const where: Prisma.MarketWhereInput = {
     OR: [
@@ -353,48 +397,33 @@ export async function searchMarkets(
     ],
   }
 
-  // Status filter using reliable market.closed field
+  // Apply status filter to WHERE clause
   const statusFilter = getMarketStatusFilter(status)
   Object.assign(where, statusFilter)
   
-  // Note: For "ending" sort, we'll filter after fetching to use proper market status logic
-
+  // Handle competitive sorting separately - finds markets closest to 50/50 probability
   if (sort === 'competitive') {
-    // Best-effort: fetch a larger slice, compute closeness to 0.5, then slice
-    const baseRows = await db.market.findMany({
-      where,
-      include: { 
-        event: true,
-        predictions: { orderBy: { createdAt: 'desc' }, take: 1 },
-      },
-      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
-      take: Math.min(limit * 5, 200),
-    })
-
-    const scored = baseRows
-      .map((m) => {
-        const p0Raw = Array.isArray((m as any).outcomePrices) ? (m as any).outcomePrices[0] : null
-        const p0 = typeof p0Raw === 'number' ? p0Raw : (p0Raw && typeof (p0Raw as any).toNumber === 'function' ? Number((p0Raw as any).toNumber()) : Number(p0Raw))
-        const prob = Number.isFinite(p0) ? (p0 as number) : null
-        const distance = prob != null ? Math.abs(0.5 - (prob > 1 ? prob / 100 : prob)) : Number.POSITIVE_INFINITY
-        return { m, distance }
-      })
-      .sort((a, b) => a.distance - b.distance)
-      .map(({ m }) => m)
-      .slice(0, limit)
-
-    return { items: scored, nextCursor: null }
+    return handleCompetitiveSorting(db, where, limit)
   }
 
+  // Build ordering strategy based on sort type
   const direction = orderKey === 'endDate' ? 'asc' : 'desc'
   const orderBy: Prisma.MarketOrderByWithRelationInput[] = []
-  // By default ("trending"), prioritize markets with predictions first
-  if (sort === 'trending' || sort === undefined) {
+  
+  // For trending sort, prioritize markets that have AI predictions
+  if (sort === 'trending') {
     orderBy.push({ predictions: { _count: 'desc' } } as any)
   }
+  
+  // Add primary sort column and stable secondary sort by ID
   orderBy.push({ [orderKey]: direction } as any)
-  orderBy.push({ id: 'desc' })
+  orderBy.push({ id: 'desc' }) // Ensures consistent pagination
 
+  // Fetch data with appropriate limits for post-processing filters
+  const fetchLimit = sort === 'ending' 
+    ? (limit + 1) * 2  // Fetch extra for ending sort as we filter out closed markets
+    : limit + 1        // Standard limit + 1 for pagination detection
+    
   const rows = await db.market.findMany({
     where,
     include: { 
@@ -402,11 +431,12 @@ export async function searchMarkets(
       predictions: { orderBy: { createdAt: 'desc' }, take: 1 },
     },
     orderBy,
-    take: sort === 'ending' ? (limit + 1) * 2 : limit + 1, // Fetch more for ending sort to account for filtering
+    take: fetchLimit,
     ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
   })
 
-  // For "ending" sort, filter to only markets that are truly open for betting
+  // Post-process for ending sort: filter to only truly open markets
+  // Database 'closed' field may be stale, so we check multiple conditions
   let filteredRows = rows
   if (sort === 'ending') {
     filteredRows = rows.filter(market => 
@@ -419,11 +449,66 @@ export async function searchMarkets(
     )
   }
 
+  // Handle pagination
   const hasMore = filteredRows.length > limit
   const items = hasMore ? filteredRows.slice(0, limit) : filteredRows
   const nextCursor = hasMore ? items[items.length - 1]?.id ?? null : null
 
   return { items, nextCursor }
+}
+
+/**
+ * Helper function for competitive sorting - finds markets closest to 50/50 probability
+ * These are the most uncertain/competitive markets where predictions could add the most value
+ */
+async function handleCompetitiveSorting(
+  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
+  where: Prisma.MarketWhereInput,
+  limit: number
+): Promise<{ items: Array<Market & { event: Event | null, predictions: Prediction[] }>; nextCursor: string | null }> {
+  // Fetch more markets than needed to find the most competitive ones
+  const baseRows = await db.market.findMany({
+    where,
+    include: { 
+      event: true,
+      predictions: { orderBy: { createdAt: 'desc' }, take: 1 },
+    },
+    orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+    take: Math.min(limit * 5, 200), // Fetch 5x limit up to 200 max
+  })
+
+  // Calculate distance from 50% probability for each market
+  const scored = baseRows
+    .map((market) => {
+      // Extract first outcome price (handles various data formats)
+      const p0Raw = Array.isArray((market as any).outcomePrices) 
+        ? (market as any).outcomePrices[0] 
+        : null
+        
+      // Convert to number (handles Decimal type from Prisma)
+      const p0 = typeof p0Raw === 'number' 
+        ? p0Raw 
+        : (p0Raw && typeof (p0Raw as any).toNumber === 'function' 
+          ? Number((p0Raw as any).toNumber()) 
+          : Number(p0Raw))
+          
+      // Normalize probability (handle both 0-1 and 0-100 ranges)
+      const prob = Number.isFinite(p0) 
+        ? (p0 > 1 ? p0 / 100 : p0) as number
+        : null
+        
+      // Calculate distance from 50% (most uncertain)
+      const distance = prob != null 
+        ? Math.abs(0.5 - prob) 
+        : Number.POSITIVE_INFINITY // Markets without prices go last
+        
+      return { market, distance }
+    })
+    .sort((a, b) => a.distance - b.distance) // Sort by closest to 50%
+    .map(({ market }) => market)
+    .slice(0, limit)
+
+  return { items: scored, nextCursor: null } // No pagination for competitive sort
 }
 
 export async function refreshMarketFromPolymarket(

@@ -15,7 +15,7 @@ export interface MarketStatusFields {
   active?: boolean | null
   closedTime?: Date | string | null
   umaResolutionStatus?: string | null
-  endDate?: string | null
+  endDate?: Date | string | null  // Made consistent with closedTime
 }
 
 /**
