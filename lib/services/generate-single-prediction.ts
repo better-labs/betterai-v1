@@ -198,7 +198,10 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
     const model = modelName || DEFAULT_MODEL
     
     // Determine if web search should be enabled
-    const singlePredictionsWebSearch = process.env.SINGLE_PREDICTIONS_WEB_SEARCH === 'true'
+    // Automatically disable web search in development mode regardless of env var
+    const singlePredictionsWebSearch = process.env.NODE_ENV === 'production' 
+      ? process.env.SINGLE_PREDICTIONS_WEB_SEARCH === 'true'
+      : false
     
     if (singlePredictionsWebSearch) {
       console.log(`🌐 Web search enabled for model: ${model}`)
