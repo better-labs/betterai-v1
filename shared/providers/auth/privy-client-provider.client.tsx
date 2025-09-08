@@ -41,8 +41,7 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 		<PrivyProvider
 			appId={appId}
 			config={{
-				
-				// Keep login simple - only email and Google, no wallets
+				// Login methods only - wallets disabled in Privy Dashboard
 				loginMethods: ['email', 'google'],
 				embeddedWallets: {
 					createOnLogin: 'off'

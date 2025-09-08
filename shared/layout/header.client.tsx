@@ -13,9 +13,9 @@ import { useTheme } from "next-themes"
 import { useFeatureFlags } from "@/lib/hooks/use-feature-flags"
 import { usePrivy } from "@privy-io/react-auth"
 import dynamic from "next/dynamic"
-import { UserCreditsDisplay } from "@/features/user/UserCreditsDisplay.client"
 import { components, typography } from "@/lib/design-system"
 import { extractUsername } from "@/lib/utils/user-data"
+import { UserCreditsDisplay } from "@/features/user/UserCreditsDisplay.client"
 
 // Standard Next.js dynamic import with loading state
 const PrivyUserPill = dynamic(
@@ -110,14 +110,15 @@ export function Header() {
               </form>
             </div>
             
-            {/* Credits Display */}
-            {/* <div className="credit-display  md:flex " data-testid="navbar-credits">
+                 {/* Credits Display */}
+             <div className="credit-display  md:flex " data-testid="navbar-credits">
               {ready && authenticated ? (
                 <UserCreditsDisplay />
               ) : (
                 <div className="w-20 h-6 bg-muted/30 rounded animate-pulse" />
               )}
-            </div> */}
+            </div> 
+      
 
             {/* Auth section - Hide UserPill when authenticated */}
             <div className={components.header.auth.container} data-testid="navbar-auth">

@@ -64,7 +64,7 @@ export function UserCreditsDisplay({ showAddButton = true, compact = false }: Us
   return (
     <div className="flex items-center space-x-3">
       <Link 
-        href="/credits"
+        href="/account"
         className="flex items-center space-x-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <CreditCard className="h-4 w-4" />
@@ -86,8 +86,8 @@ export function UserCreditsDisplay({ showAddButton = true, compact = false }: Us
           asChild
           className="text-muted-foreground hover:text-foreground"
         >
-          <Link href="/credits">
-            Add Credits
+          <Link href="/account">
+            Manage Credits
           </Link>
         </Button>
       )}

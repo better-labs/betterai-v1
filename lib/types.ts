@@ -139,6 +139,7 @@ export interface PolymarketMarket {
   liquidity: string;
   active?: boolean;
   closed?: boolean;
+  closedTime?: string | null; // When market was actually resolved (format: "2020-11-02 16:31:01+00")
   startDate?: Date | null;
   endDate?: Date | null;
   resolutionSource?: string;

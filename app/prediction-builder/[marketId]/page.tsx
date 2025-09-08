@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { PredictionGenerator } from '@/features/prediction/prediction-generator.client'
 import { Card, CardContent } from '@/shared/ui/card'
@@ -7,7 +7,8 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
 import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
-import {generateMarketURL} from '@/lib/server-utils'
+import { generateMarketURL } from '@/lib/server-utils'
+import { isMarketOpenForBetting } from '@/lib/utils/market-status'
 interface PredictPageProps {
   params: Promise<{ marketId: string }>
 }
@@ -30,6 +31,11 @@ export default async function PredictPage({ params }: PredictPageProps) {
 
   if (!market) {
     notFound()
+  }
+
+  // Check if market is open for betting - redirect if not
+  if (!isMarketOpenForBetting(market)) {
+    redirect(`/market/${marketId}`)
   }
 
   // Convert to DTOs for client components

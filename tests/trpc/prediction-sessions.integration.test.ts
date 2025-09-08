@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { appRouter } from '@/lib/trpc/routers/_app'
+import { AI_MODELS } from '@/lib/config/ai-models'
 
 // Mock dependencies
 vi.mock('@/lib/db/prisma', () => ({
@@ -39,6 +40,11 @@ const { creditManager } = await import('@/lib/services/credit-manager')
 const predictionSessionService = await import('@/lib/services/prediction-session-service')
 
 describe('PredictionSessions tRPC Integration', () => {
+  // Get valid model IDs from config
+  const testModels = AI_MODELS.slice(0, 2).map(m => m.id) // Use first 2 models
+  const expensiveModels = AI_MODELS.slice(0, 3).map(m => m.id) // Use first 3 models
+  const totalExpensiveCredits = AI_MODELS.slice(0, 3).reduce((sum, m) => sum + m.creditCost, 0)
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -70,7 +76,7 @@ describe('PredictionSessions tRPC Integration', () => {
       
       const result = await caller.predictionSessions.start({
         marketId: 'market-456',
-        selectedModels: ['anthropic/claude-sonnet-4', 'x-ai/grok-3-mini'],
+        selectedModels: testModels,
         useInngest: true
       })
 
@@ -97,10 +103,10 @@ describe('PredictionSessions tRPC Integration', () => {
       await expect(
         caller.predictionSessions.start({
           marketId: 'market-456',
-          selectedModels: ['anthropic/claude-sonnet-4', 'x-ai/grok-3-mini', 'google/gemini-2.5-flash'],
+          selectedModels: expensiveModels,
           useInngest: true
         })
-      ).rejects.toThrow('Insufficient credits')
+      ).rejects.toThrow(`Insufficient credits: 1 available, ${totalExpensiveCredits} required`)
     })
   })
 

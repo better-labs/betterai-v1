@@ -113,6 +113,7 @@ model Market {
   description        String?
   active             Boolean?
   closed             Boolean?
+  closedTime         DateTime?           @map("closed_time") @db.Timestamp(6)
   endDate            DateTime?           @map("end_date") @db.Timestamp(6)
   updatedAt          DateTime?           @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
   slug               String?

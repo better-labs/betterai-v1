@@ -1,5 +1,6 @@
 import { prisma } from '../db/prisma'
 import * as predictionCheckService from './prediction-check-service'
+import { isMarketOpenForBetting } from '@/lib/utils/market-status'
 
 export type CheckerConfig = {
   daysLookback?: number
@@ -112,7 +113,12 @@ export async function generatePredictionVsMarketDelta(
       continue
     }
 
-    if (!includeClosedMarkets && market.closed) {
+    if (!includeClosedMarkets && !isMarketOpenForBetting({
+      closed: market.closed,
+      active: market.active,
+      closedTime: market.closedTime,
+      endDate: market.endDate,
+    })) {
       skipClosedCount += 1
       results.push({
         predictionId: p.id,

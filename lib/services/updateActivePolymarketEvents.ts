@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db/prisma'
 import type { Event, Market, PolymarketEvent } from '@/lib/types'
 import { fetchPolymarketEvents } from './polymarket-client'
 import { processAndUpsertPolymarketBatch } from './polymarket-batch-processor'
+import { isMarketOpenForBetting } from '@/lib/utils/market-status'
 
 /**
  * Updates only active Polymarket events (where end_date > NOW()) and their markets
@@ -28,25 +29,49 @@ export async function updateActivePolymarketEvents(options: {
 
   console.log('Starting active Polymarket events update...')
 
-  // Find all events with open markets (betting not closed)
-  const activeEvents = await prisma.event.findMany({
+  // Find all events with markets and filter for truly open markets
+  const eventsWithMarkets = await prisma.event.findMany({
     where: {
       marketProvider: 'Polymarket',
       markets: {
         some: {
-          closed: false
+          closed: false  // Initial DB filter to reduce dataset
         }
       }
     },
     select: {
       id: true,
       title: true,
-      endDate: true
+      endDate: true,
+      markets: {
+        select: {
+          closed: true,
+          active: true,
+          closedTime: true,
+          endDate: true
+        }
+      }
     },
     orderBy: {
       endDate: 'asc' // Process events ending soonest first
     }
   })
+
+  // Filter to events that have at least one market truly open for betting
+  const activeEvents = eventsWithMarkets.filter(event => 
+    event.markets.some(market => 
+      isMarketOpenForBetting({
+        closed: market.closed,
+        active: market.active,
+        closedTime: market.closedTime,
+        endDate: market.endDate,
+      })
+    )
+  ).map(event => ({
+    id: event.id,
+    title: event.title,
+    endDate: event.endDate
+  }))
 
   console.log(`Found ${activeEvents.length} active events to update`)
 

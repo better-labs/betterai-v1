@@ -40,11 +40,10 @@ export async function getTrendingEvents(
  */
 export async function getTrendingMarkets(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
-  withPredictions = false,
   predictionDaysLookBack = 4,
   tagIds?: string[]
 ): Promise<any[]> {
-  return getTrendingMarketsFromMarketService(db, withPredictions, predictionDaysLookBack, tagIds)
+  return getTrendingMarketsFromMarketService(db, predictionDaysLookBack, tagIds)
 }
 
 

@@ -18,19 +18,13 @@ if (!process.env.DATABASE_URL) {
 // Parse command line arguments
 function parseArgs() {
   const args = process.argv.slice(2)
-  const parsed: { experimentTag?: string; experimentNotes?: string; modelName?: string } = {}
+  const parsed: { modelName?: string } = {}
   
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
-    if (arg === '--experiment-tag' && args[i + 1]) {
-      parsed.experimentTag = args[i + 1]
-      i++ // Skip next arg since we consumed it
-    } else if (arg === '--experiment-notes' && args[i + 1]) {
-      parsed.experimentNotes = args[i + 1]
-      i++
-    } else if (arg === '--model' && args[i + 1]) {
+    if (arg === '--model' && args[i + 1]) {
       parsed.modelName = args[i + 1]
-      i++
+      i++ // Skip next arg since we consumed it
     }
   }
   
@@ -38,14 +32,11 @@ function parseArgs() {
 }
 
 async function main() {
-  const { experimentTag, experimentNotes, modelName } = parseArgs()
+  const { modelName } = parseArgs()
   
   console.log('Starting batch prediction generation...')
-  if (experimentTag) {
-    console.log(`🧪 Experiment: ${experimentTag}`)
-    if (experimentNotes) {
-      console.log(`📝 Notes: ${experimentNotes}`)
-    }
+  if (modelName) {
+    console.log(`🤖 Model: ${modelName}`)
   }
   
   try {
@@ -54,16 +45,12 @@ async function main() {
     
     await runBatchPredictionGeneration(
       {
-        topMarketsCount: 5,
+        topMarketsCount: 10,
         endDateRangeHours: 168, // 7 days (wider range to catch more events)
         targetDaysFromNow: 10
         // categoryMix: false // DISABLED: Category data no longer meaningful
       },
-      modelName || DEFAULT_MODEL,
-      {
-        experimentTag,
-        experimentNotes
-      }
+      modelName || DEFAULT_MODEL
     )
 
     console.log('Batch prediction generation completed successfully!')

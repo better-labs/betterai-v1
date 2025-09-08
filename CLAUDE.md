@@ -147,6 +147,7 @@ Validate all inputs and implement proper authentication
 
 
 ### Database Migrations
+Uses Prisma's official migration workflow. Cleaner approach - lets Prisma handle everything
 **CRITICAL**: Do NOT use `prisma db push` unless explicitly requested by the user. Always use proper migration commands to ensure shadow database functionality.
 
 Use `pnpm run db:migrate:` commands where possible.

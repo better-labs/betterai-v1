@@ -15,6 +15,7 @@
     "incremental": true,
     "tsBuildInfoFile": ".next/cache/tsbuildinfo",
     "types": ["vitest/globals", "node"],
+    "typeRoots": ["./node_modules/@types"],
     "plugins": [
       {
         "name": "next"
