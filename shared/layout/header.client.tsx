@@ -110,14 +110,7 @@ export function Header() {
               </form>
             </div>
             
-            {/* Credits Display */}
-            {/* <div className="credit-display  md:flex " data-testid="navbar-credits">
-              {ready && authenticated ? (
-                <UserCreditsDisplay />
-              ) : (
-                <div className="w-20 h-6 bg-muted/30 rounded animate-pulse" />
-              )}
-            </div> */}
+      
 
             {/* Auth section - Hide UserPill when authenticated */}
             <div className={components.header.auth.container} data-testid="navbar-auth">

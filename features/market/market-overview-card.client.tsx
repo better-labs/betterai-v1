@@ -76,7 +76,7 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
               <div className={components.marketMetrics.metric}>
                 <Calendar className={components.marketMetrics.icon} />
                 <div className={components.marketMetrics.metricContent}>
-                  <div className={components.marketMetrics.metricLabel}>Closes</div>
+                  <div className={components.marketMetrics.metricLabel}>Market Close Date</div>
                   <div className={components.marketMetrics.metricValue}>
                     {new Date(market.endDate).toLocaleDateString()}
                   </div>
