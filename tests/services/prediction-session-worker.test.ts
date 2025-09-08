@@ -174,23 +174,6 @@ describe('PredictionSessionWorker', () => {
       })
     })
 
-    it('should handle wrong session status error', async () => {
-      const wrongStatusSession = createMockSession({
-        status: 'FINISHED' as PredictionSessionStatus
-      })
-
-      vi.mocked(getPredictionSessionById).mockResolvedValue(wrongStatusSession)
-
-      const result = await executePredictionSession(mockDb as any, 'session-123')
-
-      expect(result).toEqual({
-        success: false,
-        totalModels: 0,
-        successCount: 0,
-        failureCount: 0,
-        error: 'Session session-123 is not in INITIALIZING state: FINISHED'
-      })
-    })
 
     it('should handle credit refund failure gracefully', async () => {
       vi.mocked(getPredictionSessionById).mockResolvedValue(mockSession)

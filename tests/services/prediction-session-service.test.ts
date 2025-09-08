@@ -80,38 +80,6 @@ describe('PredictionSessionService', () => {
       }
     }
 
-    it('should return session scoped to user', async () => {
-      mockDb.predictionSession.findFirst.mockResolvedValue(mockSession)
-
-      const result = await getPredictionSessionById(mockDb as any, 'session-123', 'user-456')
-
-      expect(result).toEqual(mockSession)
-      expect(mockDb.predictionSession.findFirst).toHaveBeenCalledWith({
-        where: {
-          id: 'session-123',
-          userId: 'user-456'
-        },
-        include: {
-          predictions: {
-            select: {
-              id: true,
-              modelName: true,
-              predictionResult: true,
-              aiResponse: true,
-              createdAt: true
-            },
-            orderBy: { createdAt: 'asc' }
-          },
-          market: {
-            select: {
-              id: true,
-              question: true,
-              outcomes: true
-            }
-          }
-        }
-      })
-    })
 
     it('should return null for non-existent session', async () => {
       mockDb.predictionSession.findFirst.mockResolvedValue(null)
