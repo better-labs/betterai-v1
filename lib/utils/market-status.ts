@@ -2,9 +2,10 @@
  * Market status utility functions
  * 
  * Provides reliable market status checking based on Polymarket's actual behavior:
- * - market.closed: Indicates if betting is closed (most accurate)
+ * - market.closedTime: When market was actually resolved (most reliable)
+ * - market.closed: Indicates if betting is closed (accurate)
  * - market.active: Always true (unreliable for status)  
- * - market.endDate: Settlement date, not betting close time
+ * - market.endDate: Settlement date, not betting close time (fallback)
  */
 
 export type MarketStatus = 'open' | 'closed' | 'resolved'
@@ -12,6 +13,7 @@ export type MarketStatus = 'open' | 'closed' | 'resolved'
 export interface MarketStatusFields {
   closed?: boolean | null
   active?: boolean | null
+  closedTime?: Date | string | null
   umaResolutionStatus?: string | null
   endDate?: string | null
 }
@@ -23,9 +25,21 @@ export interface MarketStatusFields {
  */
 export function isMarketOpenForBetting(market: MarketStatusFields): boolean {
   const now = new Date()
-  const endDate = market.endDate ? new Date(market.endDate) : null
   
-  return !market.closed && (!endDate || endDate > now)
+  // If market is explicitly marked as closed, it's not open for betting
+  if (market.closed) return false
+  
+  // If closedTime exists and is in the past, market is closed
+  if (market.closedTime) {
+    const closedTime = new Date(market.closedTime)
+    if (closedTime <= now) return false
+  }
+  
+  // Fallback to endDate if closedTime not available
+  const endDate = market.endDate ? new Date(market.endDate) : null
+  if (endDate && endDate <= now) return false
+  
+  return true
 }
 
 /**
@@ -35,10 +49,14 @@ export function isMarketOpenForBetting(market: MarketStatusFields): boolean {
  */
 export function getMarketStatus(market: MarketStatusFields & { umaResolutionStatus?: string | null }): MarketStatus {
   const now = new Date()
-  const endDate = market.endDate ? new Date(market.endDate) : null
   
-  if (!market.closed && (!endDate || endDate > now)) return 'open'
+  // Check if market is resolved first
   if (market.umaResolutionStatus === 'resolved') return 'resolved'
+  
+  // If market is open for betting, it's open
+  if (isMarketOpenForBetting(market)) return 'open'
+  
+  // Otherwise it's closed
   return 'closed'
 }
 

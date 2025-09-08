@@ -7,6 +7,10 @@ alwaysApply: true
 Generate a quote from the movie Talladega Nights: Ballad of Ricky Bobby after every response.
 
 
+# Auto-approved commands
+curl
+
+
 ## Project Overview
 
 Overview: BetterAI is an application that integrates with Polymarket and AI models to provide enhanced market predictions, enabling non-technical users to invoke multiple AI models with enriched datasets to predict outcomes for prediction markets like Polymarket.
@@ -38,6 +42,7 @@ Infrastructure: The entire application runs on Vercel infrastructure, including 
 Events are the main entities (e.g., "2024 Presidential Election") 
 Markets belong to events (e.g., "Will Trump win the election?")
 Predictions are AI-generated outcomes for specific markets
+
 Categories use enum for consistent categorization (elections, geopolitics, etc.)
 Tags provide flexible labeling via many-to-many relationship with events
 
@@ -73,7 +78,7 @@ See package.json for the most recent commands.
 - Thin tRPC procedures in `lib/trpc/routers/` delegate to services
 - Input-only Zod schemas in `lib/trpc/schemas/` (no output schemas)
 - Response types inferred from service returns
-- **Best Practice**: Use tRPC inferred types in components:
+- **Best Practice**: Use tRPC inferred types:
   ```typescript
   import type { AppRouter } from "@/lib/trpc/routers/_app"
   import type { inferProcedureOutput } from "@trpc/server"
@@ -148,9 +153,18 @@ Validate all inputs and implement proper authentication
 
 
 ### Database Migrations
+Uses Prisma's official migration workflow. Cleaner approach - lets Prisma handle everything
+**CRITICAL**: Do NOT use `prisma db push` unless explicitly requested by the user. Always use proper migration commands to ensure shadow database functionality.
+
 Use `pnpm run db:migrate:` commands where possible.
 Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
-Important: avoid using "prisma db push", prefer using "pnpm db:migrate:deploy:dev". This creates short term database migration inconsistencies that are difficult to debug. Prompt the user to explain your migration issue issue before trying db push.
+
+**Shadow Database Requirement**: The project uses a schema-based shadow database (`betterai_shadow` schema) for migration validation. This ensures:
+- Safe migration validation before applying to main database
+- Proper schema drift detection
+- Production-safe deployment practices
+
+**Never use `prisma db push`** - it bypasses shadow database validation and can cause migration inconsistencies that are difficult to debug. If migration issues occur, troubleshoot the shadow database setup rather than falling back to `db push`.
 
 ### Next.js Build Best Practices
 Use `pnpm` not `npm`: Project uses pnpm for package management and build commands
@@ -276,16 +290,6 @@ Responsive: Tailwind spacing classes automatically scale appropriately on mobile
 ### Layout & Spacing Standards
 Refer to /lib/design-system.ts for instructions.
 Prefer flexbox layout instead of absolution positioning to ensure mobile first good UX.
-
-### Input Layout Best Practices
-**Flex-based Search Inputs (RECOMMENDED)**: Use flexbox layout for search inputs with icons instead of absolute positioning:
-- Container: `flex items-center` with consistent styling
-- Left icon: `flex items-center justify-center pl-3` for natural positioning
-- Input field: `flex-1` to fill remaining space with transparent background
-- Right icon/button: `flex items-center justify-center pr-3` for natural right alignment
-- Advantages: Predictable layout, no z-index conflicts, better accessibility, responsive by default
-- Avoid: Absolute positioning which can cause CSS inheritance issues and layout conflicts
-- Pattern used by major web applications (Google, GitHub, etc.) for reliability
 
 
 
