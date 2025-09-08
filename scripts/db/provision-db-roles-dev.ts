@@ -19,16 +19,14 @@
  *   - Validates the input URL includes 'neondb_owner' and '-pooler'
  *   - Derives the **direct (non-pooler)** host
  *   - Creates or updates:
- *       - betterai_admin  (DDL / migrations) - preserves existing password
  *       - betterai_app    (CRUD / runtime) - preserves existing password
  *   - Grants least-privilege on all existing schemas (excl. pg_catalog, information_schema, pg_toast, temp schemas)
  *   - Sets **comprehensive default privileges** so future tables/sequences automatically inherit correct grants:
- *       - neondb_owner grants to both betterai_admin and betterai_app
- *       - betterai_admin grants CRUD access to betterai_app
- *       - betterai_app grants full access to betterai_admin
+ *       - neondb_owner grants to betterai_app
+ *       - betterai_app grants full access to neondb_owner
  *   - Prints:
  *       - DATABASE_URL              (pooled, app role for runtime)
- *       - DATABASE_URL_UNPOOLED     (direct, admin role for migrations/DDL)
+ *       - DATABASE_URL_UNPOOLED     (direct, owner role for migrations/DDL)
  */
 
 import { Client } from "pg";
@@ -180,21 +178,19 @@ async function main() {
     fatal("Database name contains invalid characters. Use only letters, numbers, and underscores.");
   }
 
-  // Check if roles already exist to preserve passwords in dev environments
+  // Check if app role already exists to preserve password in dev environments
   const { rows: existingRoles } = await executeQuery(adminClient, "Checking existing roles", `
     SELECT rolname 
     FROM pg_roles 
-    WHERE rolname IN ('betterai_admin', 'betterai_app')
+    WHERE rolname = 'betterai_app'
   `);
   
-  const adminExists = existingRoles.some((r: { rolname: string }) => r.rolname === 'betterai_admin');
   const appExists = existingRoles.some((r: { rolname: string }) => r.rolname === 'betterai_app');
   
-  // Generate new passwords based on existence and flag
+  // Generate new password based on existence and flag
   const appPwd = (!appExists || forceNewPasswords) ? genPassword() : null;
-  const adminPwd = (!adminExists || forceNewPasswords) ? genPassword() : null;
   
-  console.log(`📋 Role status: admin=${adminExists ? (adminPwd ? 'exists (new password)' : 'exists (password preserved)') : 'new'}, app=${appExists ? (appPwd ? 'exists (new password)' : 'exists (password preserved)') : 'new'}`);
+  console.log(`📋 Role status: app=${appExists ? (appPwd ? 'exists (new password)' : 'exists (password preserved)') : 'new'}`);
 
   try {
     // Ensure pgcrypto for any future SQL-side generation if you use it later
@@ -205,25 +201,7 @@ async function main() {
     await executeQuery(adminClient, "Setting password encryption to SCRAM-SHA-256", 
       `SET password_encryption = 'scram-sha-256';`);
 
-    // Upsert roles (CREATE new roles only, preserve existing passwords in dev)
-    // betterai_admin (DDL/migrations)
-    if (adminPwd) {
-      const adminPwdEscaped = adminPwd.replace(/'/g, "''");
-      if (!adminExists) {
-        await executeQuery(adminClient, "Creating betterai_admin role with new password", `
-          CREATE ROLE betterai_admin LOGIN PASSWORD '${adminPwdEscaped}';
-        `);
-      } else {
-        await executeQuery(adminClient, "Updating betterai_admin password", `
-          ALTER ROLE betterai_admin WITH LOGIN PASSWORD '${adminPwdEscaped}';
-        `);
-      }
-    } else {
-      await executeQuery(adminClient, "Ensuring betterai_admin role has LOGIN privilege", `
-        ALTER ROLE betterai_admin WITH LOGIN;
-      `);
-    }
-
+    // Create/update app role only (neondb_owner handles DDL/migrations)
     // betterai_app (CRUD/runtime)
     if (appPwd) {
       const appPwdEscaped = appPwd.replace(/'/g, "''");
@@ -242,9 +220,9 @@ async function main() {
       `);
     }
 
-    // Ensure both roles can CONNECT to the main DB
-    await executeQuery(adminClient, "Granting CONNECT permission to roles", 
-      `GRANT CONNECT ON DATABASE "${dbName.replace(/"/g, '""')}" TO betterai_admin, betterai_app;`
+    // Ensure app role can CONNECT to the main DB
+    await executeQuery(adminClient, "Granting CONNECT permission to app role", 
+      `GRANT CONNECT ON DATABASE "${dbName.replace(/"/g, '""')}" TO betterai_app;`
     );
 
     // Discover non-system schemas (including "public")
@@ -267,21 +245,7 @@ async function main() {
       const ident = `"${s.replace(/"/g, '""')}"`;
       console.log(`\n📁 Processing schema: ${s}`);
 
-      // Admin: full control over objects for migrations
-      await executeQuerySafe(adminClient, `Granting USAGE on schema ${s} to betterai_admin`, 
-        `GRANT USAGE ON SCHEMA ${ident} TO betterai_admin;`);
-      await executeQuerySafe(adminClient, `Granting ALL on tables in schema ${s} to betterai_admin`, 
-        `GRANT ALL ON ALL TABLES IN SCHEMA ${ident} TO betterai_admin;`);
-      await executeQuerySafe(adminClient, `Granting ALL on sequences in schema ${s} to betterai_admin`, 
-        `GRANT ALL ON ALL SEQUENCES IN SCHEMA ${ident} TO betterai_admin;`);
-      await executeQuerySafe(adminClient, `Setting default table privileges for neondb_owner in schema ${s}`, 
-        `ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
-        GRANT ALL ON TABLES TO betterai_admin;`);
-      await executeQuerySafe(adminClient, `Setting default sequence privileges for neondb_owner in schema ${s}`, 
-        `ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner IN SCHEMA ${ident}
-        GRANT ALL ON SEQUENCES TO betterai_admin;`);
-
-      // App: CRUD only, no DDL
+      // App: CRUD only, no DDL (neondb_owner handles migrations)
       await executeQuerySafe(adminClient, `Granting USAGE on schema ${s} to betterai_app`, 
         `GRANT USAGE ON SCHEMA ${ident} TO betterai_app;`);
       await executeQuerySafe(adminClient, `Granting CRUD on tables in schema ${s} to betterai_app`, 
@@ -296,61 +260,42 @@ async function main() {
         GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;`);
 
       // Cross-role default privileges for future-proof permissions
-      await executeQuerySafe(adminClient, `Setting cross-role table privileges for betterai_admin in schema ${s}`, 
-        `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
-        GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO betterai_app;`);
-      await executeQuerySafe(adminClient, `Setting cross-role sequence privileges for betterai_admin in schema ${s}`, 
-        `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_admin IN SCHEMA ${ident}
-        GRANT USAGE, SELECT ON SEQUENCES TO betterai_app;`);
       await executeQuerySafe(adminClient, `Setting cross-role table privileges for betterai_app in schema ${s}`, 
         `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
-        GRANT ALL ON TABLES TO betterai_admin;`);
+        GRANT ALL ON TABLES TO neondb_owner;`);
       await executeQuerySafe(adminClient, `Setting cross-role sequence privileges for betterai_app in schema ${s}`, 
         `ALTER DEFAULT PRIVILEGES FOR ROLE betterai_app IN SCHEMA ${ident}
-        GRANT ALL ON SEQUENCES TO betterai_admin;`);
+        GRANT ALL ON SEQUENCES TO neondb_owner;`);
     }
 
 
     // Construct output URLs
-    if (appPwd || adminPwd) {
-      // Show URLs with new passwords (only for roles that got new passwords)
+    if (appPwd) {
+      // Show URLs with new passwords
       console.log("\n# === Copy these to your env store ===");
       
-      let pooledAppUrl = "";
-      let directAdminUrl = "";
-
-      if (appPwd) {
-        pooledAppUrl = buildUrl(url, {
-          username: "betterai_app",
-          password: appPwd,
-          host: pooledHost, // keep -pooler for app runtime
-        });
-        console.log(`DATABASE_URL=${pooledAppUrl}`);                // pooled, app role (runtime)
-      }
-
-      if (adminPwd) {
-        // Direct (non-pooled) admin URL for migrations/DDL
-        directAdminUrl = buildUrl(url, {
-          username: "betterai_admin",
-          password: adminPwd,
-          host: directHost, // remove -pooler
-        });
-
-        console.log(`DATABASE_URL_UNPOOLED=${directAdminUrl}`);     // direct, admin role (migrations/DDL)
-      }
+      const pooledAppUrl = buildUrl(url, {
+        username: "betterai_app",
+        password: appPwd,
+        host: pooledHost, // keep -pooler for app runtime
+      });
+      console.log(`DATABASE_URL=${pooledAppUrl}`);                // pooled, app role (runtime)
+      
+      // Direct (non-pooled) owner URL for migrations/DDL (reuse original owner credentials)
+      const directOwnerUrl = buildUrl(url, {
+        username: decodeURIComponent(url.username), // neondb_owner
+        password: decodeURIComponent(url.password),
+        host: directHost, // remove -pooler
+      });
+      console.log(`DATABASE_URL_UNPOOLED=${directOwnerUrl}`);     // direct, owner role (migrations/DDL)
 
       // Update Vercel environment variables if flag is set
-      if (updateVercelEnv && (appPwd || adminPwd)) {
+      if (updateVercelEnv) {
         console.log("\n🔄 Updating Vercel development environment variables...");
         
         try {
-          if (appPwd && pooledAppUrl) {
-            await updateVercelEnvVar("DATABASE_URL", pooledAppUrl);
-          }
-          
-          if (adminPwd && directAdminUrl) {
-            await updateVercelEnvVar("DATABASE_URL_UNPOOLED", directAdminUrl);
-          }
+          await updateVercelEnvVar("DATABASE_URL", pooledAppUrl);
+          await updateVercelEnvVar("DATABASE_URL_UNPOOLED", directOwnerUrl);
           
           console.log("✅ Successfully updated Vercel environment variables");
         } catch (error) {
@@ -360,18 +305,18 @@ async function main() {
         }
       }
     } else {
-      // Existing roles - passwords preserved, URLs unchanged
-      console.log("\n📋 Existing roles detected - passwords preserved for development.");
-      console.log("💡 Your existing DATABASE_URL and DATABASE_URL_UNPOOLED remain valid.");
-      console.log("   No need to update environment variables.");
+      // Existing app role - password preserved
+      console.log("\n📋 Existing app role detected - password preserved for development.");
+      console.log("💡 Your existing DATABASE_URL remains valid.");
       
-      if (!appPwd && !adminPwd) {
-        console.log("   Both admin and app roles existed - all passwords preserved.");
-      } else if (!appPwd) {
-        console.log("   App role existed - app password preserved, admin password was updated.");
-      } else if (!adminPwd) {
-        console.log("   Admin role existed - admin password preserved, app password was updated.");
-      }
+      // Always show the owner URL for unpooled operations
+      const directOwnerUrl = buildUrl(url, {
+        username: decodeURIComponent(url.username), // neondb_owner
+        password: decodeURIComponent(url.password),
+        host: directHost, // remove -pooler
+      });
+      console.log("\n# === Use this for unpooled operations ===");
+      console.log(`DATABASE_URL_UNPOOLED=${directOwnerUrl}`);     // direct, owner role (migrations/DDL)
     }
 
     console.log("\n🎉 Done. Roles created/updated and grants applied.");
