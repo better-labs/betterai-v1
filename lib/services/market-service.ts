@@ -357,10 +357,7 @@ export async function searchMarkets(
   const statusFilter = getMarketStatusFilter(status)
   Object.assign(where, statusFilter)
   
-  // For "ending" sort it is sensible to constrain to active (open for betting)
-  if (sort === 'ending') {
-    where.closed = false
-  }
+  // Note: For "ending" sort, we'll filter after fetching to use proper market status logic
 
   if (sort === 'competitive') {
     // Best-effort: fetch a larger slice, compute closeness to 0.5, then slice
@@ -405,12 +402,25 @@ export async function searchMarkets(
       predictions: { orderBy: { createdAt: 'desc' }, take: 1 },
     },
     orderBy,
-    take: limit + 1,
+    take: sort === 'ending' ? (limit + 1) * 2 : limit + 1, // Fetch more for ending sort to account for filtering
     ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
   })
 
-  const hasMore = rows.length > limit
-  const items = hasMore ? rows.slice(0, limit) : rows
+  // For "ending" sort, filter to only markets that are truly open for betting
+  let filteredRows = rows
+  if (sort === 'ending') {
+    filteredRows = rows.filter(market => 
+      isMarketOpenForBetting({
+        closed: market.closed,
+        active: market.active,
+        closedTime: market.closedTime,
+        endDate: market.endDate,
+      })
+    )
+  }
+
+  const hasMore = filteredRows.length > limit
+  const items = hasMore ? filteredRows.slice(0, limit) : filteredRows
   const nextCursor = hasMore ? items[items.length - 1]?.id ?? null : null
 
   return { items, nextCursor }
