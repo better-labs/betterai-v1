@@ -201,7 +201,10 @@ export async function runBatchPredictionGeneration(
     console.log(`
 Generating predictions for ${marketIds.length} markets...`)
     // Determine if web search should be enabled for batch predictions
-    const batchPredictionsWebSearch = process.env.BATCH_PREDICTIONS_WEB_SEARCH === 'true'
+    // Automatically disable web search in development mode regardless of env var
+    const batchPredictionsWebSearch = process.env.NODE_ENV === 'production' 
+      ? process.env.BATCH_PREDICTIONS_WEB_SEARCH === 'true'
+      : false
     console.log(`🌐 Batch predictions web search ${batchPredictionsWebSearch ? 'ENABLED' : 'DISABLED'}`)
     
     const results = await generateBatchPredictions(marketIds, modelName, { 
