@@ -68,11 +68,66 @@ export function getMarketStatus(market: MarketStatusFields & { umaResolutionStat
 export function getMarketStatusFilter(statusFilter: 'active' | 'resolved' | 'all') {
   switch (statusFilter) {
     case 'active':
-      return { closed: false } // Open for betting
+      return getOpenMarketsDatabaseFilter() // Use comprehensive filter for truly open markets
     case 'resolved':  
       return { closed: true }   // Betting closed (includes resolved)
     case 'all':
     default:
       return {} // No filter
+  }
+}
+
+/**
+ * Creates a comprehensive database filter for truly open markets
+ * This replaces simple { closed: false } filters to avoid the mismatch
+ * between database state and actual market status
+ * 
+ * @param options - Configuration options
+ * @returns Prisma where clause that matches isMarketOpenForBetting() logic
+ */
+export function getOpenMarketsDatabaseFilter(options?: {
+  /** Include markets ending within this many days (default: no time limit) */
+  maxDaysUntilEnd?: number
+}) {
+  const now = new Date()
+  const filters: any[] = [
+    { closed: false }  // Base requirement
+  ]
+
+  // Add time-based filters to match isMarketOpenForBetting() logic
+  const timeFilters: any[] = []
+  
+  // Exclude markets with past closedTime
+  timeFilters.push({
+    OR: [
+      { closedTime: null },
+      { closedTime: { gt: now } }
+    ]
+  })
+  
+  // Exclude markets with past endDate  
+  timeFilters.push({
+    OR: [
+      { endDate: null },
+      { endDate: { gt: now } }
+    ]
+  })
+
+  // Optional: limit to markets ending soon for performance
+  if (options?.maxDaysUntilEnd) {
+    const maxEndDate = new Date(Date.now() + options.maxDaysUntilEnd * 24 * 60 * 60 * 1000)
+    timeFilters.push({
+      OR: [
+        { endDate: null },
+        { endDate: { lte: maxEndDate } }
+      ]
+    })
+  }
+
+  return {
+    AND: [
+      ...filters,
+      ...timeFilters
+    ]
   }
 }

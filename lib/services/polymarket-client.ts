@@ -197,6 +197,50 @@ export async function fetchPolymarketEventById(
 }
 
 /**
+ * Fetch multiple Polymarket events by array of IDs
+ */
+export async function fetchPolymarketEventsByIds(
+  eventIds: string[],
+  options: FetchOptions = {}
+): Promise<PolymarketEvent[]> {
+  if (eventIds.length === 0) return []
+  
+  // Build URL with id[] parameters: ?id=111&id=222&id=333
+  const idParams = eventIds.map(id => `id=${encodeURIComponent(id)}`).join('&')
+  const url = `${POLYMARKET_API_BASE_URL}/events?${idParams}`
+  
+  console.log(`Fetching ${eventIds.length} Polymarket events by IDs: ${eventIds.slice(0, 5).join(', ')}${eventIds.length > 5 ? '...' : ''}`)
+  
+  try {
+    const response = await fetchWithRetry(url, options)
+    const data = await response.json()
+    
+    if (!Array.isArray(data)) {
+      console.error('Expected array response from events API:', data)
+      return []
+    }
+    
+    // Validate each event
+    const validatedEvents: PolymarketEvent[] = []
+    for (let i = 0; i < data.length; i++) {
+      const validationResult = validatePolymarketEventSafe(data[i])
+      if (validationResult.success) {
+        const convertedEvent = convertPolymarketEventDTOToServerType(validationResult.data)
+        validatedEvents.push(convertedEvent)
+      } else {
+        console.warn(`Event ${i} validation failed: ${validationResult.error}`)
+      }
+    }
+    
+    console.log(`Successfully validated ${validatedEvents.length}/${data.length} events`)
+    return validatedEvents
+  } catch (error) {
+    console.error('Failed to fetch events by IDs:', error)
+    throw error
+  }
+}
+
+/**
  * Fetch a single Polymarket market by ID  
  */
 export async function fetchPolymarketMarket(
