@@ -3,8 +3,22 @@
 ## Executive Summary
 The Watchlist feature enables users to bookmark markets and trigger batch AI predictions. This v1 focuses on core functionality with 70% of backend infrastructure already existing.
 
+---
+
+## Plan Updates (Simplifications & Changes)
+
+These updates streamline v1 by reusing existing systems and removing non‑essential work:
+
+- Reuse `predictionSessions.start` for batch runs; do not add a separate watchlist Inngest worker. Implement a `watchlist.startBatch` tRPC endpoint that reads the user’s watchlist, validates credits once, and calls `predictionSessions.start` with `useInngest: true` for each market. Return created session IDs for client polling.
+- Skip new DTOs and complex UI. Do not add `watchlist-mapper.ts`. Use `getUserWatchlist()` to fetch market IDs; enrich with market + latest prediction using existing service query patterns; render with `MarketWithPredictionCard` and set `hidePredictionButton`.
+- Remove watchlist limit in v1. Do not enforce item limits in schemas or services. Keep pagination/UX considerations for large lists as a performance note.
+- Transactional email on completion: add `lib/services/email.ts`. Configure Loops transactional email manually (see https://loops.so/docs/transactional/guide). The watchlist batch endpoint can optionally send a single summary email after all sessions complete, or this can be deferred with client‑side polling for v1.
+- Extract and reuse Model Selector. Factor the model selection UI from `features/prediction/prediction-generator.client.tsx` into a `ModelSelector` component and reuse it in `features/watchlist/watchlist-controls.client.tsx`.
+- Watchlist cleanup & hygiene: skip markets that are not open for betting (via `lib/utils/market-status.ts`) when triggering batches. Add `getOpenWatchlistMarkets(userId)` that filters `market.closed !== true` before creating sessions. Optionally show a toast for skipped items.
+- Consistency & idempotency: update `addToWatchlist` to gracefully handle duplicates (unique index at `prisma/schema.prisma:242`), returning a stable “already exists” result; keep `removeFromWatchlist` idempotent. Add `showWatchlist` to `lib/feature-flags.ts` to control rollout.
+
 ## V1 Scope (Simplified)
-- ✅ Add/remove markets from watchlist (10 market limit)
+- ✅ Add/remove markets from watchlist (no enforced limit in v1)
 - ✅ Basic watchlist page with market list
 - ✅ On-demand batch predictions only (no automated schedules initially)
 - ✅ Simple text email notification when predictions complete
@@ -69,32 +83,31 @@ The Watchlist feature enables users to bookmark markets and trigger batch AI pre
     add: authenticatedProcedure.input(watchlistAddSchema).mutation(),
     remove: authenticatedProcedure.input(watchlistRemoveSchema).mutation(),
     isInWatchlist: authenticatedProcedure.input(checkSchema).query(),
-    triggerBatchPredictions: authenticatedProcedure
-      .input(z.object({ selectedModels: z.array(z.string()).min(1).max(3) }))
-      .mutation() // Creates prediction sessions for each watchlist market
+    startBatch: authenticatedProcedure
+      .input(z.object({ selectedModels: z.array(z.string()).min(1) }))
+      .mutation() // Loops over open watchlist markets and calls predictionSessions.start
   }
   ```
 
 ### 1.3 Zod Schemas (Minimal)
 **File: `/lib/trpc/schemas/user.ts`**
 - Create basic validation schemas:
-  - `watchlistAddSchema` - Validate market ID, enforce 10 item limit
+  - `watchlistAddSchema` - Validate market ID (no item limit enforcement in v1)
   - `watchlistRemoveSchema` - Market ID only
   - `checkSchema` - Check if market in watchlist
 
 ### 1.4 DTO Mappers
-**File: `/lib/dtos/watchlist-mapper.ts`**
-- Create DTOs for watchlist items with market data
-- Include AI delta calculations
-- Map prediction session status
-- Include email preferences
+Defer custom watchlist DTOs for v1.
+- Do not create `lib/dtos/watchlist-mapper.ts`.
+- Use existing market mapping and include latest prediction via existing include patterns.
 
 ### 1.5 Service Layer (Leverages Existing Infrastructure)
 **File: `/lib/services/user-service.ts`**
-- Most methods already exist! Only add:
-  - `checkWatchlistLimit()` - Enforce 10 market limit
-  - `triggerWatchlistBatchPredictions()` - Creates prediction sessions for each market
-  - Reuse existing `getUserWatchlist()`, `addToWatchlist()`, `removeFromWatchlist()`
+- Most methods already exist. For v1:
+  - Do not add `checkWatchlistLimit()` (no enforced limit).
+  - Add `getOpenWatchlistMarkets(userId)` that returns only markets open for betting (skip `market.closed === true`).
+  - Update `addToWatchlist()` to be idempotent against duplicates (handle unique index and return a stable shape when already exists).
+  - Reuse existing `getUserWatchlist()`, `removeFromWatchlist()`.
 
 **Key Integration**: The batch predictions will use existing `predictionSessionService.createPredictionSession()` for each market, leveraging all existing:
 - ✅ Credit validation and consumption
@@ -123,59 +136,36 @@ The Watchlist feature enables users to bookmark markets and trigger batch AI pre
 - Strategy: Use conservative concurrency limit of 2 to avoid issues
 
 ### 2.2 Reuse Existing Prediction Session Infrastructure ✅
-**MAJOR SIMPLIFICATION**: Instead of creating custom watchlist workflows, we'll reuse the existing robust prediction session system.
+**MAJOR SIMPLIFICATION**: Do not create a dedicated watchlist Inngest function. Reuse the existing `predictionSessions.start` for each market in the watchlist.
 
-**Approach**: Create one prediction session per market in the watchlist
+**Approach**: `watchlist.startBatch` (tRPC) loops over open watchlist markets and calls `predictionSessions.start` with `useInngest: true`.
 - ✅ **Existing Infrastructure**: `PredictionSession` model, service layer, Inngest workflows
 - ✅ **Proven Reliability**: Battle-tested with retries, recovery, and error handling
 - ✅ **Credit Management**: Built-in credit validation and consumption
 - ✅ **Rate Limiting**: OpenRouter rate limits already handled
 - ✅ **Progress Tracking**: Real-time status updates and step tracking
 
-**File: `/lib/inngest/functions/watchlist-predictions.ts`**
-```typescript
-export const processWatchlistPredictions = inngest.createFunction({
-  id: "watchlist-batch-predictions",
-  name: "Process Watchlist Batch Predictions", 
-  concurrency: { limit: 2 }, // Conservative for batching
-  retries: 3,
-  // Step 1: Get user's watchlist markets
-  // Step 2: Validate total credit cost for all markets
-  // Step 3: Create individual prediction sessions for each market
-  // Step 4: Monitor all sessions until complete
-  // Step 5: Send email summary when all complete
-})
-```
+Remove planned `/lib/inngest/functions/watchlist-predictions.ts` for v1; rely on the existing prediction session worker.
 
 ### 2.3 Scheduled Workflows (V2 - Not in initial release)
 - Daily/weekly cron jobs moved to v2
 - Focus on manual trigger only for v1
 - Reduces complexity and testing requirements
 
-### 2.4 Simple Email Notification
-**File: `/lib/services/watchlist-email-service.ts`**
-- One simple text email template:
-  ```
-  Your watchlist predictions are complete!
-  
-  [List of markets with results]
-  
-  View details at: https://betterai.tools/watchlist
-  ```
-- Use existing Loops.so integration
-- HTML templates moved to v2
+### 2.4 Email on Completion (v1 minimal)
+**File: `/lib/services/email.ts`**
+- Add a minimal transactional email wrapper. For Loops transactional setup, follow: https://loops.so/docs/transactional/guide
+- Manual step required to configure API keys and templates in Loops.
+- Optional in v1: you can defer emails and rely on client polling of returned `sessionId`s.
 - Simple polling - wait for all sessions to reach terminal state, then send summary
 
-### 2.4 Workflow Registry
+### 2.5 Workflow Registry
 **File: `/lib/inngest/functions.ts`**
-- Register new watchlist workflows
-- Add to function export array
+- No new watchlist workflow registration needed for v1.
 
-### 2.5 Testing
+### 2.6 Testing
 **File: `/lib/inngest/__tests__/watchlist-workflows.test.ts`**
-- Test workflow step functions
-- Mock email service calls
-- Verify error handling and retries
+- Focus on testing `predictionSessions` flows (already covered). For watchlist batching, unit test the tRPC `startBatch` to ensure it filters closed markets and invokes session creation per market.
 
 **Deliverables:**
 - ✅ Watchlist batch prediction workflow (creates individual prediction sessions)
@@ -200,7 +190,6 @@ interface WatchlistToggleButtonProps {
 - Show disabled with "Sign in to save" tooltip for non-authenticated users
 - Loading state during API calls
 - Toast notifications on success
-- Toast warning "Watchlist limited to 5 markets during beta" when limit reached
 - Reuse existing DS tokens from `/lib/design-system.ts`
 - Reuse credit insufficiency warning from predict flow if the user does not have sufficient credits for the weekly watchlist predictions
 
@@ -223,7 +212,7 @@ interface WatchlistToggleButtonProps {
 ### 3.3 Watchlist Controls Component (Simplified)
 **File: `/features/watchlist/watchlist-controls.client.tsx`**
 - "Generate Predictions for All Markets" button with model selection
-- Model selector (reuse existing component from single predictions)
+- Model selector: extract from `features/prediction/prediction-generator.client.tsx` into a shared `ModelSelector` component; import and reuse here
 - Credit cost calculator showing total cost for all markets
 - Button disabled state during processing
 - Show toast "Batch predictions initiated. You'll receive an email when complete."
@@ -259,12 +248,10 @@ interface WatchlistToggleButtonProps {
 - Real-time updates with React Query
 - Optimistic UI updates
 
-### 4.2 Email Templates
-**File: `/lib/email-templates/watchlist-recap.tsx`**
-- Design HTML email templates
-- Include market metrics and AI deltas
-- Mobile-responsive email design
-- Test with real email delivery
+### 4.2 Transactional Email Setup
+**File: `/lib/services/email.ts`**
+- Implement a minimal sender. Document manual setup for Loops transactional: https://loops.so/docs/transactional/guide
+- Optional HTML templates and advanced design moved to v2.
 
 ### 4.3 Performance Optimization
 - Implement pagination for large watchlists
@@ -277,6 +264,8 @@ interface WatchlistToggleButtonProps {
 - Credit insufficiency warnings
 - Network error recovery
 - Graceful degradation
+- Skip closed markets in batch runs (via `lib/utils/market-status.ts`); show toast for skipped items
+- Ensure `addToWatchlist` handles duplicates gracefully; keep `removeFromWatchlist` idempotent
 
 ### 4.5 Manual Testing Checklist
 - [ ] Add market to watchlist
@@ -292,6 +281,7 @@ interface WatchlistToggleButtonProps {
 - API documentation
 - Deployment checklist
 - Monitoring setup
+- Note feature flag: add and enable `showWatchlist` in `lib/feature-flags.ts` for controlled rollout
 
 **Deliverables:**
 - ✅ Fully integrated watchlist feature
@@ -305,8 +295,8 @@ interface WatchlistToggleButtonProps {
 ## New Implementation Approach: Leverage Existing Prediction Sessions
 
 ### How It Works (Simplified Architecture)
-1. **User triggers batch predictions** → `triggerWatchlistBatchPredictions()`
-2. **For each market in watchlist** → Create individual `PredictionSession` 
+1. **User triggers batch predictions** → `watchlist.startBatch()` (tRPC)
+2. **For each open market in watchlist** → Create individual `PredictionSession` via `predictionSessions.start`
 3. **Existing Inngest workflows** → Process each session independently
 4. **Monitor all sessions** → Track progress until all complete
 5. **Send email summary** → Include results from all prediction sessions
@@ -321,10 +311,10 @@ interface WatchlistToggleButtonProps {
 - ✅ **Monitoring**: Full observability through existing Inngest dashboard
 
 ### What We Still Need to Build
-- **Watchlist CRUD operations** (mostly exists)
-- **Batch trigger endpoint** (creates multiple prediction sessions)
+- **Watchlist CRUD operations** (mostly exists; ensure idempotent add/remove)
+- **Batch trigger endpoint** (loops `predictionSessions.start`; filters closed markets)
 - **Batch progress monitoring** (polls multiple session statuses)
-- **Email summary service** (aggregates results from multiple sessions)
+- **Email summary service** (optional in v1; transactional setup in `lib/services/email.ts`)
 - **Frontend components** (watchlist page, toggle buttons, progress indicators)
 
 ---
@@ -368,7 +358,7 @@ watchlist: {
 ## Design Decisions & Clarifications
 
 ### Business Logic
-- **Watchlist Limit**: 10 markets during beta (enforced in service layer)
+- **Watchlist Limit**: No enforced limit in v1
 - **Default Email**: Weekly digest (users can switch to daily)
 - **Batch Emails**: Single summary email for batch predictions (not individual)
 - **Credit Checks**: Reuse existing insufficient credit warnings from predict flow
@@ -416,8 +406,8 @@ The existing prediction session infrastructure already handles all error recover
 - **Mitigation**: Use Loops.so best practices, authenticate domain
 
 ### 3. **Large Watchlist Performance**
-- **Issue**: Users with 100+ markets could slow queries
-- **Mitigation**: 10 market beta limit solves this initially
+- **Issue**: Users with very large watchlists could slow queries
+- **Mitigation**: No limit enforced in v1; recommend pagination and incremental loading as usage grows
 
 ### 4. **Concurrent Prediction Limits** ✅ **ALREADY SOLVED**
 - **Issue**: OpenRouter API rate limits  
@@ -518,7 +508,7 @@ This plan leverages 70% existing infrastructure, focusing development effort on 
 ## Summary of Simplifications for V1
 
 ### What We Kept (Core Features)
-- ✅ Add/remove markets to watchlist (10 limit)
+- ✅ Add/remove markets to watchlist (no enforced limit)
 - ✅ Basic watchlist page
 - ✅ Manual batch predictions trigger
 - ✅ Simple text email notifications
@@ -534,13 +524,14 @@ This plan leverages 70% existing infrastructure, focusing development effort on 
 - ⏳ Advanced error recovery
 
 ### Key Simplifications Made
-1. **No database migrations needed** - Existing schema works for v1
-2. **Minimal API endpoints** - Just 5 tRPC procedures  
-3. **Manual testing only** - No automated tests initially
-4. **Simple text emails** - No HTML templates
-5. **Reuse prediction sessions** - Leverage existing infrastructure for 90% of complexity
-6. **No scheduled jobs** - Manual trigger only (V1)
-7. **No custom error handling** - Existing prediction session recovery handles everything
+1. No database migrations needed — existing schema works for v1
+2. Minimal API endpoints — `watchlist` CRUD + `startBatch` that delegates to `predictionSessions.start`
+3. Manual testing only — no automated tests initially
+4. Optional transactional email — minimal `lib/services/email.ts` with manual Loops setup; HTML templates moved to v2
+5. Reuse prediction sessions — leverage existing infrastructure for 90% of complexity
+6. No scheduled jobs — manual trigger only (v1)
+7. No custom error handling — existing prediction session recovery handles everything
+8. No watchlist item limit — simplify validation and UX
 
 ### OpenRouter Rate Limits (Research Findings)
 - **Free tier**: 50-1000 requests/day based on credits
