@@ -1,5 +1,5 @@
 import type { PrismaClient, Tag } from '@/lib/generated/prisma'
-import { tagFilter } from './event-service'
+import { tagFilter } from '@/lib/constants/filters'
 
 /**
  * Tag service functions following clean service pattern:
