@@ -1,7 +1,7 @@
 import type { PrismaClient, Prisma, Market, Event, Prediction } from '@/lib/generated/prisma'
 import { mapMarketToDTO, mapMarketsToDTO } from '@/lib/dtos'
 import type { MarketDTO } from '@/lib/types'
-import { getMarketStatusFilter } from '@/lib/utils/market-status'
+import { getMarketStatusFilter, isMarketOpenForBetting } from '@/lib/utils/market-status'
 import { tagFilter } from '@/lib/constants/filters'
 
 /**
@@ -96,7 +96,7 @@ export async function getTrendingMarkets(
     }
   }
 
-  const markets = await db.market.findMany({
+  const marketsFromDb = await db.market.findMany({
     where: marketWhereClause,
     orderBy: { volume: 'desc' },
     take: 100,
@@ -125,6 +125,16 @@ export async function getTrendingMarkets(
       },
     },
   })
+
+  // Filter out markets that are no longer open for betting (handles cases where database closed field is stale)
+  const markets = marketsFromDb.filter(market => 
+    isMarketOpenForBetting({
+      closed: market.closed,
+      active: market.active,
+      closedTime: market.closedTime,
+      endDate: market.endDate,
+    })
+  )
 
   const eventMarketsMap = new Map<string, any[]>()
   for (const market of markets) {
