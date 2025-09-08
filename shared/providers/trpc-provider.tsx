@@ -41,7 +41,7 @@ export function TRPCProvider({ children }: TRPCProviderProps) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 1 * 60 * 1000, // 1 minute - faster updates for market status changes
         gcTime: 10 * 60 * 1000, // 10 minutes
         // Add retry configuration for better auth error handling
         retry: (failureCount, error: any) => {

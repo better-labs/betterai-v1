@@ -50,13 +50,13 @@ export async function getTrendingMarkets(
   
   // Direct market-focused approach: query markets that are open, then group by event
   const marketWhereClause: any = {
-    closed: false, // Only open markets
+    closed: false, // Only open markets - ALWAYS enforced
     updatedAt: {
       gte: filterDate
     }
   }
   
-  // Handle tag filtering at the event level
+  // Handle tag filtering at the event level (without overwriting closed filter)
   if (tagIds && tagIds.length > 0) {
     marketWhereClause.event = {
       eventTags: {
