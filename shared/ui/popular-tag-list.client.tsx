@@ -2,36 +2,36 @@
 
 import { Button } from "@/shared/ui/button"
 import { trpc } from "@/shared/providers/trpc-provider"
+import { components } from "@/lib/design-system"
 
 interface PopularTagsListProps {
   tags: Array<{ id: string; label: string; totalVolume?: number }>
   selectedTagId: string | null
   onTagSelect: (tagId: string | null) => void
-  className?: string
 }
 
 export function PopularTagsList({ 
   tags, 
   selectedTagId, 
-  onTagSelect, 
-  className = "" 
+  onTagSelect 
 }: PopularTagsListProps) {
   if (tags.length === 0) {
     return null
   }
 
   return (
-    <div className={`w-full ${className}`}>
+    
       <div 
-        className="flex gap-2 overflow-x-auto scrollbar-hide pb-2"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className={components.tagFilter.scrollContainer}
+        style={components.tagFilter.scrollbarHide}
+        data-debug-id="popular-tag-list"
       >
         {/* "All" button first */}
         <Button
           variant={selectedTagId === null ? "default" : "outline"}
           size="sm"
           onClick={() => onTagSelect(null)}
-          className="h-11 px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation"
+          className={`${components.tagFilter.buttonHeight} ${components.tagFilter.button}`}
         >
           All
         </Button>
@@ -43,12 +43,12 @@ export function PopularTagsList({
             variant={selectedTagId === tag.id ? "default" : "outline"}
             size="sm"
             onClick={() => onTagSelect(tag.id)}
-            className="h-11 px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation"
+            className={`${components.tagFilter.buttonHeight} ${components.tagFilter.button}`}
           >
             {tag.label}
           </Button>
         ))}
       </div>
-    </div>
+    
   )
 }

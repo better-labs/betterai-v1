@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button"
 import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import { ViewAllLink } from "@/shared/ui/view-all-link"
-import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
+import { StatsDisplaySection, SingleStatDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { components, spacing, typography } from '@/lib/design-system'
 import { formatPercent } from '@/lib/utils'
 import { isMarketOpenForBetting } from '@/lib/utils/market-status'
@@ -23,7 +23,7 @@ export interface MarketHeaderProps {
   showActiveStatus?: boolean
 }
 
-export interface MarketMetricsProps {
+export interface MarketProbabilityProps {
   market: Market
   latestPrediction?: Prediction | null
   showProgressBar?: boolean
@@ -32,7 +32,6 @@ export interface MarketMetricsProps {
 export interface AIDeltaProps {
   market: Market
   latestPrediction: Prediction
-  hideReasoning?: boolean
 }
 
 export interface MarketCTAProps {
@@ -47,6 +46,15 @@ export interface MarketMetaProps {
   market: Market
   event?: Event | null
   latestPrediction?: Prediction | null
+}
+
+export interface AIPredictionStatsProps {
+  latestPrediction: Prediction
+  showProgressBar?: boolean
+}
+
+export interface PredictionReasoningProps {
+  latestPrediction: Prediction
 }
 
 // ============================================================================
@@ -68,9 +76,9 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
             className="flex-shrink-0"
           />
         )}
-        <h3 className={`${typography.h3} ${spacing.heading} whitespace-pre-wrap break-words`}>
+        <p className="text-lg font-medium leading-tight whitespace-pre-wrap break-words">
           {market.question}
-        </h3>
+        </p>
       </div>
 
       {/* Market Status Badge - Top Right */}
@@ -96,21 +104,16 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
 // MARKET METRICS COMPONENT
 // ============================================================================
 
-export function MarketMetrics({ market, latestPrediction, showProgressBar = true }: MarketMetricsProps) {
+export function MarketProbability({ market, latestPrediction, showProgressBar = true }: MarketProbabilityProps) {
   const marketStats = (market.outcomes || []).map((outcome, index) => ({
     label: outcome,
     value: market.outcomePrices?.[index] || null
   }))
 
-  const predictionStats = latestPrediction?.outcomes?.map((outcome, index) => ({
-    label: outcome,
-    value: latestPrediction.outcomesProbabilities?.[index] || null
-  })) || []
-
   return (
     // Market metrics stats
-    <div className={components.metrics.row}>
-      <div className={components.metrics.stat}>
+  
+      <div  data-debug-id="market-probability">
         <Link href={`/market/${market.id}`} className="block hover:opacity-80 transition-opacity">
           <StatsDisplaySection
             title="Market Probability"
@@ -120,18 +123,46 @@ export function MarketMetrics({ market, latestPrediction, showProgressBar = true
         </Link>
       </div>
         
-      {/* AI Prediction Stats - only show if prediction exists */}
-      {latestPrediction && (
-        <div className={components.metrics.stat}>
-          <Link href={`/prediction/${latestPrediction.id}`} className="block hover:opacity-80 transition-opacity">
-            <StatsDisplaySection
-              title="AI Prediction"
-              stats={predictionStats}
-              showProgressBars={showProgressBar}
-            />
-          </Link>
-        </div>
-      )}
+    
+    
+  )
+}
+
+// ============================================================================
+// AI PREDICTION STATS COMPONENT
+// ============================================================================
+
+export function AIPredictionStats({ latestPrediction, showProgressBar = true }: AIPredictionStatsProps) {
+  const predictionStats = latestPrediction.outcomes?.map((outcome, index) => ({
+    label: outcome,
+    value: latestPrediction.outcomesProbabilities?.[index] || null
+  })) || []
+
+  return (
+    <div className={components.metrics.stat}>
+      <Link href={`/prediction/${latestPrediction.id}`} className="block hover:opacity-80 transition-opacity">
+        <StatsDisplaySection
+          title="AI Prediction"
+          stats={predictionStats}
+          showProgressBars={showProgressBar}
+        />
+      </Link>
+    </div>
+  )
+}
+
+// ============================================================================
+// PREDICTION REASONING COMPONENT  
+// ============================================================================
+
+export function PredictionReasoning({ latestPrediction }: PredictionReasoningProps) {
+  if (!latestPrediction?.predictionResult?.reasoning) {
+    return null
+  }
+
+  return (
+    <div className={components.metrics.stat}>
+      <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
     </div>
   )
 }
@@ -163,15 +194,15 @@ function ExpandableReasoning({ reasoning }: ExpandableReasoningProps) {
 // AI DELTA COMPONENT
 // ============================================================================
 
-export function AIDelta({ market, latestPrediction, hideReasoning = false }: AIDeltaProps) {
+export function AIDelta({ market, latestPrediction }: AIDeltaProps) {
   const delta = computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
 
   return (
     <Link 
       href={`/prediction/${latestPrediction.id}`}
-      className={`${components.metrics.row} hover:opacity-80 transition-opacity ${components.interactive.focus}`}
+      className={` hover:opacity-80 transition-opacity ${components.interactive.focus}`}
     >
-      <div className={components.metrics.stat}>
+      {/* <div className={components.metrics.stat}>
         <Stat
           label="AI Delta"
           value={delta != null ? formatPercent(delta) : '—'}
@@ -180,12 +211,14 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
           density="compact"
           align="left"
         />
-      </div>
-      {latestPrediction?.predictionResult?.reasoning && !hideReasoning && (
-        <div className={components.metrics.stat}>
-          <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
-        </div>
-      )}
+      </div> */}
+      <SingleStatDisplaySection
+        title="AI Delta"
+        label="Delta"
+        value={delta}
+      />
+      
+     
     </Link>
   )
 }

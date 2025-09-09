@@ -87,7 +87,7 @@ export async function updateActivePolymarketEvents(options: {
 
   // Extract just the event IDs
   const eventIds = activeEvents.map(e => e.id)
-  console.log(`Fetching ${eventIds.length} events by ID: ${eventIds.slice(0, 5).join(', ')}... (showing first 5)`)
+  console.log(`Fetching ${eventIds.length} events by ID: ${eventIds.join(', ')}`)
 
   // Fetch events in batches by ID (Polymarket API supports ?id=111&id=222&id=333)
   const allActiveEventsData: PolymarketEvent[] = []

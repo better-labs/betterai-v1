@@ -10,7 +10,7 @@ import type { inferProcedureOutput } from "@trpc/server"
 import { trpc } from "@/shared/providers/trpc-provider"
 import { LoadingCard } from "@/shared/ui/loading"
 import { Button } from "@/shared/ui/button"
-import MarketWithPredictionCard from "@/features/market/market-with-prediction-card.client"
+import TrendingMarketsCard from "@/features/market/trending-markets-card.client"
 import { PopularTagsList } from "@/shared/ui/popular-tag-list.client"
 
 // Use tRPC's inferred types
@@ -132,7 +132,7 @@ export function TrendingMarkets() {
 
   return (
     <>
-      <section className="space-y-6">
+      <section className={components.page.sections}>
         {/* Header */}
         <div className={components.pageHeader.container}>
           <h1 className={components.pageHeader.title + " flex items-center justify-center gap-2"}>
@@ -146,13 +146,13 @@ export function TrendingMarkets() {
 
         {/* Active Tags List */}
         {!tagsLoading && activeTags.length > 0 && (
-          <div className="w-full">
+          
             <PopularTagsList 
               tags={activeTags} 
               selectedTagId={selectedTagId}
               onTagSelect={handleTagSelect}
             />
-          </div>
+          
         )}
 
         {/* Markets Grid */}
@@ -180,7 +180,7 @@ export function TrendingMarkets() {
                   ease: "easeOut"
                 }}
               >
-                <MarketWithPredictionCard
+                <TrendingMarketsCard
                   market={market}
                   event={market.event}
                   latestPrediction={market.latestPrediction}

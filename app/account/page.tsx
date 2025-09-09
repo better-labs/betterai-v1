@@ -13,6 +13,7 @@ import { usePrivy } from "@privy-io/react-auth"
 import { authenticatedFetch } from "@/lib/utils"
 import dynamic from "next/dynamic"
 import Link from "next/link"
+import { components } from "@/lib/design-system"
 
 // Dynamic import of PrivyUserPill
 const PrivyUserPill = dynamic(
@@ -133,7 +134,7 @@ export default function AccountPage() {
   const completedPredictions = mockActivity.filter(activity => activity.status === "completed").length
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <section className={components.page.section}>
       {/* Header with Back Button */}
       
 
@@ -298,6 +299,6 @@ export default function AccountPage() {
           </Card>
         </section>
       )}
-    </main>
+    </section>
   )
 }

@@ -12,13 +12,15 @@ import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Predictio
 import { components, spacing } from '@/lib/design-system'
 import { 
   MarketHeader, 
-  MarketMetrics, 
+  MarketProbability, 
+  AIPredictionStats,
+  PredictionReasoning,
   AIDelta, 
   MarketCTA, 
   MarketMeta 
 } from './market-card-sections'
 
-interface MarketWithPredictionCardProps {
+interface TrendingMarketsCardProps {
   market: Market
   event?: Event | null
   externalMarketUrl?: string | null
@@ -26,10 +28,9 @@ interface MarketWithPredictionCardProps {
   latestPrediction?: Prediction | null
   href?: string | null
   hidePredictionButton?: boolean
-  hideReasoning?: boolean
 }
 
-export default function MarketWithPredictionCard({
+export default function TrendingMarketsCard({
   market,
   event,
   externalMarketUrl,
@@ -37,8 +38,7 @@ export default function MarketWithPredictionCard({
   latestPrediction,
   href = null,
   hidePredictionButton = false,
-  hideReasoning = false,
-}: MarketWithPredictionCardProps) {
+}: TrendingMarketsCardProps) {
 
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -75,21 +75,23 @@ export default function MarketWithPredictionCard({
   }
 
   const card = (
-    <Card className={`${components.card.base} ${components.card.hover} ${spacing.card} ${className} overflow-hidden`} data-debug-id="market-card">
-      <CardHeader className="pb-2">
+    <Card className={`${components.card.base} ${components.card.hover} ${spacing.card} ${components.card.market.container} ${className}`} data-debug-id="market-card">
+      <CardHeader className={components.card.market.header}>
         <MarketHeader market={market} event={event} href={href} showActiveStatus={true} />
       </CardHeader>
       
-      <CardContent className={`space-y-6 ${components.interactive.safeArea}`}>
-        <MarketMetrics market={market} latestPrediction={latestPrediction} showProgressBar={true} />
+      <CardContent className={`${components.card.market.content} ${components.interactive.safeArea}`}>
         
-        {latestPrediction && (
-          <AIDelta 
-            market={market} 
-            latestPrediction={latestPrediction} 
-            hideReasoning={hideReasoning} 
-          />
-        )}
+        <div className={components.cardContent.row}>
+          <MarketProbability market={market} latestPrediction={latestPrediction} showProgressBar={true} />
+
+          {latestPrediction && (
+            <AIDelta 
+              market={market} 
+              latestPrediction={latestPrediction} 
+            />
+          )}
+        </div>
         
         <MarketCTA 
           market={market}
@@ -124,6 +126,3 @@ export default function MarketWithPredictionCard({
     card
   )
 }
-
-
-

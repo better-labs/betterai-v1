@@ -63,3 +63,34 @@ export function StatsDisplaySection({
     </div>
   )
 }
+
+interface SingleStatDisplaySectionProps {
+  title: string
+  label: string
+  value: number | null
+  formatValue?: (value: number | null) => string
+  className?: string
+}
+
+export function SingleStatDisplaySection({
+  title,
+  value,
+  formatValue = (value: number | null) => value ? `${Math.round(value * 100)}%` : '--',
+  className = ''
+}: SingleStatDisplaySectionProps) {
+  return (
+    <div className={`${components.statsDisplay.container} ${className}`}>
+      <h4 className={components.statsDisplay.sectionTitle}>{title}</h4>
+      <div className={components.statsDisplay.statSpacing}>
+        <div className={components.statsDisplay.statRow}>
+          <div className={components.statsDisplay.statValue}>
+            <span className="text-3xl font-semibold">
+              {formatValue(value)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+

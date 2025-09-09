@@ -134,7 +134,6 @@ export function PredictionResultCard({ model, prediction, sessionStatus, session
                     id: prediction.id,
                     outcomesProbabilities: prediction.outcomesProbabilities
                   } as PredictionDTO}
-                  hideReasoning={true}
                 />
               </div>
             )}

@@ -6,7 +6,7 @@ import { Badge } from "@/shared/ui/badge"
 import { TrendingUp, Calendar, Tag } from "lucide-react"
 import { prisma } from '@/lib/db/prisma'
 import * as searchService from '@/lib/services/search-service'
-import MarketWithPredictionCard from "@/features/market/market-with-prediction-card.client"
+import TrendingMarketsCard from "@/features/market/trending-markets-card.client"
 import { generateMarketURL } from "@/lib/server-utils"
 import { SearchInput } from "@/features/search/SearchInput.client"
 
@@ -66,7 +66,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </h2>
                 <div className="space-y-4">
                   {marketsWithUrl.map(({ market, url }) => (
-                    <MarketWithPredictionCard
+                    <TrendingMarketsCard
                       key={market.id}
                       market={market}
                       event={market.event}

@@ -3,11 +3,12 @@
 import { TrendingUp } from "lucide-react"
 import { BetaSignupForm } from "@/components/beta-signup-form"
 import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
+import { components } from "@/lib/design-system"
 
 export function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+      <section className={components.page.section}>
         <PageTransition>
        
        
@@ -69,7 +70,7 @@ export function LandingPage() {
         </section>
         </PageTransition>
        
-      </main>
+      </section>
     </div>
   )
 }
