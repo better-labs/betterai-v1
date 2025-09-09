@@ -13,12 +13,14 @@ import { components, spacing } from '@/lib/design-system'
 import { 
   MarketHeader, 
   MarketMetrics, 
+  AIPredictionStats,
+  PredictionReasoning,
   AIDelta, 
   MarketCTA, 
   MarketMeta 
 } from './market-card-sections'
 
-interface MarketWithPredictionCardProps {
+interface TrendingMarketsCardProps {
   market: Market
   event?: Event | null
   externalMarketUrl?: string | null
@@ -29,7 +31,7 @@ interface MarketWithPredictionCardProps {
   hideReasoning?: boolean
 }
 
-export default function MarketWithPredictionCard({
+export default function TrendingMarketsCard({
   market,
   event,
   externalMarketUrl,
@@ -38,7 +40,7 @@ export default function MarketWithPredictionCard({
   href = null,
   hidePredictionButton = false,
   hideReasoning = false,
-}: MarketWithPredictionCardProps) {
+}: TrendingMarketsCardProps) {
 
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -124,6 +126,3 @@ export default function MarketWithPredictionCard({
     card
   )
 }
-
-
-

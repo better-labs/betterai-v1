@@ -49,6 +49,16 @@ export interface MarketMetaProps {
   latestPrediction?: Prediction | null
 }
 
+export interface AIPredictionStatsProps {
+  latestPrediction: Prediction
+  showProgressBar?: boolean
+}
+
+export interface PredictionReasoningProps {
+  latestPrediction: Prediction
+  hideReasoning?: boolean
+}
+
 // ============================================================================
 // MARKET HEADER COMPONENT
 // ============================================================================
@@ -102,11 +112,6 @@ export function MarketMetrics({ market, latestPrediction, showProgressBar = true
     value: market.outcomePrices?.[index] || null
   }))
 
-  const predictionStats = latestPrediction?.outcomes?.map((outcome, index) => ({
-    label: outcome,
-    value: latestPrediction.outcomesProbabilities?.[index] || null
-  })) || []
-
   return (
     // Market metrics stats
     <div className={components.metrics.row}>
@@ -120,18 +125,46 @@ export function MarketMetrics({ market, latestPrediction, showProgressBar = true
         </Link>
       </div>
         
-      {/* AI Prediction Stats - only show if prediction exists */}
-      {latestPrediction && (
-        <div className={components.metrics.stat}>
-          <Link href={`/prediction/${latestPrediction.id}`} className="block hover:opacity-80 transition-opacity">
-            <StatsDisplaySection
-              title="AI Prediction"
-              stats={predictionStats}
-              showProgressBars={showProgressBar}
-            />
-          </Link>
-        </div>
-      )}
+    
+    </div>
+  )
+}
+
+// ============================================================================
+// AI PREDICTION STATS COMPONENT
+// ============================================================================
+
+export function AIPredictionStats({ latestPrediction, showProgressBar = true }: AIPredictionStatsProps) {
+  const predictionStats = latestPrediction.outcomes?.map((outcome, index) => ({
+    label: outcome,
+    value: latestPrediction.outcomesProbabilities?.[index] || null
+  })) || []
+
+  return (
+    <div className={components.metrics.stat}>
+      <Link href={`/prediction/${latestPrediction.id}`} className="block hover:opacity-80 transition-opacity">
+        <StatsDisplaySection
+          title="AI Prediction"
+          stats={predictionStats}
+          showProgressBars={showProgressBar}
+        />
+      </Link>
+    </div>
+  )
+}
+
+// ============================================================================
+// PREDICTION REASONING COMPONENT  
+// ============================================================================
+
+export function PredictionReasoning({ latestPrediction, hideReasoning = false }: PredictionReasoningProps) {
+  if (!latestPrediction?.predictionResult?.reasoning || hideReasoning) {
+    return null
+  }
+
+  return (
+    <div className={components.metrics.stat}>
+      <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
     </div>
   )
 }
@@ -181,11 +214,10 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
           align="left"
         />
       </div>
-      {latestPrediction?.predictionResult?.reasoning && !hideReasoning && (
-        <div className={components.metrics.stat}>
-          <ExpandableReasoning reasoning={latestPrediction.predictionResult.reasoning} />
-        </div>
-      )}
+      <PredictionReasoning 
+        latestPrediction={latestPrediction}
+        hideReasoning={hideReasoning}
+      />
     </Link>
   )
 }

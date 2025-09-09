@@ -10,7 +10,7 @@ import type { inferProcedureOutput } from "@trpc/server"
 import { trpc } from "@/shared/providers/trpc-provider"
 import { LoadingCard } from "@/shared/ui/loading"
 import { Button } from "@/shared/ui/button"
-import MarketWithPredictionCard from "@/features/market/market-with-prediction-card.client"
+import TrendingMarketsCard from "@/features/market/trending-markets-card.client"
 import { PopularTagsList } from "@/shared/ui/popular-tag-list.client"
 
 // Use tRPC's inferred types
@@ -180,7 +180,7 @@ export function TrendingMarkets() {
                   ease: "easeOut"
                 }}
               >
-                <MarketWithPredictionCard
+                <TrendingMarketsCard
                   market={market}
                   event={market.event}
                   latestPrediction={market.latestPrediction}
