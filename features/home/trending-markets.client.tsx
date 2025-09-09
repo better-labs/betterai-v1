@@ -132,7 +132,7 @@ export function TrendingMarkets() {
 
   return (
     <>
-      <section className="space-y-6">
+      <section className={components.page.sections}>
         {/* Header */}
         <div className={components.pageHeader.container}>
           <h1 className={components.pageHeader.title + " flex items-center justify-center gap-2"}>
@@ -146,13 +146,13 @@ export function TrendingMarkets() {
 
         {/* Active Tags List */}
         {!tagsLoading && activeTags.length > 0 && (
-          <div className="w-full">
+          
             <PopularTagsList 
               tags={activeTags} 
               selectedTagId={selectedTagId}
               onTagSelect={handleTagSelect}
             />
-          </div>
+          
         )}
 
         {/* Markets Grid */}

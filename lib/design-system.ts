@@ -160,29 +160,16 @@ export const components = {
     // Standard page container (replaces repeated container structure)
     container: 'container mx-auto px-4 py-10',
     content: 'max-w-4xl mx-auto',
-    sections: 'space-y-6',
+    sections: 'space-y-4',
     
     // Standard section container for pages
-    section: 'container mx-auto px-4 py-6',
-    
-    // Compact variant for simpler pages
-    compact: {
-      container: 'container mx-auto px-4 py-8',
-      content: 'max-w-3xl mx-auto',
-      sections: 'space-y-4',
-    },
-    
-    // Wide variant for dashboard-style pages
-    wide: {
-      container: 'container mx-auto px-4 py-10',
-      content: 'max-w-6xl mx-auto',
-      sections: 'space-y-8',
-    }
+    section: 'container mx-auto px-4 py-4',
+  
   },
 
   // Page header patterns - consistent headers across pages
   pageHeader: {
-    container: 'text-center mb-6',
+    container: 'text-center m-1',
     title: typography.h1,
     subtitle: `${typography.bodySmall} text-muted-foreground hidden md:block`,
     icon: 'text-primary',
@@ -195,7 +182,7 @@ export const components = {
     
     // Market card specific patterns
     market: {
-      container: 'overflow-hidden',
+      container: 'overflow-hidden ',
       header: 'p-2',
       content: 'p-2 space-y-4',
     },
@@ -488,16 +475,28 @@ export const components = {
     sizePrimary: 'default',
   },
 
-  // Tag filter buttons
+  // Tag filter buttons and horizontal scrolling lists
   tagFilter: {
     // Button height for compact tag buttons
     buttonHeight: 'h-10',
+    
+    // Horizontal scrolling container for tag lists
+    scrollContainer: 'flex gap-2 overflow-x-auto scrollbar-hide pb-2',
+    
+    // Individual tag button styling
+    button: 'px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation',
+    
+    // Inline styles for cross-browser scrollbar hiding
+    scrollbarHide: { 
+      scrollbarWidth: 'none' as const, 
+      msOverflowStyle: 'none' as const 
+    },
   },
 
   // Statistical data displays (outcomes, predictions, metrics)
   statsDisplay: {
     // Container for stats section
-    container: ' rounded-lg py-3',
+    container: ' rounded-lg py-1',
     // Individual stat row
     statRow: 'flex justify-start items-center gap-4',
     // Stat label text
@@ -582,115 +581,3 @@ export type LayoutKey = keyof typeof layout;
 export type TypographyKey = keyof typeof typography;
 export type ComponentKey = keyof typeof components;
 export type InteractionKey = keyof typeof interaction;
-
-// ============================================================================
-// USAGE EXAMPLES AND PATTERNS
-// ============================================================================
-
-/**
- * Common usage patterns and examples for the design system.
- * Copy these patterns for consistent implementation across the app.
- */
-export const usageExamples = {
-  // Standard page layout (replaces repeated container structure)
-  pageLayout: `
-    <div className={components.page.container}>
-      <div className={components.page.content}>
-        {/* Page header */}
-        <div className={components.pageHeader.container}>
-          <h1 className={components.pageHeader.title}>Page Title</h1>
-        </div>
-        
-        {/* Page sections */}
-        <div className={components.page.sections}>
-          {/* Content sections go here */}
-        </div>
-      </div>
-    </div>
-  `,
-
-  // Basic card with proper spacing
-  card: `
-    <div className={\`\${components.card.base} \${spacing.card}\`}>
-      <h3 className={\`\${typography.h3} \${spacing.heading}\`}>Card Title</h3>
-      <p className={typography.body}>Card content goes here.</p>
-    </div>
-  `,
-  
-  // Search input with flex layout (industry standard)
-  searchInput: `
-    <div className={components.input.search.container}>
-      <div className={components.input.search.iconLeft}>
-        <Search className="h-4 w-4" />
-      </div>
-      <input 
-        className={components.input.search.input}
-        placeholder="Search markets..."
-      />
-      <div className={components.input.search.iconRight}>
-        <button className={components.input.search.button}>
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-    `,
-
-  // Dropdown menu with proper spacing
-  dropdownMenu: `
-    <DropdownMenuContent className={components.dropdown.content}>
-      <DropdownMenuItem className={components.dropdown.item}>
-        Profile
-      </DropdownMenuItem>
-      <DropdownMenuSeparator className={components.dropdown.separator} />
-      <DropdownMenuItem className={components.dropdown.item}>
-        Settings
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  `,
-
-  // Centered loading overlay (bypasses parent constraints using portal)
-  loadingOverlay: `
-    import { createPortal } from 'react-dom'
-    import { useState, useEffect } from 'react'
-    
-    function MyComponent() {
-      const [isBrowser, setIsBrowser] = useState(false)
-      const [isLoading, setIsLoading] = useState(false)
-      
-      useEffect(() => {
-        setIsBrowser(true)
-      }, [])
-      
-      return (
-        <>
-          {/* Your component content */}
-          
-          {/* Loading overlay using portal for reliable centering */}
-          {isBrowser && isLoading && 
-            createPortal(
-              <div className={components.loading.overlay.container}>
-                <div className={components.loading.overlay.card}>
-                  <div className={components.loading.overlay.content}>
-                    <div className={components.loading.overlay.spinner} />
-                    Loading more content...
-                  </div>
-                </div>
-              </div>,
-              document.body
-            )
-          }
-        </>
-      )
-    }
-  `,
-
-  // Inline loading state (within container)
-  inlineLoading: `
-    <div className={components.loading.inline.container}>
-      <div className={components.loading.inline.content}>
-        <div className={components.loading.inline.spinner} />
-        Loading...
-      </div>
-    </div>
-  `
-} as const;
