@@ -7,6 +7,7 @@ import { LoadingCard } from "@/shared/ui/loading"
 import { TrendingUp, Trophy, Target, Activity } from "lucide-react"
 import { Badge } from "@/shared/ui/badge"
 import { trpc } from "@/shared/providers/trpc-provider"
+import { components } from "@/lib/design-system"
 
 interface LeaderboardEntry {
   modelName: string
@@ -68,7 +69,7 @@ export function LeaderboardWrapper() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <section className="container mx-auto px-4 py-8">
+        <section className={components.page.section}>
           <LoadingCard />
         </section>
       </div>
@@ -78,7 +79,7 @@ export function LeaderboardWrapper() {
   if (error) {
     return (
       <div className="min-h-screen bg-background">
-        <section className="container mx-auto px-4 py-8">
+        <section className={components.page.section}>
           <div className="text-center">
             <h2 className="text-xl font-semibold text-destructive mb-2">Error Loading Leaderboard</h2>
             <p className="text-muted-foreground mb-4">{error.message}</p>
@@ -96,7 +97,7 @@ export function LeaderboardWrapper() {
 
   return (
     <div className="min-h-screen bg-background">
-      <section className="container mx-auto px-4 py-8">
+      <section className={components.page.section}>
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center">

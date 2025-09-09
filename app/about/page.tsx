@@ -1,10 +1,11 @@
 import { TrendingUp, Brain, BarChart3, Zap } from "lucide-react"
 import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
+import { components } from "@/lib/design-system"
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
-      <section className="container mx-auto px-4 py-8">
+      <section className={components.page.section}>
         {/* Hero Section */}
         <section className="text-center py-16 mb-24">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6 flex items-center justify-center gap-2">

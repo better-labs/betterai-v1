@@ -162,6 +162,9 @@ export const components = {
     content: 'max-w-4xl mx-auto',
     sections: 'space-y-6',
     
+    // Standard section container for pages
+    section: 'container mx-auto px-4 py-6',
+    
     // Compact variant for simpler pages
     compact: {
       container: 'container mx-auto px-4 py-8',
@@ -486,7 +489,7 @@ export const components = {
   // Tag filter buttons
   tagFilter: {
     // Button height for compact tag buttons
-    height: 'h-6',
+    height: 'h-4',
   },
 
   // Statistical data displays (outcomes, predictions, metrics)

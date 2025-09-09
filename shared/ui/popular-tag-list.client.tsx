@@ -2,6 +2,7 @@
 
 import { Button } from "@/shared/ui/button"
 import { trpc } from "@/shared/providers/trpc-provider"
+import { components } from "@/lib/design-system"
 
 interface PopularTagsListProps {
   tags: Array<{ id: string; label: string; totalVolume?: number }>
@@ -31,7 +32,7 @@ export function PopularTagsList({
           variant={selectedTagId === null ? "default" : "outline"}
           size="sm"
           onClick={() => onTagSelect(null)}
-          className="h-11 px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation"
+          className={`${components.tagFilter.height} px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation`}
         >
           All
         </Button>
@@ -43,7 +44,7 @@ export function PopularTagsList({
             variant={selectedTagId === tag.id ? "default" : "outline"}
             size="sm"
             onClick={() => onTagSelect(tag.id)}
-            className="h-11 px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation"
+            className={`${components.tagFilter.height} px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation`}
           >
             {tag.label}
           </Button>

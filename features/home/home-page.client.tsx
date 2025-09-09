@@ -7,6 +7,7 @@ import { useUser } from "@/hooks/use-user"
 import { WelcomeBanner } from "@/features/user/welcome-banner.client"
 import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
 import { TrendingMarkets } from "@/features/home/trending-markets.client"
+import { components } from "@/lib/design-system"
 
 export function HomePage() {
   const { ready, authenticated } = usePrivy()
@@ -20,7 +21,7 @@ export function HomePage() {
   if (!ready || userLoading) {
     return (
       <div className="min-h-screen bg-background" >
-        <section className="container mx-auto px-4 py-8">
+        <section className={components.page.section}>
           <PageTransition>
             <LoadingCard />
           </PageTransition>
@@ -33,7 +34,7 @@ export function HomePage() {
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-background">
-        <section className="container mx-auto px-4 py-8">
+        <section className={components.page.section}>
           <PageTransition>
             <div className="space-y-8">
               <TrendingMarkets />
@@ -48,7 +49,7 @@ export function HomePage() {
   if (userError) {
     return (
       <div className="min-h-screen bg-background">
-        <section className="container mx-auto px-4 py-8">
+        <section className={components.page.section}>
           <PageTransition>
             <div className="text-center">
               <h2 className="text-xl font-semibold text-destructive mb-2">Account Setup Error</h2>
@@ -72,7 +73,7 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <WelcomeBanner />
-      <section className="container mx-auto px-4 py-8">
+      <section className={components.page.section}>
         <PageTransition>
           <div className="space-y-8">
             <TrendingMarkets />
