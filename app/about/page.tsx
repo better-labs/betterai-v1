@@ -1,5 +1,5 @@
 import { TrendingUp, Brain, BarChart3, Zap } from "lucide-react"
-import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
+import AiVsHumanAccuracyChart from "@/features/about/ai-vs-human-accuracy-chart.client"
 import { components } from "@/lib/design-system"
 
 export default function AboutPage() {
