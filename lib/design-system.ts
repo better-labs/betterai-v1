@@ -181,7 +181,7 @@ export const components = {
   pageHeader: {
     container: 'text-center mb-6',
     title: typography.h1,
-    subtitle: `${typography.bodySmall} text-muted-foreground`,
+    subtitle: `${typography.bodySmall} text-muted-foreground hidden md:block`,
     icon: 'text-primary',
   },
 
@@ -193,8 +193,8 @@ export const components = {
     // Market card specific patterns
     market: {
       container: 'overflow-hidden',
-      header: 'p-0',
-      content: 'p-0 space-y-4',
+      header: 'p-2',
+      content: 'p-2 space-y-4',
     },
   },
 
@@ -481,6 +481,12 @@ export const components = {
     variant: 'outline',
     sizeSecondary: 'sm',
     sizePrimary: 'default',
+  },
+
+  // Tag filter buttons
+  tagFilter: {
+    // Button height for compact tag buttons
+    height: 'h-6',
   },
 
   // Statistical data displays (outcomes, predictions, metrics)

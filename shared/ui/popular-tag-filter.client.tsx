@@ -3,6 +3,7 @@
 import { Button } from "@/shared/ui/button"
 import { Filter, X } from "lucide-react"
 import { trpc } from "@/shared/providers/trpc-provider"
+import { components } from "@/lib/design-system"
 
 interface TagFilterProps {
   selectedTag: string | null
@@ -37,7 +38,7 @@ export function TagFilter({ selectedTag, onTagChange }: TagFilterProps) {
           variant={selectedTag === null ? "default" : "outline"}
           size="sm"
           onClick={() => onTagChange(null)}
-          className="h-8"
+          className={components.tagFilter.height}
         >
           All Categories
         </Button>
@@ -48,7 +49,7 @@ export function TagFilter({ selectedTag, onTagChange }: TagFilterProps) {
             variant={selectedTag === tag.label ? "default" : "outline"}
             size="sm"
             onClick={() => onTagChange(tag.label)}
-            className="h-8"
+            className={components.tagFilter.height}
           >
             {tag.label}
             {selectedTag === tag.label && (
