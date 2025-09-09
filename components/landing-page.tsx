@@ -7,7 +7,7 @@ import { PageTransition } from "@/shared/ui/transitions/page-transition.client"
 export function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 py-8">
         <PageTransition>
        
        
@@ -69,7 +69,7 @@ export function LandingPage() {
         </section>
         </PageTransition>
        
-      </main>
+      </section>
     </div>
   )
 }

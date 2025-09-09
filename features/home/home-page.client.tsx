@@ -20,11 +20,11 @@ export function HomePage() {
   if (!ready || userLoading) {
     return (
       <div className="min-h-screen bg-background" >
-        <main className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-8">
           <PageTransition>
             <LoadingCard />
           </PageTransition>
-        </main>
+        </section>
       </div>
     )
   }
@@ -33,13 +33,13 @@ export function HomePage() {
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-8">
           <PageTransition>
             <div className="space-y-8">
               <TrendingMarkets />
             </div>
           </PageTransition>
-        </main>
+        </section>
       </div>
     )
   }
@@ -48,7 +48,7 @@ export function HomePage() {
   if (userError) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-8">
           <PageTransition>
             <div className="text-center">
               <h2 className="text-xl font-semibold text-destructive mb-2">Account Setup Error</h2>
@@ -63,7 +63,7 @@ export function HomePage() {
               </button>
             </div>
           </PageTransition>
-        </main>
+        </section>
       </div>
     )
   }
@@ -72,13 +72,13 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <WelcomeBanner />
-      <main className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 py-8">
         <PageTransition>
           <div className="space-y-8">
             <TrendingMarkets />
           </div>
         </PageTransition>
-      </main>
+      </section>
     </div>
   )
 }

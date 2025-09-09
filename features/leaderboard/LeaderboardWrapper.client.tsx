@@ -68,9 +68,9 @@ export function LeaderboardWrapper() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-8">
           <LoadingCard />
-        </main>
+        </section>
       </div>
     )
   }
@@ -78,7 +78,7 @@ export function LeaderboardWrapper() {
   if (error) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-destructive mb-2">Error Loading Leaderboard</h2>
             <p className="text-muted-foreground mb-4">{error.message}</p>
@@ -89,14 +89,14 @@ export function LeaderboardWrapper() {
               Try Again
             </button>
           </div>
-        </main>
+        </section>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center">
@@ -176,7 +176,7 @@ export function LeaderboardWrapper() {
             </p>
           </div>
         </div>
-      </main>
+      </section>
     </div>
   )
 }

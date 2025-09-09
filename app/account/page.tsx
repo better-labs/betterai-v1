@@ -133,7 +133,7 @@ export default function AccountPage() {
   const completedPredictions = mockActivity.filter(activity => activity.status === "completed").length
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <section className="container mx-auto px-4 py-8">
       {/* Header with Back Button */}
       
 
@@ -298,6 +298,6 @@ export default function AccountPage() {
           </Card>
         </section>
       )}
-    </main>
+    </section>
   )
 }

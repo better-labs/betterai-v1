@@ -4,7 +4,7 @@ import AiVsHumanAccuracyChart from "@/components/ai-vs-human-accuracy-chart"
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="text-center py-16 mb-24">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6 flex items-center justify-center gap-2">
@@ -85,7 +85,7 @@ export default function AboutPage() {
         </section>
 
 
-      </main>
+      </section>
       
     </div>
   )
