@@ -189,6 +189,13 @@ export const components = {
   card: {
     base: 'bg-card border border-border rounded-lg shadow-sm',
     hover: 'hover:shadow-md transition-shadow duration-200',
+    
+    // Market card specific patterns
+    market: {
+      container: 'overflow-hidden',
+      header: 'p-0',
+      content: 'p-0 space-y-4',
+    },
   },
 
   // Button patterns
@@ -489,7 +496,7 @@ export const components = {
     // Value text (percentage, score, etc.)
     valueText: 'text-md font-medium',
     // Progress bar container
-    progressContainer: 'w-20 h-2 bg-muted rounded-full overflow-hidden',
+    progressContainer: 'w-16 h-2 bg-muted rounded-full overflow-hidden',
     // Progress bar fill
     progressFill: 'h-full bg-primary transition-all duration-300',
     // Section spacing

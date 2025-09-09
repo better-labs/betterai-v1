@@ -76,11 +76,11 @@ export default function MarketWithPredictionCard({
 
   const card = (
     <Card className={`${components.card.base} ${components.card.hover} ${spacing.card} ${className} overflow-hidden`} data-debug-id="market-card">
-      <CardHeader className="p-2 pb-1">
+      <CardHeader className="p-0">
         <MarketHeader market={market} event={event} href={href} showActiveStatus={true} />
       </CardHeader>
       
-      <CardContent className={`p-2 pt-1 space-y-4 ${components.interactive.safeArea}`}>
+      <CardContent className={`p-0 space-y-4 ${components.interactive.safeArea}`}>
         <MarketMetrics market={market} latestPrediction={latestPrediction} showProgressBar={true} />
         
         {latestPrediction && (
