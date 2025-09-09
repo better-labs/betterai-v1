@@ -68,9 +68,9 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
             className="flex-shrink-0"
           />
         )}
-        <h3 className={`${typography.h3} ${spacing.heading} whitespace-pre-wrap break-words`}>
+        <p className="text-lg font-medium leading-tight whitespace-pre-wrap break-words">
           {market.question}
-        </h3>
+        </p>
       </div>
 
       {/* Market Status Badge - Top Right */}
