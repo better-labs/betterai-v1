@@ -12,7 +12,7 @@ import type { EventDTO as Event, MarketDTO as Market, PredictionDTO as Predictio
 import { components, spacing } from '@/lib/design-system'
 import { 
   MarketHeader, 
-  MarketMetrics, 
+  MarketProbability, 
   AIPredictionStats,
   PredictionReasoning,
   AIDelta, 
@@ -28,7 +28,6 @@ interface TrendingMarketsCardProps {
   latestPrediction?: Prediction | null
   href?: string | null
   hidePredictionButton?: boolean
-  hideReasoning?: boolean
 }
 
 export default function TrendingMarketsCard({
@@ -39,7 +38,6 @@ export default function TrendingMarketsCard({
   latestPrediction,
   href = null,
   hidePredictionButton = false,
-  hideReasoning = false,
 }: TrendingMarketsCardProps) {
 
   const router = useRouter()
@@ -83,15 +81,17 @@ export default function TrendingMarketsCard({
       </CardHeader>
       
       <CardContent className={`${components.card.market.content} ${components.interactive.safeArea}`}>
-        <MarketMetrics market={market} latestPrediction={latestPrediction} showProgressBar={true} />
         
-        {latestPrediction && (
-          <AIDelta 
-            market={market} 
-            latestPrediction={latestPrediction} 
-            hideReasoning={hideReasoning} 
-          />
-        )}
+        <div className={components.cardContent.row}>
+          <MarketProbability market={market} latestPrediction={latestPrediction} showProgressBar={true} />
+
+          {latestPrediction && (
+            <AIDelta 
+              market={market} 
+              latestPrediction={latestPrediction} 
+            />
+          )}
+        </div>
         
         <MarketCTA 
           market={market}

@@ -61,7 +61,6 @@ export default async function PredictionDetailPage({ params }: PageProps) {
               event={eventDTO}
               latestPrediction={prediction}
               className="w-full"
-              hideReasoning={true}
             />
           )}
 

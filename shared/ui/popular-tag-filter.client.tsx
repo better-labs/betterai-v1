@@ -38,7 +38,7 @@ export function TagFilter({ selectedTag, onTagChange }: TagFilterProps) {
           variant={selectedTag === null ? "default" : "outline"}
           size="sm"
           onClick={() => onTagChange(null)}
-          className={components.tagFilter.height}
+          className={components.tagFilter.buttonHeight}
         >
           All Categories
         </Button>
@@ -49,7 +49,7 @@ export function TagFilter({ selectedTag, onTagChange }: TagFilterProps) {
             variant={selectedTag === tag.label ? "default" : "outline"}
             size="sm"
             onClick={() => onTagChange(tag.label)}
-            className={components.tagFilter.height}
+            className={components.tagFilter.buttonHeight}
           >
             {tag.label}
             {selectedTag === tag.label && (

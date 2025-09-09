@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button"
 import { Stat } from "@/shared/ui/stat"
 import { EventIcon } from "@/shared/ui/event-icon"
 import { ViewAllLink } from "@/shared/ui/view-all-link"
-import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
+import { StatsDisplaySection, SingleStatDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { components, spacing, typography } from '@/lib/design-system'
 import { formatPercent } from '@/lib/utils'
 import { isMarketOpenForBetting } from '@/lib/utils/market-status'
@@ -23,7 +23,7 @@ export interface MarketHeaderProps {
   showActiveStatus?: boolean
 }
 
-export interface MarketMetricsProps {
+export interface MarketProbabilityProps {
   market: Market
   latestPrediction?: Prediction | null
   showProgressBar?: boolean
@@ -32,7 +32,6 @@ export interface MarketMetricsProps {
 export interface AIDeltaProps {
   market: Market
   latestPrediction: Prediction
-  hideReasoning?: boolean
 }
 
 export interface MarketCTAProps {
@@ -56,7 +55,6 @@ export interface AIPredictionStatsProps {
 
 export interface PredictionReasoningProps {
   latestPrediction: Prediction
-  hideReasoning?: boolean
 }
 
 // ============================================================================
@@ -106,7 +104,7 @@ export function MarketHeader({ market, event, href, showActiveStatus = false }: 
 // MARKET METRICS COMPONENT
 // ============================================================================
 
-export function MarketMetrics({ market, latestPrediction, showProgressBar = true }: MarketMetricsProps) {
+export function MarketProbability({ market, latestPrediction, showProgressBar = true }: MarketProbabilityProps) {
   const marketStats = (market.outcomes || []).map((outcome, index) => ({
     label: outcome,
     value: market.outcomePrices?.[index] || null
@@ -114,8 +112,8 @@ export function MarketMetrics({ market, latestPrediction, showProgressBar = true
 
   return (
     // Market metrics stats
-    <div className={components.metrics.row}>
-      <div className={components.metrics.stat}>
+  
+      <div  data-debug-id="market-probability">
         <Link href={`/market/${market.id}`} className="block hover:opacity-80 transition-opacity">
           <StatsDisplaySection
             title="Market Probability"
@@ -126,7 +124,7 @@ export function MarketMetrics({ market, latestPrediction, showProgressBar = true
       </div>
         
     
-    </div>
+    
   )
 }
 
@@ -157,8 +155,8 @@ export function AIPredictionStats({ latestPrediction, showProgressBar = true }: 
 // PREDICTION REASONING COMPONENT  
 // ============================================================================
 
-export function PredictionReasoning({ latestPrediction, hideReasoning = false }: PredictionReasoningProps) {
-  if (!latestPrediction?.predictionResult?.reasoning || hideReasoning) {
+export function PredictionReasoning({ latestPrediction }: PredictionReasoningProps) {
+  if (!latestPrediction?.predictionResult?.reasoning) {
     return null
   }
 
@@ -196,15 +194,15 @@ function ExpandableReasoning({ reasoning }: ExpandableReasoningProps) {
 // AI DELTA COMPONENT
 // ============================================================================
 
-export function AIDelta({ market, latestPrediction, hideReasoning = false }: AIDeltaProps) {
+export function AIDelta({ market, latestPrediction }: AIDeltaProps) {
   const delta = computeDeltaFromArrays(market.outcomePrices ?? null, latestPrediction.outcomesProbabilities ?? null)
 
   return (
     <Link 
       href={`/prediction/${latestPrediction.id}`}
-      className={`${components.metrics.row} hover:opacity-80 transition-opacity ${components.interactive.focus}`}
+      className={` hover:opacity-80 transition-opacity ${components.interactive.focus}`}
     >
-      <div className={components.metrics.stat}>
+      {/* <div className={components.metrics.stat}>
         <Stat
           label="AI Delta"
           value={delta != null ? formatPercent(delta) : '—'}
@@ -213,11 +211,14 @@ export function AIDelta({ market, latestPrediction, hideReasoning = false }: AID
           density="compact"
           align="left"
         />
-      </div>
-      <PredictionReasoning 
-        latestPrediction={latestPrediction}
-        hideReasoning={hideReasoning}
+      </div> */}
+      <SingleStatDisplaySection
+        title="AI Delta"
+        label="Delta"
+        value={delta}
       />
+      
+     
     </Link>
   )
 }
