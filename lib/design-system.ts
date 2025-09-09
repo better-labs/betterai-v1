@@ -489,7 +489,7 @@ export const components = {
   // Tag filter buttons
   tagFilter: {
     // Button height for compact tag buttons
-    height: 'h-4',
+    buttonHeight: 'h-10',
   },
 
   // Statistical data displays (outcomes, predictions, metrics)

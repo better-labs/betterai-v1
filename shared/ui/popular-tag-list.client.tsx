@@ -32,7 +32,7 @@ export function PopularTagsList({
           variant={selectedTagId === null ? "default" : "outline"}
           size="sm"
           onClick={() => onTagSelect(null)}
-          className={`${components.tagFilter.height} px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation`}
+          className={`${components.tagFilter.buttonHeight} px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation`}
         >
           All
         </Button>
@@ -44,7 +44,7 @@ export function PopularTagsList({
             variant={selectedTagId === tag.id ? "default" : "outline"}
             size="sm"
             onClick={() => onTagSelect(tag.id)}
-            className={`${components.tagFilter.height} px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation`}
+            className={`${components.tagFilter.buttonHeight} px-4 whitespace-nowrap flex-shrink-0 min-w-[44px] touch-manipulation`}
           >
             {tag.label}
           </Button>
