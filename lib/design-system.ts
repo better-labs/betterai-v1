@@ -297,7 +297,7 @@ export const components = {
     logoSection: 'flex items-center gap-12 justify-start',
     
     // Logo link layout (spacing between logo image and text)
-    logoLink: 'flex items-center space-x-2',
+    logoLink: 'flex items-center',
     
     // Logo text styling
     logoText: 'text-2xl font-bold text-foreground leading-none',
