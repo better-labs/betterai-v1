@@ -177,7 +177,7 @@ export const components = {
 
   // Card patterns
   card: {
-    base: 'bg-card dark:bg-gradient-to-b dark:from-[hsl(220_15%_14%)] dark:to-[hsl(220_15%_10%)] border border-border rounded-lg shadow-sm',
+    base: 'bg-card dark:bg-[#121212] border border-border dark:border-[hsl(220_15%_25%)] rounded-lg shadow-sm',
     hover: 'hover:shadow-md transition-shadow duration-200',
     
     // Market card specific patterns
@@ -454,7 +454,7 @@ export const components = {
   },
 
   cardContent: {
-    row: 'grid grid-cols-2 gap-4',
+    row: 'grid grid-cols-[1fr_auto] gap-4',
   },
 
   // Metrics layout group for side-by-side comparisons

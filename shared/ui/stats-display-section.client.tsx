@@ -22,7 +22,7 @@ interface StatsDisplaySectionProps {
 export function StatsDisplaySection({
   title,
   stats,
-  formatValue = (value) => value ? `${Math.round(value * 100)}%` : '--',
+  formatValue = (value) => value !== null ? `${Math.round(value * 100)}%` : '--',
   showProgressBars = true,
   className = ''
 }: StatsDisplaySectionProps) {
@@ -75,7 +75,7 @@ interface SingleStatDisplaySectionProps {
 export function SingleStatDisplaySection({
   title,
   value,
-  formatValue = (value: number | null) => value ? `${Math.round(value * 100)}%` : '--',
+  formatValue = (value: number | null) => value !== null ? `${Math.round(value * 100)}%` : '--',
   className = ''
 }: SingleStatDisplaySectionProps) {
   return (
