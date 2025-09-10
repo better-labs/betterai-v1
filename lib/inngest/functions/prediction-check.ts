@@ -21,7 +21,7 @@ import { structuredLogger } from '../../utils/structured-logger'
 export const predictionCheck = inngest.createFunction(
   { 
     id: 'prediction-check',
-    name: 'Prediction Check: (Daily 3:30 AM)',
+    name: 'Predictions Check: (Daily 3:30 AM)',
     retries: 3,
   },
   { 
