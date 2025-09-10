@@ -88,6 +88,8 @@ export function getMarketStatusFilter(statusFilter: 'active' | 'resolved' | 'all
 export function getOpenMarketsDatabaseFilter(options?: {
   /** Include markets ending within this many days (default: no time limit) */
   maxDaysUntilEnd?: number
+  /** Include markets that ended within this many days ago (default: 0 - only future markets) */
+  lookbackDays?: number
 }) {
   const now = new Date()
   const filters: any[] = [
@@ -105,11 +107,15 @@ export function getOpenMarketsDatabaseFilter(options?: {
     ]
   })
   
-  // Exclude markets with past endDate  
+  // Exclude markets with past endDate (with optional lookback period)
+  const minEndDate = options?.lookbackDays 
+    ? new Date(Date.now() - options.lookbackDays * 24 * 60 * 60 * 1000)
+    : now
+  
   timeFilters.push({
     OR: [
       { endDate: null },
-      { endDate: { gt: now } }
+      { endDate: { gt: minEndDate } }
     ]
   })
 

@@ -72,8 +72,21 @@ export async function getTopMarketsByVolumeAndEndDate(
       }
     }
 
+    // Calculate 72 hours ago for prediction filtering
+    const seventyTwoHoursAgo = new Date(Date.now() - 72 * 60 * 60 * 1000)
+
     const topMarkets = await prisma.market.findMany({
-      where: whereClause,
+      where: {
+        ...whereClause,
+        // Exclude markets that have predictions created in the past 72 hours
+        predictions: {
+          none: {
+            createdAt: {
+              gte: seventyTwoHoursAgo,
+            },
+          },
+        },
+      },
       orderBy: { volume: 'desc' },
       take: config.topMarketsCount,
       select: {
@@ -188,6 +201,8 @@ export async function runBatchPredictionGeneration(
     
     // Get top markets by volume and event end date
     const topMarkets = await getTopMarketsByVolumeAndEndDate(config)
+    
+    console.log(`Found ${topMarkets.length} markets from getTopMarketsByVolumeAndEndDate (requested: ${config.topMarketsCount})`)
     
     if (topMarkets.length === 0) {
       console.log('No markets found matching the criteria')

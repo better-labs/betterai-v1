@@ -5,7 +5,8 @@ import { processAndUpsertPolymarketBatch } from './polymarket-batch-processor'
 import { getOpenMarketsDatabaseFilter } from '@/lib/utils/market-status'
 
 /**
- * Updates only active Polymarket events (where end_date > NOW()) and their markets
+ * Updates active Polymarket events and recently ended events to catch status changes
+ * Includes events ending within next 45 days AND events that ended in past 7 days
  */
 export async function updateActivePolymarketEvents(options: {
   delayMs?: number,
@@ -31,16 +32,21 @@ export async function updateActivePolymarketEvents(options: {
 
 
   const maxDaysUntilEnd = 45
+  const lookbackDays = 7  // Include events that ended up to 7 days ago to catch recently closed markets
   // Find all events with markets and filter for truly open markets
-  // Only include events ending within the next 30 days for performance
+  // Include events ending within the next 45 days AND events that ended in the past 7 days
   const eventsWithMarkets = await prisma.event.findMany({
     where: {
       marketProvider: 'Polymarket',
       endDate: {
-        lte: new Date(Date.now() + maxDaysUntilEnd * 24 * 60 * 60 * 1000) 
+        gte: new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000), // 7 days ago
+        lte: new Date(Date.now() + maxDaysUntilEnd * 24 * 60 * 60 * 1000) // 45 days future
       },
       markets: {
-        some: getOpenMarketsDatabaseFilter({ maxDaysUntilEnd: maxDaysUntilEnd })
+        some: getOpenMarketsDatabaseFilter({ 
+          maxDaysUntilEnd: maxDaysUntilEnd,
+          lookbackDays: lookbackDays
+        })
       }
     },
     select: {
@@ -68,7 +74,7 @@ export async function updateActivePolymarketEvents(options: {
     endDate: event.endDate
   }))
 
-  console.log(`Found ${activeEvents.length} active events to update`)
+  console.log(`Found ${activeEvents.length} events to update (including recently ended events from past ${lookbackDays} days)`)
 
   if (activeEvents.length === 0) {
     return {

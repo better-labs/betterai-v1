@@ -117,13 +117,14 @@ export const polymarketDataUpdate = inngest.createFunction(
 // - Reduced complexity in this file
 
 /**
- * Update active events - runs every 3 hours
+ * Update active and recently ended events - runs every 3 hours
+ * Includes events ending within next 45 days AND events that ended in past 7 days
  * Replaces: /api/cron/update-active-events (schedule: "15 star/3 star star star")
  */
 export const polymarketUpdateActiveEvents = inngest.createFunction(
   { 
     id: 'polymarket-update-active-events',
-    name: 'Polymarket Data Update: Active Events (Every 3 Hours)',
+    name: 'Polymarket Data Update: Active & Recently Ended Events (Every 3 Hours)',
     retries: 3,
   },
   { 
