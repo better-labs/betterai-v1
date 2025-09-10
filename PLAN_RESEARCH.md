@@ -4,24 +4,16 @@
 
 This document outlines the enhanced market research system for BetterAI's prediction pipeline. The system enables users to select from multiple research sources (Exa.ai, Grok, Google/Bing) during prediction setup, with research results cached and shared across all selected AI models in a session.
 
-## User Requirements (Confirmed)
+## User Requirements
 
 - **Research Source Selection**: During initial prediction setup alongside AI model selection
 - **Research Scope**: Per-session (one research phase for all selected models), results reused across predictions  
-- **Research Sources Priority**: Phase 1: Exa.ai, Phase 2: Grok/Perplexity, Phase 3: Google/Bing APIs
+- **Research Sources Priority**: Phase 1: Exa.ai & X (Twitter) via Grok AI, Phase 2: Google/Bing APIs
 - **UI Flow**: Radio button selection (single choice) similar to current AI model selection with cost display
-- **Architecture Choice**: Option A - Enhanced Session Flow (selected for easy implementation + maximum flexibility)
+- **Architecture Choice**: Enhanced Session Flow (selected for easy implementation + maximum flexibility)
 
 ## System Architecture
 
-### Option A: Enhanced Session Flow (Selected)
-**Rationale**: Builds on existing infrastructure while providing maximum flexibility for future expansion.
-
-**Why Option A over B/C:**
-- **Easy Initial Implementation**: Builds directly on existing `prediction-session-worker.ts` and `RESEARCHING` status
-- **Maximum Future Flexibility**: Clean separation allows easy expansion to per-model research later
-- **User Experience Continuity**: Natural extension of current AI model selection flow
-- **Cost-Effective Development**: Leverages existing tRPC procedures, caching, and design system
 
 **Key Benefits:**
 - Extends current `prediction-session-worker.ts` flow
@@ -72,22 +64,22 @@ export const RESEARCH_SOURCES = [
   {
     id: 'exa',
     name: 'Exa.ai',
-    description: 'Advanced semantic search optimized for recent developments',
+    description: 'Advanced web search optimized for recent developments',
     provider: 'Exa.ai',
-    creditCost: 2, // Higher cost for premium semantic search
+    creditCost: 1, // Hiogher cost for premium semantic search
     available: true
   },
   {
-    id: 'current',
-    name: 'OpenRouter Web Search',  
-    description: 'Current web search via OpenRouter (existing functionality)',
-    provider: 'OpenRouter',
-    creditCost: 1,
+    id: 'grok',
+    name: 'X (Twitter)',
+    description: 'X (Twitter) realtime market research via Grok AI',
+    provider: 'Grok AI',
+    creditCost: 2,
     available: true
   }
   // Phase 2 additions:
-  // { id: 'grok', name: 'Grok AI Search', ... }
   // { id: 'google', name: 'Google Search API', ... }
+  // { id: 'bing', name: 'Bing Search API', ... }
 ] as const
 ```
 
@@ -101,7 +93,7 @@ export const RESEARCH_SOURCES = [
 // Extends existing model selection with research source selection
 export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
   const [selectedModels, setSelectedModels] = useState<string[]>([])
-  const [selectedResearchSource, setSelectedResearchSource] = useState<string>('current') // NEW
+  const [selectedResearchSource, setSelectedResearchSource] = useState<string>('exa') // NEW - Default to Exa.ai
   
   // Total cost calculation includes research source cost
   const totalCost = selectedModels.reduce((cost, modelId) => {
@@ -189,7 +181,7 @@ export function ResearchSourceSelectionCard({
 #### Enhanced Research Service
 
 ```typescript
-// lib/services/enhanced-research-service.ts
+// lib/services/research/enhanced-research-service.ts
 import { RESEARCH_SOURCES } from '@/lib/config/research-sources'
 
 export interface ResearchResult {
@@ -210,9 +202,8 @@ export async function performEnhancedMarketResearch(
   switch (researchSource) {
     case 'exa':
       return await performExaResearch(marketId, modelName)
-    case 'current':
-      // Use existing market-research-service.ts functionality
-      return await performCurrentResearch(marketId, modelName)
+    case 'grok':
+      return await performGrokResearch(marketId, modelName)
     default:
       throw new Error(`Unsupported research source: ${researchSource}`)
   }
@@ -226,12 +217,54 @@ async function performExaResearch(marketId: string, modelName?: string): Promise
   // 4. Process and format results
   // 5. Cache results via research-cache-service
 }
+
+async function performGrokResearch(marketId: string, modelName?: string): Promise<ResearchResult> {
+  // Phase 1: Implement X (Twitter) realtime research via Grok AI
+  // 1. Get market data
+  const market = await getMarketById(prisma, marketId)
+  if (!market) throw new Error(`Market ${marketId} not found`)
+
+  // 2. Construct Twitter/X search query for realtime sentiment  
+  const systemMessage = `You are a research assistant specialized in X (Twitter) analysis...`
+  const userMessage = `Please search X (Twitter) for the latest information regarding: ${market.question}...`
+  
+  // 3. Call OpenRouter with x-ai/grok-4 model for X data analysis
+  const grokModel = 'x-ai/grok-4' // Specific Grok 4 model for X/Twitter access
+  const researchResult = await fetchStructuredFromOpenRouter<ResearchResult>(
+    grokModel,
+    systemMessage,
+    userMessage,
+    researchSchemaJson,
+    researchZod,
+    true // Enable X/Twitter search
+  )
+  
+  // 4. Process and format results with social sentiment context
+  // 5. Cache results via research-cache-service
+  await createResearchCache(prisma, {
+    marketId,
+    source: 'grok',
+    modelName: grokModel,
+    systemMessage,
+    userMessage,
+    response: researchResult
+  })
+
+  return {
+    source: 'grok',
+    relevant_information: researchResult.relevant_information,
+    links: researchResult.links,
+    timestamp: new Date()
+  }
+}
 ```
 
 #### Session Worker Integration
 
 ```typescript
 // lib/services/prediction-session-worker.ts (Enhanced)
+import { performEnhancedMarketResearch } from '@/lib/services/research/enhanced-research-service'
+
 export async function executePredictionSession(
   db: DbClient,
   sessionId: string
@@ -410,24 +443,33 @@ PredictionSession {
 - Database schema updates with migration
 - Enhanced research service structure  
 - Basic Exa.ai integration
+- **Testing**: Write minimal vitests for research service functions
 
 **Week 3-4: UI Integration**
 - Radio group component creation
 - Research source selection card
 - Cost calculation updates
 - Design system token additions
+- **Testing**: Write minimal vitests for UI components
 
 **Week 5-6: Session Flow**
 - Prediction session worker enhancements
 - Research phase integration
 - Error handling and fallbacks
+- **Testing**: Write minimal vitests for session worker integration
 - Testing and refinement
 
+**Week 7: Phase 1 Cleanup**
+- Remove `lib/services/market-research-service.ts`
+- Remove `scripts/3-generate-market-research.ts`
+- Update all references to use new research service architecture
+- Final integration testing and deployment preparation
+
 **Phase 2 (Future): Advanced Features**
-- Grok AI integration
 - Google/Bing API integration
 - Multi-source research blending
 - Per-model research configuration
+- Advanced sentiment analysis combining sources
 
 ## Success Metrics
 
@@ -442,6 +484,35 @@ PredictionSession {
 - User satisfaction with research quality
 - Cost efficiency of research vs prediction value
 - Research result cache hit rates
+
+## Testing Strategy
+
+### Minimal Vitest Requirements
+After each major code addition, write focused unit tests covering:
+
+**Research Services** (`lib/services/research/`):
+- `performEnhancedMarketResearch` - Route selection logic
+- `performExaResearch` - API integration and response formatting
+- `performGrokResearch` - X/Twitter search and sentiment analysis using `x-ai/grok-4` model via OpenRouter
+- Error handling and fallback scenarios
+
+**UI Components** (`features/prediction/` & `shared/ui/`):
+- `ResearchSourceSelectionCard` - Radio button interactions
+- `RadioGroup` components - Selection state management
+- Cost calculation with research sources
+- Loading states during research phase
+
+**Session Worker Integration**:
+- Research phase execution within prediction sessions
+- Research result caching and retrieval
+- Error recovery when research fails
+- Research context passing to prediction generation
+
+**Test Principles**:
+- Keep tests lightweight and fast-running
+- Mock external API calls (Exa, Grok)
+- Focus on critical business logic paths
+- Use existing test patterns from the codebase
 
 ## Risk Mitigation
 
