@@ -33,31 +33,43 @@ All 3 test markets working successfully:
 Exa.ai now returns relevant betting odds and predictions (Vegas Insider, Covers.com)
 Grok provides real-time social sentiment with key accounts and percentages
 
+### ✅ Additional Completed in This Session
+6. **Multi-Source Architecture Implementation** - Enhanced to support multiple research sources
+   - Updated tRPC schema to require array of research sources (`selectedResearchSources`)
+   - Modified UI to use checkbox selection (multiple sources required)
+   - Enhanced cost calculation to handle multiple sources
+   - Updated Inngest worker and session service to process multiple sources
+   - Maintained junction table benefits for future analytics and research reuse
+
 ### 🚀 Next TODOs (Priority Order)
 1. **Write vitests for research service integrations** (Started but not completed)
    - Mock Exa.ai API responses
    - Mock Grok/OpenRouter responses
    - Test cache functionality
    - Test error handling
+   - Test multi-source processing
 
-2. **Create Radio Group UI Component**
-   - Build `shared/ui/radio-group.tsx` from existing patterns
-   - Follow design system conventions
+2. **COMPLETED** ✅ **Create Radio Group UI Component** → **Enhanced to Checkbox Group**
+   - Built `shared/ui/radio-group.tsx` (now supports both patterns)
+   - Follows design system conventions
 
-3. **Create Research Source Selection Card**
-   - Build `features/prediction/research-source-selection-card.client.tsx`
-   - Integrate with radio group component
-   - Show credit costs per source
+3. **COMPLETED** ✅ **Create Research Source Selection Card** → **Enhanced for Multi-Source**
+   - Built `features/prediction/research-source-selection-card.client.tsx`
+   - Uses checkbox group for multiple source selection
+   - Shows credit costs per source with total calculation
+   - Includes "Select All" functionality with minimum one source requirement
 
-4. **Update Prediction Generator**
-   - Create `prediction-generator-v2.client.tsx` (copy from existing)
-   - Add research source selection
+4. **COMPLETED** ✅ **Update Prediction Generator** → **Enhanced for Multi-Source**
+   - Created `prediction-generator-v2.client.tsx`
+   - Multiple research source selection
+   - Enhanced cost breakdown showing models + research sources
    - Pass research context to predictions
 
-5. **Update tRPC Schemas and Routers**
-   - Add `selectedResearchSource` to StartPredictionSessionInput
-   - Update session creation to include research source
-   - Calculate total cost including research
+5. **COMPLETED** ✅ **Update tRPC Schemas and Routers** → **Enhanced for Multi-Source**
+   - Added `selectedResearchSources` (array) to StartPredictionSessionInput
+   - Updated session creation to handle multiple research sources
+   - Enhanced cost calculation including multiple research sources
+   - Added validation for each selected research source
 
 ### 💡 Important Notes for Next Session
 - Cache duration is now 12 hours (not 1 hour)
@@ -78,7 +90,7 @@ This document outlines the enhanced market research system for BetterAI's predic
 - **Research Source Selection**: During initial prediction setup alongside AI model selection
 - **Research Scope**: Per-session (one research phase for all selected models), results reused across predictions  
 - **Research Sources Priority**: Phase 1: Exa.ai & X (Twitter) via Grok AI, Phase 2: Google/Bing APIs
-- **UI Flow**: Radio button selection (single choice) similar to current AI model selection with cost display
+- **UI Flow**: Checkbox selection (multiple choice, minimum one required) similar to current AI model selection with cost display
 - **Architecture Choice**: Enhanced Session Flow (selected for easy implementation + maximum flexibility)
 
 ## System Architecture

@@ -548,6 +548,40 @@ export const components = {
     },
   },
 
+  // Research source selection patterns
+  researchSelection: {
+    // Container for research source options
+    container: 'space-y-4',
+    // Individual source option styling
+    sourceOption: 'flex items-start space-x-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors',
+    // Source content container
+    sourceContent: 'flex-1 min-w-0',
+    // Header section with name/provider and cost badge
+    sourceHeader: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1',
+    // Source name styling
+    sourceName: 'font-medium text-sm',
+    // Provider name styling
+    sourceProvider: 'text-xs text-muted-foreground',
+    // Source description styling
+    sourceDescription: 'text-xs text-muted-foreground mt-1',
+    // Cost badge alignment
+    sourceCost: 'text-xs w-fit'
+  },
+
+  // Cost summary enhancements for research sources
+  costBreakdown: {
+    // Container for cost breakdown display
+    container: 'p-3 bg-muted rounded-lg space-y-2',
+    // Individual cost row
+    row: 'flex justify-between items-center text-sm',
+    // Cost label styling
+    label: 'text-muted-foreground',
+    // Cost value styling
+    value: 'font-medium',
+    // Total cost styling with emphasis
+    total: 'border-t pt-2 mt-2 font-semibold'
+  },
+
 } as const;
 
 // ============================================================================

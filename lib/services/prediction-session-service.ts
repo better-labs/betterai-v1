@@ -41,6 +41,7 @@ export interface CreatePredictionSessionInput {
   userId: string
   marketId: string
   selectedModels: string[]
+  selectedResearchSources: string[]
 }
 
 export interface CreatePredictionSessionWithInngestInput extends CreatePredictionSessionInput {
@@ -79,7 +80,8 @@ export async function createPredictionSession(
           sessionId: session.id,
           userId: sessionData.userId,
           marketId: sessionData.marketId,
-          selectedModels: sessionData.selectedModels
+          selectedModels: sessionData.selectedModels,
+          selectedResearchSources: sessionData.selectedResearchSources
         }
       })
 
