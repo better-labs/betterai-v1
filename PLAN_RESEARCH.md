@@ -26,35 +26,59 @@ This document outlines the enhanced market research system for BetterAI's predic
 
 ### Database Schema Changes
 
+**Key Architecture Decision**: Many-to-many relationship via junction table for maximum flexibility
+
 ```prisma
 model PredictionSession {
-  id                   String                  @id @default(cuid())
-  userId               String                  @map("user_id")
-  marketId             String                  @map("market_id")
-  selectedModels       String[]                @map("selected_models")
-  selectedResearchSource String?               @map("selected_research_source") // NEW
-  researchResults      Json?                   @map("research_results") // NEW
-  status               PredictionSessionStatus @default(INITIALIZING)
-  step                 String?
-  error                String?
-  createdAt            DateTime                @default(now()) @map("created_at")
-  completedAt          DateTime?               @map("completed_at")
+  id              String                              @id @default(cuid())
+  userId          String                              @map("user_id")
+  marketId        String                              @map("market_id")
+  selectedModels  String[]                            @map("selected_models")
+  status          PredictionSessionStatus             @default(INITIALIZING)
+  step            String?
+  error           String?
+  createdAt       DateTime                            @default(now()) @map("created_at")
+  completedAt     DateTime?                           @map("completed_at")
+  researchCache   PredictionSessionResearchCache[]    // NEW: Many-to-many relationship
   
   // ... existing relations
 }
 
 model ResearchCache {
-  id            Int       @id @default(autoincrement())
-  marketId      String?   @map("market_id")
-  source        String    @map("source") // NEW: "exa", "grok", "google", "bing"
-  modelName     String    @map("model_name") // Keep for backward compatibility
-  systemMessage String?   @map("system_message")
-  userMessage   String    @map("user_message")
-  response      Json?
-  createdAt     DateTime? @default(now()) @map("created_at")
-  market        Market?   @relation(fields: [marketId], references: [id])
+  id                 Int                              @id @default(autoincrement())
+  marketId           String?                          @map("market_id")
+  source             String                           @map("source") // NEW: "exa", "grok", "google", "bing"
+  modelName          String                           @map("model_name") // Keep for backward compatibility
+  systemMessage      String?                          @map("system_message")
+  userMessage        String                           @map("user_message")
+  response           Json?
+  createdAt          DateTime?                        @default(now()) @map("created_at")
+  market             Market?                          @relation(fields: [marketId], references: [id])
+  predictionSessions PredictionSessionResearchCache[] // NEW: Many-to-many relationship
+}
+
+// NEW: Junction table enabling flexible research relationships
+model PredictionSessionResearchCache {
+  id                  String            @id @default(cuid())
+  predictionSessionId String            @map("prediction_session_id")
+  researchCacheId     Int               @map("research_cache_id")
+  usedInGeneration    Boolean           @default(true) @map("used_in_generation") // Was this research actually used?
+  createdAt           DateTime          @default(now()) @map("created_at")
+  
+  predictionSession   PredictionSession @relation(fields: [predictionSessionId], references: [id], onDelete: Cascade)
+  researchCache       ResearchCache     @relation(fields: [researchCacheId], references: [id], onDelete: Cascade)
+
+  @@unique([predictionSessionId, researchCacheId])
+  @@map("prediction_session_research_cache")
 }
 ```
+
+**Benefits of Many-to-Many Architecture**:
+- **Future Multi-Source Support**: Sessions can use multiple research sources (Exa + Grok)
+- **Research Reuse**: Same research cached across multiple user sessions  
+- **Session Independence**: Sessions remain independent of research availability
+- **Research Analytics**: Track which research sources improve prediction accuracy
+- **Quality Control**: `usedInGeneration` flag tracks actual research usage vs availability
 
 ### Environment Variables
 
@@ -99,7 +123,9 @@ export const RESEARCH_SOURCES = [
 
 #### Research Source Selection (Radio Button Pattern)
 
-**Location**: `features/prediction/prediction-generator.client.tsx`
+**IMPORTANT**: All UX enhancements must use v2 pages to avoid impacting production flow during deployment.
+
+**Location**: `features/prediction/prediction-generator-v2.client.tsx` (NEW - Copy from existing)
 
 ```typescript
 // Extends existing model selection with research source selection
@@ -137,6 +163,12 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
 - Loading states via existing `shared/ui/loading.tsx`
 
 #### Research Source Selection Card
+
+**Non-Breaking Deployment Strategy:**
+- Create `prediction-generator-v2` page alongside existing production page
+- Test research integration thoroughly in v2 environment
+- Once stable, gradually migrate production traffic or swap implementations
+- Maintain backward compatibility with existing prediction flow
 
 ```typescript
 // features/prediction/research-source-selection-card.client.tsx
@@ -471,24 +503,35 @@ export const components = {
 
 ## Phase 2+ Expansion Plan
 
-### Multi-Source Support
+### Multi-Source Support (Already Enabled!)
+The many-to-many architecture naturally supports multiple research sources per session:
+
 ```typescript
-// Future expansion - backward compatible
-PredictionSession {
-  selectedResearchSources: string[] // Multiple sources
-  researchConfig: {
-    sources: string[]
-    perModelOverrides?: Record<string, string[]>
-    qualityThreshold?: number
-  }
+// Phase 2: Multiple sources per session (no schema changes needed!)
+// UI simply creates multiple PredictionSessionResearchCache records
+const sessionWithMultipleSources = {
+  researchCache: [
+    { researchCache: { source: 'exa', response: { ... } }, usedInGeneration: true },
+    { researchCache: { source: 'grok', response: { ... } }, usedInGeneration: true }
+  ]
+}
+
+// Phase 3: Advanced research configuration  
+interface ResearchConfig {
+  sources: string[]
+  perModelOverrides?: Record<string, string[]>
+  qualityThreshold?: number
+  blendingStrategy?: 'combine' | 'best' | 'weighted'
 }
 ```
 
-### Advanced Research Features
-- **Research Quality Scoring**: Confidence metrics for research results
-- **Source Blending**: Combine results from multiple sources
-- **Per-Model Research**: Custom research sources per AI model
-- **Research Templates**: Pre-configured research strategies by market type
+### Advanced Research Features (Enabled by Junction Table)
+- **Research Quality Scoring**: Track accuracy improvements per research source
+- **Source Blending**: Intelligent combination of multiple research results
+- **Per-Model Research**: Different research sources optimized for different AI models
+- **Research Templates**: Pre-configured strategies based on market categories
+- **Usage Analytics**: `usedInGeneration` flag enables A/B testing of research effectiveness
+- **Research History**: Full audit trail of which research influenced which predictions
 
 ## Implementation Timeline
 

@@ -159,6 +159,13 @@ Uses Prisma's official migration workflow. Cleaner approach - lets Prisma handle
 Use `pnpm run db:migrate:` commands where possible.
 Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
 
+### Database Migrations
+- Use Prisma's official migration workflow. Cleaner approach - lets Prisma handle everything
+- **CRITICAL**: Do NOT use `prisma db push` unless explicitly requested by the user. Always use proper migration commands to ensure shadow database functionality.
+- Use `pnpm run db:migrate:` commands where possible.
+- Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
+- If you run into Database timeout or advisory lock issues, just pause 30s, in order for the lock to clear, then continue.
+
 **Shadow Database Requirement**: The project uses a schema-based shadow database (`betterai_shadow` schema) for migration validation. This ensures:
 - Safe migration validation before applying to main database
 - Proper schema drift detection
