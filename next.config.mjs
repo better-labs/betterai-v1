@@ -44,8 +44,8 @@ const nextConfig = {
               process.env.NODE_ENV === 'development'
                 ? [
                     "default-src 'self'",
-                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http: data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com",
-                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://auth.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
+                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http: data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com https://auth.privy.io",
+                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://tagmanager.google.com https://auth.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
                     "style-src 'self' 'unsafe-inline' https: http: https://fonts.googleapis.com",
                     "img-src 'self' data: https: blob:",
                     "font-src 'self' data: https://fonts.gstatic.com",
@@ -60,7 +60,7 @@ const nextConfig = {
                 : [
                     "default-src 'self'",
                     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com https://us.i.posthog.com https://us-assets.i.posthog.com https://vercel.live https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com",
-                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://auth.privy.io https://*.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
+                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://tagmanager.google.com https://auth.privy.io https://*.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                     "img-src 'self' data: https: blob:",
                     "font-src 'self' data: https://fonts.gstatic.com",

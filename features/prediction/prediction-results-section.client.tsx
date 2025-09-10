@@ -192,9 +192,14 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
                 )}
                 
                 {/* Caption for active states */}
+                {session.status === 'RESEARCHING' && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Researching and gathering the latest news and information to power your prediction.
+                  </div>
+                )}
                 {(session.status === 'QUEUED' || session.status === 'GENERATING') && (
                   <div className="text-sm text-muted-foreground mt-1">
-                    Gathering latest information and generating predictions. Usually takes 15-30 seconds.
+                    Generating your predictions now. The process sually takes 15-30 seconds.
                   </div>
                 )}
               </div>
