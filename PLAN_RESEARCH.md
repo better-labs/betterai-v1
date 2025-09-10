@@ -49,9 +49,10 @@ Grok provides real-time social sentiment with key accounts and percentages
    - Test error handling
    - Test multi-source processing
 
-2. **COMPLETED** ✅ **Create Radio Group UI Component** → **Enhanced to Checkbox Group**
-   - Built `shared/ui/radio-group.tsx` (now supports both patterns)
-   - Follows design system conventions
+2. **COMPLETED** ✅ **Create UI Components** → **Used Existing Checkbox Pattern**
+   - Leveraged existing `shared/ui/checkbox.tsx` for multi-source selection
+   - Removed unnecessary `shared/ui/radio-group.tsx` and `@radix-ui/react-radio-group` dependency
+   - Follows existing design system conventions
 
 3. **COMPLETED** ✅ **Create Research Source Selection Card** → **Enhanced for Multi-Source**
    - Built `features/prediction/research-source-selection-card.client.tsx`
@@ -239,8 +240,8 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
 ```
 
 **Reusable Components**:
-- `shared/ui/radio-group.tsx` - Create from existing toggle-group pattern
-- Design system integration using `components.toggleAction` patterns
+- `shared/ui/checkbox.tsx` - Existing component for multiple selection
+- Design system integration using `components.researchSelection` patterns
 - Loading states via existing `shared/ui/loading.tsx`
 
 #### Research Source Selection Card
