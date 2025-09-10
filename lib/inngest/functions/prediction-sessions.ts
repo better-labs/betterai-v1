@@ -78,10 +78,10 @@ export const predictionSessionProcessor = inngest.createFunction(
     // Step 3: Execute prediction session with existing worker logic
     const result = await step.run('execute-predictions', async () => {
       try {
-        // Pass research sources to worker
+        // Execute prediction session with research sources from event
         const workerResult = await executePredictionSession(
           prisma, 
-          sessionId, 
+          sessionId,
           selectedResearchSources
         )
         
@@ -183,6 +183,7 @@ export const manualSessionRecovery = inngest.createFunction(
           userId: session.userId,
           marketId: session.marketId,
           selectedModels: session.selectedModels,
+          selectedResearchSources: session.selectedResearchSources || [], // Get from session
           retryCount: 1
         }
       })
@@ -251,6 +252,7 @@ export const scheduledSessionRecovery = inngest.createFunction(
               userId: session.userId,
               marketId: session.marketId,
               selectedModels: session.selectedModels,
+              selectedResearchSources: [], // Default empty for recovery 
               retryCount: 1
             }
           })

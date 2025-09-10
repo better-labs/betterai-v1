@@ -250,20 +250,6 @@ export function MarketCTA({
         Predict with AI
       </Button>
       
-      {/* External Market Link */}
-      {externalMarketUrl && (
-        <div className="text-center">
-          <ViewAllLink
-            href={externalMarketUrl}
-            variant="base"
-            external={true}
-            className={`text-sm ${components.cardFooter.link}`}
-            data-debug-id="market-external-link"
-          >
-            Open Market on {event?.marketProvider ?? 'Polymarket'}
-          </ViewAllLink>
-        </div>
-      )}
     </div>
   )
 }

@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { RESEARCH_SOURCES, getAvailableResearchSources } from '@/lib/config/research-sources'
+import { RESEARCH_SOURCES, getAvailableResearchSources, type ResearchSourceId } from '@/lib/config/research-sources'
 
 interface ResearchSourceSelectionCardProps {
-  selectedSources: string[]
-  onSourcesChange: (sources: string[]) => void
+  selectedSources: ResearchSourceId[]
+  onSourcesChange: (sources: ResearchSourceId[]) => void
 }
 
 export function ResearchSourceSelectionCard({ 
@@ -19,20 +19,21 @@ export function ResearchSourceSelectionCard({
   const availableSources = getAvailableResearchSources()
 
   const handleSourceToggle = (sourceId: string) => {
-    if (selectedSources.includes(sourceId)) {
-      onSourcesChange(selectedSources.filter(id => id !== sourceId))
+    const typedSourceId = sourceId as ResearchSourceId
+    if (selectedSources.includes(typedSourceId)) {
+      onSourcesChange(selectedSources.filter(id => id !== typedSourceId))
     } else {
-      onSourcesChange([...selectedSources, sourceId])
+      onSourcesChange([...selectedSources, typedSourceId])
     }
   }
 
   const handleSelectAll = () => {
     if (selectedSources.length === availableSources.length) {
       // Deselect all (but keep at least one)
-      onSourcesChange([availableSources[0].id])
+      onSourcesChange([availableSources[0].id as ResearchSourceId])
     } else {
       // Select all
-      onSourcesChange(availableSources.map(source => source.id))
+      onSourcesChange(availableSources.map(source => source.id as ResearchSourceId))
     }
   }
 
@@ -63,7 +64,7 @@ export function ResearchSourceSelectionCard({
               data-debug-id={`research-source-${source.id}`}
             >
               <Checkbox
-                checked={selectedSources.includes(source.id)}
+                checked={selectedSources.includes(source.id as ResearchSourceId)}
                 onCheckedChange={() => handleSourceToggle(source.id)}
                 className="mt-0.5"
               />

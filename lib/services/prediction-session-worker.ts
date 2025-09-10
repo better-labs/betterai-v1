@@ -26,7 +26,8 @@ export interface WorkerResult {
  */
 export async function executePredictionSession(
   db: DbClient,
-  sessionId: string
+  sessionId: string,
+  selectedResearchSources?: string[]
 ): Promise<WorkerResult> {
   try {
     // Get session data
@@ -39,7 +40,10 @@ export async function executePredictionSession(
       throw new Error(`Session ${sessionId} is not in processable state: ${session.status}`)
     }
 
-    const { selectedModels, userId, marketId, selectedResearchSources } = session
+    const { selectedModels, userId, marketId } = session
+    
+    // Use research sources from parameter (Inngest event) or fall back to session data
+    const researchSources = selectedResearchSources || session.selectedResearchSources || []
     let successCount = 0
     let failureCount = 0
 
@@ -56,20 +60,20 @@ export async function executePredictionSession(
     const researchCacheIds: number[] = []
 
     // Step 1: Research phase (if research sources selected)
-    if (selectedResearchSources && selectedResearchSources.length > 0) {
+    if (researchSources && researchSources.length > 0) {
       await updatePredictionSession(db, sessionId, {
         status: 'RESEARCHING',
-        step: `Gathering research from ${selectedResearchSources.length} source(s)`
+        step: `Gathering research from ${researchSources.length} source(s)`
       })
 
       structuredLogger.info('prediction_session_research_started', `Starting research phase for session ${sessionId}`, {
         sessionId,
         marketId,
-        sources: selectedResearchSources
+        sources: researchSources
       })
 
       // Process each research source
-      for (const source of selectedResearchSources) {
+      for (const source of researchSources) {
         try {
           const researchStartTime = Date.now()
           
@@ -318,13 +322,14 @@ export async function executePredictionSession(
 export async function executePredictionSessionWithRetry(
   db: DbClient,
   sessionId: string,
+  selectedResearchSources?: string[],
   maxAttempts: number = 3
 ): Promise<WorkerResult> {
   let lastError: Error | null = null
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const result = await executePredictionSession(db, sessionId)
+      const result = await executePredictionSession(db, sessionId, selectedResearchSources)
       
       if (result.success) {
         return result

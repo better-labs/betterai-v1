@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { AI_MODELS } from '@/lib/config/ai-models'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Button } from '@/shared/ui/button'
 import {
   CheckCircle,
   AlertCircle,
@@ -141,14 +142,16 @@ export function PredictionResultCard({ model, prediction, sessionStatus, session
             {/* View Prediction Details Button */}
             {prediction.id && (
               <div className="pt-2">
-                <Link 
-                  href={`/prediction/${prediction.id}`}
-                  target="_blank"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full"
+                <Button 
+                  asChild 
+                  variant="secondary" 
+                  size="sm" 
+                  className="w-full"
                 >
-                  
-                  View Details
-                </Link>
+                  <Link href={`/prediction/${prediction.id}`}>
+                    View Prediction Details
+                  </Link>
+                </Button>
               </div>
             )}
           </div>

@@ -100,7 +100,7 @@ async function checkDatabasePermissions() {
       await pooledClient.$queryRaw`ROLLBACK`
       console.log('✅ Pooled INSERT works')
     } catch (error) {
-      console.log('❌ Pooled operation failed:', error.message)
+      console.log('❌ Pooled operation failed:', error instanceof Error ? error.message : error)
     }
 
     console.log('\nTesting unpooled connection insert...')
@@ -114,7 +114,7 @@ async function checkDatabasePermissions() {
       await unpooledClient.$queryRaw`ROLLBACK`
       console.log('✅ Unpooled INSERT works')
     } catch (error) {
-      console.log('❌ Unpooled operation failed:', error.message)
+      console.log('❌ Unpooled operation failed:', error instanceof Error ? error.message : error)
     }
 
   } catch (error) {
