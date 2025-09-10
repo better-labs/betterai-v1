@@ -200,7 +200,7 @@ Privy: User authentication
 ### Internal Services
 `generate-batch-predictions.ts`: Bulk prediction generation
 `generate-single-prediction.ts`: Individual market predictions
-`market-research-service.ts`: Web research for predictions
+`research-service-v2.ts`: Multi-source market research (Exa.ai + Grok)
 `prediction-checker.ts`: Validation and accuracy tracking
 `updatePolymarketEventsAndMarketData.ts`: Data synchronization
 
@@ -216,7 +216,7 @@ Privy: User authentication
 
 #### Legacy REST Endpoints (Maintained)
 `POST /api/predict` Generate AI prediction (authenticated)
-`POST /api/run-data-pipeline` Manual data pipeline trigger (authenticated)
+`POST /api/run-data-pipeline` Manual data pipeline trigger (authenticated) - uses research-service-v2
 
 ### Cron Job Endpoints (Authenticated)
 All cron endpoints require `CRON_SECRET` authentication via `Authorization: Bearer` header:

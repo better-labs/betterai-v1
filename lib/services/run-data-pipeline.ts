@@ -1,7 +1,8 @@
 
-import { performMarketResearch } from './market-research-service';
+import { performMarketResearchV2 } from './research/research-service-v2';
 import { generatePredictionForMarket } from './generate-single-prediction';
 import type { PredictionResult } from '../types';
+import { prisma } from '@/lib/db/prisma';
 
 interface DataPipelineResponse {
   success: boolean;
@@ -23,6 +24,7 @@ interface DataPipelineResponse {
 export async function runDataPipeline(
   marketId: string,
   modelName?: string,
+  researchSource: string = 'exa' // Default to Exa.ai for backward compatibility
 ): Promise<DataPipelineResponse> {
   try {
     if (!marketId) {
@@ -32,12 +34,13 @@ export async function runDataPipeline(
       };
     }
 
-    const researchResult = await performMarketResearch(marketId, modelName);
+    // Use new research service V2
+    const researchResult = await performMarketResearchV2(prisma, marketId, researchSource);
 
-    if (!researchResult.success || !researchResult.research) {
+    if (!researchResult.relevant_information) {
       return {
         success: false,
-        message: researchResult.message || 'Failed to get market research.',
+        message: 'Failed to get market research data.',
       };
     }
 
@@ -45,7 +48,7 @@ export async function runDataPipeline(
       marketId,
       undefined, // userId
       modelName,
-      JSON.stringify(researchResult.research),
+      researchResult.relevant_information, // Pass research text directly
     );
 
     if (!predictionResult.success) {

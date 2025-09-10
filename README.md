@@ -37,7 +37,7 @@ When a user chooses to invoke an AI prediction, the following data pipeline is t
 
 2.  **AI-Powered Data Source Identification**: The application then makes an initial call to a powerful AI model (e.g., a leading model on OpenRouter). The purpose of this call is not to predict the outcome, but to ask a meta-question: *"Given this prediction market, what types of data, datasets, and information sources would be most valuable for making an accurate prediction?"* The AI's response guides the next steps of data gathering.
 
-3.  **Targeted Information Retrieval**: Based on the AI's recommendation, the `market-research-service` is invoked. This service performs a targeted search across the web and other specified data sources to gather the latest and most relevant information.
+3.  **Targeted Information Retrieval**: Based on the AI's recommendation, the `research-service-v2` is invoked. This service performs multi-source research using Exa.ai semantic search and Grok X/Twitter analysis to gather the latest and most relevant information.
 
 4.  **Optional Real-time Web Crawl (Future)**: An optional step may be added to perform a real-time web crawl of specific, high-value URLs identified in the previous step. This would provide the most up-to-the-minute information possible.
 

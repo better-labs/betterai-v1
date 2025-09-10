@@ -15,6 +15,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Loader2, AlertCircle, Coins } from 'lucide-react'
 import { components } from '@/lib/design-system'
 import { ResearchSourceSelectionCard } from './research-source-selection-card.client'
+import type { ResearchSourceId } from '@/lib/config/research-sources'
 
 interface PredictionGeneratorV2Props {
   marketId: string
@@ -22,7 +23,7 @@ interface PredictionGeneratorV2Props {
 
 export function PredictionGeneratorV2({ marketId }: PredictionGeneratorV2Props) {
   const [selectedModels, setSelectedModels] = useState<string[]>([])
-  const [selectedResearchSources, setSelectedResearchSources] = useState<string[]>(['exa']) // Default to Exa.ai
+  const [selectedResearchSources, setSelectedResearchSources] = useState<ResearchSourceId[]>(['exa']) // Default to Exa.ai
   const [isGenerating, setIsGenerating] = useState(false)
   const router = useRouter()
   const { user, isAuthenticated, isReady } = useUser()
