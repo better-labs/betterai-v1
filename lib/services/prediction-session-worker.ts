@@ -36,7 +36,7 @@ export async function executePredictionSession(
       throw new Error(`Session not found: ${sessionId}`)
     }
 
-    if (!['INITIALIZING', 'RESEARCHING', 'GENERATING'].includes(session.status)) {
+    if (!['QUEUED', 'INITIALIZING', 'RESEARCHING', 'GENERATING'].includes(session.status)) {
       throw new Error(`Session ${sessionId} is not in processable state: ${session.status}`)
     }
 

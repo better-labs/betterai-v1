@@ -67,11 +67,10 @@ export const predictionSessionProcessor = inngest.createFunction(
       return session
     })
 
-    // Step 2: Update session to GENERATING status
-    await step.run('update-session-generating', async () => {
+    // Step 2: Initialize session for processing (status will be updated by worker)
+    await step.run('initialize-session-processing', async () => {
       await updatePredictionSession(prisma, sessionId, {
-        status: 'GENERATING',
-        step: 'Processing via Inngest queue'
+        step: 'Starting processing pipeline'
       })
     })
 
@@ -252,7 +251,7 @@ export const scheduledSessionRecovery = inngest.createFunction(
               userId: session.userId,
               marketId: session.marketId,
               selectedModels: session.selectedModels,
-              selectedResearchSources: [], // Default empty for recovery 
+              selectedResearchSources: ['exa'], // Default research for recovery 
               retryCount: 1
             }
           })

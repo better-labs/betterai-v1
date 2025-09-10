@@ -41,7 +41,7 @@ export interface CreatePredictionSessionInput {
   userId: string
   marketId: string
   selectedModels: string[]
-  selectedResearchSources: string[]
+  selectedResearchSources?: string[]
 }
 
 export interface CreatePredictionSessionWithInngestInput extends CreatePredictionSessionInput {

@@ -39,7 +39,6 @@ export interface MarketCTAProps {
   event?: Event | null
   externalMarketUrl?: string | null
   onGeneratePrediction: () => void
-  hidePredictionButton?: boolean
 }
 
 export interface MarketMetaProps {
@@ -231,10 +230,9 @@ export function MarketCTA({
   market, 
   event, 
   externalMarketUrl, 
-  onGeneratePrediction, 
-  hidePredictionButton = false
+  onGeneratePrediction
 }: MarketCTAProps) {
-  if (hidePredictionButton || !isMarketOpenForBetting(market)) return null
+  if (!isMarketOpenForBetting(market)) return null
 
   return (
     <div className={`${spacing.cta} space-y-3`}>
