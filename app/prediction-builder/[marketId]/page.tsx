@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
-import { PredictionGenerator } from '@/features/prediction/prediction-generator.client'
+import { PredictionGeneratorV2 } from '@/features/prediction/prediction-generator-v2.client'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
@@ -50,7 +50,7 @@ export default async function PredictPage({ params }: PredictPageProps) {
         <div className="text-center space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold">Predict with AI</h1>
           <p className="text-muted-foreground">
-            Generate AI predictions for this market using multiple models
+            Generate AI predictions with enhanced research from multiple sources
           </p>
         </div>
 
@@ -63,7 +63,7 @@ export default async function PredictPage({ params }: PredictPageProps) {
 
         {/* Generator Component */}
         <Suspense fallback={<GeneratorSkeleton />}>
-          <PredictionGenerator marketId={marketId} />
+          <PredictionGeneratorV2 marketId={marketId} />
         </Suspense>
       </div>
     </div>
