@@ -99,23 +99,24 @@ export function getOpenMarketsDatabaseFilter(options?: {
   // Add time-based filters to match isMarketOpenForBetting() logic
   const timeFilters: any[] = []
   
-  // Exclude markets with past closedTime
-  timeFilters.push({
-    OR: [
-      { closedTime: null },
-      { closedTime: { gt: now } }
-    ]
-  })
-  
-  // Exclude markets with past endDate (with optional lookback period)
-  const minEndDate = options?.lookbackDays 
+  // Calculate minimum date for lookback (affects both closedTime and endDate)
+  const minDate = options?.lookbackDays 
     ? new Date(Date.now() - options.lookbackDays * 24 * 60 * 60 * 1000)
     : now
   
+  // Exclude markets with past closedTime (with optional lookback period)
+  timeFilters.push({
+    OR: [
+      { closedTime: null },
+      { closedTime: { gt: minDate } }
+    ]
+  })
+  
+  // Exclude markets with past endDate (with optional lookback period)  
   timeFilters.push({
     OR: [
       { endDate: null },
-      { endDate: { gt: minEndDate } }
+      { endDate: { gt: minDate } }
     ]
   })
 
