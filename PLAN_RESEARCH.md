@@ -56,6 +56,18 @@ model ResearchCache {
 }
 ```
 
+### Environment Variables
+
+Required environment variables for research sources:
+
+```bash
+# Research Sources - API Keys
+EXA_API_KEY=your-exa-api-key-here
+
+# Existing OpenRouter configuration (used for Grok research)
+OPENROUTER_API_KEY=sk-or-your-openrouter-api-key-here
+```
+
 ### Research Source Configuration
 
 ```typescript
@@ -212,10 +224,51 @@ export async function performEnhancedMarketResearch(
 async function performExaResearch(marketId: string, modelName?: string): Promise<ResearchResult> {
   // Phase 1: Implement Exa.ai semantic search
   // 1. Get market data
-  // 2. Construct semantic search query  
+  const market = await getMarketById(prisma, marketId)
+  if (!market) throw new Error(`Market ${marketId} not found`)
+
+  // 2. Construct semantic search query
+  const searchQuery = `${market.question} ${market.description || ''} recent developments news`
+  
   // 3. Call Exa.ai API
+  const exaApiKey = process.env.EXA_API_KEY
+  if (!exaApiKey) throw new Error('EXA_API_KEY environment variable not set')
+  
+  const exaResponse = await fetch('https://api.exa.ai/search', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': exaApiKey
+    },
+    body: JSON.stringify({
+      query: searchQuery,
+      numResults: 10,
+      includeDomains: ['reuters.com', 'bloomberg.com', 'cnn.com', 'bbc.com'],
+      useAutoprompt: true
+    })
+  })
+  
   // 4. Process and format results
+  const exaData = await exaResponse.json()
+  const relevant_information = exaData.results.map(r => r.text).join('\n')
+  const links = exaData.results.map(r => r.url)
+  
   // 5. Cache results via research-cache-service
+  await createResearchCache(prisma, {
+    marketId,
+    source: 'exa',
+    modelName: 'exa-search',
+    systemMessage: 'Exa.ai semantic search',
+    userMessage: searchQuery,
+    response: { relevant_information, links }
+  })
+
+  return {
+    source: 'exa',
+    relevant_information,
+    links,
+    timestamp: new Date()
+  }
 }
 
 async function performGrokResearch(marketId: string, modelName?: string): Promise<ResearchResult> {
