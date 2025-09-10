@@ -15,6 +15,7 @@ export interface PredictionSessionDTO {
   userId: string
   marketId: string
   selectedModels: string[]
+  selectedResearchSources?: string[]
   status: PredictionSessionStatus
   step?: string | null
   error?: string | null
@@ -150,6 +151,15 @@ export async function getPredictionSessionById(
           question: true,
           outcomes: true
         }
+      },
+      researchCache: {
+        include: {
+          researchCache: {
+            select: {
+              source: true
+            }
+          }
+        }
       }
     }
   })
@@ -163,6 +173,7 @@ export async function getPredictionSessionById(
     userId: session.userId,
     marketId: session.marketId,
     selectedModels: session.selectedModels,
+    selectedResearchSources: session.researchCache.map(rc => rc.researchCache.source).filter((v, i, a) => a.indexOf(v) === i), // Unique sources
     status: session.status,
     step: session.step,
     error: session.error,

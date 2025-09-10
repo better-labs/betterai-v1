@@ -13,7 +13,7 @@ export interface ResearchSource {
   readonly features?: readonly string[]
 }
 
-export const RESEARCH_SOURCES = [
+export const RESEARCH_SOURCES: readonly ResearchSource[] = [
   {
     id: 'exa',
     name: 'Exa.ai',
@@ -22,7 +22,7 @@ export const RESEARCH_SOURCES = [
     creditCost: 1, // Higher cost for premium semantic search
     available: true,
     apiKey: 'EXA_API_KEY',
-    features: ['semantic_search', 'news_focus', 'trusted_domains']
+    features: ['semantic_search', 'news_focus', 'trusted_domains'] as const
   },
   {
     id: 'grok',
@@ -32,7 +32,7 @@ export const RESEARCH_SOURCES = [
     creditCost: 2,
     available: true,
     apiKey: 'OPENROUTER_API_KEY', // Uses existing OpenRouter integration
-    features: ['realtime_data', 'social_sentiment', 'viral_trends']
+    features: ['realtime_data', 'social_sentiment', 'viral_trends'] as const
   }
   // Phase 2 additions:
   // {
@@ -57,7 +57,7 @@ export const RESEARCH_SOURCES = [
   // }
 ] as const
 
-export type ResearchSourceId = typeof RESEARCH_SOURCES[number]['id']
+export type ResearchSourceId = 'exa' | 'grok' // Explicitly define the union type
 
 // Helper functions for research source management
 export function getResearchSource(id: string): ResearchSource | undefined {

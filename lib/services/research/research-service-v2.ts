@@ -2,14 +2,35 @@ import type { PrismaClient } from '@/lib/generated/prisma'
 import { z } from 'zod'
 import { fetchStructuredFromOpenRouter } from '../openrouter-client'
 import { getMarketById } from '../market-service'
-import { createResearchCache } from '../research-cache-service'
+import { createResearchCache, getCachedResearchBySource } from '../research-cache-service'
 import { RESEARCH_SOURCES, getResearchSource } from '@/lib/config/research-sources'
 
 /**
- * Enhanced Research Service - Phase 1 Implementation
+ * Research Service V2 - Phase 1 Implementation
  * Supports multiple research sources with unified interface
  * Uses many-to-many relationship architecture
  */
+
+/**
+ * Helper function to check and return cached research if available
+ * @returns ResearchResult if cache exists, null otherwise
+ */
+async function checkAndReturnCachedResearch(
+  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
+  marketId: string,
+  source: string
+): Promise<ResearchResult | null> {
+  const cachedResult = await getCachedResearchBySource(db, marketId, source)
+  if (cachedResult) {
+    console.log(`Using cached ${source} research for market ${marketId}`)
+    const response = cachedResult.response as unknown as ResearchResult
+    return {
+      ...response,
+      timestamp: cachedResult.createdAt || new Date() // Use cached timestamp with fallback
+    }
+  }
+  return null
+}
 
 export interface ResearchResult {
   source: string
@@ -45,10 +66,10 @@ const GrokResultSchema = z.object({
 })
 
 /**
- * Main entry point for enhanced market research
+ * Main entry point for market research V2
  * Routes to appropriate research implementation based on source
  */
-export async function performEnhancedMarketResearch(
+export async function performMarketResearchV2(
   db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
   marketId: string,
   researchSource: string,
@@ -84,23 +105,65 @@ export async function performExaResearch(
   marketId: string,
   modelName?: string
 ): Promise<ResearchResult> {
-  // 1. Get market data
+  // 1. Check cache first
+  const cachedResearch = await checkAndReturnCachedResearch(db, marketId, 'exa')
+  if (cachedResearch) {
+    return cachedResearch
+  }
+
+  // 2. Get market data
   const market = await getMarketById(db, marketId)
   if (!market) {
     throw new Error(`Market ${marketId} not found`)
   }
 
-  // 2. Validate API key
+  // 3. Validate API key
   const exaApiKey = process.env.EXA_API_KEY
   if (!exaApiKey) {
     throw new Error('EXA_API_KEY environment variable not set')
   }
 
-  // 3. Construct semantic search query
-  const searchQuery = `${market.question} ${market.description || ''} recent developments news analysis`
+  // 4. Construct semantic search query and determine domains
+  // Check if this is a sports market
+  const isSportsMarket = market.question.toLowerCase().includes('vs.') || 
+                         market.question.toLowerCase().includes('game') ||
+                         market.question.toLowerCase().includes('match') ||
+                         market.question.toLowerCase().includes('nfl') ||
+                         market.question.toLowerCase().includes('nba') ||
+                         market.question.toLowerCase().includes('mlb')
+  
+  // Use appropriate domains based on market type
+  const searchDomains = isSportsMarket ? [
+    'espn.com',
+    'nfl.com',
+    'theathletic.com',
+    'profootballtalk.nbcsports.com',
+    'cbssports.com',
+    'si.com',
+    'bleacherreport.com',
+    'foxsports.com',
+    'sports.yahoo.com'
+  ] : [
+    'reuters.com', 
+    'bloomberg.com', 
+    'cnn.com', 
+    'bbc.com',
+    'apnews.com',
+    'wsj.com',
+    'politico.com',
+    'axios.com'
+  ]
+  
+  // Enhance query for sports markets
+  const searchQuery = isSportsMarket 
+    ? `${market.question} NFL predictions odds injury report analysis ${new Date().getFullYear()}`
+    : `${market.question} ${market.description || ''} recent developments news analysis`
+  
+  console.log(`Exa.ai search query: "${searchQuery}"`)
+  console.log(`Using domains: ${searchDomains.slice(0, 3).join(', ')}...`)
   
   try {
-    // 4. Call Exa.ai API
+    // 5. Call Exa.ai API
     const exaResponse = await fetch('https://api.exa.ai/search', {
       method: 'POST',
       headers: {
@@ -109,44 +172,60 @@ export async function performExaResearch(
       },
       body: JSON.stringify({
         query: searchQuery,
-        numResults: 10,
-        includeDomains: [
-          'reuters.com', 
-          'bloomberg.com', 
-          'cnn.com', 
-          'bbc.com',
-          'apnews.com',
-          'wsj.com',
-          'politico.com',
-          'axios.com'
-        ],
-        useAutoprompt: true,
-        includeText: true,
-        startPublishedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // Last 7 days
+        num_results: 10,
+        // Only use domain restriction for non-sports markets
+        ...(isSportsMarket ? {} : { include_domains: searchDomains }),
+        use_autoprompt: true,
+        type: 'neural',
+        category: 'news', // Use news for all markets
+        contents: {
+          text: true,
+          highlights: true
+        },
+        start_published_date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Last 14 days for more results
       })
     })
 
     if (!exaResponse.ok) {
-      throw new Error(`Exa.ai API error: ${exaResponse.status} ${exaResponse.statusText}`)
+      const errorText = await exaResponse.text()
+      console.error('Exa.ai API error response:', errorText)
+      throw new Error(`Exa.ai API error: ${exaResponse.status} ${exaResponse.statusText} - ${errorText}`)
     }
 
     const exaData = await exaResponse.json()
     
-    // 5. Process and validate results
+    // 6. Process and validate results
+    console.log('Exa.ai response structure:', JSON.stringify(exaData, null, 2).substring(0, 500))
+    
     if (!exaData.results || exaData.results.length === 0) {
       throw new Error('No results returned from Exa.ai')
     }
 
-    const relevant_information = exaData.results
-      .map((r: any) => r.text || r.snippet || '')
+    // Try different field names that Exa might use
+    let relevant_information = exaData.results
+      .map((r: any) => r.text || r.content || r.snippet || r.highlight || '')
       .filter((text: string) => text.length > 0)
       .join('\n\n')
 
+    // If no text content, use titles and URLs as fallback
+    if (!relevant_information && exaData.results.length > 0) {
+      relevant_information = exaData.results
+        .map((r: any) => `${r.title || 'Article'}: ${r.url}`)
+        .join('\n')
+    }
+
     const links = exaData.results
-      .map((r: any) => r.url)
+      .map((r: any) => r.url || r.link)
       .filter((url: string) => url && url.startsWith('http'))
 
     if (!relevant_information || links.length === 0) {
+      console.error('Exa.ai results structure:', {
+        hasResults: !!exaData.results,
+        resultsLength: exaData.results?.length,
+        firstResult: exaData.results?.[0],
+        relevant_information,
+        links
+      })
       throw new Error('Invalid results from Exa.ai - missing content or links')
     }
 
@@ -158,7 +237,7 @@ export async function performExaResearch(
       confidence_score: 0.8 // Exa.ai generally provides high-quality results
     }
 
-    // 6. Cache results
+    // 7. Cache results
     await createResearchCache(db, {
       marketId,
       source: 'exa',
@@ -185,19 +264,25 @@ export async function performGrokResearch(
   marketId: string,
   modelName?: string
 ): Promise<ResearchResult> {
-  // 1. Get market data
+  // 1. Check cache first
+  const cachedResearch = await checkAndReturnCachedResearch(db, marketId, 'grok')
+  if (cachedResearch) {
+    return cachedResearch
+  }
+
+  // 2. Get market data
   const market = await getMarketById(db, marketId)
   if (!market) {
     throw new Error(`Market ${marketId} not found`)
   }
 
-  // 2. Validate OpenRouter API key
+  // 3. Validate OpenRouter API key
   const openRouterApiKey = process.env.OPENROUTER_API_KEY
   if (!openRouterApiKey) {
     throw new Error('OPENROUTER_API_KEY environment variable not set')
   }
 
-  // 3. Construct system and user messages for X/Twitter analysis
+  // 4. Construct system and user messages for X/Twitter analysis
   const systemMessage = `You are a research assistant specialized in X (Twitter) analysis. Your task is to search X (Twitter) for the most relevant and up-to-date information, discussions, sentiment, and trends related to the given prediction market to help AI models make accurate predictions.
 
 Focus on:
@@ -234,7 +319,7 @@ Focus on recent X (Twitter) activity, sentiment from key accounts, breaking news
 Analyze the overall Twitter/X sentiment and provide insights that would help AI models understand the current social media landscape around this prediction.`
 
   try {
-    // 4. JSON Schema for structured output validation
+    // 5. JSON Schema for structured output validation
     const grokSchemaJson = {
       type: 'object',
       additionalProperties: false,
@@ -254,8 +339,8 @@ Analyze the overall Twitter/X sentiment and provide insights that would help AI 
       },
     } as const
 
-    // 5. Call OpenRouter with Grok model for X/Twitter search
-    const grokModel = 'x-ai/grok-beta' // Use Grok model with X/Twitter access
+    // 6. Call OpenRouter with Grok model for X/Twitter search
+    const grokModel = 'x-ai/grok-4' // Use Grok 4 model with X/Twitter access
     const grokResult = await fetchStructuredFromOpenRouter<{
       relevant_information: string
       links: string[]
@@ -280,7 +365,7 @@ Analyze the overall Twitter/X sentiment and provide insights that would help AI 
       confidence_score: 0.7 // Social media data can be less reliable than news
     }
 
-    // 6. Cache results
+    // 7. Cache results
     await createResearchCache(db, {
       marketId,
       source: 'grok',
@@ -311,7 +396,7 @@ export async function getMarketResearchResults(
   
   for (const source of sources) {
     try {
-      const result = await performEnhancedMarketResearch(db, marketId, source)
+      const result = await performMarketResearchV2(db, marketId, source)
       results.push(result)
     } catch (error) {
       console.warn(`Research failed for source ${source}:`, error)

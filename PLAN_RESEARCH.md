@@ -1,5 +1,74 @@
 # Research Integration System Specification
 
+## Current Session Status (Sep 10, 2025)
+
+### ✅ Completed in This Session
+1. **Database Schema** - Implemented many-to-many architecture via PredictionSessionResearchCache junction table
+2. **Research Service V2** - Complete implementation at `lib/services/research/research-service-v2.ts`
+   - Exa.ai integration with smart domain selection (sports vs. news)
+   - Grok X/Twitter integration via OpenRouter (x-ai/grok-4 model)
+   - 12-hour cache duration with efficient read path
+   - Refactored cache check into reusable helper function
+3. **Session Worker Integration** - Added RESEARCHING phase with junction table linkage
+4. **Environment Configuration** - Both EXA_API_KEY and OPENROUTER_API_KEY working
+5. **Test Script Enhancement** - `scripts/test-research-integrations.ts` now:
+   - Tests multiple markets (588667, 591762, and trending)
+   - Tracks results in arrays with comprehensive summary
+   - Loads .env.local automatically
+   - Shows detailed performance metrics
+
+### 🔧 Key Fixes Applied
+- Fixed Exa.ai sports search by removing domain restrictions for sports markets
+- Extended search window from 7 to 14 days for better results
+- Fixed TypeScript issues with proper type annotations
+- Renamed service from `enhanced-research-service.ts` to `research-service-v2.ts`
+- Fixed database permissions via role provisioning script
+
+### 📊 Test Results Summary
+All 3 test markets working successfully:
+- **Trump/WTC Market (588667)** - Political content working
+- **SpaceX Starship (591762)** - Tech/Space content working  
+- **Commanders vs. Packers (589788)** - Sports content working with improved results
+
+Exa.ai now returns relevant betting odds and predictions (Vegas Insider, Covers.com)
+Grok provides real-time social sentiment with key accounts and percentages
+
+### 🚀 Next TODOs (Priority Order)
+1. **Write vitests for research service integrations** (Started but not completed)
+   - Mock Exa.ai API responses
+   - Mock Grok/OpenRouter responses
+   - Test cache functionality
+   - Test error handling
+
+2. **Create Radio Group UI Component**
+   - Build `shared/ui/radio-group.tsx` from existing patterns
+   - Follow design system conventions
+
+3. **Create Research Source Selection Card**
+   - Build `features/prediction/research-source-selection-card.client.tsx`
+   - Integrate with radio group component
+   - Show credit costs per source
+
+4. **Update Prediction Generator**
+   - Create `prediction-generator-v2.client.tsx` (copy from existing)
+   - Add research source selection
+   - Pass research context to predictions
+
+5. **Update tRPC Schemas and Routers**
+   - Add `selectedResearchSource` to StartPredictionSessionInput
+   - Update session creation to include research source
+   - Calculate total cost including research
+
+### 💡 Important Notes for Next Session
+- Cache duration is now 12 hours (not 1 hour)
+- Use `performMarketResearchV2()` not `performEnhancedMarketResearch()`
+- Test script at `scripts/test-research-integrations.ts` is fully functional
+- Database has proper permissions after role provisioning fix
+- Exa.ai works best without domain restrictions for sports markets
+
+### 🐛 Known Issues
+- None currently blocking progress
+
 ## Overview
 
 This document outlines the enhanced market research system for BetterAI's prediction pipeline. The system enables users to select from multiple research sources (Exa.ai, Grok, Google/Bing) during prediction setup, with research results cached and shared across all selected AI models in a session.
@@ -225,7 +294,7 @@ export function ResearchSourceSelectionCard({
 #### Enhanced Research Service
 
 ```typescript
-// lib/services/research/enhanced-research-service.ts
+// lib/services/research/research-service-v2.ts
 import { RESEARCH_SOURCES } from '@/lib/config/research-sources'
 
 export interface ResearchResult {
@@ -236,7 +305,7 @@ export interface ResearchResult {
   timestamp: Date
 }
 
-export async function performEnhancedMarketResearch(
+export async function performMarketResearchV2(
   marketId: string,
   researchSource: string,
   modelName?: string
@@ -348,7 +417,7 @@ async function performGrokResearch(marketId: string, modelName?: string): Promis
 
 ```typescript
 // lib/services/prediction-session-worker.ts (Enhanced)
-import { performEnhancedMarketResearch } from '@/lib/services/research/enhanced-research-service'
+import { performMarketResearchV2 } from '@/lib/services/research/research-service-v2'
 
 export async function executePredictionSession(
   db: DbClient,
@@ -365,7 +434,7 @@ export async function executePredictionSession(
   let researchResults: ResearchResult | null = null
   if (session.selectedResearchSource) {
     try {
-      researchResults = await performEnhancedMarketResearch(
+      researchResults = await performMarketResearchV2(
         marketId,
         session.selectedResearchSource
       )
@@ -533,6 +602,30 @@ interface ResearchConfig {
 - **Usage Analytics**: `usedInGeneration` flag enables A/B testing of research effectiveness
 - **Research History**: Full audit trail of which research influenced which predictions
 
+## Implementation Status
+
+### Completed (Phase 1 Foundation)
+✅ **Database Schema**: Many-to-many architecture via PredictionSessionResearchCache junction table
+✅ **Research Source Configuration**: `lib/config/research-sources.ts` with Exa.ai and Grok support
+✅ **Research Service V2**: `lib/services/research/research-service-v2.ts` with:
+  - Unified interface via `performMarketResearchV2()`
+  - Exa.ai semantic search integration
+  - Grok X/Twitter analysis via OpenRouter
+  - 12-hour cache with automatic lookup
+✅ **Session Worker Integration**: RESEARCHING status and junction table linkage
+✅ **Cache Read Path**: Check cache before making expensive API calls
+✅ **Environment Variables**: Both EXA_API_KEY and OPENROUTER_API_KEY configured
+
+### Pending (Next Steps)
+- [ ] Write vitests for research service integrations
+- [ ] Create radio group UI component for research source selection
+- [ ] Create research source selection card component
+- [ ] Update prediction generator to use research results
+- [ ] Update tRPC schemas and routers for v2 endpoints
+
+### Note on Naming
+The research service was renamed from `enhanced-research-service.ts` to `research-service-v2.ts` and the main function from `performEnhancedMarketResearch` to `performMarketResearchV2` for clarity and consistency with the v2 deployment strategy.
+
 ## Implementation Timeline
 
 **Week 1-2: Foundation**
@@ -587,7 +680,7 @@ interface ResearchConfig {
 After each major code addition, write focused unit tests covering:
 
 **Research Services** (`lib/services/research/`):
-- `performEnhancedMarketResearch` - Route selection logic
+- `performMarketResearchV2` - Route selection logic
 - `performExaResearch` - API integration and response formatting
 - `performGrokResearch` - X/Twitter search and sentiment analysis using `x-ai/grok-4` model via OpenRouter
 - Error handling and fallback scenarios

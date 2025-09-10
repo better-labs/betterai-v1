@@ -9,6 +9,8 @@ import { updatePredictionSession, getPredictionSessionById } from './prediction-
 import { creditManager } from './credit-manager'
 import * as predictionService from './prediction-service'
 import { structuredLogger } from '../utils/structured-logger'
+import { performMarketResearchV2 } from './research/research-service-v2'
+import { getCachedResearchBySource } from './research-cache-service'
 
 export interface WorkerResult {
   success: boolean
@@ -33,11 +35,11 @@ export async function executePredictionSession(
       throw new Error(`Session not found: ${sessionId}`)
     }
 
-    if (!['INITIALIZING', 'GENERATING'].includes(session.status)) {
+    if (!['INITIALIZING', 'RESEARCHING', 'GENERATING'].includes(session.status)) {
       throw new Error(`Session ${sessionId} is not in processable state: ${session.status}`)
     }
 
-    const { selectedModels, userId, marketId } = session
+    const { selectedModels, userId, marketId, selectedResearchSources } = session
     let successCount = 0
     let failureCount = 0
 
@@ -51,14 +53,99 @@ export async function executePredictionSession(
     })
 
     const startTime = Date.now()
+    const researchCacheIds: number[] = []
 
-    // Step 1: Optional research phase (skipped for v1 simplicity)
+    // Step 1: Research phase (if research sources selected)
+    if (selectedResearchSources && selectedResearchSources.length > 0) {
+      await updatePredictionSession(db, sessionId, {
+        status: 'RESEARCHING',
+        step: `Gathering research from ${selectedResearchSources.length} source(s)`
+      })
+
+      structuredLogger.info('prediction_session_research_started', `Starting research phase for session ${sessionId}`, {
+        sessionId,
+        marketId,
+        sources: selectedResearchSources
+      })
+
+      // Process each research source
+      for (const source of selectedResearchSources) {
+        try {
+          const researchStartTime = Date.now()
+          
+          // Check if we already have cached research for this source
+          const cachedResearch = await getCachedResearchBySource(db, marketId, source)
+          
+          if (cachedResearch) {
+            researchCacheIds.push(cachedResearch.id)
+            structuredLogger.info('prediction_session_research_cached', `Using cached ${source} research`, {
+              sessionId,
+              marketId,
+              source,
+              cacheId: cachedResearch.id
+            })
+          } else {
+            // Perform new research
+            const researchResult = await performMarketResearchV2(db, marketId, source)
+            
+            // Get the newly created cache entry
+            const newCache = await getCachedResearchBySource(db, marketId, source)
+            if (newCache) {
+              researchCacheIds.push(newCache.id)
+              const researchDuration = Date.now() - researchStartTime
+              structuredLogger.info('prediction_session_research_completed', `Completed ${source} research`, {
+                sessionId,
+                marketId,
+                source,
+                cacheId: newCache.id,
+                duration: researchDuration
+              })
+            }
+          }
+        } catch (error) {
+          // Log research error but don't fail the session
+          structuredLogger.error('prediction_session_research_error', `Research source ${source} failed`, {
+            sessionId,
+            marketId,
+            source,
+            error: { message: error instanceof Error ? error.message : 'Unknown error' }
+          })
+        }
+      }
+
+      // Link research cache entries to session via junction table
+      if (researchCacheIds.length > 0) {
+        try {
+          await db.predictionSessionResearchCache.createMany({
+            data: researchCacheIds.map(cacheId => ({
+              predictionSessionId: sessionId,
+              researchCacheId: cacheId,
+              usedInGeneration: true
+            })),
+            skipDuplicates: true // In case some entries already exist
+          })
+          
+          structuredLogger.info('prediction_session_research_linked', `Linked ${researchCacheIds.length} research entries to session`, {
+            sessionId,
+            researchCacheIds
+          })
+        } catch (linkError) {
+          structuredLogger.error('prediction_session_research_link_error', 'Failed to link research to session', {
+            sessionId,
+            researchCacheIds,
+            error: { message: linkError instanceof Error ? linkError.message : 'Unknown error' }
+          })
+        }
+      }
+    }
+
+    // Step 2: Update status to GENERATING
     await updatePredictionSession(db, sessionId, {
       status: 'GENERATING',
       step: 'Starting prediction generation'
     })
 
-    // Step 2: Process each model sequentially
+    // Step 3: Process each model sequentially
     for (let i = 0; i < selectedModels.length; i++) {
       const modelName = selectedModels[i]
       const modelStartTime = Date.now()
