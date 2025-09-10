@@ -45,17 +45,13 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 				loginMethods: ['email', 'google'],
 				// Completely disable all wallet functionality
 				embeddedWallets: {
-					createOnLogin: 'off',
-					requireUserPasswordOnCreate: false,
-					noPromptOnSignature: false
+					createOnLogin: 'off'
 				},
 				// Remove all wallet options and disable external wallets
 				appearance: {
 					walletList: [],
 					showWalletLoginFirst: false
-				},
-				// Disable wallet connections entirely
-				supportedChains: []
+				}
 			}}
 		>
 			{children}
