@@ -89,6 +89,8 @@ export async function performMarketResearchV2(
   switch (researchSource) {
     case 'exa':
       return await performExaResearch(db, marketId, modelName)
+    case 'exa-two-step':
+      return await performExaResearchTwoStep(db, marketId, modelName)
     case 'grok':
       return await performGrokResearch(db, marketId, modelName)
     default:
@@ -381,6 +383,236 @@ Analyze the overall Twitter/X sentiment and provide insights that would help AI 
   } catch (error) {
     console.error('Grok research failed:', error)
     throw new Error(`Grok research failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+/**
+ * Two-Step Exa.ai research implementation for production reliability
+ * Phase 2A: Implements search → contents pattern with enhanced error handling
+ */
+export async function performExaResearchTwoStep(
+  db: PrismaClient | Omit<PrismaClient, '$disconnect' | '$connect' | '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$transaction'>,
+  marketId: string,
+  modelName?: string
+): Promise<ResearchResult> {
+  // 1. Check cache first
+  const cachedResearch = await checkAndReturnCachedResearch(db, marketId, 'exa-two-step')
+  if (cachedResearch) {
+    return cachedResearch
+  }
+
+  // 2. Get market data
+  const market = await getMarketById(db, marketId)
+  if (!market) {
+    throw new Error(`Market ${marketId} not found`)
+  }
+
+  // 3. Validate API key
+  const exaApiKey = process.env.EXA_API_KEY
+  if (!exaApiKey) {
+    throw new Error('EXA_API_KEY environment variable not set')
+  }
+
+  // 4. Construct search query and determine domains
+  const isSportsMarket = market.question.toLowerCase().includes('vs.') || 
+                         market.question.toLowerCase().includes('game') ||
+                         market.question.toLowerCase().includes('match') ||
+                         market.question.toLowerCase().includes('nfl') ||
+                         market.question.toLowerCase().includes('nba') ||
+                         market.question.toLowerCase().includes('mlb')
+  
+  const searchDomains = isSportsMarket ? [
+    'espn.com',
+    'nfl.com',
+    'theathletic.com',
+    'profootballtalk.nbcsports.com',
+    'cbssports.com',
+    'si.com',
+    'bleacherreport.com',
+    'foxsports.com',
+    'sports.yahoo.com'
+  ] : [
+    'reuters.com', 
+    'bloomberg.com', 
+    'cnn.com', 
+    'bbc.com',
+    'apnews.com',
+    'wsj.com',
+    'politico.com',
+    'axios.com'
+  ]
+  
+  const searchQuery = isSportsMarket 
+    ? `${market.question} NFL predictions odds injury report analysis ${new Date().getFullYear()}`
+    : `${market.question} ${market.description || ''} recent developments news analysis`
+  
+  console.log(`Exa.ai two-step search query: "${searchQuery}"`)
+  console.log(`Using domains: ${searchDomains.slice(0, 3).join(', ')}...`)
+  
+  try {
+    // STEP 1: Search-only API call to get URLs with timeout
+    const searchController = new AbortController()
+    const searchTimeout = setTimeout(() => searchController.abort(), 10000) // 10s timeout
+    
+    const searchResponse = await fetch('https://api.exa.ai/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': exaApiKey
+      },
+      body: JSON.stringify({
+        query: searchQuery,
+        num_results: 10, // Limit to top 10 URLs for performance
+        ...(isSportsMarket ? {} : { include_domains: searchDomains }),
+        use_autoprompt: true,
+        type: 'neural',
+        category: 'news',
+        // NO text or highlights - just get URLs
+        start_published_date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      }),
+      signal: searchController.signal
+    })
+    
+    clearTimeout(searchTimeout)
+
+    if (!searchResponse.ok) {
+      const errorText = await searchResponse.text()
+      console.error('Exa.ai search API error:', errorText)
+      throw new Error(`Exa.ai search API error: ${searchResponse.status} ${searchResponse.statusText} - ${errorText}`)
+    }
+
+    const searchData = await searchResponse.json()
+    
+    if (!searchData.results || searchData.results.length === 0) {
+      throw new Error('No search results returned from Exa.ai')
+    }
+
+    // Extract URLs from search results (limited to 10)
+    const urls = searchData.results
+      .slice(0, 10) // Ensure max 10 URLs
+      .map((r: any) => r.url || r.link)
+      .filter((url: string) => url && url.startsWith('http'))
+
+    if (urls.length === 0) {
+      throw new Error('No valid URLs found in search results')
+    }
+
+    console.log(`Found ${urls.length} URLs for content retrieval`)
+
+    // STEP 2: Content retrieval via /contents endpoint with timeout and retry logic
+    let contentsResponse: Response | undefined
+    let retryCount = 0
+    const maxRetries = 2
+    
+    while (retryCount <= maxRetries) {
+      try {
+        const contentsController = new AbortController()
+        const contentsTimeout = setTimeout(() => contentsController.abort(), 15000) // 15s timeout for content retrieval
+        
+        contentsResponse = await fetch('https://api.exa.ai/contents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': exaApiKey
+          },
+          body: JSON.stringify({
+            ids_or_urls: urls,
+            text: {
+              maxCharacters: 8000 // Content size control
+            },
+            highlights: true,
+            livecrawlTimeout: 8000 // Force fresh crawl if needed
+          }),
+          signal: contentsController.signal
+        })
+        
+        clearTimeout(contentsTimeout)
+        
+        if (contentsResponse.ok) {
+          break // Success, exit retry loop
+        } else if (retryCount < maxRetries) {
+          console.warn(`Contents API attempt ${retryCount + 1} failed with status ${contentsResponse.status}, retrying...`)
+          retryCount++
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // Exponential backoff
+          continue
+        }
+      } catch (error) {
+        if (retryCount < maxRetries) {
+          console.warn(`Contents API attempt ${retryCount + 1} failed with error:`, error)
+          retryCount++
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // Exponential backoff
+          continue
+        }
+        throw error
+      }
+    }
+
+    if (!contentsResponse || !contentsResponse.ok) {
+      const errorText = contentsResponse ? await contentsResponse.text() : 'No response received'
+      console.error('Exa.ai contents API error:', errorText)
+      throw new Error(`Exa.ai contents API error: ${contentsResponse?.status || 'unknown'} ${contentsResponse?.statusText || 'unknown'} - ${errorText}`)
+    }
+
+    const contentsData = await contentsResponse.json()
+    
+    // Parse statuses[] array for error handling
+    const results = contentsData.results || []
+    const statuses = contentsData.statuses || []
+    
+    console.log(`Content retrieval: ${results.length} results, ${statuses.length} statuses`)
+    
+    // Filter successful results based on status codes
+    const successfulResults = results.filter((result: any, index: number) => {
+      const status = statuses[index]
+      if (status && status.status_code && status.status_code !== 200) {
+        console.warn(`URL ${index} failed with status ${status.status_code}: ${status.error || 'Unknown error'}`)
+        return false
+      }
+      return result.text && result.text.length > 50 // Minimum content quality check
+    })
+
+    // Ensure minimum content threshold (at least 3/10 URLs succeed)
+    if (successfulResults.length < 3) {
+      throw new Error(`Insufficient content retrieved: only ${successfulResults.length} of ${urls.length} URLs succeeded`)
+    }
+
+    console.log(`Successfully retrieved content from ${successfulResults.length} URLs`)
+
+    // Combine content from successful results
+    const relevant_information = successfulResults
+      .map((r: any) => r.text || '')
+      .filter((text: string) => text.length > 0)
+      .join('\n\n')
+
+    // Create optimized result with content-first JSON structure
+    const result: ResearchResult = {
+      // CONTENT FIRST - Primary research data
+      relevant_information,
+      
+      // METADATA - Secondary information
+      source: 'exa-two-step',
+      timestamp: new Date(),
+      confidence_score: Math.min(0.9, 0.6 + (successfulResults.length / 10) * 0.3), // Higher confidence with more successful results
+      
+      // LINKS LAST - Maximum 10 URLs at bottom of structure
+      links: urls.slice(0, 10) // Ensure max 10 links
+    }
+
+    // Cache results
+    await createResearchCache(db, {
+      marketId,
+      source: 'exa-two-step',
+      modelName: modelName || 'exa-two-step-search',
+      systemMessage: 'Exa.ai two-step search → contents',
+      userMessage: searchQuery,
+      response: result
+    })
+
+    return result
+
+  } catch (error) {
+    console.error('Exa.ai two-step research failed:', error)
+    throw new Error(`Exa.ai two-step research failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 

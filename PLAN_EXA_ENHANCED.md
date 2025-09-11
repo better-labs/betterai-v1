@@ -1,7 +1,7 @@
 # Exa Research Enhancement Plan
 
 ## Overview
-Task plan for implementing enhanced Exa.ai content retrieval with two advanced approaches beyond the basic drop-in fix.
+Task plan for implementing enhanced Exa.ai content retrieval with robust two-step approach beyond the basic drop-in fix.
 
 ## Option 2: Two-Step Approach for Production Reliability
 
@@ -12,10 +12,16 @@ Task plan for implementing enhanced Exa.ai content retrieval with two advanced a
 - [ ] Implement Step 1: Search-only API call to `/search` endpoint
   - Remove `text` and `highlights` parameters 
   - Focus on getting high-quality URLs only
+  - Limit to top 10 URLs for performance
 - [ ] Implement Step 2: Content retrieval via `/contents` endpoint
   - Add `maxCharacters: 8000` for content size control
   - Include `text`, `highlights`, and optional `summary` parameters
   - Add `livecrawlTimeout: 8000` for fresh content when needed
+- [ ] **Response JSON Structure Optimization:**
+  - Save `relevant_information` (content) first in response
+  - Limit `links` array to maximum 10 URLs 
+  - Position `links` array at bottom of JSON structure
+  - Ensure content takes priority over metadata in response ordering
 
 #### Phase 2B: Error Handling & Resilience  
 - [ ] Parse `statuses[]` array from `/contents` response
@@ -38,56 +44,45 @@ Task plan for implementing enhanced Exa.ai content retrieval with two advanced a
 
 ---
 
-## Option 3: Configurable Approach
-
-### Task Breakdown
-
-#### Phase 3A: Interface Design
-- [ ] Add `contentMode?: 'light' | 'heavy'` parameter to `performExaResearch()`
-- [ ] Update function signature and JSDoc documentation
-- [ ] Add type definitions for content mode options
-
-#### Phase 3B: Routing Logic Implementation
-- [ ] Create router function to choose between approaches:
-  - `'light'` → Use current one-step approach (post drop-in fix)
-  - `'heavy'` → Use two-step approach from Option 2
-  - Default to `'light'` for backward compatibility
-- [ ] Add configuration validation and error handling
-
-#### Phase 3C: Market-Based Intelligence
-- [ ] Implement market complexity detection:
-  - Sports markets → `'light'` (faster, real-time needs)
-  - Financial/Political markets → `'heavy'` (more thorough research needed)
-  - High-stakes markets (large volume) → `'heavy'`
-- [ ] Add market metadata to influence content mode selection
-- [ ] Create configurable thresholds for automatic mode selection
-
-#### Phase 3D: Performance Monitoring
-- [ ] Add timing metrics for both approaches
-- [ ] Track content quality scores (length, relevance, link count)
-- [ ] Implement A/B testing capability to compare approaches
-- [ ] Add admin controls to override content mode per market type
-
-### Advanced Features (Optional)
-- [ ] Smart caching based on content mode (heavy mode = longer cache TTL)
-- [ ] Parallel execution for heavy mode (search + initial content fetch)
-- [ ] Content summarization for heavy mode results
-- [ ] Rate limiting awareness (heavy mode uses more API calls)
-
----
-
 ## Implementation Priority
-1. **Option 2** (Two-Step) - More robust, production-ready
-2. **Option 3** (Configurable) - Best long-term solution, requires Option 2
+1. **Option 2** (Two-Step) - More robust, production-ready approach
+
+## Data Structure Requirements
+
+### ResearchResult JSON Format (Optimized)
+```typescript
+interface ResearchResult {
+  // CONTENT FIRST - Primary research data
+  relevant_information: string        // Main content - appears first
+  
+  // METADATA - Secondary information  
+  source: string
+  timestamp: Date
+  confidence_score?: number
+  sentiment_analysis?: string        // Grok only
+  key_accounts?: string[]           // Grok only
+  
+  // LINKS LAST - Maximum 10 URLs at bottom of structure
+  links: string[]                   // Limited to 10, positioned last
+}
+```
+
+### Implementation Requirements
+- **Content Priority**: `relevant_information` must be first property
+- **Link Limitation**: Maximum 10 URLs in `links` array
+- **JSON Ordering**: Links positioned as last property in response
+- **Performance**: Smaller JSON payloads improve caching and network transfer
 
 ## Success Metrics
 - Content quality: Average character count per result
 - Reliability: Success rate of content retrieval
 - Performance: Average response time per mode
+- **Data efficiency**: Response size reduction with 10-link limit
 - User satisfaction: Prediction accuracy improvements
 
 ## Risk Considerations
 - API rate limiting with two-step approach (2x API calls)
 - Increased complexity in error handling and debugging
 - Potential performance regression for simple markets
+- **Link truncation**: May lose valuable sources beyond top 10
 - Need for comprehensive testing across market types

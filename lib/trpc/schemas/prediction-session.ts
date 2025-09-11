@@ -6,7 +6,7 @@
 import { z } from 'zod'
 
 // Valid research source IDs
-const ResearchSourceId = z.enum(['exa', 'grok'])
+const ResearchSourceId = z.enum(['exa', 'exa-two-step', 'grok'])
 
 // Start a new prediction session
 export const StartPredictionSessionInput = z.object({

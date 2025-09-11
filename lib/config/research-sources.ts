@@ -25,6 +25,16 @@ export const RESEARCH_SOURCES: readonly ResearchSource[] = [
     features: ['semantic_search', 'news_focus', 'trusted_domains'] as const
   },
   {
+    id: 'exa-two-step',
+    name: 'Exa.ai Pro',
+    description: 'Two-step Exa.ai search with enhanced content retrieval',
+    provider: 'Exa.ai',
+    creditCost: 2, // Higher cost for more robust two-step approach
+    available: true,
+    apiKey: 'EXA_API_KEY',
+    features: ['semantic_search', 'full_content', 'error_resilience', 'content_optimization'] as const
+  },
+  {
     id: 'grok',
     name: 'X (Twitter)',
     description: 'X (Twitter) realtime market research via Grok AI',
@@ -57,7 +67,7 @@ export const RESEARCH_SOURCES: readonly ResearchSource[] = [
   // }
 ] as const
 
-export type ResearchSourceId = 'exa' | 'grok' // Explicitly define the union type
+export type ResearchSourceId = 'exa' | 'exa-two-step' | 'grok' // Explicitly define the union type
 
 // Helper functions for research source management
 export function getResearchSource(id: string): ResearchSource | undefined {
