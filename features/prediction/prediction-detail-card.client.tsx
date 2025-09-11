@@ -84,6 +84,16 @@ export function PredictionDetailCard({
                 </p>
               </div>
             )}
+
+            {showMakePredictionButton && (
+              <div className="pt-4">
+                <Button asChild>
+                  <Link href={makePredictionHref}>
+                    Generate New Prediction
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-8">

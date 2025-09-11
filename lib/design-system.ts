@@ -164,7 +164,7 @@ export const components = {
   // Page layout patterns - consistent page containers
   page: {
     // Standard page container (replaces repeated container structure)
-    container: 'container mx-auto px-4 ',
+    container: 'container mx-auto px-4 py-4',
     content: 'max-w-4xl mx-auto',
     sections: 'space-y-4',
     
@@ -175,8 +175,8 @@ export const components = {
 
   // Page header patterns - consistent headers across pages
   pageHeader: {
-    container: 'text-center m-1 my-2 md:my-4',
-    title: typography.h1,
+    container: 'text-center m-1 my-2 md:my-4 flex flex-col items-center gap-2',
+    title: `${typography.h1} flex items-center justify-center gap-2`,
     subtitle: `${typography.bodySmall} text-muted-foreground hidden md:block`,
     icon: 'text-primary',
     

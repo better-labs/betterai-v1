@@ -10,8 +10,8 @@ import { PredictionDetailCard } from '@/features/prediction/prediction-detail-ca
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 import { components } from '@/lib/design-system'
-import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
 import { BarChart3 } from 'lucide-react'
+import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
 
 // Force dynamic rendering to avoid build-time database queries
 export const dynamic = 'force-dynamic'
@@ -55,12 +55,13 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
         
         {/* Header */}
         <div className={components.pageHeader.container} data-debug-id="market-detail-page-header-container">
-          <div className="flex items-center justify-center gap-2">
+          <h1 className={components.pageHeader.title}>
             <BarChart3 className={components.pageHeader.icon} />
-            <h1 className={components.pageHeader.title}>
-              Market Detail
-            </h1>
-          </div>
+            Market Detail
+          </h1>
+          <p className={components.pageHeader.subtitle}>
+            Latest information and historical predictions for this market
+          </p>
         </div>
 
         {/* Market Staleness Handler - Auto-refresh if data is old */}
