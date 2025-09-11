@@ -66,6 +66,7 @@ export default async function PredictPage({ params }: PredictPageProps) {
           market={marketDTO}
           event={eventDTO}
           externalMarketUrl={externalMarketUrl}
+          limitDetails={true}
         />
 
         {/* Generator Component */}

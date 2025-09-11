@@ -17,41 +17,44 @@ interface ResearchCardProps {
 function formatResponseToText(response: any): string {
   if (!response) return 'No research data available'
   
-  if (typeof response === 'string') {
-    return response
-  }
+  let text = ''
   
-  // Handle common research response structures
-  if (response.results && Array.isArray(response.results)) {
-    return response.results
+  if (typeof response === 'string') {
+    text = response
+  } else if (response.results && Array.isArray(response.results)) {
+    // Handle common research response structures
+    text = response.results
       .map((result: any, index: number) => {
-        let text = `${index + 1}. `
-        if (result.title) text += `**${result.title}**\n`
-        if (result.snippet || result.description) text += `${result.snippet || result.description}\n`
-        if (result.url) text += `Source: ${result.url}\n`
-        return text
+        let resultText = `${index + 1}. `
+        if (result.title) resultText += `**${result.title}**\n`
+        if (result.snippet || result.description) resultText += `${result.snippet || result.description}\n`
+        if (result.url) resultText += `Source: ${result.url}\n`
+        return resultText
       })
       .join('\n')
+  } else if (response.content) {
+    text = response.content
+  } else if (response.summary) {
+    text = response.summary
+  } else {
+    // Fallback: JSON stringify with formatting
+    try {
+      text = JSON.stringify(response, null, 2)
+        .replace(/[{}[\]"]/g, '')
+        .replace(/,\s*\n/g, '\n')
+        .replace(/:\s*/g, ': ')
+        .trim()
+    } catch {
+      return 'Unable to format research data'
+    }
   }
   
-  if (response.content) {
-    return response.content
+  // Limit to 2000 characters
+  if (text.length > 2000) {
+    text = text.slice(0, 2000).trim()
   }
   
-  if (response.summary) {
-    return response.summary
-  }
-  
-  // Fallback: JSON stringify with formatting
-  try {
-    return JSON.stringify(response, null, 2)
-      .replace(/[{}[\]"]/g, '')
-      .replace(/,\s*\n/g, '\n')
-      .replace(/:\s*/g, ': ')
-      .trim()
-  } catch {
-    return 'Unable to format research data'
-  }
+  return text
 }
 
 function capitalizeSource(source: string): string {

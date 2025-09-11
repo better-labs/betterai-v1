@@ -17,9 +17,10 @@ interface MarketOverviewCardProps {
   market: MarketDTO
   externalMarketUrl?: string | null 
   event?: EventDTO | null
+  limitDetails?: boolean
 }
 
-export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOverviewCardProps) {
+export function MarketOverviewCard({ market, externalMarketUrl, event, limitDetails = false}: MarketOverviewCardProps) {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { toast } = useToast()
   const utils = trpc.useUtils()
@@ -74,7 +75,7 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
           )}
 
           {/* Market Description */}
-          {market.description && (
+          {market.description && !limitDetails && (
             <div>
               <h4 className={components.statsDisplay.sectionTitle}>Description</h4>
               <TextCollapse maxLength={150}>
@@ -85,7 +86,8 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
 
 
           {/* Market Metrics */}
-          <div className={components.marketMetrics.grid}>
+          {!limitDetails && (
+            <div className={components.marketMetrics.grid}>
             <div className={components.marketMetrics.metric}>
               <DollarSign className={components.marketMetrics.icon} />
               <div className={components.marketMetrics.metricContent}>
@@ -106,7 +108,8 @@ export function MarketOverviewCard({ market, externalMarketUrl, event}: MarketOv
               </div>
             </div>
 
-          </div>
+            </div>
+          )}
 
         </div>
       </CardContent>

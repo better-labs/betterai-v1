@@ -14,16 +14,16 @@ export interface ResearchSource {
 }
 
 export const RESEARCH_SOURCES: readonly ResearchSource[] = [
-  {
-    id: 'exa',
-    name: 'Exa.ai',
-    description: 'Advanced web search optimized for recent developments',
-    provider: 'Exa.ai',
-    creditCost: 1, // Higher cost for premium semantic search
-    available: true,
-    apiKey: 'EXA_API_KEY',
-    features: ['semantic_search', 'news_focus', 'trusted_domains'] as const
-  },
+  // {
+  //   id: 'exa',
+  //   name: 'Exa.ai',
+  //   description: 'Advanced web search optimized for recent developments',
+  //   provider: 'Exa.ai',
+  //   creditCost: 1, // Higher cost for premium semantic search
+  //   available: true,
+  //   apiKey: 'EXA_API_KEY',
+  //   features: ['semantic_search', 'news_focus', 'trusted_domains'] as const
+  // },
   {
     id: 'grok',
     name: 'X (Twitter)',
