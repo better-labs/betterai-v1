@@ -51,7 +51,7 @@ const nextConfig = {
                     "font-src 'self' data: https://fonts.gstatic.com",
                     "connect-src 'self' https: wss: https://fonts.googleapis.com https://fonts.gstatic.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net",
                     "frame-src 'self' https:",
-                    "frame-ancestors 'self' https://auth.privy.io https://*.privy.io https://*.vercel.app https://betterai.tools https://*.betterai.tools http://localhost:* https://localhost:*",
+                    "frame-ancestors *",
                     "worker-src 'self' blob:",
                     "child-src 'self' https://auth.privy.io blob:",
                     "object-src 'none'",

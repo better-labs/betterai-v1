@@ -52,7 +52,7 @@ export const dailyBatchPredictions = inngest.createFunction(
       // Use default configuration for scheduled runs
       const defaultConfig: BatchPredictionConfig = {
         topMarketsCount: 5, // Conservative default for scheduled runs
-        endDateRangeHours: 48, // 48-hour window around target date
+        endDateRangeHours: 120,
         targetDaysFromNow: 7, // Look at markets ending ~1 week from now
         excludeCategories: [Category.CRYPTOCURRENCY],
         concurrencyPerModel: 3, // Safe concurrency for scheduled runs

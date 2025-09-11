@@ -14,6 +14,12 @@
  * Layout Best Practices:
  * - Flex Spacing: Use margin (my-*) for vertical spacing between flex items, not padding
  *   Flex containers can compress padding but respect margin spacing between items
+ * 
+ * Component Recommendations:
+ * - TextCollapse: Use /shared/ui/text-collapse.client.tsx for consistent expand/collapse behavior
+ * - Cards: Use /shared/ui/card.tsx components with design system tokens
+ * - Buttons: Use /shared/ui/button.tsx with design system button patterns
+ * - When in doubt, prefer existing shared components over custom implementations
  */
 
 // ============================================================================
@@ -158,21 +164,22 @@ export const components = {
   // Page layout patterns - consistent page containers
   page: {
     // Standard page container (replaces repeated container structure)
-    container: 'container mx-auto px-4 py-10',
+    container: 'container mx-auto px-4 ',
     content: 'max-w-4xl mx-auto',
     sections: 'space-y-4',
     
     // Standard section container for pages
-    section: 'container mx-auto px-4 py-4',
+    section: 'container mx-auto px-4 ',
   
   },
 
   // Page header patterns - consistent headers across pages
   pageHeader: {
-    container: 'text-center m-1',
+    container: 'text-center m-1 my-2 md:my-4',
     title: typography.h1,
     subtitle: `${typography.bodySmall} text-muted-foreground hidden md:block`,
     icon: 'text-primary',
+    
   },
 
   // Card patterns
@@ -532,6 +539,9 @@ export const components = {
   },
 
   // Text collapse/expand patterns
+  // RECOMMENDED: Use TextCollapse component from /shared/ui/text-collapse.client.tsx for consistent expand/collapse behavior
+  // Example: <TextCollapse maxLength={150}>{longText}</TextCollapse>
+  // Use these tokens only for custom implementations or styling overrides
   textCollapse: {
     // Container for collapsible text content
     container: 'space-y-2',

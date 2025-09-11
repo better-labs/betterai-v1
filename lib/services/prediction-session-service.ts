@@ -30,6 +30,11 @@ export interface PredictionSessionDTO {
     aiResponse?: string | null
     createdAt?: Date | null
   }>
+  researchData: Array<{
+    source: string
+    response: any
+    createdAt: Date | null
+  }>
   market: {
     id: string
     question: string
@@ -158,7 +163,9 @@ export async function getPredictionSessionById(
         include: {
           researchCache: {
             select: {
-              source: true
+              source: true,
+              response: true,
+              createdAt: true
             }
           }
         }
@@ -189,6 +196,11 @@ export async function getPredictionSessionById(
       outcomesProbabilities: pred.outcomesProbabilities?.map(p => Number(p)) || [],
       aiResponse: pred.aiResponse,
       createdAt: pred.createdAt
+    })),
+    researchData: session.researchCache.map(rc => ({
+      source: rc.researchCache.source,
+      response: rc.researchCache.response,
+      createdAt: rc.researchCache.createdAt
     })),
     market: session.market
   }

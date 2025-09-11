@@ -132,10 +132,10 @@ export function TrendingMarkets() {
 
   return (
     <>
-      <section className={components.page.sections}>
+      <section className={components.page.sections} data-debug-id="trending-markets-section">
         {/* Header */}
-        <div className={components.pageHeader.container}>
-          <h1 className={components.pageHeader.title + " flex items-center justify-center gap-2"}>
+        <div className={components.pageHeader.container} data-debug-id="trending-markets-header-container">
+          <h1 className={components.pageHeader.title + " flex items-center justify-center gap-2"} data-debug-id="trending-markets-header">
             <TrendingUp className={components.pageHeader.icon} />
             Trending Markets
           </h1>

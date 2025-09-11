@@ -161,6 +161,10 @@ export const predictionSessionsRouter = router({
           predictions: session.predictions.map(pred => ({
             ...pred,
             createdAt: pred.createdAt?.toISOString() || null,
+          })),
+          researchData: session.researchData.map(research => ({
+            ...research,
+            createdAt: research.createdAt?.toISOString() || null,
           }))
         }
       } catch (error) {

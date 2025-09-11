@@ -16,6 +16,7 @@ import {
   Clock,
 } from 'lucide-react'
 import { PredictionResultCard } from './prediction-result-card.client'
+import { ResearchCard } from './research-card.client'
 import { MarketCTA } from '@/features/market/market-card-sections'
 
 interface PredictionResultsProps {
@@ -223,8 +224,25 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
           </Alert>
         )}
 
+        {/* Research Results */}
+        {session.researchData && session.researchData.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Research Sources</h3>
+            <p className="text-sm text-muted-foreground">
+              Research data used to power your AI predictions
+            </p>
+            {session.researchData.map((research, index) => (
+              <ResearchCard
+                key={`${research.source}-${index}`}
+                research={research}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Model Results - Mobile-first vertical stack */}
         <div className="space-y-4">
+          <h3 className="text-lg font-semibold">AI Predictions</h3>
           {session.selectedModels.map((modelId, index) => {
             const model = AI_MODELS.find(m => m.id === modelId)
             const prediction = session.predictions.find(p => p.modelName === modelId)

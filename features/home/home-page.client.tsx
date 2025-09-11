@@ -73,11 +73,11 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <WelcomeBanner />
-      <section className={components.page.section}>
+      <section className={components.page.section} data-debug-id="home-page-section">
         <PageTransition>
-          <div className="space-y-8">
+          
             <TrendingMarkets />
-          </div>
+          
         </PageTransition>
       </section>
     </div>
