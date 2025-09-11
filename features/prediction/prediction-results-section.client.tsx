@@ -224,21 +224,6 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
           </Alert>
         )}
 
-        {/* Research Results */}
-        {session.researchData && session.researchData.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Research Sources</h3>
-            <p className="text-sm text-muted-foreground">
-              Research data used to power your AI predictions
-            </p>
-            {session.researchData.map((research, index) => (
-              <ResearchCard
-                key={`${research.source}-${index}`}
-                research={research}
-              />
-            ))}
-          </div>
-        )}
 
         {/* Model Results - Mobile-first vertical stack */}
         <div className="space-y-4">
@@ -261,6 +246,20 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
             )
           })}
         </div>
+
+        
+        {/* Research Results */}
+        {session.researchData && session.researchData.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Research Sources</h3>
+            {session.researchData.map((research, index) => (
+              <ResearchCard
+                key={`${research.source}-${index}`}
+                research={research}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Completion Actions */}
         {marketDTO && (
