@@ -155,7 +155,7 @@ export async function getTrendingMarkets(
       ? market.outcomePrices 
       : JSON.parse(market.outcomePrices || '[]')
     
-    return prices.every(price => price > 0.01 && price < 0.99)
+    return prices.every((price: number) => price > 0.01 && price < 0.99)
   })
 
   // Group markets by event ID
