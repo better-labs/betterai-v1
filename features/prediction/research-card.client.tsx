@@ -21,8 +21,29 @@ function formatResponseToText(response: any): string {
   
   if (typeof response === 'string') {
     text = response
+  } else if (response.relevant_information) {
+    // Handle ResearchResult structure from research-service-v2
+    text = response.relevant_information
+    
+    // Add optional fields if available
+    if (response.sentiment_analysis) {
+      text += `\n\n**Sentiment Analysis:** ${response.sentiment_analysis}`
+    }
+    
+    if (response.key_accounts && response.key_accounts.length > 0) {
+      text += `\n\n**Key Accounts:** ${response.key_accounts.join(', ')}`
+    }
+    
+    if (response.confidence_score !== undefined) {
+      text += `\n\n**Confidence Score:** ${Math.round(response.confidence_score * 100)}%`
+    }
+    
+    // Add links at the bottom
+    if (response.links && response.links.length > 0) {
+      text += `\n\n**Sources:**\n${response.links.map((link: string, index: number) => `${index + 1}. ${link}`).join('\n')}`
+    }
   } else if (response.results && Array.isArray(response.results)) {
-    // Handle common research response structures
+    // Handle legacy research response structures
     text = response.results
       .map((result: any, index: number) => {
         let resultText = `${index + 1}. `
@@ -37,21 +58,19 @@ function formatResponseToText(response: any): string {
   } else if (response.summary) {
     text = response.summary
   } else {
-    // Fallback: JSON stringify with formatting
-    try {
-      text = JSON.stringify(response, null, 2)
-        .replace(/[{}[\]"]/g, '')
-        .replace(/,\s*\n/g, '\n')
-        .replace(/:\s*/g, ': ')
-        .trim()
-    } catch {
-      return 'Unable to format research data'
-    }
+    // Fallback: Only show key information, not raw JSON
+    const keyFields = ['source', 'timestamp', 'confidence_score']
+    const info = keyFields
+      .filter(field => response[field] !== undefined)
+      .map(field => `${field}: ${response[field]}`)
+      .join('\n')
+    
+    text = info || 'Research data available but format not recognized'
   }
   
   // Limit to 2000 characters
   if (text.length > 2000) {
-    text = text.slice(0, 2000).trim()
+    text = text.slice(0, 2000).trim() + '...'
   }
   
   return text

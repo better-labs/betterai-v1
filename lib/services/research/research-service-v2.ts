@@ -178,9 +178,10 @@ export async function performExaResearch(
         use_autoprompt: true,
         type: 'neural',
         category: 'news', // Use news for all markets
-        contents: {
-          text: true,
-          highlights: true
+        text: true,
+        highlights: {
+          numSentences: 2,
+          highlightsPerUrl: 3
         },
         start_published_date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Last 14 days for more results
       })
@@ -201,9 +202,9 @@ export async function performExaResearch(
       throw new Error('No results returned from Exa.ai')
     }
 
-    // Try different field names that Exa might use
+    // Parse content with proper priority: text > summary > highlights > snippet
     let relevant_information = exaData.results
-      .map((r: any) => r.text || r.content || r.snippet || r.highlight || '')
+      .map((r: any) => r.text ?? r.summary ?? (r.highlights?.join('\n')) ?? r.snippet ?? '')
       .filter((text: string) => text.length > 0)
       .join('\n\n')
 
