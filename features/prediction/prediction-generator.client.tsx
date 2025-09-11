@@ -196,7 +196,7 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
                 <span className={components.costBreakdown.value}>{modelCost} credit{modelCost !== 1 ? 's' : ''}</span>
               </div>
               <div className={components.costBreakdown.row}>
-                <span className={components.costBreakdown.label}>Research ({selectedResearchSources.length} source{selectedResearchSources.length !== 1 ? 's' : ''}):</span>
+                <span className={components.costBreakdown.label}>Research ({selectedResearchSources.length}):</span>
                 <span className={components.costBreakdown.value}>{researchCost} credit{researchCost !== 1 ? 's' : ''}</span>
               </div>
               <div className={`${components.costBreakdown.row} ${components.costBreakdown.total}`}>

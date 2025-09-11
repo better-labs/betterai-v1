@@ -24,16 +24,16 @@ export const RESEARCH_SOURCES: readonly ResearchSource[] = [
     apiKey: 'EXA_API_KEY',
     features: ['semantic_search', 'news_focus', 'trusted_domains'] as const
   },
-  {
-    id: 'exa-two-step',
-    name: 'Exa.ai Pro',
-    description: 'Two-step Exa.ai search with enhanced content retrieval',
-    provider: 'Exa.ai',
-    creditCost: 2, // Higher cost for more robust two-step approach
-    available: true,
-    apiKey: 'EXA_API_KEY',
-    features: ['semantic_search', 'full_content', 'error_resilience', 'content_optimization'] as const
-  },
+  // {
+  //   id: 'exa-two-step',
+  //   name: 'Exa.ai Pro',
+  //   description: 'Two-step Exa.ai search with enhanced content retrieval',
+  //   provider: 'Exa.ai',
+  //   creditCost: 2, // Higher cost for more robust two-step approach
+  //   available: true,
+  //   apiKey: 'EXA_API_KEY',
+  //   features: ['semantic_search', 'full_content', 'error_resilience', 'content_optimization'] as const
+  // },
   {
     id: 'grok',
     name: 'X (Twitter)',

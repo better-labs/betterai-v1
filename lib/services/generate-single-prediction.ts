@@ -14,7 +14,7 @@ interface PredictionServiceResponse {
   prediction?: PredictionResult
 }
 
-function constructPredictionPrompt(market: Market, additionalUserMessageContext?: string): { systemMessage: string; userMessage: string } {
+function constructPredictionPrompt(market: Market, additionalUserMessageContext?: string, researchContext?: string): { systemMessage: string; userMessage: string } {
   
   const systemMessage = `You are a prediction analysis expert. Analyze the given market and return ONLY valid JSON.
 
@@ -77,7 +77,7 @@ Market: "${market.question}"
 ${market.description ? `Market Description: ${market.description}` : ''}
 ${market.endDate ? `Market End Date: ${market.endDate.toISOString().split('T')[0]}` : ''}
 
- ${additionalUserMessageContext ? `Additional context: ${additionalUserMessageContext}` : ''}`
+ ${additionalUserMessageContext ? `Additional context: ${additionalUserMessageContext}` : ''}${researchContext ? `${researchContext}` : ''}`
 
   return { systemMessage, userMessage }
 }
@@ -183,7 +183,7 @@ async function savePrediction(
   return createdPrediction.id
 }
 
-export async function generatePredictionForMarket(marketId: string, userId?: string, modelName?: string, additionalUserMessageContext?: string, experimentTag?: string, experimentNotes?: string, useWebSearch?: boolean): Promise<PredictionServiceResponse> {
+export async function generatePredictionForMarket(marketId: string, userId?: string, modelName?: string, additionalUserMessageContext?: string, experimentTag?: string, experimentNotes?: string, useWebSearch?: boolean, researchContext?: string): Promise<PredictionServiceResponse> {
   try {
     if (!marketId) {
       return { success: false, message: "Market ID is required" }
@@ -203,7 +203,7 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
       useWebSearchModified = false
     }
 
-    const { systemMessage, userMessage } = constructPredictionPrompt(market, additionalUserMessageContext)
+    const { systemMessage, userMessage } = constructPredictionPrompt(market, additionalUserMessageContext, researchContext)
 
     await new Promise(resolve => setTimeout(resolve, 2000)) // Increased delay to avoid rate limiting
 

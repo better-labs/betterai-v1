@@ -143,13 +143,54 @@ export async function executePredictionSession(
       }
     }
 
-    // Step 2: Update status to GENERATING
+    // Step 2: Prepare research context for predictions
+    let researchContext = ''
+    if (researchCacheIds.length > 0) {
+      try {
+        // Retrieve cached research data to include in predictions
+        const researchData = await db.researchCache.findMany({
+          where: {
+            id: { in: researchCacheIds }
+          },
+          select: {
+            source: true,
+            response: true
+          }
+        })
+
+        // Format research data for inclusion in user message
+        const researchSections = researchData.map(cache => {
+          const response = cache.response as any
+          if (response && response.relevant_information) {
+            return `\n## ${cache.source.charAt(0).toUpperCase() + cache.source.slice(1)} Research:\n${response.relevant_information}`
+          }
+          return `\n## ${cache.source.charAt(0).toUpperCase() + cache.source.slice(1)} Research:\n${JSON.stringify(response)}`
+        }).join('\n')
+
+        if (researchSections) {
+          researchContext = `\n\nResearch Data:${researchSections}`
+          structuredLogger.info('prediction_session_research_context_prepared', `Prepared research context for predictions`, {
+            sessionId,
+            researchSources: researchData.map(r => r.source),
+            contextLength: researchContext.length
+          })
+        }
+      } catch (error) {
+        structuredLogger.error('prediction_session_research_context_error', 'Failed to prepare research context', {
+          sessionId,
+          researchCacheIds,
+          error: { message: error instanceof Error ? error.message : 'Unknown error' }
+        })
+      }
+    }
+
+    // Step 3: Update status to GENERATING
     await updatePredictionSession(db, sessionId, {
       status: 'GENERATING',
       step: 'Starting prediction generation'
     })
 
-    // Step 3: Process each model sequentially
+    // Step 4: Process each model sequentially
     for (let i = 0; i < selectedModels.length; i++) {
       const modelName = selectedModels[i]
       const modelStartTime = Date.now()
@@ -163,7 +204,7 @@ export async function executePredictionSession(
           step: `Generating prediction ${i + 1}/${selectedModels.length} with ${modelName}`
         })
 
-        // Generate prediction using existing service
+        // Generate prediction using existing service with research context
         const result = await generatePredictionForMarket(
           marketId,
           userId,
@@ -171,7 +212,8 @@ export async function executePredictionSession(
           undefined, // additionalUserMessageContext
           undefined, // experimentTag  
           undefined,  // experimentNotes
-          false // useWebSearch
+          false, // useWebSearch
+          researchContext || undefined // researchContext - include research data
         )
 
         if (result.success && result.predictionId) {
