@@ -88,13 +88,13 @@ export function ResearchCard({ research }: ResearchCardProps) {
       className={components.card.base}
       data-debug-id={`research-card-${research.source}`}
     >
-      <CardHeader className={components.card.market.header}>
+      <CardHeader>
         <CardTitle className={typography.h4}>
           {capitalizeSource(research.source)} Research
         </CardTitle>
       </CardHeader>
       
-      <CardContent className={components.card.market.content}>
+      <CardContent>
         <TextCollapse maxLength={300}>
           {formattedText}
         </TextCollapse>

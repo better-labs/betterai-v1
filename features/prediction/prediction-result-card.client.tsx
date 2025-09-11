@@ -14,16 +14,14 @@ import {
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
 import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { AIDelta } from '@/features/market/market-card-sections'
-import type { MarketDTO, PredictionDTO } from '@/lib/types'
+import { PredictionReasoningCard } from '@/features/prediction/prediction-reasoning-card.client'
+import type { MarketDTO, PredictionDTO, PredictionResult } from '@/lib/types'
 
 interface SessionPrediction {
   id?: string
   outcomes?: string[]
   outcomesProbabilities?: number[]
-  predictionResult?: {
-    outcomes: string[]
-    probabilities: number[]
-  }
+  predictionResult?: PredictionResult
   aiResponse?: string | null
 }
 
@@ -136,6 +134,25 @@ export function PredictionResultCard({ model, prediction, sessionStatus, session
                     outcomesProbabilities: prediction.outcomesProbabilities
                   } as PredictionDTO}
                 />
+              </div>
+            )}
+            
+            {/* Reasoning */}
+            {prediction.predictionResult?.reasoning && (
+              <div>
+                <h4 className="font-medium mb-2">Reasoning</h4>
+                <PredictionReasoningCard 
+                  reasoning={prediction.predictionResult.reasoning}
+                  showHeader={false}
+                  className="border-0 shadow-none bg-transparent"
+                />
+              </div>
+            )}
+
+            {/* Confidence Level */}
+            {prediction.predictionResult?.confidence_level && (
+              <div>
+                <h4 className="font-medium mb-2">Confidence: {prediction.predictionResult.confidence_level}</h4>
               </div>
             )}
             
