@@ -52,6 +52,7 @@ export default async function PredictionResultsPage({ params }: PredictionResult
           market={marketDTO}
           event={eventDTO}
           externalMarketUrl={externalMarketUrl}
+          limitDetails={true}
         />
 
         {/* Results Component */}

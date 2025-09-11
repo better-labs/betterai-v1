@@ -16,6 +16,7 @@ import {
   Clock,
 } from 'lucide-react'
 import { PredictionResultCard } from './prediction-result-card.client'
+import { ResearchCard } from './research-card.client'
 import { MarketCTA } from '@/features/market/market-card-sections'
 
 interface PredictionResultsProps {
@@ -192,9 +193,14 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
                 )}
                 
                 {/* Caption for active states */}
+                {session.status === 'RESEARCHING' && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Researching and gathering the latest news and information to power your prediction.
+                  </div>
+                )}
                 {(session.status === 'QUEUED' || session.status === 'GENERATING') && (
                   <div className="text-sm text-muted-foreground mt-1">
-                    Gathering latest information and generating predictions. Usually takes 15-30 seconds.
+                    Generating your predictions now. The process sually takes 15-30 seconds.
                   </div>
                 )}
               </div>
@@ -218,8 +224,10 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
           </Alert>
         )}
 
+
         {/* Model Results - Mobile-first vertical stack */}
         <div className="space-y-4">
+          <h3 className="text-lg font-semibold">AI Predictions</h3>
           {session.selectedModels.map((modelId, index) => {
             const model = AI_MODELS.find(m => m.id === modelId)
             const prediction = session.predictions.find(p => p.modelName === modelId)
@@ -239,6 +247,20 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
           })}
         </div>
 
+        
+        {/* Research Results */}
+        {session.researchData && session.researchData.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Research Sources</h3>
+            {session.researchData.map((research, index) => (
+              <ResearchCard
+                key={`${research.source}-${index}`}
+                research={research}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Completion Actions */}
         {marketDTO && (
           <MarketCTA
@@ -246,7 +268,7 @@ export function PredictionResults({ sessionId, marketId, marketDTO, eventDTO, ex
             event={eventDTO}
             externalMarketUrl={externalMarketUrl}
             onGeneratePrediction={() => router.push(`/prediction-builder/${marketId}`)}
-            hidePredictionButton={false}
+            
           />
         )}
         

@@ -39,7 +39,6 @@ export const getRateLimitMessage = (endpoint: string, resetTime: Date): string =
   
   const endpointMessages = {
     predict: `You've used all your AI predictions this hour. ${minutesUntilReset} minute${minutesUntilReset !== 1 ? 's' : ''} until reset.`,
-    'run-data-pipeline': `You've used all your research requests this hour. ${minutesUntilReset} minute${minutesUntilReset !== 1 ? 's' : ''} until reset.`,
     user: 'Too many profile updates. Please wait before trying again.',
     markets: 'Too many market operations. Please slow down.',
     events: 'Too many event operations. Please slow down.',

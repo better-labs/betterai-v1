@@ -43,12 +43,16 @@ export const dailyBatchPredictions = inngest.createFunction(
     const { config, modelNames } = await step.run('prepare-config', async () => {
       // Import AI models configuration
       const { getModelIds } = await import('@/lib/config/ai-models')
-      const modelList = getModelIds()
+      const allModels = getModelIds()
+      
+      // Randomly select 3 models from all available models
+      const shuffled = [...allModels].sort(() => Math.random() - 0.5)
+      const selectedModels = shuffled.slice(0, Math.min(3, allModels.length))
       
       // Use default configuration for scheduled runs
       const defaultConfig: BatchPredictionConfig = {
         topMarketsCount: 5, // Conservative default for scheduled runs
-        endDateRangeHours: 48, // 48-hour window around target date
+        endDateRangeHours: 120,
         targetDaysFromNow: 7, // Look at markets ending ~1 week from now
         excludeCategories: [Category.CRYPTOCURRENCY],
         concurrencyPerModel: 3, // Safe concurrency for scheduled runs
@@ -56,7 +60,7 @@ export const dailyBatchPredictions = inngest.createFunction(
 
       return {
         config: defaultConfig,
-        modelNames: modelList
+        modelNames: selectedModels
       }
     })
 

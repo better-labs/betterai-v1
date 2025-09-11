@@ -44,14 +44,14 @@ const nextConfig = {
               process.env.NODE_ENV === 'development'
                 ? [
                     "default-src 'self'",
-                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http: data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com",
-                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://auth.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
+                    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http: data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com https://auth.privy.io",
+                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://tagmanager.google.com https://auth.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
                     "style-src 'self' 'unsafe-inline' https: http: https://fonts.googleapis.com",
                     "img-src 'self' data: https: blob:",
                     "font-src 'self' data: https://fonts.gstatic.com",
                     "connect-src 'self' https: wss: https://fonts.googleapis.com https://fonts.gstatic.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net",
                     "frame-src 'self' https:",
-                    "frame-ancestors 'self' https://auth.privy.io https://*.privy.io https://*.vercel.app https://betterai.tools https://*.betterai.tools http://localhost:* https://localhost:*",
+                    "frame-ancestors *",
                     "worker-src 'self' blob:",
                     "child-src 'self' https://auth.privy.io blob:",
                     "object-src 'none'",
@@ -60,7 +60,7 @@ const nextConfig = {
                 : [
                     "default-src 'self'",
                     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://auth.privy.io https://*.privy.io https://challenges.cloudflare.com https://us.i.posthog.com https://us-assets.i.posthog.com https://vercel.live https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com",
-                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://auth.privy.io https://*.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
+                    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://tagmanager.google.com https://auth.privy.io https://*.privy.io https://us.i.posthog.com https://us-assets.i.posthog.com",
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                     "img-src 'self' data: https: blob:",
                     "font-src 'self' data: https://fonts.gstatic.com",

@@ -147,11 +147,11 @@ Validate all inputs and implement proper authentication
 
 
 ### Database Migrations
-Uses Prisma's official migration workflow. Cleaner approach - lets Prisma handle everything
-**CRITICAL**: Do NOT use `prisma db push` unless explicitly requested by the user. Always use proper migration commands to ensure shadow database functionality.
-
-Use `pnpm run db:migrate:` commands where possible.
-Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
+- Use Prisma's official migration workflow. Cleaner approach - lets Prisma handle everything
+- **CRITICAL**: Do NOT use `prisma db push` unless explicitly requested by the user. Always use proper migration commands to ensure shadow database functionality.
+- Use `pnpm run db:migrate:` commands where possible.
+- Migration naming: Provide `--name descriptive_name` to avoid interactive prompts. Example `pnpm run db:migrate:dev --name add_user_table`
+- If you run into Database timeout or advisory lock issues, just pause 30s, in order for the lock to clear, then continue.
 
 **Shadow Database Requirement**: The project uses a schema-based shadow database (`betterai_shadow` schema) for migration validation. This ensures:
 - Safe migration validation before applying to main database
@@ -197,33 +197,6 @@ Polymarket API: Market and event data (via `polymarket-client.ts`)
 OpenRouter API: AI model access (via `openrouter-client.ts`)
 Privy: User authentication
 
-### Internal Services
-`generate-batch-predictions.ts`: Bulk prediction generation
-`generate-single-prediction.ts`: Individual market predictions
-`market-research-service.ts`: Web research for predictions
-`prediction-checker.ts`: Validation and accuracy tracking
-`updatePolymarketEventsAndMarketData.ts`: Data synchronization
-
-### Important API Endpoints
-
-#### tRPC Endpoints (Primary)
-- `trpc.markets.list` - Unified market search/filtering with event context
-- `trpc.markets.getById` - Single market queries  
-- `trpc.markets.trending` - Trending markets with event data
-- `trpc.events.list` - Event listings with optional market inclusion
-- `trpc.predictions.recent` - Recent predictions with pagination
-- `trpc.search.searchAll` - Unified search across markets, events, and tags
-
-#### Legacy REST Endpoints (Maintained)
-`POST /api/predict` Generate AI prediction (authenticated)
-`POST /api/run-data-pipeline` Manual data pipeline trigger (authenticated)
-
-### Cron Job Endpoints (Authenticated)
-All cron endpoints require `CRON_SECRET` authentication via `Authorization: Bearer` header:
-`GET /api/cron/daily-update-polymarket-data` Sync Polymarket events and markets (max 100 per request)
-`GET /api/cron/daily-generate-batch-predictions` Generate AI predictions for trending markets
-`GET /api/cron/prediction-check` Validate and score existing predictions
-`GET /api/cron/update-ai-models` Refresh available AI model list
 
 Security Requirements:
 All cron endpoints are secured with `CRON_SECRET` environment variable

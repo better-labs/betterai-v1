@@ -61,14 +61,13 @@ async function updateVercelEnv(varName: string, value: string): Promise<void> {
 }
 
 async function main() {
-  const shouldProvisionNewRoles = process.argv.includes('--provision-new-roles');
-  
-  if (shouldProvisionNewRoles) {
-    // Original role provisioning logic
+  try {
+    // Always perform role provisioning and permission grants
     const input = process.env.DATABASE_URL_NEONDB_OWNER;
     if (!input) fatal("DATABASE_URL_NEONDB_OWNER environment variable required");
     
-    const shouldUpdateVercel = process.argv.includes('--update-vercel-env');
+    // Always update Vercel environment
+    const shouldUpdateVercel = true;
     
     let url: URL;
     try {
@@ -148,56 +147,48 @@ async function main() {
       console.log(`DATABASE_URL=${appUrl}`);
       console.log(`DATABASE_URL_UNPOOLED=${ownerUrl}`);
       
-      // Update Vercel if requested
+      // Always update Vercel environment
       if (shouldUpdateVercel) {
         console.log("\n🔄 Updating Vercel environment...");
         await updateVercelEnv("DATABASE_URL", appUrl);
         await updateVercelEnv("DATABASE_URL_UNPOOLED", ownerUrl);
       }
       
-      // Then pull the latest environment variables
-      await pullVercelEnv();
-
-      console.log("\n🎉 Done!");
-      
-    } catch (error) {
-      console.error("❌ Failed:", error instanceof Error ? error.message : String(error));
-      process.exit(1);
-    } finally {
       await client.end();
-    }
-  } else {
-    // Default: Pull latest environment variables and test connections
-    try {
-      await pullVercelEnv();
-      
-      // Reload environment variables
-      dotenv.config({ path: '.env.local' });
-      
-      console.log("\n🧪 Testing database connections...");
-      
-      // Test primary DATABASE_URL
-      const databaseUrl = process.env.DATABASE_URL;
-      if (databaseUrl) {
-        await testDatabaseConnection(databaseUrl, "DATABASE_URL (betterai_app)");
-      } else {
-        console.log("⚠️  DATABASE_URL not found in environment");
-      }
-      
-      // Test unpooled connection
-      const unpooledUrl = process.env.DATABASE_URL_UNPOOLED;
-      if (unpooledUrl) {
-        await testDatabaseConnection(unpooledUrl, "DATABASE_URL_UNPOOLED (neondb_owner)");
-      } else {
-        console.log("⚠️  DATABASE_URL_UNPOOLED not found in environment");
-      }
-      
-      console.log("\n🎉 Environment sync complete!");
-      
     } catch (error) {
-      console.error("❌ Failed:", error instanceof Error ? error.message : String(error));
-      process.exit(1);
+      await client.end();
+      throw error;
     }
+
+    // Always pull the latest environment variables from Vercel
+    await pullVercelEnv();
+    
+    // Reload environment variables after pulling from Vercel
+    dotenv.config({ path: '.env.local' });
+    
+    console.log("\n🧪 Testing database connections...");
+    
+    // Test primary DATABASE_URL
+    const databaseUrl = process.env.DATABASE_URL;
+    if (databaseUrl) {
+      await testDatabaseConnection(databaseUrl, "DATABASE_URL (betterai_app)");
+    } else {
+      console.log("⚠️  DATABASE_URL not found in environment");
+    }
+    
+    // Test unpooled connection
+    const unpooledUrl = process.env.DATABASE_URL_UNPOOLED;
+    if (unpooledUrl) {
+      await testDatabaseConnection(unpooledUrl, "DATABASE_URL_UNPOOLED (neondb_owner)");
+    } else {
+      console.log("⚠️  DATABASE_URL_UNPOOLED not found in environment");
+    }
+    
+    console.log("\n🎉 Complete! Database roles provisioned and environment synced!");
+    
+  } catch (error) {
+    console.error("❌ Failed:", error instanceof Error ? error.message : String(error));
+    process.exit(1);
   }
 }
 

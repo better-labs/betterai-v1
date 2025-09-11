@@ -148,9 +148,19 @@ export async function getTrendingMarkets(
   // Database query already filtered for truly open markets
   const markets = marketsFromDb
 
+  // Filter out markets with extreme outcome prices (0% or 100%)
+  // This essentially excludes markets that are mostly closed/decided
+  const openMarkets = markets.filter(market => {
+    const prices = Array.isArray(market.outcomePrices) 
+      ? market.outcomePrices 
+      : JSON.parse(market.outcomePrices || '[]')
+    
+    return prices.every((price: number) => price > 0.01 && price < 0.99)
+  })
+
   // Group markets by event ID
   const eventMarketsMap = new Map<string, any[]>()
-  for (const market of markets) {
+  for (const market of openMarkets) {
     const eventId = market.event.id
     if (!eventMarketsMap.has(eventId)) eventMarketsMap.set(eventId, [])
     eventMarketsMap.get(eventId)!.push(market)

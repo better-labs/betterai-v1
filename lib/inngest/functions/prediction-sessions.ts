@@ -17,6 +17,7 @@ export const PredictionSessionRequestedSchema = z.object({
   userId: z.string().min(1),
   marketId: z.string().min(1),
   selectedModels: z.array(z.string()).min(1),
+  selectedResearchSources: z.array(z.string()).min(1), // Required multiple research sources
   retryCount: z.number().default(0).optional()
 })
 
@@ -34,7 +35,7 @@ export const predictionSessionProcessor = inngest.createFunction(
   },
   { event: 'prediction.session.requested' },
   async ({ event, step }) => {
-    const { sessionId, userId, marketId, selectedModels, retryCount = 0 } = event.data
+    const { sessionId, userId, marketId, selectedModels, selectedResearchSources, retryCount = 0 } = event.data
 
     // Validate event data
     const validation = PredictionSessionRequestedSchema.safeParse(event.data)
@@ -66,18 +67,22 @@ export const predictionSessionProcessor = inngest.createFunction(
       return session
     })
 
-    // Step 2: Update session to GENERATING status
-    await step.run('update-session-generating', async () => {
+    // Step 2: Initialize session for processing (status will be updated by worker)
+    await step.run('initialize-session-processing', async () => {
       await updatePredictionSession(prisma, sessionId, {
-        status: 'GENERATING',
-        step: 'Processing via Inngest queue'
+        step: 'Starting processing pipeline'
       })
     })
 
     // Step 3: Execute prediction session with existing worker logic
     const result = await step.run('execute-predictions', async () => {
       try {
-        const workerResult = await executePredictionSession(prisma, sessionId)
+        // Execute prediction session with research sources from event
+        const workerResult = await executePredictionSession(
+          prisma, 
+          sessionId,
+          selectedResearchSources
+        )
         
         structuredLogger.info('prediction_session_inngest_completed', `Inngest processing completed for session ${sessionId}`, {
           sessionId,
@@ -177,6 +182,7 @@ export const manualSessionRecovery = inngest.createFunction(
           userId: session.userId,
           marketId: session.marketId,
           selectedModels: session.selectedModels,
+          selectedResearchSources: session.selectedResearchSources || [], // Get from session
           retryCount: 1
         }
       })
@@ -245,6 +251,7 @@ export const scheduledSessionRecovery = inngest.createFunction(
               userId: session.userId,
               marketId: session.marketId,
               selectedModels: session.selectedModels,
+              selectedResearchSources: ['exa'], // Default research for recovery 
               retryCount: 1
             }
           })

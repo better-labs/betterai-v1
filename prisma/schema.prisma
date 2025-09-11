@@ -89,17 +89,20 @@ model EventTag {
 }
 
 model ResearchCache {
-  id            Int       @id @default(autoincrement())
-  marketId      String?   @map("market_id")
-  modelName     String    @map("model_name")
-  systemMessage String?   @map("system_message")
-  userMessage   String    @map("user_message")
-  response      Json?
-  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
-  market        Market?   @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "research_cache_market_id_markets_id_fk")
+  id                 Int                              @id @default(autoincrement())
+  marketId           String?                          @map("market_id")
+  source             String                           @default("legacy") @map("source") // NEW: "exa", "grok", "google", "bing"
+  modelName          String                           @map("model_name") // Keep for backward compatibility
+  systemMessage      String?                          @map("system_message")
+  userMessage        String                           @map("user_message")
+  response           Json?
+  createdAt          DateTime?                        @default(now()) @map("created_at") @db.Timestamp(6)
+  market             Market?                          @relation(fields: [marketId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "research_cache_market_id_markets_id_fk")
+  predictionSessions PredictionSessionResearchCache[] // NEW: Many-to-many relationship
 
   @@index([createdAt], map: "idx_research_cache_created_at")
   @@index([marketId], map: "idx_research_cache_market_id")
+  @@index([source], map: "idx_research_cache_source")
   @@map("research_cache")
 }
 
@@ -211,18 +214,19 @@ model User {
 }
 
 model PredictionSession {
-  id              String                  @id @default(cuid())
-  userId          String                  @map("user_id")
-  marketId        String                  @map("market_id")
-  selectedModels  String[]                @map("selected_models")
-  status          PredictionSessionStatus @default(INITIALIZING)
+  id              String                              @id @default(cuid())
+  userId          String                              @map("user_id")
+  marketId        String                              @map("market_id")
+  selectedModels  String[]                            @map("selected_models")
+  status          PredictionSessionStatus             @default(INITIALIZING)
   step            String?
   error           String?
-  createdAt       DateTime                @default(now()) @map("created_at") @db.Timestamp(6)
-  completedAt     DateTime?               @map("completed_at") @db.Timestamp(6)
-  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prediction_sessions_user_id_users_id_fk")
-  market          Market                  @relation(fields: [marketId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prediction_sessions_market_id_markets_id_fk")
+  createdAt       DateTime                            @default(now()) @map("created_at") @db.Timestamp(6)
+  completedAt     DateTime?                           @map("completed_at") @db.Timestamp(6)
+  user            User                                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prediction_sessions_user_id_users_id_fk")
+  market          Market                              @relation(fields: [marketId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prediction_sessions_market_id_markets_id_fk")
   predictions     Prediction[]
+  researchCache   PredictionSessionResearchCache[]    // NEW: Many-to-many relationship
 
   @@index([userId], map: "idx_prediction_sessions_user_id")
   @@index([marketId], map: "idx_prediction_sessions_market_id")
@@ -244,6 +248,24 @@ model UserWatchlist {
   @@index([marketId], map: "idx_user_watchlist_market_id")
   @@index([addedAt], map: "idx_user_watchlist_added_at")
   @@map("user_watchlist")
+}
+
+/// Junction table for many-to-many relationship between PredictionSessions and ResearchCache
+model PredictionSessionResearchCache {
+  id                  String            @id @default(cuid())
+  predictionSessionId String            @map("prediction_session_id")
+  researchCacheId     Int               @map("research_cache_id")
+  usedInGeneration    Boolean           @default(true) @map("used_in_generation") // Was this research actually used?
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamp(6)
+  
+  predictionSession   PredictionSession @relation(fields: [predictionSessionId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prediction_session_research_cache_session_id_fk")
+  researchCache       ResearchCache     @relation(fields: [researchCacheId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "prediction_session_research_cache_research_id_fk")
+
+  @@unique([predictionSessionId, researchCacheId], map: "uq_prediction_session_research_cache")
+  @@index([predictionSessionId], map: "idx_prediction_session_research_cache_session_id")
+  @@index([researchCacheId], map: "idx_prediction_session_research_cache_research_id")
+  @@index([createdAt], map: "idx_prediction_session_research_cache_created_at")
+  @@map("prediction_session_research_cache")
 }
 
 

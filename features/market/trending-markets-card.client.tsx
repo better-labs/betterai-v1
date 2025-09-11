@@ -27,7 +27,6 @@ interface TrendingMarketsCardProps {
   className?: string
   latestPrediction?: Prediction | null
   href?: string | null
-  hidePredictionButton?: boolean
 }
 
 export default function TrendingMarketsCard({
@@ -37,7 +36,6 @@ export default function TrendingMarketsCard({
   className,
   latestPrediction,
   href = null,
-  hidePredictionButton = false,
 }: TrendingMarketsCardProps) {
 
   const router = useRouter()
@@ -98,7 +96,6 @@ export default function TrendingMarketsCard({
           event={event}
           externalMarketUrl={externalMarketUrl}
           onGeneratePrediction={handleGeneratePrediction}
-          hidePredictionButton={hidePredictionButton}
         />
         
         <MarketMeta 

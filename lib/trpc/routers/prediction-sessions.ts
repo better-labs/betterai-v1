@@ -10,6 +10,7 @@ import { prisma } from '@/lib/db/prisma'
 import * as predictionSessionService from '@/lib/services/prediction-session-service'
 import { creditManager } from '@/lib/services/credit-manager'
 import { calculateTotalCreditCost, validateModelIds } from '@/lib/config/ai-models'
+import { calculateResearchSourcesCost, validateResearchSourceId } from '@/lib/config/research-sources'
 import {
   StartPredictionSessionInput,
   GetPredictionSessionStatusInput,
@@ -51,8 +52,20 @@ export const predictionSessionsRouter = router({
             })
           }
 
-          // Calculate required credits based on model costs
-          const requiredCredits = calculateTotalCreditCost(validModels)
+          // Validate research sources
+          for (const sourceId of input.selectedResearchSources) {
+            if (!validateResearchSourceId(sourceId)) {
+              throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: `Invalid research source: ${sourceId}`,
+              })
+            }
+          }
+
+          // Calculate required credits based on model costs and research sources
+          const modelCredits = calculateTotalCreditCost(validModels)
+          const researchCredits = calculateResearchSourcesCost(input.selectedResearchSources)
+          const requiredCredits = modelCredits + researchCredits
           const hasCredits = await creditManager.hasCredits(tx as any, ctx.userId, requiredCredits)
           
           if (!hasCredits) {
@@ -80,6 +93,7 @@ export const predictionSessionsRouter = router({
             userId: ctx.userId,
             marketId: input.marketId,
             selectedModels: validModels,
+            selectedResearchSources: input.selectedResearchSources,
             useInngest: input.useInngest ?? true
           })
 
@@ -147,6 +161,10 @@ export const predictionSessionsRouter = router({
           predictions: session.predictions.map(pred => ({
             ...pred,
             createdAt: pred.createdAt?.toISOString() || null,
+          })),
+          researchData: session.researchData.map(research => ({
+            ...research,
+            createdAt: research.createdAt?.toISOString() || null,
           }))
         }
       } catch (error) {

@@ -130,11 +130,7 @@ export function logUpdateCompletion(
   message: string
 ) {
   // Get summary stats without logging full objects
-  const eventCategories = result.insertedEvents?.reduce((acc: Record<string, number>, event: any) => {
-    const category = event.category || 'UNKNOWN'
-    acc[category] = (acc[category] || 0) + 1
-    return acc
-  }, {}) || {}
+  
 
   const marketStats = {
     count: result.insertedMarkets?.length || 0,
@@ -148,7 +144,6 @@ export function logUpdateCompletion(
     summary: {
       eventsInserted: result.insertedEvents?.length || 0,
       marketsInserted: result.insertedMarkets?.length || 0,
-      eventsByCategory: eventCategories,
       marketStats,
       errors: result.errors?.length || 0
     }

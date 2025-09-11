@@ -14,6 +14,12 @@
  * Layout Best Practices:
  * - Flex Spacing: Use margin (my-*) for vertical spacing between flex items, not padding
  *   Flex containers can compress padding but respect margin spacing between items
+ * 
+ * Component Recommendations:
+ * - TextCollapse: Use /shared/ui/text-collapse.client.tsx for consistent expand/collapse behavior
+ * - Cards: Use /shared/ui/card.tsx components with design system tokens
+ * - Buttons: Use /shared/ui/button.tsx with design system button patterns
+ * - When in doubt, prefer existing shared components over custom implementations
  */
 
 // ============================================================================
@@ -158,26 +164,27 @@ export const components = {
   // Page layout patterns - consistent page containers
   page: {
     // Standard page container (replaces repeated container structure)
-    container: 'container mx-auto px-4 py-10',
+    container: 'container mx-auto px-4 py-4',
     content: 'max-w-4xl mx-auto',
     sections: 'space-y-4',
     
     // Standard section container for pages
-    section: 'container mx-auto px-4 py-4',
+    section: 'container mx-auto px-4 ',
   
   },
 
   // Page header patterns - consistent headers across pages
   pageHeader: {
-    container: 'text-center m-1',
-    title: typography.h1,
+    container: 'text-center m-1 my-2 md:my-4 flex flex-col items-center gap-2',
+    title: `${typography.h1} flex items-center justify-center gap-2`,
     subtitle: `${typography.bodySmall} text-muted-foreground hidden md:block`,
     icon: 'text-primary',
+    
   },
 
   // Card patterns
   card: {
-    base: 'bg-card border border-border rounded-lg shadow-sm',
+    base: 'bg-card dark:bg-[#121212] border border-border dark:border-[hsl(220_15%_25%)] rounded-lg shadow-sm',
     hover: 'hover:shadow-md transition-shadow duration-200',
     
     // Market card specific patterns
@@ -454,7 +461,7 @@ export const components = {
   },
 
   cardContent: {
-    row: 'grid grid-cols-2 gap-4',
+    row: 'grid grid-cols-[1fr_auto] gap-4',
   },
 
   // Metrics layout group for side-by-side comparisons
@@ -532,6 +539,9 @@ export const components = {
   },
 
   // Text collapse/expand patterns
+  // RECOMMENDED: Use TextCollapse component from /shared/ui/text-collapse.client.tsx for consistent expand/collapse behavior
+  // Example: <TextCollapse maxLength={150}>{longText}</TextCollapse>
+  // Use these tokens only for custom implementations or styling overrides
   textCollapse: {
     // Container for collapsible text content
     container: 'space-y-2',
@@ -546,6 +556,40 @@ export const components = {
       duration: 0.3,
       ease: "easeInOut" as const,
     },
+  },
+
+  // Research source selection patterns
+  researchSelection: {
+    // Container for research source options
+    container: 'space-y-4',
+    // Individual source option styling
+    sourceOption: 'flex items-start space-x-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors',
+    // Source content container
+    sourceContent: 'flex-1 min-w-0',
+    // Header section with name/provider and cost badge
+    sourceHeader: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1',
+    // Source name styling
+    sourceName: 'font-medium text-sm',
+    // Provider name styling
+    sourceProvider: 'text-xs text-muted-foreground',
+    // Source description styling
+    sourceDescription: 'text-xs text-muted-foreground mt-1',
+    // Cost badge alignment
+    sourceCost: 'text-xs w-fit'
+  },
+
+  // Cost summary enhancements for research sources
+  costBreakdown: {
+    // Container for cost breakdown display
+    container: 'p-3 bg-muted rounded-lg space-y-2',
+    // Individual cost row
+    row: 'flex justify-between items-center text-sm',
+    // Cost label styling
+    label: 'text-muted-foreground',
+    // Cost value styling
+    value: 'font-medium',
+    // Total cost styling with emphasis
+    total: 'border-t pt-2 mt-2 font-semibold'
   },
 
 } as const;

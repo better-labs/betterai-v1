@@ -22,16 +22,16 @@ interface StatsDisplaySectionProps {
 export function StatsDisplaySection({
   title,
   stats,
-  formatValue = (value) => value ? `${Math.round(value * 100)}%` : '--',
+  formatValue = (value) => value !== null ? `${Math.round(value * 100)}%` : '--',
   showProgressBars = true,
-  className = ''
+ 
 }: StatsDisplaySectionProps) {
   if (!stats || stats.length === 0) {
     return null
   }
 
   return (
-    <div className={`${components.statsDisplay.container} ${className}`}>
+    <div className={`${components.statsDisplay.container} `}>
       <h4 className={components.statsDisplay.sectionTitle}>{title}</h4>
       <div className={components.statsDisplay.statSpacing}>
         {stats.map((stat, index) => {
@@ -75,7 +75,7 @@ interface SingleStatDisplaySectionProps {
 export function SingleStatDisplaySection({
   title,
   value,
-  formatValue = (value: number | null) => value ? `${Math.round(value * 100)}%` : '--',
+  formatValue = (value: number | null) => value !== null ? `${Math.round(value * 100)}%` : '--',
   className = ''
 }: SingleStatDisplaySectionProps) {
   return (

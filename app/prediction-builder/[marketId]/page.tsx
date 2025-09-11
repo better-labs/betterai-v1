@@ -9,6 +9,8 @@ import { mapMarketToDTO } from '@/lib/dtos/market-dto'
 import { mapEventToDTO } from '@/lib/dtos/event-dto'
 import { generateMarketURL } from '@/lib/server-utils'
 import { isMarketOpenForBetting } from '@/lib/utils/market-status'
+import { components } from '@/lib/design-system'
+import { Brain } from 'lucide-react'
 interface PredictPageProps {
   params: Promise<{ marketId: string }>
 }
@@ -44,13 +46,18 @@ export default async function PredictPage({ params }: PredictPageProps) {
   const externalMarketUrl = await generateMarketURL(market.id)
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="space-y-6">
-        {/* Page Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl md:text-3xl font-bold">Predict with AI</h1>
-          <p className="text-muted-foreground">
-            Generate AI predictions for this market using multiple models
+    <div className={components.page.container} data-debug-id="market-detail-page-container">
+      <section className={components.page.section} data-debug-id="market-detail-page-content">
+
+
+        {/* Header */}
+        <div className={components.pageHeader.container} data-debug-id="prediction-builder-page-header-container">
+          <h1 className={components.pageHeader.title}>
+            <Brain className={components.pageHeader.icon} />
+            Prediction Builder
+          </h1>
+          <p className={components.pageHeader.subtitle}>
+            Generate AI predictions with enhanced research from multiple sources
           </p>
         </div>
 
@@ -59,13 +66,14 @@ export default async function PredictPage({ params }: PredictPageProps) {
           market={marketDTO}
           event={eventDTO}
           externalMarketUrl={externalMarketUrl}
+          limitDetails={true}
         />
 
         {/* Generator Component */}
         <Suspense fallback={<GeneratorSkeleton />}>
           <PredictionGenerator marketId={marketId} />
         </Suspense>
-      </div>
+      </section>
     </div>
   )
 }

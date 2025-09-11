@@ -6,6 +6,7 @@ import { useUser } from '@/hooks/use-user'
 import { usePrivy } from '@privy-io/react-auth'
 import { trpc } from '@/lib/trpc/client'
 import { AI_MODELS } from '@/lib/config/ai-models'
+import { calculateResearchSourcesCost } from '@/lib/config/research-sources'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Checkbox } from '@/shared/ui/checkbox'
@@ -13,6 +14,8 @@ import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Badge } from '@/shared/ui/badge'
 import { Loader2, AlertCircle, Coins } from 'lucide-react'
 import { components } from '@/lib/design-system'
+import { ResearchSourceSelectionCard } from './research-source-selection-card.client'
+import type { ResearchSourceId } from '@/lib/config/research-sources'
 
 interface PredictionGeneratorProps {
   marketId: string
@@ -20,10 +23,11 @@ interface PredictionGeneratorProps {
 
 export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
   const [selectedModels, setSelectedModels] = useState<string[]>([])
+  const [selectedResearchSources, setSelectedResearchSources] = useState<ResearchSourceId[]>(['exa']) // Default to Exa.ai
   const [isGenerating, setIsGenerating] = useState(false)
   const router = useRouter()
   const { user, isAuthenticated, isReady } = useUser()
-  const { login } = usePrivy() // Keep login function from usePrivy
+  const { login } = usePrivy()
 
   // Get user credits - using robust enabled condition
   const { data: userCreditsResponse, isLoading: creditsLoading } = trpc.users.getCredits.useQuery(
@@ -78,17 +82,23 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
     await startSession.mutateAsync({
       marketId,
       selectedModels,
+      selectedResearchSources,
       useInngest: true
     })
   }
 
-  const totalCost = selectedModels.reduce((cost, modelId) => {
+  // Calculate costs including research sources
+  const modelCost = selectedModels.reduce((cost, modelId) => {
     const model = AI_MODELS.find(m => m.id === modelId)
     return cost + (model?.creditCost || 0)
   }, 0)
 
+  const researchCost = calculateResearchSourcesCost(selectedResearchSources)
+  const totalCost = modelCost + researchCost
+
   const canGenerate = isReady && isAuthenticated && 
     selectedModels.length > 0 && 
+    selectedResearchSources.length > 0 &&
     userCredits && 
     userCredits.credits >= totalCost
 
@@ -123,6 +133,12 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
         </Card>
       )}
 
+      {/* Research Source Selection */}
+      <ResearchSourceSelectionCard 
+        selectedSources={selectedResearchSources}
+        onSourcesChange={setSelectedResearchSources}
+      />
+
       {/* Model Selection */}
       <Card>
         <CardHeader>
@@ -130,7 +146,6 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
           <p className="text-sm text-muted-foreground">
             Choose 1-5 AI models to generate predictions. Each model costs 1 credit.
           </p>
-          
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Mobile-first: Stack vertically, large touch targets */}
@@ -173,12 +188,20 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
             ))}
           </div>
 
-          {/* Cost Summary */}
-          {selectedModels.length > 0 && (
-            <div className="p-3 bg-muted rounded-lg">
-              <div className="flex justify-between items-center text-sm">
-                <span>Total Cost:</span>
-                <span className="font-medium">{totalCost} credit{totalCost !== 1 ? 's' : ''}</span>
+          {/* Enhanced Cost Summary */}
+          {(selectedModels.length > 0 || selectedResearchSources.length > 0) && (
+            <div className={components.costBreakdown.container}>
+              <div className={components.costBreakdown.row}>
+                <span className={components.costBreakdown.label}>Models ({selectedModels.length}):</span>
+                <span className={components.costBreakdown.value}>{modelCost} credit{modelCost !== 1 ? 's' : ''}</span>
+              </div>
+              <div className={components.costBreakdown.row}>
+                <span className={components.costBreakdown.label}>Research ({selectedResearchSources.length}):</span>
+                <span className={components.costBreakdown.value}>{researchCost} credit{researchCost !== 1 ? 's' : ''}</span>
+              </div>
+              <div className={`${components.costBreakdown.row} ${components.costBreakdown.total}`}>
+                <span className={components.costBreakdown.label}>Total Cost:</span>
+                <span className={components.costBreakdown.value}>{totalCost} credit{totalCost !== 1 ? 's' : ''}</span>
               </div>
             </div>
           )}
@@ -193,7 +216,25 @@ export function PredictionGenerator({ marketId }: PredictionGeneratorProps) {
             </Alert>
           )}
 
-          {isAuthenticated && userCredits && userCredits.credits < totalCost && selectedModels.length > 0 && (
+          {isAuthenticated && selectedModels.length === 0 && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please select at least one AI model.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {isAuthenticated && selectedResearchSources.length === 0 && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please select at least one research source.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {isAuthenticated && userCredits && userCredits.credits < totalCost && totalCost > 0 && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>

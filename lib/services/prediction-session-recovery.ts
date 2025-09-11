@@ -49,7 +49,16 @@ export async function recoverStuckSessions(
         marketId: true,
         status: true,
         createdAt: true,
-        selectedModels: true
+        selectedModels: true,
+        researchCache: {
+          select: {
+            researchCache: {
+              select: {
+                source: true
+              }
+            }
+          }
+        }
       },
       take: 20 // Process max 20 at a time to avoid overwhelming system
     })
@@ -71,8 +80,18 @@ export async function recoverStuckSessions(
           ageMinutes: Math.round((Date.now() - session.createdAt.getTime()) / (1000 * 60))
         })
 
+        // Extract research sources from the session's research cache
+        const researchSources = session.researchCache
+          .map(rc => rc.researchCache.source)
+          .filter((source, index, array) => array.indexOf(source) === index) // Remove duplicates
+
         // Try to recover with retry logic (max 2 attempts for recovery)
-        const recoveryResult = await executePredictionSessionWithRetry(db, session.id, 2)
+        const recoveryResult = await executePredictionSessionWithRetry(
+          db, 
+          session.id, 
+          researchSources.length > 0 ? researchSources : undefined, // Default to undefined if no sources stored
+          2
+        )
 
         if (recoveryResult.success || recoveryResult.successCount > 0) {
           result.recovered++

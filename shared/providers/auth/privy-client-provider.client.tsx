@@ -41,10 +41,16 @@ export function PrivyClientProvider({ children }: PrivyClientProviderProps) {
 		<PrivyProvider
 			appId={appId}
 			config={{
-				// Login methods only - wallets disabled in Privy Dashboard
+				// Login methods only - no wallet functionality at all
 				loginMethods: ['email', 'google'],
+				// Completely disable all wallet functionality
 				embeddedWallets: {
 					createOnLogin: 'off'
+				},
+				// Remove all wallet options and disable external wallets
+				appearance: {
+					walletList: [],
+					showWalletLoginFirst: false
 				}
 			}}
 		>

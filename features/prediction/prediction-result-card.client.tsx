@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { AI_MODELS } from '@/lib/config/ai-models'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Button } from '@/shared/ui/button'
 import {
   CheckCircle,
   AlertCircle,
@@ -13,16 +14,14 @@ import {
 import type { PredictionSessionStatus } from '@/lib/generated/prisma'
 import { StatsDisplaySection } from '@/shared/ui/stats-display-section.client'
 import { AIDelta } from '@/features/market/market-card-sections'
-import type { MarketDTO, PredictionDTO } from '@/lib/types'
+import { PredictionReasoningCard } from '@/features/prediction/prediction-reasoning-card.client'
+import type { MarketDTO, PredictionDTO, PredictionResult } from '@/lib/types'
 
 interface SessionPrediction {
   id?: string
   outcomes?: string[]
   outcomesProbabilities?: number[]
-  predictionResult?: {
-    outcomes: string[]
-    probabilities: number[]
-  }
+  predictionResult?: PredictionResult
   aiResponse?: string | null
 }
 
@@ -138,17 +137,38 @@ export function PredictionResultCard({ model, prediction, sessionStatus, session
               </div>
             )}
             
+            {/* Reasoning */}
+            {prediction.predictionResult?.reasoning && (
+              <div>
+                <h4 className="font-medium mb-2">Reasoning</h4>
+                <PredictionReasoningCard 
+                  reasoning={prediction.predictionResult.reasoning}
+                  showHeader={false}
+                  className="border-0 shadow-none bg-transparent"
+                />
+              </div>
+            )}
+
+            {/* Confidence Level */}
+            {prediction.predictionResult?.confidence_level && (
+              <div>
+                <h4 className="font-medium mb-2">Confidence: {prediction.predictionResult.confidence_level}</h4>
+              </div>
+            )}
+            
             {/* View Prediction Details Button */}
             {prediction.id && (
               <div className="pt-2">
-                <Link 
-                  href={`/prediction/${prediction.id}`}
-                  target="_blank"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full"
+                <Button 
+                  asChild 
+                  variant="secondary" 
+                  size="sm" 
+                  className="w-full"
                 >
-                  
-                  View Details
-                </Link>
+                  <Link href={`/prediction/${prediction.id}`}>
+                    View Prediction Details
+                  </Link>
+                </Button>
               </div>
             )}
           </div>

@@ -15,6 +15,7 @@ export interface PredictionSessionDTO {
   userId: string
   marketId: string
   selectedModels: string[]
+  selectedResearchSources?: string[]
   status: PredictionSessionStatus
   step?: string | null
   error?: string | null
@@ -29,6 +30,11 @@ export interface PredictionSessionDTO {
     aiResponse?: string | null
     createdAt?: Date | null
   }>
+  researchData: Array<{
+    source: string
+    response: any
+    createdAt: Date | null
+  }>
   market: {
     id: string
     question: string
@@ -40,6 +46,7 @@ export interface CreatePredictionSessionInput {
   userId: string
   marketId: string
   selectedModels: string[]
+  selectedResearchSources?: string[]
 }
 
 export interface CreatePredictionSessionWithInngestInput extends CreatePredictionSessionInput {
@@ -78,7 +85,8 @@ export async function createPredictionSession(
           sessionId: session.id,
           userId: sessionData.userId,
           marketId: sessionData.marketId,
-          selectedModels: sessionData.selectedModels
+          selectedModels: sessionData.selectedModels,
+          selectedResearchSources: sessionData.selectedResearchSources
         }
       })
 
@@ -150,6 +158,17 @@ export async function getPredictionSessionById(
           question: true,
           outcomes: true
         }
+      },
+      researchCache: {
+        include: {
+          researchCache: {
+            select: {
+              source: true,
+              response: true,
+              createdAt: true
+            }
+          }
+        }
       }
     }
   })
@@ -163,6 +182,7 @@ export async function getPredictionSessionById(
     userId: session.userId,
     marketId: session.marketId,
     selectedModels: session.selectedModels,
+    selectedResearchSources: session.researchCache.map(rc => rc.researchCache.source).filter((v, i, a) => a.indexOf(v) === i), // Unique sources
     status: session.status,
     step: session.step,
     error: session.error,
@@ -176,6 +196,11 @@ export async function getPredictionSessionById(
       outcomesProbabilities: pred.outcomesProbabilities?.map(p => Number(p)) || [],
       aiResponse: pred.aiResponse,
       createdAt: pred.createdAt
+    })),
+    researchData: session.researchCache.map(rc => ({
+      source: rc.researchCache.source,
+      response: rc.researchCache.response,
+      createdAt: rc.researchCache.createdAt
     })),
     market: session.market
   }

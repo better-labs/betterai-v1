@@ -10,6 +10,7 @@ import { PredictionDetailCard } from '@/features/prediction/prediction-detail-ca
 import { PredictionHistoryList } from '@/features/prediction/PredictionHistoryList.client'
 import type { EventDTO, MarketDTO, PredictionDTO } from '@/lib/types'
 import { components } from '@/lib/design-system'
+import { BarChart3 } from 'lucide-react'
 import { MarketOverviewCard } from '@/features/market/market-overview-card.client'
 
 // Force dynamic rendering to avoid build-time database queries
@@ -48,13 +49,19 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
   const externalMarketUrl = await generateMarketURL(marketId)
 
   return (
-    <div className={components.page.container}>
-      <div className={components.page.content}>
-        {/* Page Header */}
-        <div className={components.pageHeader.container}>
+    <div className={components.page.container} data-debug-id="market-detail-page-container">
+      <section className={components.page.section} data-debug-id="market-detail-page-content">
+        
+        
+        {/* Header */}
+        <div className={components.pageHeader.container} data-debug-id="market-detail-page-header-container">
           <h1 className={components.pageHeader.title}>
+            <BarChart3 className={components.pageHeader.icon} />
             Market Detail
           </h1>
+          <p className={components.pageHeader.subtitle}>
+            Latest information and historical predictions for this market
+          </p>
         </div>
 
         {/* Market Staleness Handler - Auto-refresh if data is old */}
@@ -85,7 +92,7 @@ export default async function MarketDetailPage({ params }: MarketDetailPageProps
             currentMarketOutcomePrices={serializedMarket.outcomePrices ?? null}
           />
         )}
-      </div>
+      </section>
     </div>
   )
 } 

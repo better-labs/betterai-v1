@@ -9,6 +9,8 @@ import { updatePredictionSession, getPredictionSessionById } from './prediction-
 import { creditManager } from './credit-manager'
 import * as predictionService from './prediction-service'
 import { structuredLogger } from '../utils/structured-logger'
+import { performMarketResearchV2 } from './research/research-service-v2'
+import { getCachedResearchBySource } from './research-cache-service'
 
 export interface WorkerResult {
   success: boolean
@@ -24,7 +26,8 @@ export interface WorkerResult {
  */
 export async function executePredictionSession(
   db: DbClient,
-  sessionId: string
+  sessionId: string,
+  selectedResearchSources?: string[]
 ): Promise<WorkerResult> {
   try {
     // Get session data
@@ -33,11 +36,14 @@ export async function executePredictionSession(
       throw new Error(`Session not found: ${sessionId}`)
     }
 
-    if (!['INITIALIZING', 'GENERATING'].includes(session.status)) {
+    if (!['QUEUED', 'INITIALIZING', 'RESEARCHING', 'GENERATING'].includes(session.status)) {
       throw new Error(`Session ${sessionId} is not in processable state: ${session.status}`)
     }
 
     const { selectedModels, userId, marketId } = session
+    
+    // Use research sources from parameter (Inngest event) or fall back to session data
+    const researchSources = selectedResearchSources || session.selectedResearchSources || []
     let successCount = 0
     let failureCount = 0
 
@@ -51,14 +57,140 @@ export async function executePredictionSession(
     })
 
     const startTime = Date.now()
+    const researchCacheIds: number[] = []
 
-    // Step 1: Optional research phase (skipped for v1 simplicity)
+    // Step 1: Research phase (if research sources selected)
+    if (researchSources && researchSources.length > 0) {
+      await updatePredictionSession(db, sessionId, {
+        status: 'RESEARCHING',
+        step: `Gathering research from ${researchSources.length} source(s)`
+      })
+
+      structuredLogger.info('prediction_session_research_started', `Starting research phase for session ${sessionId}`, {
+        sessionId,
+        marketId,
+        sources: researchSources
+      })
+
+      // Process each research source
+      for (const source of researchSources) {
+        try {
+          const researchStartTime = Date.now()
+          
+          // Check if we already have cached research for this source
+          const cachedResearch = await getCachedResearchBySource(db, marketId, source)
+          
+          if (cachedResearch) {
+            researchCacheIds.push(cachedResearch.id)
+            structuredLogger.info('prediction_session_research_cached', `Using cached ${source} research`, {
+              sessionId,
+              marketId,
+              source,
+              cacheId: cachedResearch.id
+            })
+          } else {
+            // Perform new research
+            const researchResult = await performMarketResearchV2(db, marketId, source)
+            
+            // Get the newly created cache entry
+            const newCache = await getCachedResearchBySource(db, marketId, source)
+            if (newCache) {
+              researchCacheIds.push(newCache.id)
+              const researchDuration = Date.now() - researchStartTime
+              structuredLogger.info('prediction_session_research_completed', `Completed ${source} research`, {
+                sessionId,
+                marketId,
+                source,
+                cacheId: newCache.id,
+                duration: researchDuration
+              })
+            }
+          }
+        } catch (error) {
+          // Log research error but don't fail the session
+          structuredLogger.error('prediction_session_research_error', `Research source ${source} failed`, {
+            sessionId,
+            marketId,
+            source,
+            error: { message: error instanceof Error ? error.message : 'Unknown error' }
+          })
+        }
+      }
+
+      // Link research cache entries to session via junction table
+      if (researchCacheIds.length > 0) {
+        try {
+          await db.predictionSessionResearchCache.createMany({
+            data: researchCacheIds.map(cacheId => ({
+              predictionSessionId: sessionId,
+              researchCacheId: cacheId,
+              usedInGeneration: true
+            })),
+            skipDuplicates: true // In case some entries already exist
+          })
+          
+          structuredLogger.info('prediction_session_research_linked', `Linked ${researchCacheIds.length} research entries to session`, {
+            sessionId,
+            researchCacheIds
+          })
+        } catch (linkError) {
+          structuredLogger.error('prediction_session_research_link_error', 'Failed to link research to session', {
+            sessionId,
+            researchCacheIds,
+            error: { message: linkError instanceof Error ? linkError.message : 'Unknown error' }
+          })
+        }
+      }
+    }
+
+    // Step 2: Prepare research context for predictions
+    let researchContext = ''
+    if (researchCacheIds.length > 0) {
+      try {
+        // Retrieve cached research data to include in predictions
+        const researchData = await db.researchCache.findMany({
+          where: {
+            id: { in: researchCacheIds }
+          },
+          select: {
+            source: true,
+            response: true
+          }
+        })
+
+        // Format research data for inclusion in user message
+        const researchSections = researchData.map(cache => {
+          const response = cache.response as any
+          if (response && response.relevant_information) {
+            return `\n## ${cache.source.charAt(0).toUpperCase() + cache.source.slice(1)} Research:\n${response.relevant_information}`
+          }
+          return `\n## ${cache.source.charAt(0).toUpperCase() + cache.source.slice(1)} Research:\n${JSON.stringify(response)}`
+        }).join('\n')
+
+        if (researchSections) {
+          researchContext = `\n\nResearch Data:${researchSections}`
+          structuredLogger.info('prediction_session_research_context_prepared', `Prepared research context for predictions`, {
+            sessionId,
+            researchSources: researchData.map(r => r.source),
+            contextLength: researchContext.length
+          })
+        }
+      } catch (error) {
+        structuredLogger.error('prediction_session_research_context_error', 'Failed to prepare research context', {
+          sessionId,
+          researchCacheIds,
+          error: { message: error instanceof Error ? error.message : 'Unknown error' }
+        })
+      }
+    }
+
+    // Step 3: Update status to GENERATING
     await updatePredictionSession(db, sessionId, {
       status: 'GENERATING',
       step: 'Starting prediction generation'
     })
 
-    // Step 2: Process each model sequentially
+    // Step 4: Process each model sequentially
     for (let i = 0; i < selectedModels.length; i++) {
       const modelName = selectedModels[i]
       const modelStartTime = Date.now()
@@ -72,14 +204,16 @@ export async function executePredictionSession(
           step: `Generating prediction ${i + 1}/${selectedModels.length} with ${modelName}`
         })
 
-        // Generate prediction using existing service
+        // Generate prediction using existing service with research context
         const result = await generatePredictionForMarket(
           marketId,
           userId,
           modelName,
           undefined, // additionalUserMessageContext
           undefined, // experimentTag  
-          undefined  // experimentNotes
+          undefined,  // experimentNotes
+          false, // useWebSearch
+          researchContext || undefined // researchContext - include research data
         )
 
         if (result.success && result.predictionId) {
@@ -231,13 +365,14 @@ export async function executePredictionSession(
 export async function executePredictionSessionWithRetry(
   db: DbClient,
   sessionId: string,
+  selectedResearchSources?: string[],
   maxAttempts: number = 3
 ): Promise<WorkerResult> {
   let lastError: Error | null = null
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const result = await executePredictionSession(db, sessionId)
+      const result = await executePredictionSession(db, sessionId, selectedResearchSources)
       
       if (result.success) {
         return result
