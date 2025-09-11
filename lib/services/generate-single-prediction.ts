@@ -197,67 +197,25 @@ export async function generatePredictionForMarket(marketId: string, userId?: str
     console.log(`Generating AI prediction for market: ${marketId}`)
     const model = modelName || DEFAULT_MODEL
     
-    // Determine if web search should be enabled
-    // Automatically disable web search in development mode regardless of env var
-    const singlePredictionsWebSearch = process.env.NODE_ENV === 'production' 
-      ? process.env.SINGLE_PREDICTIONS_WEB_SEARCH === 'true'
-      : false
     
-    if (singlePredictionsWebSearch) {
-      console.log(`🌐 Web search enabled for model: ${model}`)
+    let useWebSearchModified  = useWebSearch || false;
+    if (process.env.NODE_ENV === 'development') {
+      useWebSearchModified = false
     }
-    
+
     const { systemMessage, userMessage } = constructPredictionPrompt(market, additionalUserMessageContext)
 
     await new Promise(resolve => setTimeout(resolve, 2000)) // Increased delay to avoid rate limiting
 
     let predictionResult: OpenRouterPredictionResult;
     try {
-      predictionResult = await fetchPredictionFromOpenRouter(model, systemMessage, userMessage, singlePredictionsWebSearch)
+      predictionResult = await fetchPredictionFromOpenRouter(model, systemMessage, userMessage, useWebSearchModified)
     } catch (error) {
       console.error(`Error generating prediction for market ${marketId}:`, error)
+
+      // For other errors, re-throw
+      throw error
       
-      // If it's a JSON parsing error or empty response, try with a fallback model
-      if ((error instanceof Error && (error.message.includes('invalid JSON response') || error.message.includes('empty content'))) || 
-          error instanceof EmptyContentError) {
-        console.log(`📝 Empty response from primary model for market ${marketId}, trying fallback model...`)
-        
-        try {
-          // Retry with Claude which tends to be more reliable with JSON
-          const fallbackModel = 'anthropic/claude-3-haiku:beta'
-          await new Promise(resolve => setTimeout(resolve, 1000)) // Additional delay for retry
-          predictionResult = await fetchPredictionFromOpenRouter(fallbackModel, systemMessage, userMessage, singlePredictionsWebSearch)
-          console.log(`✅ Fallback model succeeded for market ${marketId}`)
-        } catch (fallbackError) {
-          // If fallback also fails with empty content, log and return gracefully
-          if (fallbackError instanceof EmptyContentError) {
-            console.log(`📝 Both primary and fallback models returned empty content for market ${marketId} - skipping this market`)
-            console.log('🔍 Empty content debug - Primary model request data:')
-            if (error instanceof EmptyContentError) {
-              console.log('  Model:', error.requestData.model)
-              console.log('  System msg chars:', error.requestData.systemMessage.length)
-              console.log('  User msg chars:', error.requestData.userMessage.length)
-            }
-            console.log('🔍 Empty content debug - Fallback model request data:')
-            console.log('  Model:', fallbackError.requestData.model)
-            console.log('  System msg chars:', fallbackError.requestData.systemMessage.length)
-            console.log('  User msg chars:', fallbackError.requestData.userMessage.length)
-            return { 
-              success: false,
-              message: 'Skipped: Both models returned empty content'
-            }
-          } else {
-            console.error(`❌ Fallback model also failed for market ${marketId}:`, fallbackError)
-            return { 
-              success: false, 
-              message: `Both primary (${model}) and fallback (anthropic/claude-3-haiku) models failed for market ${marketId}. Primary error: ${error.message}` 
-            }
-          }
-        }
-      } else {
-        // For other errors, re-throw
-        throw error
-      }
     }
 
     const predictionId = await savePrediction(

@@ -170,7 +170,8 @@ export async function executePredictionSession(
           modelName,
           undefined, // additionalUserMessageContext
           undefined, // experimentTag  
-          undefined  // experimentNotes
+          undefined,  // experimentNotes
+          false // useWebSearch
         )
 
         if (result.success && result.predictionId) {

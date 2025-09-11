@@ -197,33 +197,6 @@ Polymarket API: Market and event data (via `polymarket-client.ts`)
 OpenRouter API: AI model access (via `openrouter-client.ts`)
 Privy: User authentication
 
-### Internal Services
-`generate-batch-predictions.ts`: Bulk prediction generation
-`generate-single-prediction.ts`: Individual market predictions
-`research-service-v2.ts`: Multi-source market research (Exa.ai + Grok)
-`prediction-checker.ts`: Validation and accuracy tracking
-`updatePolymarketEventsAndMarketData.ts`: Data synchronization
-
-### Important API Endpoints
-
-#### tRPC Endpoints (Primary)
-- `trpc.markets.list` - Unified market search/filtering with event context
-- `trpc.markets.getById` - Single market queries  
-- `trpc.markets.trending` - Trending markets with event data
-- `trpc.events.list` - Event listings with optional market inclusion
-- `trpc.predictions.recent` - Recent predictions with pagination
-- `trpc.search.searchAll` - Unified search across markets, events, and tags
-
-#### Legacy REST Endpoints (Maintained)
-`POST /api/predict` Generate AI prediction (authenticated)
-`POST /api/run-data-pipeline` Manual data pipeline trigger (authenticated) - uses research-service-v2
-
-### Cron Job Endpoints (Authenticated)
-All cron endpoints require `CRON_SECRET` authentication via `Authorization: Bearer` header:
-`GET /api/cron/daily-update-polymarket-data` Sync Polymarket events and markets (max 100 per request)
-`GET /api/cron/daily-generate-batch-predictions` Generate AI predictions for trending markets
-`GET /api/cron/prediction-check` Validate and score existing predictions
-`GET /api/cron/update-ai-models` Refresh available AI model list
 
 Security Requirements:
 All cron endpoints are secured with `CRON_SECRET` environment variable
