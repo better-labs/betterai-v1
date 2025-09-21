@@ -1,9 +1,32 @@
+# Business Source License 1.1
+
 Copyright (c) 2025 BetterAI, Inc. All rights reserved.
 
-Unauthorized copying, modification, distribution, or use of this software,
-in whole or in part, is strictly prohibited without prior written permission
-from BetterAI, Inc.
 
-This software and its source code are proprietary and confidential.  
-No license is granted to you, and all rights, title, and interest remain
-with BetterAI, Inc.
+
+Licensor: BetterLabs LLC  
+Licensed Work: BetterAI Web App  
+The Licensed Work is (c) 2025 BetterLabs LLC.  
+Additional Use Grant: You may make use of the Licensed Work, subject to the conditions below.  
+
+Change Date: 2028-09-20 (three years from the date of this license).  
+Change License: Apache License, Version 2.0
+
+---
+
+## Terms
+
+The Licensor hereby grants you the right to copy, modify, create derivative works, redistribute, and make non-production use of the Licensed Work.  
+
+Production use of the Licensed Work is **not allowed** except as explicitly granted by the Licensor. For example, running the Licensed Work for use by your employees, customers, or users is considered production use.  
+
+After the Change Date, the Licensed Work will automatically be made available under the Change License (Apache License, Version 2.0), as published by the Apache Software Foundation.  
+
+---
+
+## Notices
+
+A copy of the Apache License, Version 2.0, is available at:  
+https://www.apache.org/licenses/LICENSE-2.0  
+
+This License does not grant you any trademark rights, even if such rights are related to the Licensed Work.  
