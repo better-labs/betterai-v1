@@ -53,7 +53,8 @@ export function TrendingMarkets() {
     setIsBrowser(true)
     // Force a refresh when component mounts to ensure fresh data
     refetchMarkets()
-  }, [refetchMarkets])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
 
   // Tag selection handler
