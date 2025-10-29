@@ -1,6 +1,10 @@
-# BetterAI
+# BetterAI Prototype Web App
 
-A Next.js prediction market application that integrates with Polymarket and Colosseum APIs, featuring AI-powered market predictions.
+a Next.js prediction market application that integrates with Polymarket, featuring AI-powered market predictions. It enables a non-technical consumer user to invoke multiple AI models with enriched datasets to predict the likely outcome of a given predictionmarket (like Polymarket).
+
+## Status
+
+This app is not currently in active development, but was used to test and iterate on user experience. Learnings from this prototype are being rolled into future phases.
 
 ## Overview
 **Purpose**: enable a non-technical consumer user to invoke multiple AI models with enriched datasets to predict the likely outcome of a given predictionmarket (like Polymarket, Kalshi, PredictIt, etc).
