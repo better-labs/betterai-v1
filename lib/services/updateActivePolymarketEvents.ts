@@ -31,16 +31,16 @@ export async function updateActivePolymarketEvents(options: {
   console.log('Starting active Polymarket events update...')
 
 
-  const maxDaysUntilEnd = 45
+  const maxDaysUntilEnd = 30
   const lookbackDays = 7  // Include events that ended up to 7 days ago to catch recently closed markets
   // Find all events with markets and filter for truly open markets
-  // Include events ending within the next 45 days AND events that ended in the past 7 days
+  // Include events ending within the next 30 days AND events that ended in the past 7 days
   const eventsWithMarkets = await prisma.event.findMany({
     where: {
       marketProvider: 'Polymarket',
       endDate: {
         gte: new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000), // 7 days ago
-        lte: new Date(Date.now() + maxDaysUntilEnd * 24 * 60 * 60 * 1000) // 45 days future
+        lte: new Date(Date.now() + maxDaysUntilEnd * 24 * 60 * 60 * 1000) // 30 days future
       },
       markets: {
         some: getOpenMarketsDatabaseFilter({ 
