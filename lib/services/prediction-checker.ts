@@ -65,6 +65,23 @@ export async function generatePredictionVsMarketDelta(
 
   const lowerExclusions = new Set(excludeCategories.map((c) => c.toLowerCase()))
 
+  // Batch check: find predictions that already have a final closed market check
+  const predictionIds = predictions.map((p) => p.id)
+  const existingClosedChecks = await prisma.predictionCheck.findMany({
+    where: {
+      predictionId: { in: predictionIds },
+      marketClosed: true,
+    },
+    select: { predictionId: true },
+  })
+  const predictionsWithClosedCheck = new Set(
+    existingClosedChecks.map((check) => check.predictionId)
+  )
+
+  console.log(
+    `prediction-check:batch-check found ${predictionsWithClosedCheck.size} predictions with existing closed market checks`
+  )
+
   const results: PredictionCheckResult[] = []
   let savedCount = 0
   let processedCount = 0
@@ -72,6 +89,7 @@ export async function generatePredictionVsMarketDelta(
   let skipExcludedCount = 0
   let skipClosedCount = 0
   let saveErrorCount = 0
+  let finalCheckCount = 0
 
   for (const p of predictions) {
     processedCount += 1
@@ -113,25 +131,42 @@ export async function generatePredictionVsMarketDelta(
       continue
     }
 
-    if (!includeClosedMarkets && !isMarketOpenForBetting({
+    const isMarketOpen = isMarketOpenForBetting({
       closed: market.closed,
       active: market.active,
       closedTime: market.closedTime,
       endDate: market.endDate,
-    })) {
-      skipClosedCount += 1
-      results.push({
-        predictionId: p.id,
-        marketId: market.id,
-        category,
-        aiProbability: null,
-        marketProbability: null,
-        delta: null,
-        absDelta: null,
-        saved: false,
-        message: 'Market closed; skipping',
-      })
-      continue
+    })
+
+    // If market is closed, check if we need to record final resolution check
+    if (!isMarketOpen) {
+      if (!includeClosedMarkets) {
+        // Check if we already have a final check for this prediction when market was closed
+        if (predictionsWithClosedCheck.has(p.id)) {
+          // Already captured final market price at resolution, skip
+          skipClosedCount += 1
+          results.push({
+            predictionId: p.id,
+            marketId: market.id,
+            category,
+            aiProbability: null,
+            marketProbability: null,
+            delta: null,
+            absDelta: null,
+            saved: false,
+            message: 'Market closed; already have final check',
+          })
+          continue
+        }
+        // If no existing closed check, fall through to create the final check
+        finalCheckCount += 1
+        console.log(
+          `prediction-check:final-check predictionId=${p.id} marketId=${market.id} - recording final market price`
+        )
+      } else {
+        // includeClosedMarkets=true means check all closed markets regardless
+        // This branch is for when explicitly requesting to check closed markets
+      }
     }
 
     // Pull AI probability from stored arrays (index 0)
@@ -179,7 +214,7 @@ export async function generatePredictionVsMarketDelta(
         marketProbability: marketProbability,
         delta,
         absDelta,
-        marketClosed: !!market.closed,
+        marketClosed: !isMarketOpen, // Use computed status, not just DB flag
       })
       savedCount += 1
       results[results.length - 1] = {
@@ -198,12 +233,12 @@ export async function generatePredictionVsMarketDelta(
     // Minimal progress output (every 25 items)
     if (processedCount % 25 === 0 || processedCount === predictions.length) {
       console.log(
-        `prediction-check:progress ${processedCount}/${predictions.length} saved=${savedCount} skips(noMarket=${skipNoMarketCount}, excluded=${skipExcludedCount}, closed=${skipClosedCount}) errors=${saveErrorCount}`
+        `prediction-check:progress ${processedCount}/${predictions.length} saved=${savedCount} finalChecks=${finalCheckCount} skips(noMarket=${skipNoMarketCount}, excluded=${skipExcludedCount}, closed=${skipClosedCount}) errors=${saveErrorCount}`
       )
     }
   }
   console.log(
-    `prediction-check:done processed=${processedCount} saved=${savedCount} skips(noMarket=${skipNoMarketCount}, excluded=${skipExcludedCount}, closed=${skipClosedCount}) errors=${saveErrorCount}`
+    `prediction-check:done processed=${processedCount} saved=${savedCount} finalChecks=${finalCheckCount} skips(noMarket=${skipNoMarketCount}, excluded=${skipExcludedCount}, closed=${skipClosedCount}) errors=${saveErrorCount}`
   )
   return {
     checkedCount: predictions.length,

@@ -23,17 +23,17 @@ import {
 } from '../utils/polymarket-update-helper'
 
 /**
- * Regular Polymarket data update - runs every 6 hours
+ * Regular Polymarket data update - runs every 12 hours
  * Replaces: /api/cron/daily-update-polymarket-data (schedule: "0 star/6 star star star")
  */
 export const polymarketDataUpdate = inngest.createFunction(
-  { 
+  {
     id: 'polymarket-data-update',
-    name: 'Polymarket Data Update: Top Events by Volume (Every 6 Hours)',
+    name: 'Polymarket Data Update: Top Events by Volume (Every 12 Hours)',
     retries: 3,
   },
-  { 
-    cron: 'TZ=UTC 0 */6 * * *' // Every 6 hours
+  {
+    cron: 'TZ=UTC 0 */12 * * *' // Every 12 hours
   },
   async ({ step }) => {
     const executionId = createExecutionId('polymarket-update')
@@ -48,7 +48,7 @@ export const polymarketDataUpdate = inngest.createFunction(
     const updateResult = await step.run('update-polymarket-data', async () => {
       const config = createPolymarketConfig('POLYMARKET_UPDATE', {
         batchSize: Math.min(Number(process.env.POLYMARKET_UPDATE_BATCH_SIZE ?? 50), 100),
-        maxEvents: 50,
+        maxEvents: 25,
         userAgent: 'BetterAI/1.0'
       }, executionId)
 
@@ -117,18 +117,18 @@ export const polymarketDataUpdate = inngest.createFunction(
 // - Reduced complexity in this file
 
 /**
- * Update active and recently ended events - runs every 3 hours
- * Includes events ending within next 45 days AND events that ended in past 7 days
+ * Update active and recently ended events - runs every 6 hours
+ * Includes events ending within next 30 days AND events that ended in past 7 days
  * Replaces: /api/cron/update-active-events (schedule: "15 star/3 star star star")
  */
 export const polymarketUpdateActiveEvents = inngest.createFunction(
-  { 
+  {
     id: 'polymarket-update-active-events',
-    name: 'Polymarket Data Update: Active & Recently Ended Events (Every 3 Hours)',
+    name: 'Polymarket Data Update: Active & Recently Ended Events (Every 6 Hours)',
     retries: 3,
   },
-  { 
-    cron: 'TZ=UTC 15 */3 * * *' // Every 3 hours at :15 minutes
+  {
+    cron: 'TZ=UTC 15 */6 * * *' // Every 6 hours at :15 minutes
   },
   async ({ step }) => {
     const executionId = `polymarket-active-events-${Date.now()}-${Math.random().toString(36).substring(7)}`
