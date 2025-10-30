@@ -214,7 +214,7 @@ export async function generatePredictionVsMarketDelta(
         marketProbability: marketProbability,
         delta,
         absDelta,
-        marketClosed: !!market.closed,
+        marketClosed: !isMarketOpen, // Use computed status, not just DB flag
       })
       savedCount += 1
       results[results.length - 1] = {
