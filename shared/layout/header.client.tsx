@@ -67,7 +67,9 @@ export function Header() {
                 height={40} 
                 className="h-11 w-11 flex-shrink-0"
               />
-              <span className={components.header.logoText}>BetterAI</span>
+              <span className={components.header.logoText}>
+                BetterAI <span className="text-[0.6em] font-normal">(Alpha)</span>
+              </span>
             </Link>
 
             {/* Navigation Section */}
