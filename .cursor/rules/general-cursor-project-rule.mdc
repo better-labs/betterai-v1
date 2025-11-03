@@ -4,7 +4,6 @@ globs:
 alwaysApply: true
 ---
 
-Generate a quote from the movie Talladega Nights: Ballad of Ricky Bobby after every response.
 
 
 # Auto-approved commands
