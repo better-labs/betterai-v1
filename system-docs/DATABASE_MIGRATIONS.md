@@ -12,13 +12,9 @@ Our database migration strategy follows these principles:
 
 ## Architecture
 
-### Database Roles
-- **`betterai_admin`**: DDL operations, migrations (direct connection)
-- **`betterai_app`**: CRUD operations, runtime (pooled connection)
-
-### Connection URLs
-- **`DATABASE_URL`**: Pooled connection for app runtime
-- **`DATABASE_URL_UNPOOLED`**: Direct connection for migrations
+### Database Connection
+- **Supabase Session Pooler**: Single connection for both runtime and migrations
+- **`DATABASE_URL`**: Supabase Session Pooler (port 6543) - works for everything
 
 ## Migration Workflow
 
@@ -64,8 +60,8 @@ For potentially destructive migrations, use manual review:
 Add these secrets to your GitHub repository:
 
 ```bash
-# Production database (admin role for migrations)
-DATABASE_URL_UNPOOLED=postgresql://betterai_admin:password@host/db
+# Production database (Supabase Session Pooler)
+DATABASE_URL=postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres
 
 # Vercel deploy hook for automatic redeployment
 VERCEL_DEPLOY_HOOK_URL=https://api.vercel.com/v1/integrations/deploy/...

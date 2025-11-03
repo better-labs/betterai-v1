@@ -8,16 +8,15 @@ Simple step-by-step guide to migrate your database from Neon to Supabase.
    - Go to [supabase.com](https://supabase.com) and create a new project
    - Note your project's connection details
 
-2. **Get Connection Strings from Supabase**
+2. **Get Connection String from Supabase**
    - Go to Project Settings → Database
    - **IMPORTANT: IPv4 Compatibility Issue**
      - Supabase direct connections are IPv6-only by default
      - If you see "Not IPv4 compatible" warning → Use **Session Pooler** instead
      - Session Pooler works for both runtime AND migrations on IPv4 networks
    - Copy:
-     - **Connection Pooling** → "Session mode" (for `DATABASE_URL` - pooled connection)
-     - **Connection Pooling** → "Session mode" (for `DATABASE_URL_UNPOOLED` - migrations on IPv4)
-     - For shadow database: use the same Session Pooler connection
+     - **Connection Pooling** → "Session mode" (for `DATABASE_URL`)
+     - Format: `postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres`
 
 3. **Install pg_dump and psql** (if not already installed)
    ```bash
@@ -52,23 +51,12 @@ cat .env.local | grep DATABASE_URL
 
 ---
 
-## Step 2: Create Shadow Database Schema in Supabase
+## Step 2: Note About Simplified Setup
 
-Since Supabase doesn't use schema-based shadow databases the same way, you have two options:
-
-**Option A (Recommended):** Use a separate shadow database
-1. Create a second Supabase project for shadow database
-2. Or create a separate schema in the same database
-
-**Option B (Simpler):** Use the same connection for shadow (not ideal but works)
-- Use the same `DATABASE_URL_UNPOOLED` for both main and shadow
-
-For now, let's use Option B to keep it simple:
-
-```bash
-# Your Supabase shadow URL will be the same as DATABASE_URL_UNPOOLED
-# We'll set this up in the .env.local file
-```
+With Supabase Session Pooler, we're using a simplified single-URL setup:
+- One `DATABASE_URL` for both runtime and migrations
+- No separate unpooled connection needed
+- No shadow database required (removed for simplicity)
 
 ---
 
@@ -121,30 +109,18 @@ cp .env.local .env.local.backup
 
 **Update in `.env.local`:**
 ```bash
-# Replace Neon URLs with Supabase URLs
-# IMPORTANT: If you're on IPv4 and see "Not IPv4 compatible", use Session Pooler for all three
+# Replace Neon URLs with Supabase Session Pooler URL
+# IMPORTANT: Use Session Pooler (port 6543) for both runtime and migrations
 
-# Option 1: If you have IPv6 access (direct connection works):
-DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@[PROJECT-REF].supabase.co:5432/postgres?pgbouncer=true"
-DATABASE_URL_UNPOOLED="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
-SHADOW_DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
-
-# Option 2: If IPv4 only (use Session Pooler for all - RECOMMENDED):
 DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres"
-DATABASE_URL_UNPOOLED="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres"
-SHADOW_DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres"
 ```
 
-**How to get Supabase connection strings:**
+**How to get Supabase connection string:**
 1. Go to Supabase Dashboard → Project Settings → Database
 2. Under "Connection string":
-   - If you see **"Not IPv4 compatible"** warning:
-     - Click "Pooler settings" or switch to "Session mode" in dropdown
-     - Use **Session Pooler** (port 6543) for ALL three variables
-     - Format: `postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres`
-   - If direct connection works (IPv6):
-     - "Session mode" (for pooled) → use for `DATABASE_URL`
-     - "Direct connection" → use for `DATABASE_URL_UNPOOLED` and `SHADOW_DATABASE_URL`
+   - Switch to "Session mode" in dropdown
+   - Use **Session Pooler** (port 6543)
+   - Format: `postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres`
 3. Replace `[YOUR-PASSWORD]` with your database password
 
 ---
@@ -195,29 +171,31 @@ psql "YOUR_SUPABASE_DIRECT_CONNECTION_STRING" -c "SELECT COUNT(*) FROM predictio
 ### Via Vercel Dashboard:
 1. Go to [Vercel Dashboard](https://vercel.com) → Your Project → Settings → Environment Variables
 2. Update for **Production**:
-   - `DATABASE_URL` → Your Supabase pooled connection string
-   - `DATABASE_URL_UNPOOLED` → Your Supabase direct connection string
-   - `SHADOW_DATABASE_URL` → Your Supabase direct connection string (same as UNPOOLED)
+   - `DATABASE_URL` → Your Supabase Session Pooler connection string
+   - Remove `DATABASE_URL_UNPOOLED` (no longer needed)
+   - Remove `SHADOW_DATABASE_URL` (no longer needed)
 
-3. Update for **Preview**:
-   - Same three variables with Supabase connection strings
+3. Update for **Preview** and **Development**:
+   - Same single `DATABASE_URL` variable
 
 ### Via Vercel CLI:
 ```bash
-# Set production variables
+# Set production variable
 vercel env add DATABASE_URL production
-# Paste your Supabase pooled connection string when prompted
+# Paste your Supabase Session Pooler connection string when prompted
 
-vercel env add DATABASE_URL_UNPOOLED production
-# Paste your Supabase direct connection string
+# Remove old variables (if they exist)
+vercel env rm DATABASE_URL_UNPOOLED production
+vercel env rm SHADOW_DATABASE_URL production
 
-vercel env add SHADOW_DATABASE_URL production
-# Paste your Supabase direct connection string
-
-# Repeat for preview environment
+# Repeat for preview and development environments
 vercel env add DATABASE_URL preview
-vercel env add DATABASE_URL_UNPOOLED preview
-vercel env add SHADOW_DATABASE_URL preview
+vercel env rm DATABASE_URL_UNPOOLED preview
+vercel env rm SHADOW_DATABASE_URL preview
+
+vercel env add DATABASE_URL development
+vercel env rm DATABASE_URL_UNPOOLED development
+vercel env rm SHADOW_DATABASE_URL development
 ```
 
 ---
@@ -274,21 +252,18 @@ rm .env.local.backup
 
 ---
 
-## Quick Reference: Supabase Connection Strings Format
+## Quick Reference: Supabase Connection String Format
 
 ```
-# Session Pooler (IPv4 compatible - RECOMMENDED for all)
-# Port 6543 = Session mode (good for migrations)
-# Port 5432 = Transaction mode (faster, but less ideal for migrations)
+# Session Pooler (IPv4 compatible - RECOMMENDED)
+# Port 6543 = Session mode (works for both runtime and migrations)
 postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres
-
-# Direct Connection (IPv6 only - only use if your network supports IPv6)
-postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
 ```
 
-**Get these from:** Supabase Dashboard → Project Settings → Database → Connection string
+**Get this from:** Supabase Dashboard → Project Settings → Database → Connection string → "Session mode"
 
-**If you see "Not IPv4 compatible" warning:**
-- Click "Pooler settings" or select "Session mode"
-- Use the Session Pooler connection string (port 6543) for all three variables
-- This is the recommended approach for IPv4 networks
+**Why Session Pooler?**
+- Works on both IPv4 and IPv6 networks
+- Handles both application runtime and database migrations
+- Single connection string to manage
+- Simpler configuration

@@ -114,19 +114,12 @@ fi
 echo ""
 echo "📝 Step 3: Update .env.local"
 echo ""
-echo -e "${YELLOW}💡 Tip: For IPv4 networks, use Session Pooler for all three variables${NC}"
+echo -e "${YELLOW}💡 Using simplified single-URL setup${NC}"
 echo ""
-echo "Please enter your Supabase connection strings:"
-echo ""
-echo "1. Runtime connection (for DATABASE_URL):"
-echo "   Recommended: Transaction mode (port 5432) - faster for queries"
-echo "   Example: postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
-read -r SUPABASE_POOLED
-echo ""
-echo "2. Migration connection (for DATABASE_URL_UNPOOLED):"
-echo "   Recommended: Session mode (port 6543) - better for migrations"
+echo "Please enter your Supabase Session Pooler connection string (for DATABASE_URL):"
+echo "   Session mode (port 6543) - works for both runtime and migrations"
 echo "   Example: postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres"
-read -r SUPABASE_DIRECT
+read -r SUPABASE_URL_FINAL
 
 # Backup .env.local
 cp .env.local .env.local.backup-$(date +%Y%m%d-%H%M%S)
@@ -135,14 +128,16 @@ echo -e "${GREEN}✅ Backed up .env.local${NC}"
 # Update .env.local (sed works differently on macOS)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
-    sed -i '' "s|^DATABASE_URL=.*|DATABASE_URL=\"$SUPABASE_POOLED\"|" .env.local
-    sed -i '' "s|^DATABASE_URL_UNPOOLED=.*|DATABASE_URL_UNPOOLED=\"$SUPABASE_DIRECT\"|" .env.local
-    sed -i '' "s|^SHADOW_DATABASE_URL=.*|SHADOW_DATABASE_URL=\"$SUPABASE_DIRECT\"|" .env.local
+    sed -i '' "s|^DATABASE_URL=.*|DATABASE_URL=\"$SUPABASE_URL_FINAL\"|" .env.local
+    # Remove old variables if they exist
+    sed -i '' '/^DATABASE_URL_UNPOOLED=/d' .env.local
+    sed -i '' '/^SHADOW_DATABASE_URL=/d' .env.local
 else
     # Linux
-    sed -i "s|^DATABASE_URL=.*|DATABASE_URL=\"$SUPABASE_POOLED\"|" .env.local
-    sed -i "s|^DATABASE_URL_UNPOOLED=.*|DATABASE_URL_UNPOOLED=\"$SUPABASE_DIRECT\"|" .env.local
-    sed -i "s|^SHADOW_DATABASE_URL=.*|SHADOW_DATABASE_URL=\"$SUPABASE_DIRECT\"|" .env.local
+    sed -i "s|^DATABASE_URL=.*|DATABASE_URL=\"$SUPABASE_URL_FINAL\"|" .env.local
+    # Remove old variables if they exist
+    sed -i '/^DATABASE_URL_UNPOOLED=/d' .env.local
+    sed -i '/^SHADOW_DATABASE_URL=/d' .env.local
 fi
 
 echo -e "${GREEN}✅ Updated .env.local${NC}"
@@ -160,18 +155,21 @@ pnpm run db:migrate:status:dev || echo -e "${YELLOW}⚠️  Migration check fail
 echo ""
 echo -e "${GREEN}✅ Migration complete!${NC}"
 echo ""
-echo "Summary of connection strings used:"
-echo "  DATABASE_URL: $SUPABASE_POOLED"
-echo "  DATABASE_URL_UNPOOLED: $SUPABASE_DIRECT"
-echo "  SHADOW_DATABASE_URL: $SUPABASE_DIRECT"
+echo "Summary of connection string used:"
+echo "  DATABASE_URL: $SUPABASE_URL_FINAL"
 echo ""
 echo "Next steps:"
 echo "1. Test your app: pnpm run dev"
 echo "2. Verify data: pnpm prisma studio"
-echo "3. Update Vercel env vars (production & preview):"
-echo "   - Use the same 3 connection strings above"
-echo "   - Session Pooler (port 6543) recommended for migrations"
-echo "   - Transaction Pooler (port 5432) OK for runtime"
+echo "3. Update Vercel env vars (production, preview, & development):"
+echo "   vercel env add DATABASE_URL production"
+echo "   vercel env add DATABASE_URL preview"
+echo "   vercel env add DATABASE_URL development"
+echo ""
+echo "4. Remove old environment variables (if they exist):"
+echo "   vercel env rm DATABASE_URL_UNPOOLED production"
+echo "   vercel env rm SHADOW_DATABASE_URL production"
+echo "   (repeat for preview and development)"
 echo ""
 echo "Backup file saved: $BACKUP_FILE"
 echo "Keep it for a week or two before deleting."
